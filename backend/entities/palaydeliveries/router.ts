@@ -2,12 +2,12 @@ import express, { Request, Response, Router } from 'express';
 // import { v4 } from 'uuid';
 
 import {
-    countDeliveryDetails,
-    createDeliveryDetail,
-    deleteDeliveryDetail,
-    getDeliveryDetail,
-    getDeliveryDetails,
-    updateDeliveryDetail
+    countPalayDeliveries,
+    createPalayDelivery,
+    deletePalayDelivery,
+    getPalayDelivery,
+    getPalayDeliveries,
+    updatePalayDelivery
 } from './db';
 
 export function getRouter(): Router {
@@ -22,22 +22,22 @@ export function getRouter(): Router {
             const limit = Number(req.query.limit ?? -1);
             const offset = Number(req.query.offset ?? 0);
 
-            const deliveryDetails = await getDeliveryDetails(limit, offset);
+            const palayDeliveries = await getPalayDeliveries(limit, offset);
 
-            res.json(deliveryDetails);
+            res.json(palayDeliveries);
         }
     );
 
     router.get('/count', async (_req, res) => {
-        res.json(await countDeliveryDetails());
+        res.json(await countPalayDeliveries());
     });
 
     router.get('/:id', async (req, res) => {
         const { id } = req.params;
 
-        const deliveryDetail = await getDeliveryDetail(Number(id));
+        const palayDelivery = await getPalayDelivery(Number(id));
 
-        res.json(deliveryDetail);
+        res.json(palayDelivery);
     });
 
     router.post(
@@ -48,13 +48,13 @@ export function getRouter(): Router {
         ) => {
             const { driverName, typeOfTranspo, plateNumber } = req.body;
 
-            const deliveryDetail = await createDeliveryDetail({
+            const palayDelivery = await createPalayDelivery({
                 driverName,
                 typeOfTranspo,
                 plateNumber
             });
 
-            res.json(deliveryDetail);
+            res.json(palayDelivery);
         }
     );
 
@@ -62,14 +62,14 @@ export function getRouter(): Router {
     //     const num = Number(req.params.num);
 
     //     for (let i = 0; i < Number(req.params.num); i++) {
-    //         await createDeliveryDetail({
+    //         await createPalayDelivery({
     //             driverName: `lastmjs${v4()}`,
     //             age: i
     //         });
     //     }
 
     //     res.json({
-    //         Success: `${num} deliveryDetails created`
+    //         Success: `${num} palayDeliveries created`
     //     });
     // });
 
@@ -80,7 +80,7 @@ export function getRouter(): Router {
     router.delete('/', async (req: Request<any, any, { id: number }>, res) => {
         const { id } = req.body;
 
-        const deletedId = await deleteDeliveryDetail(id);
+        const deletedId = await deletePalayDelivery(id);
 
         res.json(deletedId);
     });
@@ -94,12 +94,12 @@ async function updateHandler(
 ): Promise<void> {
     const { id, driverName, typeOfTranspo, plateNumber } = req.body;
 
-    const deliveryDetail = await updateDeliveryDetail({
+    const palayDelivery = await updatePalayDelivery({
         id,
         driverName,
         typeOfTranspo,
         plateNumber
     });
 
-    res.json(deliveryDetail);
+    res.json(palayDelivery);
 }

@@ -7,7 +7,7 @@ import {
 } from 'typeorm';
 
 import { getQualitySpec, QualitySpec } from '../qualityspecs/db';
-import { getDeliveryDetail, DeliveryDetail } from '../deliverydetails/db';
+import { getPalayDelivery, PalayDelivery } from '../palaydeliveries/db';
 
 @Entity()
 export class PalayBatch extends BaseEntity {
@@ -18,7 +18,7 @@ export class PalayBatch extends BaseEntity {
     dateReceived: Date;
 
     @Column()
-    quantityKg: number;
+    quantity: number;
 
     @Column()
     qualityType: string;
@@ -39,10 +39,10 @@ export class PalayBatch extends BaseEntity {
     nfaPersonnelId: number;
 
     @Column()
-    deliveryDetailId: number;
+    palayDeliveryId: number;
 
-    @ManyToOne(() => DeliveryDetail)
-    deliveryDetail: DeliveryDetail;
+    @ManyToOne(() => PalayDelivery)
+    palayDelivery: PalayDelivery;
 
     @Column()
     warehouseId: number;
@@ -51,8 +51,8 @@ export class PalayBatch extends BaseEntity {
     status: string;
 }
 
-export type PalayBatchCreate = Pick<PalayBatch, 'dateReceived' | 'quantityKg' | 'qualityType' | 'price' | 'supplierId' | 'nfaPersonnelId' | 'warehouseId' | 'status'> &
-{ qualitySpecId: QualitySpec['id'], deliveryDetailId: DeliveryDetail['id'] }
+export type PalayBatchCreate = Pick<PalayBatch, 'dateReceived' | 'quantity' | 'qualityType' | 'price' | 'supplierId' | 'nfaPersonnelId' | 'warehouseId' | 'status'> &
+{ qualitySpecId: QualitySpec['id'], palayDeliveryId: PalayDelivery['id'] }
 export type PalayBatchUpdate = Pick<PalayBatch, 'id'> & Partial<PalayBatchCreate>;
 
 export async function getPalayBatches(limit: number, offset: number): Promise<PalayBatch[]> {
@@ -61,7 +61,7 @@ export async function getPalayBatches(limit: number, offset: number): Promise<Pa
         skip: offset,
         relations: {
             qualitySpec: true,
-            deliveryDetail: true
+            palayDelivery: true
         }
     });
 }
@@ -73,7 +73,7 @@ export async function getPalayBatch(id: number): Promise<PalayBatch | null> {
         },
         relations: {
             qualitySpec: true,
-            deliveryDetail: true
+            palayDelivery: true
         }
     });
 }
@@ -86,7 +86,7 @@ export async function createPalayBatch(palayBatchCreate: PalayBatchCreate): Prom
     let palayBatch = new PalayBatch();
 
     palayBatch.dateReceived = palayBatchCreate.dateReceived;
-    palayBatch.quantityKg = palayBatchCreate.quantityKg;
+    palayBatch.quantity = palayBatchCreate.quantity;
     palayBatch.qualityType = palayBatchCreate.qualityType;
     palayBatch.price = palayBatchCreate.price;
     palayBatch.supplierId = palayBatchCreate.supplierId;
@@ -105,16 +105,16 @@ export async function createPalayBatch(palayBatchCreate: PalayBatchCreate): Prom
     palayBatch.qualitySpecId = qualitySpec.id;
     palayBatch.qualitySpec = qualitySpec;
 
-    // deliveryDetail
+    // palayDelivery
 
-    const deliveryDetail = await getDeliveryDetail(palayBatchCreate.deliveryDetailId);
+    const palayDelivery = await getPalayDelivery(palayBatchCreate.palayDeliveryId);
 
-    if (deliveryDetail === null) {
+    if (palayDelivery === null) {
         throw new Error(``);
     }
 
-    palayBatch.deliveryDetailId = deliveryDetail.id;
-    palayBatch.deliveryDetail = deliveryDetail;
+    palayBatch.palayDeliveryId = palayDelivery.id;
+    palayBatch.palayDelivery = palayDelivery;
 
     return await palayBatch.save();
 }
@@ -124,7 +124,7 @@ export async function updatePalayBatch(palayBatchUpdate: PalayBatchUpdate): Prom
 
     await PalayBatch.update(palayBatchUpdate.id, {
         dateReceived: palayBatchUpdate.dateReceived,
-        quantityKg: palayBatchUpdate.quantityKg,
+        quantity: palayBatchUpdate.quantity,
         qualityType: palayBatchUpdate.qualityType,
         price: palayBatchUpdate.price,
         supplierId: palayBatchUpdate.supplierId,
