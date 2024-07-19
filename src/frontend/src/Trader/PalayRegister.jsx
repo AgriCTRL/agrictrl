@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
@@ -11,29 +11,24 @@ const statusOptions = [
     { label: 'Rice', value: 'Rice' }
 ];
 
-function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
+function PalayRegister({ visible, onHide, onPalayRegistered }) {
     const [variety, setVariety] = useState('');
     const [status, setStatus] = useState('');
     const [inventory, setInventory] = useState('');
 
-    useEffect(() => {
-        if (selectedPalay) {
-            setVariety(selectedPalay.variety);
-            setStatus(selectedPalay.status);
-            setInventory(selectedPalay.inventory.toString());
-        }
-    }, [selectedPalay]);
+    const handleRegister = () => {
+        const trackingId = Date.now().toString(); // Generate Tracking ID
 
-    const handleUpdate = () => {
-        const updatedPalay = {
-            ...selectedPalay,
+        const newPalay = {
+            id: trackingId, // Assign Tracking ID
             variety,
             status,
             inventory: parseInt(inventory)
         };
 
-        onUpdatePalay(updatedPalay);
+        onPalayRegistered(newPalay);
 
+        // Reset form fields after registration
         setVariety('');
         setStatus('');
         setInventory('');
@@ -42,7 +37,7 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
     };
 
     return (
-        <Dialog visible={visible} onHide={onHide} header="Update Palay" modal style={{ width: '30vw' }}>
+        <Dialog visible={visible} onHide={onHide} header="Register Palay" modal style={{ width: '30vw' }}>
             <div className="p-grid p-nogutter">
                 <div className="p-col-12">
                     <div className="p-inputgroup mb-3">
@@ -71,11 +66,11 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
                         <InputText value={inventory} onChange={(e) => setInventory(e.target.value)} />
                     </div>
 
-                    <Button label="Update" onClick={handleUpdate} className="p-button-success" />
+                    <Button label="Register" onClick={handleRegister} className="p-button-success" />
                 </div>
             </div>
         </Dialog>
     );
 }
 
-export default PalayUpdate;
+export default PalayRegister;
