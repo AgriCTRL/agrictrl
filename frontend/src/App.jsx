@@ -5,7 +5,7 @@ import { Button } from 'primereact/button';
 
 import Register from "./Register";
 import Landing from './Landing';
-import Home from './Trader/Home';
+import Home from './Home';
 import Tracking from './Trader/Tracking';
 import Inventory from './Trader/Inventory';
 import Facilities from './Trader/Facilities';
