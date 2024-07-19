@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Menu } from 'primereact/menu';
 
-function SidebarContent() {
+function SidebarComponent() {
     const navigate = useNavigate();
 
     const items = [
@@ -44,4 +44,4 @@ function SidebarContent() {
     );
 }
 
-export default SidebarContent;
+export default SidebarComponent;

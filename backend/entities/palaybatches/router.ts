@@ -2,6 +2,7 @@ import express, { Request, Response, Router } from 'express';
 // import { v4 } from 'uuid';
 
 import { createQualitySpec } from '../qualityspecs/db';
+import { createPalayDelivery } from '../palaydeliveries/db';
 import {
     countPalayBatches,
     createPalayBatch,
@@ -10,7 +11,6 @@ import {
     getPalayBatches,
     updatePalayBatch
 } from './db';
-import { createDeliveryDetail } from '../deliverydetails/db';
 
 export function getRouter(): Router {
     const router = express.Router();
@@ -47,14 +47,14 @@ export function getRouter(): Router {
     router.post(
         '/',
         async (
-            req: Request<any, any, { dateReceived: Date; quantityKg: number; qualityType: string; price: number; status: string;
+            req: Request<any, any, { dateReceived: Date; quantity: number; qualityType: string; price: number; status: string;
                 moistureContent: number; purity: number; damaged: number;
                 driverName: string, typeOfTranspo: string, plateNumber: string,
                 supplierId: number; nfaPersonnelId: number; warehouseId: number
              }>,
             res
         ) => {
-            const { dateReceived, quantityKg, qualityType, price, status,
+            const { dateReceived, quantity, qualityType, price, status,
                 moistureContent, purity, damaged,
                 driverName, typeOfTranspo, plateNumber,
                 supplierId, nfaPersonnelId, warehouseId } = req.body;
@@ -65,7 +65,7 @@ export function getRouter(): Router {
                 damaged: damaged
             });
 
-            const deliveryDetail = await createDeliveryDetail({
+            const palayDelivery = await createPalayDelivery({
                 driverName: driverName,
                 typeOfTranspo: typeOfTranspo,
                 plateNumber: plateNumber
@@ -73,13 +73,13 @@ export function getRouter(): Router {
 
             const palayBatch = await createPalayBatch({
                 dateReceived,
-                quantityKg,
+                quantity,
                 qualityType,
                 qualitySpecId: qualitySpec.id,
                 price,
                 supplierId,
                 nfaPersonnelId,
-                deliveryDetailId: deliveryDetail.id,
+                palayDeliveryId: palayDelivery.id,
                 warehouseId,
                 status,
             });
@@ -128,14 +128,14 @@ async function updateHandler(
     req: Request<
         any,
         any,
-        { id: number; dateReceived?: Date; quantityKg?: number, qualityType?: string, price?: number; status?: string;
+        { id: number; dateReceived?: Date; quantity?: number, qualityType?: string, price?: number; status?: string;
             supplierId?: number; nfaPersonnelId?: number; warehouseId?: number }
     >,
     res: Response
 ): Promise<void> {
     const { id,
         dateReceived,
-        quantityKg,
+        quantity,
         qualityType,
         price,
         supplierId,
@@ -146,7 +146,7 @@ async function updateHandler(
     const palayBatch = await updatePalayBatch({
         id,
         dateReceived,
-        quantityKg,
+        quantity,
         qualityType,
         price,
         supplierId,
