@@ -5,24 +5,24 @@
                 "backend"
             ],
             "frontend": {
-                "entrypoint": "src/frontend/dist/index.html"
+                "entrypoint": "frontend/dist/index.html"
             },
             "source": [
-                "src/frontend/dist"
+                "frontend/dist"
             ],
             "type": "assets"
         },
         "backend": {
             "type": "custom",
-            "main": "src/backend/backend.ts",
-            "candid": "src/backend/backend.did",
+            "main": "backend/backend.ts",
+            "candid": "backend/backend.did",
             "build": "npx azle backend",
             "wasm": ".azle/backend/backend.wasm",
             "gzip": true,
             "metadata": [
                 {
                     "name": "candid:service",
-                    "path": "src/backend/backend.did"
+                    "path": "backend/backend.did"
                 },
                 {
                     "name": "cdk:name",

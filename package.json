@@ -9,7 +9,7 @@
     },
     "type": "module",
     "workspaces": [
-        "src/frontend",
-        "src/backend"
+        "frontend",
+        "backend"
     ]
 }
