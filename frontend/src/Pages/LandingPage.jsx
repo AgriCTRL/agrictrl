@@ -9,28 +9,55 @@ import 'primeicons/primeicons.css';
 const LandingPage = () => {
     return (
         <AppLayout>
-            <div className="bg-white">
+            <div className="font-poppins">
                 {/* Hero Section */}
-                <section className="bg-green-100 py-20">
-                    <div className="container mx-auto flex flex-col lg:flex-row items-center">
+                <section 
+                    className="relative bg-green-100 h-screen flex items-center bg-cover bg-center" 
+                    style={{ 
+                        backgroundImage: 'url("../../public/Landing-HeroBg.jpg")',
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        backgroundRepeat: 'no-repeat'
+                    }}>
+                    <div className="container mx-auto flex flex-col lg:flex-row items-center relative z-10">
                         {/* Text Section */}
                         <div className="text-center lg:text-left lg:w-1/2">
-                        <p className="mb-2">REVOLUTIONIZING</p>
-                        <h1 className="text-4xl font-bold mb-4">Rice Supply Chain Transparency</h1>
-                        <p className="mb-8">
-                            Empowering farmers, ensuring fair prices, and providing consumers with
-                            peace of mind through blockchain-powered traceability.
-                        </p>
-                        <Button className="p-button-success p-button-rounded mr-4" label="Get Started" />
-                        <Button className="p-button-outlined p-button-success" label="Read More" />
+                            <p className="mb-2 text-custom-green">REVOLUTIONIZING</p>
+                            <h1 className="text-4xl text-white font-bold mb-4">Rice Supply Chain</h1>
+                            <h1 className="text-4xl text-white font-bold mb-4">Transparency</h1>
+                            <p className="mb-8 text-white">
+                                Empowering farmers, ensuring fair prices, and providing consumers with
+                                peace of mind through blockchain-powered traceability.
+                            </p>
+                            <div className='flex flex-row'>
+                                <div className="bg-green-500 p-2 rounded-lg shadow-lg">
+                                    <Button className="p-button-success p-button-rounded text-white" label="Get Started" />
+                                </div>
+                                <div className="p-2 rounded-lg border border-white shadow-lg">
+                                    <Button className="p-button-outlined p-button-success text-white" label="Read More" />
+                                </div>
+                            </div>
+                            
                         </div>
-                            {/* Buttons Section */}
-                            <div className="mt-8 lg:mt-0 lg:w-1/2 flex flex-col items-center lg:items-start space-y-4">
-                            <Button className="p-button-secondary p-button-rounded w-full lg:w-auto" label="Find" icon="pi pi-search" />
-                            <Button className="p-button-secondary p-button-rounded w-full lg:w-auto" label="Buy" icon="pi pi-shopping-cart" />
-                            <div className="bg-gray-300 text-gray-700 px-6 py-3 rounded w-full lg:w-auto">
-                                <h3 className="font-semibold mb-2">Trace your rice</h3>
-                                <p className="text-sm">
+                        {/* Buttons Section */}
+                        <div className="mt-8 lg:mt-0 lg:w-1/2 flex flex-col items-center lg:items-start space-y-4">
+                            <div className="backdrop-blur-sm bg-white/30 rounded-lg p-4 w-full lg:w-auto">
+                                <Button 
+                                className="p-button-text w-full lg:w-auto text-white" 
+                                label="Find" 
+                                icon="pi pi-search" 
+                                />
+                            </div>
+                            <div className="backdrop-blur-sm bg-white/30 rounded-lg p-4 w-full lg:w-auto">
+                                <Button 
+                                className="p-button-text w-full lg:w-auto text-white" 
+                                label="Buy" 
+                                icon="pi pi-shopping-cart" 
+                                />
+                            </div>
+                            <div className="backdrop-blur-sm bg-white/30 rounded-lg p-4 w-full lg:w-auto">
+                                <h3 className="font-semibold mb-2 text-white">Trace your rice</h3>
+                                <p className="text-sm text-white">
                                 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
                                 eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
                                 ad minim veniam, quis nostrud exercitation.
@@ -38,10 +65,15 @@ const LandingPage = () => {
                             </div>
                         </div>
                     </div>
+                    <img
+                        src="../../public/Landing-HeroSection.png"
+                        alt="Decorative"
+                        className="absolute bottom-0 -mb-1 left-0 w-full h-auto z-1"
+                    />
                 </section>
 
                 {/* Features Section */}
-                <section className="py-16">
+                <section className="relative bg-white h-screen">
                 <div className="container mx-auto">
                     <div className="grid grid-cols-2 gap-8">
                     {/* Left side: Search Buttons */}

@@ -7,7 +7,11 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        kanit: ['Kanit']
+        kanit: ['Kanit'],
+        poppins: ['Poppins', 'sans-serif']
+      },
+      colors: {
+        'custom-green': '#00C261'
       }
     },
   },
