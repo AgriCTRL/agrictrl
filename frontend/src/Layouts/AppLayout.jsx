@@ -5,7 +5,7 @@ import { Search } from 'lucide-react';
 
 function UserLayout({ children }) {
     return (
-        <div>
+        <div >
             <div>
                 {/* Header */}
                 <header className="fixed bg-transparent font-poppins text-white p-4 top-2 left-0 w-full z-50">
