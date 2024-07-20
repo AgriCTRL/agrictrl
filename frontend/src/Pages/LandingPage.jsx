@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button } from 'primereact/button';
 import AppLayout from '../Layouts/AppLayout';
+import { Wheat, Search, Coins, Truck } from 'lucide-react';
 
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
@@ -12,51 +13,64 @@ const LandingPage = () => {
             <div className="font-poppins">
                 {/* Hero Section */}
                 <section 
-                    className="relative bg-green-100 h-screen flex items-center bg-cover bg-center" 
+                    className="relative bg-green-100 h-screen flex items-center bg-cover bg-center " 
                     style={{ 
-                        backgroundImage: 'url("../../public/Landing-HeroBg.jpg")',
+                        backgroundImage: 'url("/Landing-HeroBg.jpg")', 
                         backgroundSize: 'cover',
                         backgroundPosition: 'center',
                         backgroundRepeat: 'no-repeat'
-                    }}>
+                    }}> {/* Background image */}
+                    <div className="absolute inset-0 bg-black opacity-40 z-0"></div> {/* Dark overlay */}
                     <div className="container mx-auto flex flex-col lg:flex-row items-center relative z-10">
                         {/* Text Section */}
-                        <div className="text-center lg:text-left lg:w-1/2">
-                            <p className="mb-2 text-custom-green">REVOLUTIONIZING</p>
-                            <h1 className="text-4xl text-white font-bold mb-4">Rice Supply Chain</h1>
-                            <h1 className="text-4xl text-white font-bold mb-4">Transparency</h1>
-                            <p className="mb-8 text-white">
+                        <div className="text-center ml-20 lg:text-left lg:w-1/2 mt-[-8rem]">
+                            <p className="mb-2 text-custom-green font-bold tracking-widest">REVOLUTIONIZING</p>
+                            <h1 className="text-6xl text-white font-bold mb-4">Rice Supply Chain</h1>
+                            <h1 className="text-6xl text-white font-bold mb-4">Transparency</h1>
+                            <p className="mb-8 text-[19px] font-normal leading-[30px] text-left text-white">
                                 Empowering farmers, ensuring fair prices, and providing consumers with
                                 peace of mind through blockchain-powered traceability.
                             </p>
-                            <div className='flex flex-row'>
-                                <div className="bg-green-500 p-2 rounded-lg shadow-lg">
-                                    <Button className="p-button-success p-button-rounded text-white" label="Get Started" />
+                            <div className='flex flex-row '>
+                                <div className="bg-[#00C261]  mr-3 rounded-xl shadow-lg">
+                                    <div className="flex flex-row p-4 px-12">
+                                        <Button className="mx-2 p-button-success p-button-rounded text-white tracking-widest" label="Get Started" />
+                                        <Wheat className="text-white h-5 w-5"/>
+                                    </div>
                                 </div>
-                                <div className="p-2 rounded-lg border border-white shadow-lg">
-                                    <Button className="p-button-outlined p-button-success text-white" label="Read More" />
+                                <div className="rounded-lg border border-white p-3 px-16 shadow-lg  ml-3">
+                                    <Button className=" p-button-outlined p-button-success text-white tracking-widest" label="Read More" />
                                 </div>
                             </div>
                             
                         </div>
                         {/* Buttons Section */}
-                        <div className="mt-8 lg:mt-0 lg:w-1/2 flex flex-col items-center lg:items-start space-y-4">
-                            <div className="backdrop-blur-sm bg-white/30 rounded-lg p-4 w-full lg:w-auto">
-                                <Button 
-                                className="p-button-text w-full lg:w-auto text-white" 
-                                label="Find" 
-                                icon="pi pi-search" 
-                                />
+                        <div className="mt-8 lg:mt-0 lg:w-1/2 flex flex-col items-center lg:items-start space-y-5">
+                            {/* Buy button */}
+                            <div className="relative w-full lg:w-auto translate-x-72 translate-y-24">
+                                <div className="absolute inset-0 bg-white/30 backdrop-blur-sm rounded-lg transform translate-x-10 translate-y-7"></div>
+                                <div className="relative flex flex-col bg-white/30 backdrop-blur-sm rounded-lg px-16 py-10">
+                                    <Coins className="text-white m-1"/>
+                                    <Button className="p-button-text w-full lg:w-auto text-white" label="Buy"/>
+                                </div>
                             </div>
-                            <div className="backdrop-blur-sm bg-white/30 rounded-lg p-4 w-full lg:w-auto">
-                                <Button 
-                                className="p-button-text w-full lg:w-auto text-white" 
-                                label="Buy" 
-                                icon="pi pi-shopping-cart" 
-                                />
+
+                            {/* Find button */}
+                            <div className="relative w-full lg:w-auto -translate-x-5 translate-y-20 z-10">
+                                <div className="absolute inset-0 bg-white/30 backdrop-blur-sm rounded-lg transform -translate-x-10 translate-y-7"></div>
+                                <div className="relative flex flex-col bg-white/30 backdrop-blur-sm rounded-lg px-16 py-10">
+                                    <Search className="text-white m-1"/>
+                                    <Button className="p-button-text w-full lg:w-auto text-white" label="Find"/>
+                                </div>
                             </div>
-                            <div className="backdrop-blur-sm bg-white/30 rounded-lg p-4 w-full lg:w-auto">
-                                <h3 className="font-semibold mb-2 text-white">Trace your rice</h3>
+
+                            {/* Trace your rice section */}
+                            <div className="backdrop-blur-sm ml-40 mr-40 px-10 py-3 pb-20 bg-white/30 rounded-lg w-full lg:w-auto -translate-x-8 z-1">
+                                <div className="flex felx-col">
+                                    <Truck className="text-white mr-2"/>
+                                    <h3 className="font-semibold mb-2 text-white">Trace your rice</h3>
+                                </div>
+                                
                                 <p className="text-sm text-white">
                                 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
                                 eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
@@ -66,9 +80,9 @@ const LandingPage = () => {
                         </div>
                     </div>
                     <img
-                        src="../../public/Landing-HeroSection.png"
+                        src="/Landing-HeroSection.png"
                         alt="Decorative"
-                        className="absolute bottom-0 -mb-1 left-0 w-full h-auto z-1"
+                        className="absolute bottom-0 -mb-1 left-0 w-full h-auto z-10"
                     />
                 </section>
 

@@ -1,24 +1,30 @@
-import React from 'react';
+import { React, useState } from 'react';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
+import { Search } from 'lucide-react';
 
 function UserLayout({ children }) {
     return (
         <div>
-            <div className="main-content min-h-screen">
+            <div>
                 {/* Header */}
-                <header className="bg-transparent text-white p-4 fixed top-0 left-0 w-full z-50">
+                <header className="fixed bg-transparent font-poppins text-white p-4 top-2 left-0 w-full z-50">
                     <div className="container mx-auto flex justify-between items-center">
-                    <div className="text-2xl font-bold">AgriCTRL+</div>
-                    <nav>
-                        <a href="#" className="mx-2">Services</a>
-                        <a href="#" className="mx-2">About Us</a>
-                        <button className="bg-green-500 px-4 py-2 rounded">Login</button>
-                    </nav>
+                        <div className="flex items-center">
+                            <img src="/public/AgriCTRL+Logo.png" alt="AgriCTRL+ Logo" className="h-12 ml-10" />
+                            <div className="text-3xl mx-10 tracking-wider">AgriCTRL+</div>
+                        </div>
+                        <nav className="flex items-center">
+                            <a href="#" className="text-[#00C261] underline underline-offset-4 font-bold mx-6">Home</a>
+                            <a href="#" className="mx-6">Services</a>
+                            <a href="#" className="mx-6">About Us</a>
+                            <Search className="h-6 w-6 mx-6 text-white"/>
+                            <button className="bg-gradient-to-r from-[#005155] to-[#00C261] px-20 py-3 rounded-lg ml-2 mr-20">Login</button>
+                        </nav>
                     </div>
                 </header>
 
-                <main>
+                <main className="main-content min-h-screen">
                     {children}
                 </main>
 
