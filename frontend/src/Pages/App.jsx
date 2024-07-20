@@ -3,64 +3,44 @@ import {
     BrowserRouter as Router,
     Route,
     Routes,
-    useLocation,
     Navigate
 } from "react-router-dom";
-import { Sidebar } from "primereact/sidebar";
-import { Button } from "primereact/button";
 import "primereact/resources/themes/saga-blue/theme.css";
 import "primereact/resources/primereact.min.css";
 import "primeicons/primeicons.css";
 
 import Register from "./Register";
 import LandingPage from "./LandingPage";
-import SidebarComponent from "../Components/SidebarComponent";
-import UserHome from "./Trader/Home"
+import UserHome from "./Trader/Home";
+import UserDashboard from "./Trader/Dashboard";
+import UserTracking from "./Trader/Tracking";
+import UserInventory from "./Trader/Inventory";
+import UserFacilities from "./Trader/Facilities";
+import UserProfile from "./Trader/Profile";
 
 function App() {
-    const [isSidebarVisible, setIsSidebarVisible] = useState(false);
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-    const location = useLocation();
-
-    const isLandingPage = location.pathname === "/";
+    const [isAuthenticated, setIsAuthenticated] = useState(true);
 
     useEffect(() => {
         // Check if user is authenticated
         // TODO: Replace with actual authentication
-        const user = localStorage.getItem("user");
-        setIsAuthenticated(!!user);
+        // const user = localStorage.getItem("user");
+        // setIsAuthenticated(!!user);
     }, []);
 
     return (
         <div className="flex h-screen transition-transform duration-300">
-            {!isLandingPage && (
-            <Sidebar
-                visible={isSidebarVisible}
-                onHide={() => setIsSidebarVisible(false)}
-                className="w-64"
-            >
-                <SidebarComponent />
-            </Sidebar>
-            )}
-            <div
-            className={`flex-grow overflow-auto ${
-                isSidebarVisible && !isLandingPage ? "ml-64" : "ml-0"
-            } transition-margin duration-300`}
-            >
-            {!isLandingPage && (
-                <Button
-                icon="pi pi-bars"
-                onClick={() => setIsSidebarVisible(true)}
-                className="p-button-text m-2"
-                />
-            )}
             <Routes>
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/register" element={<Register />} />
-                <Route path="/trader/*" element={isAuthenticated ? <UserHome /> : <Navigate to="/" />} />
+                <Route path="/trader" element={isAuthenticated ? <UserHome /> : <Navigate to="/" replace />} />
+                <Route path="/trader/dashboard" element={isAuthenticated ? <UserDashboard /> : <Navigate to="/" replace />} />
+                <Route path="/trader/tracking" element={isAuthenticated ? <UserTracking /> : <Navigate to="/" replace />} />
+                <Route path="/trader/inventory" element={isAuthenticated ? <UserInventory /> : <Navigate to="/" replace />} />
+                <Route path="/trader/facilities" element={isAuthenticated ? <UserFacilities /> : <Navigate to="/" replace />} />
+                <Route path="/trader/profile" element={isAuthenticated ? <UserProfile /> : <Navigate to="/" replace />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
-            </div>
         </div>
     );
 }

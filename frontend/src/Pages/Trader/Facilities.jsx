@@ -1,10 +1,11 @@
 import React from 'react';
+import UserLayout from '../../Layouts/UserLayout';
 
 function Facilities() {
     return (
-        <div>
-            <h1>FACILITIES PAGE</h1>
-        </div>
+        <UserLayout activePage="Facilities">
+            <div className='bg-white p-4 rounded'>Facilities</div>
+        </UserLayout>
     );
 
 }

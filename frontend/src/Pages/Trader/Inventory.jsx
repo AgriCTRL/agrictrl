@@ -7,6 +7,7 @@ import { Button } from 'primereact/button';
 
 import PalayRegister from './PalayRegister';
 import PalayUpdate from './PalayUpdate';
+import UserLayout from '../../Layouts/UserLayout';
 
 function Inventory() {
     const [inventoryData, setInventoryData] = useState([]);
@@ -95,7 +96,9 @@ function Inventory() {
     );
 
     return (
-        <div className="p-6">
+        <UserLayout activePage="Inventory">
+            <div className='bg-white p-4 rounded'>Inventory</div>
+
             <DataTable 
                 value={inventoryData} 
                 paginator 
@@ -121,7 +124,7 @@ function Inventory() {
                     onUpdatePalay={handlePalayUpdated} 
                 />
             )}
-        </div>
+        </UserLayout>
     );
 }
 

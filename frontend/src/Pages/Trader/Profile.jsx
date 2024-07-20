@@ -1,10 +1,11 @@
 import React from 'react';
+import UserLayout from '../../Layouts/UserLayout';
 
 function Profile() {
     return (
-        <div>
-            <h1>PROFILE PAGE</h1>
-        </div>
+        <UserLayout activePage="Profile">
+            <div className='bg-white p-4 rounded'>Profile</div>
+        </UserLayout>
     );
 
 }

@@ -6,6 +6,7 @@ import { Card } from 'primereact/card';
 import { Carousel } from 'primereact/carousel';
 import { Button } from 'primereact/button';
 
+import UserLayout from '../../Layouts/UserLayout';
 function Home() {
     const [carouselItems] = React.useState([
         {
@@ -39,59 +40,59 @@ function Home() {
     };
 
     return (
-      <div className="bg-gray-100 min-h-screen">
-        {/* Header */}
-        <header className="bg-white shadow-sm">
-          <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-            <div className="flex-grow mx-8">
-              <span className="p-input-icon-left w-full">
-                <i className="pi pi-search" />
-                <InputText placeholder="Tap to search" className="w-full" />
-              </span>
-            </div>
-            <div className="flex items-center">
-              <i className="pi pi-bell text-gray-600 mr-4 text-xl"></i>
-              <Avatar image="path-to-john-doe-image.jpg" shape="circle" />
-              <div class="flex flex-col ml2">
-                <span className="ml-2">John Doe</span>
-                <span className="ml-2">NFA Procurement</span>
-              </div>
-            </div>
-          </div>
-        </header>
-  
-        {/* Main Content */}
-        <main className="container mx-auto px-4 py-8">
-            {/* Hero Section */}
-            <section className="mb-8">
-                <Carousel 
-                    value={carouselItems} 
-                    numVisible={1} 
-                    numScroll={1} 
-                    className="custom-carousel" 
-                    itemTemplate={carouselTemplate}
-                    showIndicators = {true}
-                    showNavigators={true}
-                    autoplayInterval={5000}
-                />
-            </section>
-    
-            {/* Quick Links */}
-            <section>
-                <h2 className="text-xl font-semibold mb-4">Quick Links</h2>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {['Dashboard', 'Inventory', 'Sales', 'Profile'].map((item, index) => (
-                    <Card key={index} className="shadow-sm">
-                    <div className="flex flex-col items-center">
-                        <i className={`pi ${['pi-th-large', 'pi-box', 'pi-chart-line', 'pi-user'][index]} text-3xl text-green-500 mb-2`}></i>
-                        <span>{item}</span>
+        <UserLayout activePage="Home">
+            {/* 
+            <div className="bg-gray-100 min-h-screen">
+                <header className="bg-white shadow-sm">
+                    <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+                        <div className="flex-grow mx-8">
+                        <span className="p-input-icon-left w-full">
+                            <i className="pi pi-search" />
+                            <InputText placeholder="Tap to search" className="w-full" />
+                        </span>
+                        </div>
+                        <div className="flex items-center">
+                        <i className="pi pi-bell text-gray-600 mr-4 text-xl"></i>
+                        <Avatar image="path-to-john-doe-image.jpg" shape="circle" />
+                        <div class="flex flex-col ml2">
+                            <span className="ml-2">John Doe</span>
+                            <span className="ml-2">NFA Procurement</span>
+                        </div>
+                        </div>
                     </div>
-                    </Card>
-                ))}
-                </div>
-            </section>
-        </main>
-      </div>
+                </header>
+        
+                <main className="container mx-auto px-4 py-8">
+                    <section className="mb-8">
+                        <Carousel 
+                            value={carouselItems} 
+                            numVisible={1} 
+                            numScroll={1} 
+                            className="custom-carousel" 
+                            itemTemplate={carouselTemplate}
+                            showIndicators = {true}
+                            showNavigators={true}
+                            autoplayInterval={5000}
+                        />
+                    </section>
+            
+                    <section>
+                        <h2 className="text-xl font-semibold mb-4">Quick Links</h2>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {['Dashboard', 'Inventory', 'Sales', 'Profile'].map((item, index) => (
+                            <Card key={index} className="shadow-sm">
+                            <div className="flex flex-col items-center">
+                                <i className={`pi ${['pi-th-large', 'pi-box', 'pi-chart-line', 'pi-user'][index]} text-3xl text-green-500 mb-2`}></i>
+                                <span>{item}</span>
+                            </div>
+                            </Card>
+                        ))}
+                        </div>
+                    </section>
+                </main>
+            </div> */}
+            <div className='bg-white p-4 rounded'>Facilities</div>
+        </UserLayout>
     );
   }
   
