@@ -8,7 +8,7 @@ function UserLayout({ children }) {
         <div >
             <div>
                 {/* Header */}
-                <header className="fixed bg-transparent font-poppins text-white p-4 top-2 left-0 w-full z-50">
+                <header className="fixed backdrop-blur-sm font-poppins text-white p-3 left-0 w-full z-50">
                     <div className="container mx-auto flex justify-between items-center">
                         <div className="flex items-center">
                             <img src="/public/AgriCTRL+Logo.png" alt="AgriCTRL+ Logo" className="h-12 ml-10" />

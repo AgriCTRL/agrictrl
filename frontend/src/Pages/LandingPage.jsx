@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from 'primereact/button';
 import AppLayout from '../Layouts/AppLayout';
-import { Wheat, Search, Coins, Truck, Sprout, Microwave, Package } from 'lucide-react';
+import { Wheat, Search, Coins, Truck, Sprout, Microwave, Package, Users, UtensilsCrossed } from 'lucide-react';
 
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
@@ -87,7 +87,7 @@ const LandingPage = () => {
                 </section>
 
                 {/* Features Section */}
-                <section className="relative bg-white h-screen pt-5">
+                <section className="relative bg-white h-screen pt-5 z-0">
                     <div className="container mx-auto">
                         <div className="grid grid-cols-2 grid-rows-1 gap-8 justify-center">
                             {/* Left side: Search Buttons */}
@@ -152,7 +152,7 @@ const LandingPage = () => {
 
                             {/* Right side: Features Section */}
                             <div>
-                                <div className="flex flex-row pt-24">
+                                <div className="flex flex-row pt-10">
                                     <Wheat className="text-[#00C261] h-5 w-5"/>
                                     <p className="text-s text-[#00C261] mb-2 px-2">Features</p>
                                 </div>
@@ -186,80 +186,85 @@ const LandingPage = () => {
                     </div>
                 </section>
 
-
-                {/* Statistics */}
-                <section className="bg-gradient-to-r from-teal-600 to-green-500 text-white py-4">
-                <div className="container mx-auto flex justify-between items-center">
-                    <div className="flex items-center space-x-4">
-                    <i className="pi pi-shopping-bag text-2xl"></i>
-                    <div>
-                        <div className="text-2xl font-bold">0</div>
-                        <div className="text-sm">Rice Tracked</div>
-                    </div>
-                    </div>
-                    <div className="flex items-center space-x-4">
-                    <i className="pi pi-users text-2xl"></i>
-                    <div>
-                        <div className="text-2xl font-bold">0</div>
-                        <div className="text-sm">Farmers</div>
-                    </div>
-                    </div>
-                    <div className="flex items-center space-x-4">
-                    <i className="pi pi-clock text-2xl"></i>
-                    <div>
-                        <div className="text-2xl font-bold">0</div>
-                        <div className="text-sm">Rice Sellers</div>
-                    </div>
-                    </div>
-                    <div className="flex items-center space-x-4">
-                    <i className="pi pi-user text-2xl"></i>
-                    <div>
-                        <div className="text-2xl font-bold">0</div>
-                        <div className="text-sm">Customers</div>
-                    </div>
-                    </div>
-                </div>
-                </section>
-
                 {/* Process Section */}
-                <section className="bg-gray-900 text-white py-16 relative overflow-hidden">
-                <div className="container mx-auto px-4 flex flex-col md:flex-row items-center">
-                    <div className="md:w-1/2 z-10">
-                    <h2 className="text-4xl font-bold mb-6">Transparency With Rice Supply Chain</h2>
-                    <div className="space-y-6">
-                        <div className="flex items-start space-x-4">
-                        <i className="pi pi-chart-line text-green-400 text-2xl mt-1"></i>
-                        <div>
-                            <h3 className="font-semibold text-green-400">Preview Dialer</h3>
-                            <p className="text-gray-300">The world's largest e-store, has returned more than 79% from Oct 28, 2018, to Oct 28, 2020, and more</p>
+                <section className="bg-[#2A2A2A] h-screen text-white relative">
+                    {/* Statistics */}
+                    <section className="bg-gradient-to-r from-[#005155] to-[#00C261] rounded-lg h-40 mx-28 px-10 py-10 z-30 text-white -translate-y-20">
+                        <div className="w-full flex justify-center items-center">
+                            <div className="flex justify-between items-center w-full max-w-4xl">
+                                <div className="flex flex-row items-center">
+                                    <Wheat className="text-white h-14 w-14 mx-2"/>
+                                    <div className="flex flex-col justify-start">
+                                        <div className="text-2xl font-bold">0</div>
+                                        <div className="text-sm">Rice</div>
+                                        <div className="text-sm">Tracked</div>
+                                    </div>
+                                </div>
+                                <div className="flex flex-row items-center">
+                                    <UtensilsCrossed className="text-white h-14 w-14 mx-2"/>
+                                    <div className="flex flex-col justify-start">
+                                        <div className="text-2xl font-bold">0</div>
+                                        <div className="text-sm">Farmers</div>
+                                    </div>
+                                </div>
+                                <div className="flex flex-row items-center">
+                                    <Coins className="text-white h-14 w-14 mx-2"/>
+                                    <div className="flex flex-col justify-start">
+                                        <div className="text-2xl font-bold">0</div>
+                                        <div className="text-sm">Rice</div>
+                                        <div className="text-sm">Sellers</div>
+                                    </div>
+                                </div>
+                                <div className="flex flex-row items-center">
+                                    <Users className="text-white h-14 w-14 mx-2"/>
+                                    <div className="flex flex-col justify-start">
+                                        <div className="text-2xl font-bold">0</div>
+                                        <div className="text-sm">Customers</div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+                    </section>
+
+                    
+                    {/* Process Section */}
+                    <div className="container mx-auto px-4 flex flex-col md:flex-row items-center">
+                        <div className="md:w-1/2 z-10">
+                        <h2 className="text-4xl font-bold mb-6">Transparency With Rice Supply Chain</h2>
+                        <div className="space-y-6">
+                            <div className="flex items-start space-x-4">
+                            <i className="pi pi-chart-line text-green-400 text-2xl mt-1"></i>
+                            <div>
+                                <h3 className="font-semibold text-green-400">Preview Dialer</h3>
+                                <p className="text-gray-300">The world's largest e-store, has returned more than 79% from Oct 28, 2018, to Oct 28, 2020, and more</p>
+                            </div>
+                            </div>
+                            <div className="flex items-start space-x-4">
+                            <i className="pi pi-volume-up text-green-400 text-2xl mt-1"></i>
+                            <div>
+                                <h3 className="font-semibold text-green-400">Text-to-speech</h3>
+                                <p className="text-gray-300">The sole product manufacturer of the group, has returned more than 82% over from Oct 28, 2018, to Oc</p>
+                            </div>
+                            </div>
                         </div>
-                        <div className="flex items-start space-x-4">
-                        <i className="pi pi-volume-up text-green-400 text-2xl mt-1"></i>
-                        <div>
-                            <h3 className="font-semibold text-green-400">Text-to-speech</h3>
-                            <p className="text-gray-300">The sole product manufacturer of the group, has returned more than 82% over from Oct 28, 2018, to Oc</p>
+                        <button className="mt-8 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-full flex items-center">
+                            Get Started
+                            <i className="pi pi-arrow-right ml-2"></i>
+                        </button>
+                        </div>
+                        <div className="md:w-1/2 relative mt-8 md:mt-0">
+                        <div className="grid grid-cols-2 gap-4">
+                            <img src="/path-to-image1.jpg" alt="Rice field" className="rounded-lg shadow-lg"/>
+                            <img src="/path-to-image2.jpg" alt="Farmer" className="rounded-lg shadow-lg mt-8"/>
+                            <img src="/path-to-image3.jpg" alt="Rice plants" className="rounded-lg shadow-lg col-span-2"/>
                         </div>
                         </div>
                     </div>
-                    <button className="mt-8 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-full flex items-center">
-                        Get Started
-                        <i className="pi pi-arrow-right ml-2"></i>
-                    </button>
-                    </div>
-                    <div className="md:w-1/2 relative mt-8 md:mt-0">
-                    <div className="grid grid-cols-2 gap-4">
-                        <img src="/path-to-image1.jpg" alt="Rice field" className="rounded-lg shadow-lg"/>
-                        <img src="/path-to-image2.jpg" alt="Farmer" className="rounded-lg shadow-lg mt-8"/>
-                        <img src="/path-to-image3.jpg" alt="Rice plants" className="rounded-lg shadow-lg col-span-2"/>
-                    </div>
-                    </div>
-                </div>
                 <div className="absolute top-0 right-0 w-64 h-64 bg-green-500 rounded-full filter blur-3xl opacity-20 -translate-y-1/2 translate-x-1/2"></div>
                 </section>
 
                 {/* Testimonials */}
-                <section className="bg-white py-16">
+                <section className="bg-white h-[screen/2] py-16">
                 <div className="container mx-auto px-4">
                     <div className="flex items-center mb-4">
                     <i className="pi pi-chart-line text-green-500 mr-2"></i>
