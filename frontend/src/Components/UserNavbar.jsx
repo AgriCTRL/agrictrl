@@ -5,15 +5,21 @@ import {
 } from 'lucide-react';
 
 import { Avatar } from 'primereact/avatar';
-import { IconField } from 'primereact/iconfield';
-import { InputIcon } from 'primereact/inputicon';
-import { InputText } from 'primereact/inputtext';
+import { ChevronFirst, ChevronLast } from 'lucide-react';
 
-function UserNavbar({ items }) {
+function UserNavbar({ items, expanded, onToggleExpanded }) {
     return (
         <header className="w-full py-10">
             <nav className="flex items-center justify-between">
-                <h1 className="text-3xl font-bold text-primary">{items.title}</h1>
+                <div className='flex items-center gap-10'>
+                    <button
+                        onClick={onToggleExpanded}
+                        className="text-primary" 
+                    >
+                        {expanded? <ChevronFirst size={20} strokeWidth={3}/> : <ChevronLast size={20} strokeWidth={3}/>}
+                    </button>
+                    <h1 className="text-2xl font-bold text-primary">{items.title}</h1>
+                </div>
                 <div className='flex items-center gap-10'>
                     <Bell className="cursor-pointer text-primary" size={20} />
                     <div className='flex items-center gap-4'>

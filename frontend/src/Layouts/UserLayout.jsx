@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from "primereact/button";
 import {
     House,
@@ -45,13 +45,15 @@ const sidebarItems = [
 ];
 
 function UserLayout({ children, activePage }) {
+    const [expanded, setExpanded] = useState(true);
+    const handleToggleExpanded = () => setExpanded(!expanded);
+
     const isItemActive = (text) => {
         return activePage?.toLowerCase() == text.toLowerCase();
     }
-
     return (
         <div className='flex bg-background w-full'>
-            <Sidebar>
+            <Sidebar expanded={expanded}>
                 {sidebarItems.map((item, index) => (
                     <SidebarItem
                         key={index}
@@ -68,6 +70,8 @@ function UserLayout({ children, activePage }) {
                         user_type: 'Trader',
                         title: activePage,
                     }}
+                    expanded={expanded}
+                    onToggleExpanded={handleToggleExpanded}
                 />
                 <main>
                     {children}

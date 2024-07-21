@@ -2,34 +2,24 @@ import React, { useState, useContext, createContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronFirst, ChevronLast } from 'lucide-react';
 import { Button } from 'primereact/button';
+import { Divider } from 'primereact/divider';
 import { LogOut } from 'lucide-react';
-
         
 const SidebarContext = createContext()
-function Sidebar({ children }) {
-    const [expanded, setExpanded] = useState(true);
-
+function Sidebar({ children, expanded }) {
     return (
         <aside className="h-screen">
-            <nav className={`h-full flex flex-col items-center py-6 shadow-sm ${
+            <nav className={`h-full flex flex-col items-center py-6 ${
                 expanded ? 'px-10' : 'pl-4 pr-10'
             }`}>
-                <div className={`flex items-center w-full py-4 ${
-                    expanded ? 'justify-between' : 'justify-center'
-                }`}>
+                <div className="flex items-center justify-center w-full pt-4 pb-10">
                     <img 
-                        src="https://img.logoipsum.com/243.svg" 
-                        className={`overflow-hidden transition-all ${
-                            expanded ? '' : 'w-0'
+                        src="https://img.logoipsum.com/285.svg" 
+                        className={`overflow-hidden transition-all cursor-pointer ${
+                            expanded ? 'w-auto' : 'w-0'
                         }`} 
                         alt="" 
                     />
-                    <button
-                        onClick={() => setExpanded((curr) => !curr)} 
-                        className='p-4 rounded-lg'
-                    >
-                        {expanded? <ChevronFirst /> : <ChevronLast />}
-                    </button>
                 </div>
                 
                 <SidebarContext.Provider value={{ expanded }}>
@@ -37,8 +27,11 @@ function Sidebar({ children }) {
                 </SidebarContext.Provider>
                 
                 <div className='w-full flex flex-col items-center'>
-                    {/* <Divider className='my-4 h-px' /> */}
-                    <hr className='my-4 w-full' />
+                <Divider pt={{ 
+                    root: { 
+                        className: 'bg-primary h-px',
+                    } 
+                }} />
                     <Button className={`relative rounded-md flex text-primary items-center py-4 group ${
                         expanded ? 'w-full px-10 gap-10' : 'px-4 w-fit gap-0'
                     }`} 
