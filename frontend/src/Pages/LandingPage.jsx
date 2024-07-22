@@ -189,78 +189,102 @@ const LandingPage = () => {
                 {/* Process Section */}
                 <section className="bg-[#2A2A2A] h-screen text-white relative">
                     {/* Statistics */}
-                    <section className="bg-gradient-to-r from-[#005155] to-[#00C261] rounded-lg h-40 mx-28 px-10 py-10 z-30 text-white -translate-y-20">
-                        <div className="w-full flex justify-center items-center">
-                            <div className="flex justify-between items-center w-full max-w-4xl">
-                                <div className="flex flex-row items-center">
-                                    <Wheat className="text-white h-14 w-14 mx-2"/>
-                                    <div className="flex flex-col justify-start">
-                                        <div className="text-2xl font-bold">0</div>
-                                        <div className="text-sm">Rice</div>
-                                        <div className="text-sm">Tracked</div>
-                                    </div>
+                    <section className="bg-gradient-to-r from-[#005155] to-[#00C261] 
+                                        rounded-lg h-44 mx-28 z-30 px-10 flex flex-row items-center 
+                                        justify-between align-middle text-white -translate-y-20">
+                        <div className="flex flex-row items-center rounded-lg p-10 relative">
+                            <div className="absolute inset-0 bg-white opacity-20 rounded-lg"></div>
+                            <div className="relative z-10 flex flex-row items-center">
+                                <Wheat className="text-white h-14 w-14 mx-2"/>
+                                <div className="flex flex-col justify-start">
+                                    <div className="text-2xl font-bold">0</div>
+                                    <div className="text-sm">Rice</div>
+                                    <div className="text-sm">Tracked</div>
                                 </div>
-                                <div className="flex flex-row items-center">
-                                    <UtensilsCrossed className="text-white h-14 w-14 mx-2"/>
-                                    <div className="flex flex-col justify-start">
-                                        <div className="text-2xl font-bold">0</div>
-                                        <div className="text-sm">Farmers</div>
-                                    </div>
-                                </div>
-                                <div className="flex flex-row items-center">
-                                    <Coins className="text-white h-14 w-14 mx-2"/>
-                                    <div className="flex flex-col justify-start">
-                                        <div className="text-2xl font-bold">0</div>
-                                        <div className="text-sm">Rice</div>
-                                        <div className="text-sm">Sellers</div>
-                                    </div>
-                                </div>
-                                <div className="flex flex-row items-center">
-                                    <Users className="text-white h-14 w-14 mx-2"/>
-                                    <div className="flex flex-col justify-start">
-                                        <div className="text-2xl font-bold">0</div>
-                                        <div className="text-sm">Customers</div>
-                                    </div>
-                                </div>
+                            </div>
+                        </div>
+                        <div className="flex flex-row items-center p-10">
+                            <UtensilsCrossed className="text-white h-14 w-14 mx-2"/>
+                            <div className="flex flex-col justify-start">
+                                <div className="text-2xl font-bold">0</div>
+                                <div className="text-sm">Farmers</div>
+                            </div>
+                        </div>
+                        <div className="flex flex-row items-center p-10">
+                            <Coins className="text-white h-14 w-14 mx-2"/>
+                            <div className="flex flex-col justify-start">
+                                <div className="text-2xl font-bold">0</div>
+                                <div className="text-sm">Rice</div>
+                                <div className="text-sm">Sellers</div>
+                            </div>
+                        </div>
+                        <div className="flex flex-row items-center p-10">
+                            <Users className="text-white h-14 w-14 mx-2"/>
+                            <div className="flex flex-col justify-start">
+                                <div className="text-2xl font-bold">0</div>
+                                <div className="text-sm">Customers</div>
                             </div>
                         </div>
                     </section>
 
-                    
                     {/* Process Section */}
-                    <div className="container mx-auto px-4 flex flex-col md:flex-row items-center">
-                        <div className="md:w-1/2 z-10">
-                        <h2 className="text-4xl font-bold mb-6">Transparency With Rice Supply Chain</h2>
+                    <div className="container mx-auto px-4 flex flex-col md:flex-row items-center -translate-y-14">
+                        <div className="md:w-1/2 z-10 p-10">
+                        <div className="flex flex-row pb-10">
+                            <Wheat className="text-[#00C261] h-6 w-6"/>
+                            <div className="text-[#00C261] text-md px-6 tracking-widest">What We offer</div>
+                        </div>
+                        <h2 className="text-4xl font-bold">Transparency With Rice</h2>
+                        <h2 className="text-4xl font-bold mb-6">Supply Chain</h2>
                         <div className="space-y-6">
                             <div className="flex items-start space-x-4">
-                            <i className="pi pi-chart-line text-green-400 text-2xl mt-1"></i>
-                            <div>
-                                <h3 className="font-semibold text-green-400">Preview Dialer</h3>
-                                <p className="text-gray-300">The world's largest e-store, has returned more than 79% from Oct 28, 2018, to Oct 28, 2020, and more</p>
-                            </div>
+                                <Sprout className="text-[#00C261] h-12 w-12 -translate-y-2"/>
+                                <div>
+                                    <h3 className="font-semibold text-green-400">Preview Dialer</h3>
+                                    <p className="text-gray-300">The world's largest e-store, has returned more than 79% from Oct 28, 2018, to Oct 28, 2020, and more</p>
+                                </div>
                             </div>
                             <div className="flex items-start space-x-4">
-                            <i className="pi pi-volume-up text-green-400 text-2xl mt-1"></i>
-                            <div>
-                                <h3 className="font-semibold text-green-400">Text-to-speech</h3>
-                                <p className="text-gray-300">The sole product manufacturer of the group, has returned more than 82% over from Oct 28, 2018, to Oc</p>
+                                <Microwave className="text-[#00C261] h-12 w-12 -translate-y-2"/>
+                                <div>
+                                    <h3 className="font-semibold text-green-400">Text-to-speech</h3>
+                                    <p className="text-gray-300">The sole product manufacturer of the group, has returned more than 82% over from Oct 28, 2018, to Oc</p>
+                                </div>
                             </div>
-                            </div>
+                            <div className="bg-white h-[1px]"></div>
                         </div>
-                        <button className="mt-8 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-full flex items-center">
+                        <button className="mt-8 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-lg flex items-center">
                             Get Started
-                            <i className="pi pi-arrow-right ml-2"></i>
+                            <Wheat className="text-white h-5 w-5 mx-2"/>
                         </button>
                         </div>
                         <div className="md:w-1/2 relative mt-8 md:mt-0">
-                        <div className="grid grid-cols-2 gap-4">
-                            <img src="/path-to-image1.jpg" alt="Rice field" className="rounded-lg shadow-lg"/>
-                            <img src="/path-to-image2.jpg" alt="Farmer" className="rounded-lg shadow-lg mt-8"/>
-                            <img src="/path-to-image3.jpg" alt="Rice plants" className="rounded-lg shadow-lg col-span-2"/>
-                        </div>
+                            {/* Farmer 1 */}
+                            <div className="h-32 w-32 relative translate-x-5 translate-y-10 z-50">
+                                <div className="absolute rounded-xl inset-[2px] bg-gradient-to-t opacity-70 from-black to-transparent z-30"></div>
+                                <div className="absolute rounded-xl inset-[2px] z-20 flex justify-center items-center">
+                                    <img src="Landing-Process-Farmer1.png" alt="Centered" className="h-full rounded-xl object-cover" />
+                                </div>
+                                <div className="absolute rounded-xl inset-0 bg-gradient-to-t from-[#00C261] to-black/5 z-10"></div>
+                            </div>
+                            {/* Farmer 2 */}
+                            <div className="h-64 w-96 relative translate-x-32 -translate-y-10">
+                                <div className="absolute rounded-xl inset-[2px] bg-gradient-to-t opacity-70 from-black to-transparent z-30"></div>
+                                <div className="absolute rounded-xl inset-[2px] z-20 flex justify-center items-center">
+                                    <img src="Landing-Process-Farmer2.png" alt="Centered" className="h-full w-full rounded-xl object-cover" />
+                                </div>
+                                <div className="absolute rounded-xl inset-0 bg-gradient-to-t from-[#00C261] to-black/5 z-10"></div>
+                            </div>
+                            {/* Farmer 3 */}
+                            <div className="h-40 w-56 relative -translate-y-20">
+                                <div className="absolute rounded-xl inset-[2px] bg-gradient-to-t opacity-70 from-black to-transparent z-30"></div>
+                                <div className="absolute rounded-xl inset-[2px] z-20 flex justify-center items-center">
+                                    <img src="Landing-Process-Farmer3.png" alt="Centered" className="h-full w-full rounded-xl object-cover" />
+                                </div>
+                                <div className="absolute rounded-xl inset-0 bg-gradient-to-t from-[#00C261] to-black/5 z-10"></div>
+                            </div>
                         </div>
                     </div>
-                <div className="absolute top-0 right-0 w-64 h-64 bg-green-500 rounded-full filter blur-3xl opacity-20 -translate-y-1/2 translate-x-1/2"></div>
                 </section>
 
                 {/* Testimonials */}
