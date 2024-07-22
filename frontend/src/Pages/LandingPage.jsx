@@ -1,13 +1,16 @@
-import React from 'react';
+import { React, useState } from 'react';
 import { Button } from 'primereact/button';
 import AppLayout from '../Layouts/AppLayout';
-import { Wheat, Search, Coins, Truck, Sprout, Microwave, Package, Users, UtensilsCrossed } from 'lucide-react';
+import { Wheat, Search, Coins, Truck, Sprout, Microwave, Package, Users, UtensilsCrossed, Database, MoveRight } from 'lucide-react';
 
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 
 const LandingPage = () => {
+    // Testimonial section
+    const [selectedButton, setSelectedButton] = useState('Farmers');
+
     return (
         <AppLayout>
             <div className="font-poppins">
@@ -285,54 +288,118 @@ const LandingPage = () => {
                             </div>
                         </div>
                     </div>
+                    <img src="Landing-ProcessSection.png" alt="process-section" className="w-full object-cover -translate-y-20" />
                 </section>
 
                 {/* Testimonials */}
-                <section className="bg-white h-[screen/2] py-16">
-                <div className="container mx-auto px-4">
-                    <div className="flex items-center mb-4">
-                    <i className="pi pi-chart-line text-green-500 mr-2"></i>
-                    <span className="text-green-500 font-semibold">Working Process</span>
-                    </div>
-                    <h2 className="text-4xl font-bold mb-8">Transparency With Rice Supply Chain</h2>
-                    
-                    <div className="flex mb-8">
-                    <Button label="Farmers" className="p-button-success mr-2" />
-                    <Button label="Cooperatives" className="p-button-outlined p-button-success mr-2" />
-                    <Button label="Consumers" className="p-button-outlined p-button-success" />
-                    </div>
-                    
-                    <div className="flex">
-                    <div className="w-1/3">
-                        <img src="/path-to-farmer-image.jpg" alt="Farmer" className="w-full" />
-                    </div>
-                    <div className="w-2/3 pl-8">
-                        <div className="flex items-start mb-8">
-                        <div className="bg-blue-100 rounded-lg p-4 mr-4">
-                            <span className="text-blue-600 font-bold text-xl">1</span>
-                            <h3 className="font-semibold">Plant</h3>
-                            <p>Farmers plant and sow rice.</p>
+                <section className="bg-white h-screen py-16">
+                    <div className="container mx-auto px-4">
+                        <div className="flex flex-col justify-center items-center">
+                            <div className="flex items-center mb-4">
+                                <Wheat className="text-[#00C261]"/>
+                                <span className="text-[#00C261] font-semibold">Working Process</span>
+                            </div>  
+                            <h2 className="text-4xl text-[#444444] font-bold mb-8">Transparency With Rice Supply Chain</h2>
+                            
+                            <div className="flex bg-[#F5F5F5] p-3 mb-8 rounded-lg z-50">
+                                {['Farmers', 'Cooperatives', 'Consumers'].map((label) => (
+                                    <Button 
+                                    key={label}
+                                    label={label} 
+                                    className={`mr-2 ${
+                                        selectedButton === label
+                                        ? 'px-8 py-3 tracking-widest bg-gradient-to-r from-[#005155] to-[#00C261] text-white rounded-lg'
+                                        : 'px-14 py-3 tracking-widest'
+                                    }`}
+                                    onClick={() => setSelectedButton(label)}
+                                    />
+                                ))}
+                            </div>
                         </div>
-                        <i className="pi pi-arrow-right text-green-500 text-2xl mt-8"></i>
-                        <div className="bg-green-100 rounded-lg p-4 mr-4">
-                            <span className="text-green-600 font-bold text-xl">2</span>
-                            <h3 className="font-semibold">Store</h3>
-                            <p>Farmers store rice data on the blockchain.</p>
-                        </div>
-                        <i className="pi pi-arrow-right text-green-500 text-2xl mt-8"></i>
-                        <div className="bg-green-100 rounded-lg p-4">
-                            <span className="text-green-600 font-bold text-xl">3</span>
-                            <h3 className="font-semibold">Sell</h3>
-                            <p>Farmers sell their hard earned rice.</p>
-                        </div>
+                        <div className="flex">
+                            {/* Image */}
+                            <div className="w-5/3 h-[800px] -translate-y-64">
+                                <img src="Landing-Testimonials-farmer.png" alt="Farmer with conical hat" className="z-0 h-full w-full object-cover" />
+                            </div>
+
+                            {/* Stats */}
+                            <div className="w-2/3 pl-8">
+                                <div className="flex items-start">
+                                    <div className="flex-1 mr-4">
+                                        <div className="rounded-lg flex flex-col justify-center items-center p-4 mb-4">
+                                            <div className="relative mb-2 z-50">
+                                                <Sprout className="absolute text-[#00C261] h-10 w-10" />
+                                                <MoveRight className="text-[#00C261] h-10 w-10  translate-x-24 translate-y-28"/>
+                                            </div>  
+                                            <div className="shadow-2xl bg-white rounded-lg pl-5 pr-12 pt-3 pb-7 z-40">
+                                                <div className="flex items-center">
+                                                    <div className="">
+                                                        <div className="text-[#00C261] text-4xl font-bold">1</div>
+                                                        <div className="bg-[#00C261] w-6 h-[2px]"></div>
+                                                    </div>
+                                                    <h3 className="text-[#00C261] tracking-wider font-semibold">Plant</h3>
+                                                </div>
+                                                <div className="mb-5">
+                                                    <p className="text-sm">Farmers plant</p>
+                                                    <p className="text-sm">and sow rice.</p>
+                                                </div>
+                                            </div>
+                                            <div className="h-20 w-20 z-0 bg-[#00C261] rounded-lg -translate-x-14 -translate-y-14"></div>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex-1 mr-4">
+                                        <div className="rounded-lg flex flex-col justify-center items-center p-4 mb-4 translate-y-14 -translate-x-6">
+                                            <div className="relative mb-2 z-50">
+                                                <Database className="absolute text-[#00C261] h-10 w-10" />
+                                                <MoveRight className="text-[#00C261] h-10 w-10  translate-x-24 translate-y-24"/>
+                                            </div> 
+                                            <div className="shadow-2xl bg-white rounded-lg pl-5 pr-10 pt-3 pb-5 z-50">
+                                                <div className="flex items-center">
+                                                    <div className="">
+                                                        <div className="text-[#00C261] text-4xl font-bold">2</div>
+                                                        <div className="bg-[#00C261] w-6 h-[2px]"></div>
+                                                    </div>
+                                                    <h3 className="text-[#00C261] tracking-wider font-semibold">Store</h3>
+                                                </div>
+                                                <div className="mb-5">
+                                                    <p className="text-sm">Farmers store</p>
+                                                    <p className="text-sm">rice data on the</p>
+                                                    <p className="text-sm">blockchain</p>
+                                                </div>
+                                            </div>
+                                            <div className="h-20 w-20 z-0 bg-[#00C261] rounded-lg -translate-x-14 -translate-y-14"></div>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex-1 mr-4">
+                                        <div className="rounded-lg flex flex-col justify-center items-center p-4 mb-4 translate-y-24 -translate-x-12">
+                                            <Coins className="text-[#00C261] h-10 w-10 mb-2" />
+                                            <div className="shadow-2xl bg-white rounded-lg pl-5 pr-14 pt-3 pb-5 z-50">
+                                                <div className="flex items-center">
+                                                    <div className="">
+                                                        <div className="text-[#00C261] text-4xl font-bold">3</div>
+                                                        <div className="bg-[#00C261] w-6 h-[2px]"></div>
+                                                    </div>
+                                                    <h3 className="text-[#00C261] tracking-wider font-semibold">Sell</h3>
+                                                </div>
+                                                <div className="mb-5">
+                                                    <p className="text-sm">Farmers sell</p>
+                                                    <p className="text-sm">their hard</p>
+                                                    <p className="text-sm">earned rice.</p>
+                                                </div>
+                                            </div>
+                                            <div className="h-20 w-20 z-0 bg-[#00C261] rounded-lg -translate-x-14 -translate-y-14"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    </div>
-                </div>
-                </section>
+                </section>   
 
                 {/* Company Names */}
-                <section className="bg-gray-800 text-white py-4">
+                <section className="bg-[#2A2A2A] text-white py-4 z-50">
                 <div className="container mx-auto">
                     <div className="flex justify-between">
                     <span>AgriCTRL+</span>
