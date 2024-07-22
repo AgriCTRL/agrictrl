@@ -7,7 +7,7 @@ import {
     Layers,
     Building2,
     User
-} from "lucide-react"
+} from "lucide-react";
 import { Sidebar, SidebarItem } from "../Components/Sidebar";
 import UserNavbar from '../Components/UserNavbar';
 
