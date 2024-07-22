@@ -74,14 +74,30 @@ function Home() {
                 <section className='flex flex-col gap-4'>
                     <p className="font-bold text-black">Quick Links</p>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {['Dashboard', 'Inventory', 'Sales', 'Profile'].map((item, index) => (
-                        <Card key={index} className="shadow-sm">
-                        <div className="flex flex-col items-center">
-                            <i className={`pi ${['pi-th-large', 'pi-box', 'pi-chart-line', 'pi-user'][index]} text-3xl text-green-500 mb-2`}></i>
-                            <span className='font-bold text-primary'>{item}</span>
-                        </div>
+                        <Card className="shadow-sm">
+                            <div className="flex flex-col items-center">
+                                <LayoutDashboard  size={40}/>
+                                <span className='font-bold text-primary'>Dashboard</span>
+                            </div>
                         </Card>
-                    ))}
+                        <Card className="shadow-sm">
+                            <div className="flex flex-col items-center">
+                                <MapPin  size={40}/>
+                                <span className='font-bold text-primary'>Tracking</span>
+                            </div>
+                        </Card>
+                        <Card className="shadow-sm">
+                            <div className="flex flex-col items-center">
+                                <Layers  size={40}/>
+                                <span className='font-bold text-primary'>Inventory</span>
+                            </div>
+                        </Card>
+                        <Card className="shadow-sm">
+                            <div className="flex flex-col items-center">
+                                <Building2  size={40}/>
+                                <span className='font-bold text-primary'>Facilities</span>
+                            </div>
+                        </Card>
                     </div>
                 </section>
             </div>
