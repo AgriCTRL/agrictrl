@@ -74,28 +74,28 @@ function Home() {
                 <section className='flex flex-col gap-4'>
                     <p className="font-bold text-black">Quick Links</p>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <Card className="shadow-sm">
+                        <Card className="shadow-none rounded-md text-primary cursor-pointer">
                             <div className="flex flex-col items-center">
-                                <LayoutDashboard  size={40}/>
-                                <span className='font-bold text-primary'>Dashboard</span>
+                                <LayoutDashboard size={40}/>
+                                <span className='font-bold'>Dashboard</span>
                             </div>
                         </Card>
-                        <Card className="shadow-sm">
+                        <Card className="shadow-none rounded-md text-primary cursor-pointer">
                             <div className="flex flex-col items-center">
-                                <MapPin  size={40}/>
-                                <span className='font-bold text-primary'>Tracking</span>
+                                <MapPin size={40}/>
+                                <span className='font-bold'>Tracking</span>
                             </div>
                         </Card>
-                        <Card className="shadow-sm">
+                        <Card className="shadow-none rounded-md text-primary cursor-pointer">
                             <div className="flex flex-col items-center">
-                                <Layers  size={40}/>
-                                <span className='font-bold text-primary'>Inventory</span>
+                                <Layers size={40}/>
+                                <span className='font-bold'>Inventory</span>
                             </div>
                         </Card>
-                        <Card className="shadow-sm">
+                        <Card className="shadow-none rounded-md text-primary cursor-pointer">
                             <div className="flex flex-col items-center">
-                                <Building2  size={40}/>
-                                <span className='font-bold text-primary'>Facilities</span>
+                                <Building2 size={40}/>
+                                <span className='font-bold'>Facilities</span>
                             </div>
                         </Card>
                     </div>
