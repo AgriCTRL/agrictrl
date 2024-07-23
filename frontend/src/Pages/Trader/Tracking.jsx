@@ -1,10 +1,11 @@
 import React from 'react';
+import UserLayout from '../../Layouts/UserLayout';
 
 function Tracking() {
     return (
-        <div>
-            <h1>TRACKING PAGE</h1>
-        </div>
+        <UserLayout activePage="Tracking">
+            <div className='bg-white p-4 rounded'>Tracking</div>
+        </UserLayout>
     );
 
 }
