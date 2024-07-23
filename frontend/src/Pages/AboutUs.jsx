@@ -5,7 +5,7 @@ function AboutUs() {
     return (
         <AppLayout>
             <div>
-                <h1>About AgriCTRL</h1>
+                <h1>About us na naman!!!</h1>
             </div>
         </AppLayout>
     );
