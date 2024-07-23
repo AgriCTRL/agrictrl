@@ -3,11 +3,13 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Timeline } from 'primereact/timeline';
 import { Tag } from 'primereact/tag';
+import { InputText } from 'primereact/inputtext';
 import { Package, Truck, CheckCircle, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
 
 const TransactionHistory = () => {
   const [transactions, setTransactions] = useState([]);
-  const [expandedRows, setExpandedRows] = useState({});
+  const [expandedRows, setExpandedRows] = useState(null);
+  const [globalFilter, setGlobalFilter] = useState('');
 
   useEffect(() => {
     fetchTransactions();
@@ -18,11 +20,9 @@ const TransactionHistory = () => {
     const mockData = [
       {
         id: 1,
-        carrier: 'DHL Express',
-        trackingNo: '2548576265',
-        orderNo: '#NEP10299',
+        trackingNo: '1',
         status: 'Delivered',
-        statusDetails: 'Delivered. Thank yo...',
+        facility: 'Miller',
         timeline: [
           { status: 'DELIVERED', date: '2022-02-07T12:55:00', location: 'PASIR GUDANG, MY' },
           { status: 'OUT FOR DELIVERY', date: '2022-02-07T10:55:00', location: 'PASIR GUDANG, MY' },
@@ -32,11 +32,9 @@ const TransactionHistory = () => {
       },
       {
         id: 2,
-        carrier: 'DHL Express',
-        trackingNo: '2548576265',
-        orderNo: '#NEP10299',
+        trackingNo: '2',
         status: 'Delivered',
-        statusDetails: 'Delivered. Thank yo...',
+        facility: 'Miller',
         timeline: [
           { status: 'DELIVERED', date: '2022-02-07T12:55:00', location: 'PASIR GUDANG, MY' },
           { status: 'OUT FOR DELIVERY', date: '2022-02-07T10:55:00', location: 'PASIR GUDANG, MY' },
@@ -46,11 +44,9 @@ const TransactionHistory = () => {
       },
       {
         id: 3,
-        carrier: 'DHL Express',
-        trackingNo: '2548576265',
-        orderNo: '#NEP10299',
+        trackingNo: '3',
         status: 'Delivered',
-        statusDetails: 'Delivered. Thank yo...',
+        facility: 'Miller',
         timeline: [
           { status: 'DELIVERED', date: '2022-02-07T12:55:00', location: 'PASIR GUDANG, MY' },
           { status: 'OUT FOR DELIVERY', date: '2022-02-07T10:55:00', location: 'PASIR GUDANG, MY' },
@@ -60,11 +56,9 @@ const TransactionHistory = () => {
       },
       {
         id: 4,
-        carrier: 'DHL Express',
-        trackingNo: '2548576265',
-        orderNo: '#NEP10299',
+        trackingNo: '4',
         status: 'Delivered',
-        statusDetails: 'Delivered. Thank yo...',
+        facility: 'Miller',
         timeline: [
           { status: 'DELIVERED', date: '2022-02-07T12:55:00', location: 'PASIR GUDANG, MY' },
           { status: 'OUT FOR DELIVERY', date: '2022-02-07T10:55:00', location: 'PASIR GUDANG, MY' },
@@ -72,20 +66,7 @@ const TransactionHistory = () => {
           { status: 'PICKED UP BY SHIPPING PARTNER', date: '2022-02-05T05:54:00', location: 'MUAR, MY' },
         ]
       },
-      {
-        id: 5,
-        carrier: 'DHL Express',
-        trackingNo: '2548576265',
-        orderNo: '#NEP10299',
-        status: 'Delivered',
-        statusDetails: 'Delivered. Thank yo...',
-        timeline: [
-          { status: 'DELIVERED', date: '2022-02-07T12:55:00', location: 'PASIR GUDANG, MY' },
-          { status: 'OUT FOR DELIVERY', date: '2022-02-07T10:55:00', location: 'PASIR GUDANG, MY' },
-          { status: 'DEPARTED FROM FACILITY', date: '2022-02-05T06:44:00', location: 'MUAR, MY' },
-          { status: 'PICKED UP BY SHIPPING PARTNER', date: '2022-02-05T05:54:00', location: 'MUAR, MY' },
-        ]
-      },
+      // ...other transactions
     ];
     setTransactions(mockData);
   };
@@ -137,25 +118,26 @@ const TransactionHistory = () => {
     );
   };
 
-  const toggleRow = (e) => {
-    const rowData = e.data;
-    setExpandedRows((prevExpandedRows) => ({
-      ...prevExpandedRows,
-      [rowData.id]: !prevExpandedRows[rowData.id]
-    }));
+  const toggleRow = (rowData) => {
+    setExpandedRows((prevExpandedRows) => {
+      if (prevExpandedRows && prevExpandedRows[rowData.id]) {
+        return {};
+      }
+      return { [rowData.id]: true };
+    });
   };
 
   const rowExpansionTemplate = (data) => {
-    return expandedRows[data.id] ? expandedContent(data) : null;
+    return expandedRows && expandedRows[data.id] ? expandedContent(data) : null;
   };
 
   const expansionBodyTemplate = (rowData) => {
     return (
       <button
-        onClick={() => toggleRow({ data: rowData })}
+        onClick={() => toggleRow(rowData)}
         className="p-2 rounded-full hover:bg-gray-200"
       >
-        {expandedRows[rowData.id] ? (
+        {expandedRows && expandedRows[rowData.id] ? (
           <ChevronUp className="w-5 h-5" />
         ) : (
           <ChevronDown className="w-5 h-5" />
@@ -164,22 +146,36 @@ const TransactionHistory = () => {
     );
   };
 
+  const header = (
+    <div className="flex justify-between items-center">
+      <h2 className="text-xl font-bold">Transaction History</h2>
+      <span className="p-input-icon-left">
+        <i className="pi pi-search" />
+        <InputText
+          type="search"
+          onInput={(e) => setGlobalFilter(e.target.value)}
+          placeholder="Search Batch No."
+        />
+      </span>
+    </div>
+  );
+
   return (
     <div className="p-4 w-screen h-screen">
       <DataTable
         value={transactions}
         expandedRows={expandedRows}
         rowExpansionTemplate={rowExpansionTemplate}
-        onRowToggle={toggleRow}
         dataKey="id"
         className="p-datatable-sm"
+        header={header}
+        globalFilter={globalFilter}
+        emptyMessage="No transactions found."
       >
         <Column body={expansionBodyTemplate} style={{ width: '3em' }} />
-        <Column field="carrier" header="Carrier" />
-        <Column field="trackingNo" header="Batch No." />
-        <Column field="orderNo" header="Transaction ID" />
+        <Column field="trackingNo" header="Batch No." filter filterPlaceholder="Search Batch No." />
         <Column field="status" header="Status" body={statusBodyTemplate} />
-        <Column field="statusDetails" header="Latest Details" />
+        <Column field="facility" header="Facility" />
       </DataTable>
     </div>
   );
