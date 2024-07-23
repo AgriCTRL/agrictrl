@@ -1,20 +1,5 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-<<<<<<< HEAD
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
-  theme: {
-    extend: {
-      fontFamily: {
-        kanit: ['Kanit'],
-        poppins: ['Poppins', 'sans-serif']
-      },
-      colors: {
-        'custom-green': '#00C261'
-      }
-=======
     content: [
         "./index.html",
         "./src/**/*.{js,ts,jsx,tsx}",
@@ -31,10 +16,10 @@ export default {
                 'tag-grey': '#ECECEC',
             },
             fontFamily: {
-                kanit: ['Kanit']
+                kanit: ['Kanit'],
+                poppins: ['Poppins', 'sans-serif']
             }
         },
->>>>>>> main
     },
     plugins: [],
 }

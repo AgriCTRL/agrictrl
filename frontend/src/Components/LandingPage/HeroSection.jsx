@@ -16,7 +16,7 @@ const HeroSection = () => {
                 <div className="container mx-auto flex flex-col lg:flex-row items-center relative">
                     {/* Text Section */}
                     <div className="text-center ml-20 lg:text-left lg:w-1/2 mt-[-8rem] relative z-50">
-                        <p className="mb-2 text-custom-green font-bold tracking-widest">REVOLUTIONIZING</p>
+                        <p className="mb-2 text-primary font-bold tracking-widest">REVOLUTIONIZING</p>
                         <h1 className="text-6xl text-white font-bold mb-4">Rice Supply Chain</h1>
                         <h1 className="text-6xl text-white font-bold mb-4">Transparency</h1>
                         <p className="mb-8 text-[19px] font-normal leading-[30px] text-left text-white">
