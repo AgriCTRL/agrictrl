@@ -5,9 +5,6 @@ import {
     Routes,
     Navigate
 } from "react-router-dom";
-import "primereact/resources/themes/saga-blue/theme.css";
-import "primereact/resources/primereact.min.css";
-import "primeicons/primeicons.css";
 
 import Register from "./Register";
 import LandingPage from "./LandingPage";
