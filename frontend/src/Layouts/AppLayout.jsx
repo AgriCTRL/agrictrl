@@ -11,7 +11,7 @@ function UserLayout({ children }) {
                 <header className="fixed backdrop-blur-sm font-poppins text-white p-3 left-0 w-full z-50">
                     <div className="container mx-auto flex justify-between items-center">
                         <div className="flex items-center">
-                            <img src="/public/AgriCTRL+Logo.png" alt="AgriCTRL+ Logo" className="h-12 ml-10" />
+                            <img src="AgriCTRL+Logo.png" alt="AgriCTRL+ Logo" className="h-12 ml-10" />
                             <div className="text-3xl mx-10 tracking-wider">AgriCTRL+</div>
                         </div>
                         <nav className="flex items-center">
@@ -29,11 +29,11 @@ function UserLayout({ children }) {
                 </main>
 
                 {/* Footer */}
-                <footer className="bg-gray-900 text-white py-28">
+                <footer className="bg-gray-900 text-white py-12">
                     <div className="flex flex-row justify-between mx-24 px-4">
                             <div className="">
                                 <div className="flex items-center mb-4">
-                                    <img src="/public/AgriCTRL+Logo.png" alt="AgriCTRL+ Logo" className="h-12 mr-2" />
+                                    <img src="AgriCTRL+Logo.png" alt="AgriCTRL+ Logo" className="h-12 mr-2" />
                                     <h3 className="text-xl font-bold">AgriCTRL+</h3>
                                 </div>
                                 <p className="text-sm text-gray-400">Propose mes services de plombier et petits travaux</p>
@@ -64,12 +64,11 @@ function UserLayout({ children }) {
                                 </div>
                             </div> 
                     </div>
+                    {/* Copyright  */}
+                    <div className="bg-gray-900 text-gray-400 text-center pb-4 text-sm">
+                        <p>Propose mes services de plombier et petits travaux</p>
+                    </div>
                 </footer>
-
-                {/* Copyright  */}
-                <div className="bg-gray-900 text-gray-400 text-center py-4 text-sm">
-                    <p>Propose mes services de plombier et petits travaux</p>
-                </div>
             </div>
         </div>
     );
