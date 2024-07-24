@@ -9,7 +9,7 @@ import {
     Building2,
     Wheat,
 } from "lucide-react";
-import UserLayout from '../../Layouts/UserLayout';
+import UserLayout from '@/Layouts/UserLayout';
 function Home() {
     const [carouselItems] = React.useState([
         {

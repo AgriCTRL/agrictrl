@@ -1,5 +1,5 @@
 import React from 'react';
-import AppLayout from '../Layouts/AppLayout';
+import AppLayout from '@/Layouts/AppLayout';
 
 function AboutUs() {
     return (

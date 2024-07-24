@@ -5,8 +5,14 @@ export class NfaPersonnel extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
+    @Column({ unique: true })
+    principal: string;
+
     @Column()
-    name: string;
+    firstName: string;
+
+    @Column()
+    lastName: string;
 
     @Column()
     position: string;
@@ -15,7 +21,7 @@ export class NfaPersonnel extends BaseEntity {
     region: string;
 }
 
-export type NfaPersonnelCreate = Pick<NfaPersonnel, 'name' | 'position' | 'region'>;
+export type NfaPersonnelCreate = Pick<NfaPersonnel, 'principal' | 'firstName' | 'lastName' | 'position' | 'region'>;
 export type NfaPersonnelUpdate = Pick<NfaPersonnel, 'id'> & Partial<NfaPersonnelCreate>;
 
 export async function getNfaPersonnels(limit: number, offset: number): Promise<NfaPersonnel[]> {
@@ -31,6 +37,13 @@ export async function getNfaPersonnel(id: number): Promise<NfaPersonnel | null> 
             id
         }
     });
+
+}export async function getPrincipal(principal: string): Promise<NfaPersonnel | null> {
+    return await NfaPersonnel.findOne({
+        where: {
+            principal
+        }
+    });
 }
 
 export async function countNfaPersonnels(): Promise<number> {
@@ -40,7 +53,9 @@ export async function countNfaPersonnels(): Promise<number> {
 export async function createNfaPersonnel(nfaPersonnelCreate: NfaPersonnelCreate): Promise<NfaPersonnel> {
     let nfaPersonnel = new NfaPersonnel();
 
-    nfaPersonnel.name = nfaPersonnelCreate.name;
+    nfaPersonnel.principal = nfaPersonnelCreate.principal;
+    nfaPersonnel.firstName = nfaPersonnelCreate.firstName;
+    nfaPersonnel.lastName = nfaPersonnelCreate.lastName;
     nfaPersonnel.position = nfaPersonnelCreate.position;
     nfaPersonnel.region = nfaPersonnelCreate.region;
 
@@ -49,7 +64,8 @@ export async function createNfaPersonnel(nfaPersonnelCreate: NfaPersonnelCreate)
 
 export async function updateNfaPersonnel(nfaPersonnelUpdate: NfaPersonnelUpdate): Promise<NfaPersonnel> {
     await NfaPersonnel.update(nfaPersonnelUpdate.id, {
-        name: nfaPersonnelUpdate.name,
+        firstName: nfaPersonnelUpdate.firstName,
+        lastName: nfaPersonnelUpdate.lastName,
         position: nfaPersonnelUpdate.position,
         region: nfaPersonnelUpdate.region
     });

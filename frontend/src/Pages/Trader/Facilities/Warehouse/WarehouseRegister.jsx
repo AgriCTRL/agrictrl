@@ -16,7 +16,7 @@ function WarehouseRegister({ visible, onHide, onWarehouseRegistered }) {
             warehouseName,
             capacity,
             location
-        };
+        }; 
 
         onWarehouseRegistered(newWarehouse);
 
