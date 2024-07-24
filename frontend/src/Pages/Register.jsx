@@ -36,8 +36,12 @@ const RegistrationPage = () => {
             </div>
             
             <div className="">
-                <label htmlFor="email" className="block mb-1">Position</label>
-                <InputText id="email" placeholder="enter your position" className="Normal border rounded-lg w-[48%] h-10 pl-3 pr-3 mt-2" />
+                <label className="block mb-1">Position</label>
+                <InputText id="position" placeholder="enter your position" className="Normal border rounded-lg w-[48%] h-10 pl-3 pr-3 mt-2" />
+            </div>
+            <div className="">
+                <label className="block mb-1">Region</label>
+                <InputText id="region" placeholder="enter your region" className="Normal border rounded-lg w-[48%] h-10 pl-3 pr-3 mt-2" />
             </div>
             <Button label="Register" className="ml-[450px] w-40 h-8 text-white bg-[#005155] border-[#005155] hover:bg-teal-700" />
         </form>
