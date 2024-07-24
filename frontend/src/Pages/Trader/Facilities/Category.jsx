@@ -5,19 +5,35 @@ import {
     Warehouse,
     Factory,
 } from "lucide-react";
-import UserLayout from '../../../Layouts/UserLayout';
+import UserLayout from '../../../Layouts/UserLayout'
+
+import WarehouseComponent from './Warehouse/WarehouseFacility';
+import DryerComponent from './Dryer/DryerFacility';
+import MillerComponent from './Miller/MillerFacility';
 
 function Category() {
-
     const [selectedCard, setSelectedCard] = useState(null);
 
     const handleCardClick = (cardId) => {
         setSelectedCard(cardId);
     };
 
+    const renderSelectedComponent = () => {
+        switch(selectedCard) {
+            case 'warehouse':
+                return <WarehouseComponent />;
+            case 'dryer':
+                return <DryerComponent />;
+            case 'miller':
+                return <MillerComponent />;
+            default:
+                return null;
+        }
+    };
+
     return (
         <UserLayout activePage="Facilities">
-            <div className='bg-white p-4 rounded'>
+            <div className='bg-white p-3 rounded'>
                 <section className='flex flex-col gap-4'>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                         <Card
@@ -52,10 +68,15 @@ function Category() {
                         </Card>
                     </div>
                 </section>
+
+                {selectedCard && (
+                    <section className="mt-4">
+                        {renderSelectedComponent()}
+                    </section>
+                )}
             </div>
         </UserLayout>
     );
-
 }
 
 export default Category;
