@@ -55,7 +55,7 @@ const RegistrationPage = () => {
         <div className="relative w-full z-10 p-8 text-white">
           <h2 className="text-3xl font-bold mb-6 flex justify-center items-center">Registration</h2>
           <div className="flex justify-center items-center pt-96">
-            <img src="AgriCTRL+Logo.png" alt="AgriCTRL+ Logo" className="h-12 mr-2" />
+            <img src="AgriCTRLLogo.png" alt="AgriCTRL+ Logo" className="h-12 mr-2" />
             <span className="text-2xl font-bold">AgriCTRL+</span>
           </div>
         </div>

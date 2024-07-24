@@ -38,7 +38,7 @@ function UserLayout({ children }) {
                 <header className="fixed backdrop-blur-sm font-poppins text-white p-3 left-0 w-full z-50">
                     <div className="container mx-auto flex justify-between items-center">
                         <div className="flex items-center">
-                            <img src="AgriCTRL+Logo.png" alt="AgriCTRL+ Logo" className="h-12 ml-10" />
+                            <img src="AgriCTRLLogo.png" alt="AgriCTRL+ Logo" className="h-12 ml-10" />
                             <div className="text-3xl mx-10 tracking-wider">AgriCTRL+</div>
                         </div>
                         <nav className="flex items-center">
@@ -60,7 +60,7 @@ function UserLayout({ children }) {
                     <div className="flex flex-row justify-between mx-24 px-4">
                             <div className="">
                                 <div className="flex items-center mb-4">
-                                    <img src="AgriCTRL+Logo.png" alt="AgriCTRL+ Logo" className="h-12 mr-2" />
+                                    <img src="AgriCTRLLogo.png" alt="AgriCTRL+ Logo" className="h-12 mr-2" />
                                     <h3 className="text-xl font-bold">AgriCTRL+</h3>
                                 </div>
                                 <p className="text-sm text-gray-400">Propose mes services de plombier et petits travaux</p>
