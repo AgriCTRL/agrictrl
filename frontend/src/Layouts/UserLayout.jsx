@@ -46,7 +46,7 @@ const sidebarItems = [
 ];
 
 function UserLayout({ children, activePage }) {
-    const [name, setName] = useState('John Doe')
+    const [name, setName] = useState('')
 
     useEffect(() => {
         const fetchUser = async() => {
@@ -58,7 +58,7 @@ function UserLayout({ children, activePage }) {
                     method: 'GET',
                     headers: {'Content-Type': 'application/json'}
                 });
-                const data = res.json;
+                const data = await res.json();
                 setName(data.firstName);
             }
             catch (error) {
