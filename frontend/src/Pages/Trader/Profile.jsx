@@ -1,14 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import UserLayout from '@/Layouts/UserLayout';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
+import { AuthClient } from "@dfinity/auth-client";
 
 function Profile() {
-    const [name, setName] = useState('John Doe'); // Replace with actual user name
-    const [position, setPosition] = useState('Trader');
-    const [region, setRegion] = useState('North America');
+    const [id, setId] = useState('');
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [position, setPosition] = useState('');
+    const [region, setRegion] = useState('');
     const [editingPosition, setEditingPosition] = useState(false);
     const [editingRegion, setEditingRegion] = useState(false);
+
+    useEffect(() => {
+        const fetchUser = async() => {
+            try {
+                const authClient = await AuthClient.create();
+                const identity = authClient.getIdentity();
+                const principal = identity.getPrincipal().toText();
+                const res = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/nfapersonnels/principal/${principal}`, {
+                    method: 'GET',
+                    headers: {'Content-Type': 'application/json'}
+                });
+                const data = await res.json();
+                setId(data.id)
+                setFirstName(data.firstName);
+                setLastName(data.lastName);
+                setPosition(data.position);
+                setRegion(data.region);
+            }
+            catch (error) {
+                console.log(error.message)
+            }
+        };
+        fetchUser();
+    }, []);
 
     const handleEdit = (field) => {
         if (field === 'position') {
@@ -18,19 +45,39 @@ function Profile() {
         }
     };
 
-    const handleSave = () => {
-        // Implement save functionality here
-        console.log('Saving profile...');
-        // Reset editing states
-        setEditingPosition(false);
-        setEditingRegion(false);
-    };
+    const handleSave = async(e) => {
+        e.preventDefault();
+
+        const user = {
+            id,
+            position,
+            region
+        };
+
+        try {
+            const res = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/nfapersonnels`, {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(user)
+            });
+            if(!res.ok) {
+                throw new Error('Failed to update')
+            }
+            const data = await res.json();
+            console.log('User updated: ', data);
+            setEditingPosition(false);
+            setEditingRegion(false);
+        }
+        catch (error) {
+            console.log(error);
+        }
+    }
 
     return (
         <UserLayout activePage="Profile">
             <div className='bg-white p-6 rounded mb-5 min-h-[calc(100vh-160px)]'>
                 <div className='bg-gradient-to-r from-[#00C261] to-[#005155] text-white p-4 py-10 mb-6 rounded'>
-                    <h1 className='text-4xl font-bold break-words'>Welcome {name}!</h1>
+                    <h1 className='text-4xl font-bold break-words'>Welcome {firstName} {lastName}!</h1>
                 </div>
                 
                 <div className='mb-4'>
