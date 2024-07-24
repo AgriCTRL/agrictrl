@@ -1,143 +1,95 @@
-import React from 'react';
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { InputText } from 'primereact/inputtext';
+import { Button } from 'primereact/button';
+import { AuthClient } from "@dfinity/auth-client";
 
-const Register = () => {
-    const [username, setUsername] = useState('');
-    const [age, setAge] = useState('');
-    const [id, setId] = useState('');
+const RegistrationPage = () => {
+  const [principal, setPrincipal] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastname] = useState('');
+  const [position, setPosition] = useState('');
+  const [region, setRegion] = useState('');
 
-    const handlePrev = async (e) => {
-        e.preventDefault();
-        try {
-            const request = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/users/${id - 1}`, {
-                method: 'GET',
-                headers: {'Content-Type': 'application/json'}
-            });
-
-            const result = await request.json();
-            setId(result.id);
-            setUsername(result.username);
-            setAge(result.age);
+  useEffect(() => {
+    const fetchPrincipal = async () => {
+      const authClient = await AuthClient.create();
+      const identity = authClient.getIdentity();
+      const principal = identity.getPrincipal().toText();
+      setPrincipal(principal);
+    };
+    fetchPrincipal();
+  }, [])
+  
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    const nfaPersonnel = {
+        principal,  
+        firstName,
+        lastName,
+        position,
+        region,
+    };
+    try {
+        const res = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/nfapersonnels', {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(nfaPersonnel)
+        });
+        if(!res.ok) {
+            throw new Error('Error registering user')
         }
-        catch (error) {
-            console.error('Error: ', error)
-        }
+        window.location.reload();
     }
-
-    const handleNext = async (e) => {
-        e.preventDefault();
-        try {
-            const request = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/users/${id + 1}`, {
-                method: 'GET',
-                headers: {'Content-Type': 'application/json'}
-            });
-
-            const result = await request.json();
-            setId(result.id);
-            setUsername(result.username);
-            setAge(result.age);
-        }
-        catch (error) {
-            console.error('Error: ', error)
-        }
+    catch (error) {
+        console.log(error.message)
     }
+  }
 
-    const handleCreate = async (e) => {
-        e.preventDefault();
+  return (
+    <div className="font-poppins flex h-screen w-screen bg-gray-100">
+      {/* Left side with background image */}
+      <div className="hidden md:flex md:w-[30%] bg-green-500 relative rounded-2xl mx-5 my-14 ">
+        <div className="absolute inset-0 rounded-2xl bg-cover bg-center" style={{backgroundImage: "url('Registration-leftBG.png')"}}>
+          <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-[#005155] to-[#00C26100]/5"></div>
+        </div>
+        <div className="relative w-full z-10 p-8 text-white">
+          <h2 className="text-3xl font-bold mb-6 flex justify-center items-center">Registration</h2>
+          <div className="flex justify-center items-center pt-96">
+            <img src="AgriCTRLLogo.png" alt="AgriCTRL+ Logo" className="h-12 mr-2" />
+            <span className="text-2xl font-bold">AgriCTRL+</span>
+          </div>
+        </div>
+      </div>
 
-        const user = {
-            username,
-            age: Number(age),
-        };
-
-        try {
-            const response = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/users', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(user)
-            });
-
-            const result = await response.json();
-            console.log('User created: ', result);
-            setId(result.id);
-        }
-        catch (error) {
-            console.error('Error: ', error)
-        }
-    }
-
-    const handleReset = () => {        
-        setId('');
-        setUsername('');
-        setAge('');
-    }
-
-    const handleUpdate = async (e) => {
-        e.preventDefault();
-
-        const user = {
-            id: Number(id),
-            username,
-            age: Number(age),
-        };
-
-        try {
-            const response = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/users`, {
-                method: 'PUT',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(user)
-            });
-
-            const result = await response.json();
-            console.log('User updated: ', result);
-        }
-        catch (error) {
-            console.error('Error: ', error);
-        }
-    }
-
-    const handleDelete = async (e) => {
-        e.preventDefault();
-
-        try {
-            const response = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/users`, {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: Number(id) })
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to delete user');
-            }
-
-            console.log('User deleted');
-            handleReset();
-        }
-        catch (error) {
-            console.error('Error: ', error);
-        }
-    }
-
-return (
-    <div className="bg-blue-400 w-fit p-5 flex mx-auto flex-col items-center">
-        <form action="#" className='flex flex-col items-center'>
-            <p className="text-2xl">User Table</p>
-            <input type="text" readOnly value={id}/>
-            <input className='mt-5' type="text" placeholder='Username' value={username} onChange={(e) => setUsername(e.target.value)}/>
-            <input className='mt-5' type="text" placeholder='Age' value={age} onChange={(e) => setAge(e.target.value)}/>
-            <div className='mt-10'>
-                <button className='bg-white mr-5 px-5 rounded-full' onClick={handlePrev}>Previous</button>
-                <button className='bg-white mr-5 px-5 rounded-full' onClick={handleNext}>Next</button>
-                <button className='bg-white mr-5 px-5 rounded-full' onClick={handleUpdate}>Update</button>
-                <button className='bg-white mr-5 px-5 rounded-full' onClick={handleDelete}>Delete</button>
+      {/* Right side with form */}
+      <div className="w-full md:w-1/2 p-8 flex flex-col justify-center">
+        <h2 className="text-2xl font-bold text-[#005155] mb-6">Personal Information</h2>
+        <p className="mb-6 text-gray-600">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam auctor nisi eget.</p>
+        <form onSubmit={ handleRegister } className="space-y-4 flex flex-col">
+            <div className="flex flex-row mb-10">
+                <div className="mr-5">
+                    <label htmlFor="firstName" className="">First Name</label>
+                    <InputText value={firstName} onChange={(e) => setFirstName(e.target.value)} id="firstName" placeholder="enter your first name" className="Normal border rounded-lg w-full h-10 pl-3 pr-3 mt-2" />
+                </div>
+                <div>
+                    <label htmlFor="lastName" className="">Last Name</label>
+                    <InputText value={lastName} onChange={(e) => setLastname(e.target.value)} id="lastName" placeholder="enter your last name" className="Normal border rounded-lg w-full h-10 pl-3 pr-3 mt-2" />
+                </div>
             </div>
-            <div className='mt-5'>
-                <button className='bg-white mr-5 px-5 rounded-full' onClick={handleReset}>New</button>
-                <button className='bg-white mr-5 px-5 rounded-full' onClick={handleCreate}>Create</button>
+            
+            <div className="">
+                <label className="block mb-1">Position</label>
+                <InputText value={position} onChange={(e) => setPosition(e.target.value)} id="position" placeholder="enter your position" className="Normal border rounded-lg w-[48%] h-10 pl-3 pr-3 mt-2" />
             </div>
+            <div className="">
+                <label className="block mb-1">Region</label>
+                <InputText value={region} onChange={(e) => setRegion(e.target.value)} id="region" placeholder="enter your region" className="Normal border rounded-lg w-[48%] h-10 pl-3 pr-3 mt-2" />
+            </div>
+            <Button label="Register" className="ml-[450px] w-40 h-8 text-white bg-[#005155] border-[#005155] hover:bg-teal-700" />
         </form>
+      </div>
     </div>
-);
-}
- 
-export default Register;
+  );
+};
+
+export default RegistrationPage;

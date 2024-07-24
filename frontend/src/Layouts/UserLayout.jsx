@@ -8,8 +8,8 @@ import {
     Building2,
     User
 } from "lucide-react";
-import { Sidebar, SidebarItem } from "../Components/Sidebar";
-import UserNavbar from '../Components/UserNavbar';
+import { Sidebar, SidebarItem } from "@/components/Sidebar";
+import UserNavbar from '@/components/UserNavbar';
 
 const sidebarItems = [
     { 
@@ -35,7 +35,7 @@ const sidebarItems = [
     { 
         icon: <Building2 size={20} />, 
         text: 'Facilities', 
-        link: '/trader/facilities' 
+        link: '/trader/facilities/category' 
     },
     { 
         icon: <User size={20} />, 
@@ -43,7 +43,7 @@ const sidebarItems = [
         link: '/trader/profile' 
     },
 ];
-
+ 
 function UserLayout({ children, activePage }) {
     const [expanded, setExpanded] = useState(true);
     const handleToggleExpanded = () => setExpanded(!expanded);
