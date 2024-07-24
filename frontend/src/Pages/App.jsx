@@ -15,8 +15,8 @@ import UserTracking from "./Trader/Tracking";
 import UserInventory from "./Trader/Inventory";
 import UserFacilities from "./Trader/Facilities/Category";
 import UserProfile from "./Trader/Profile";
+import TransactionHistory from "./Trader/TransactionHistory";
 import { AuthClient } from "@dfinity/auth-client";
-
 
 function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -65,6 +65,7 @@ function App() {
                 <Route path="/trader/inventory" element={isAuthenticated ? <UserInventory /> : <Navigate to="/" replace />} />
                 <Route path="/trader/facilities/category" element={isAuthenticated ? <UserFacilities /> : <Navigate to="/" replace />} />
                 <Route path="/trader/profile" element={isAuthenticated ? <UserProfile /> : <Navigate to="/" replace />} />
+                <Route path="/trader/history" element={isAuthenticated ? <TransactionHistory /> : <Navigate to="/" replace />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
         </div>

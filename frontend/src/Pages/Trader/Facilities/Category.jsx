@@ -1,11 +1,11 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import { Card } from 'primereact/card';
 import {
     Building2,
     Warehouse,
     Factory,
 } from "lucide-react";
-import UserLayout from '../../../Layouts/UserLayout';
+import UserLayout from '../../../Layouts/UserLayout'
 
 import WarehouseComponent from './Warehouse/WarehouseFacility';
 import DryerComponent from './Dryer/DryerFacility';
