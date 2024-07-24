@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 
-function WarehouseUpdate({ visible, onHide, selectedWarehouse, onUpdateWarehouse }) {
-    const [warehouseName, setWarehouseName] = useState('');
+function MillerRegister({ visible, onHide, onMillerRegistered }) {
+    const [millerName, setMillerName] = useState('');
     const [capacity, setCapacity] = useState('');
     const [location, setLocation] = useState('');
     const [status, setStatus] = useState(null);
@@ -15,27 +15,20 @@ function WarehouseUpdate({ visible, onHide, selectedWarehouse, onUpdateWarehouse
         { label: 'Inactive', value: 'inactive' }
     ];
 
-    useEffect(() => {
-        if (selectedWarehouse) {
-            setWarehouseName(selectedWarehouse.warehouseName);
-            setCapacity(selectedWarehouse.capacity);
-            setLocation(selectedWarehouse.location);
-            setStatus(selectedWarehouse.status);
-        }
-    }, [selectedWarehouse]);
+    const handleRegister = () => {
+        const trackingId = Date.now().toString();
 
-    const handleUpdate = () => {
-        const updatedWarehouse = {
-            ...selectedWarehouse,
-            warehouseName,
+        const newMiller = {
+            id: trackingId,
+            millerName,
             capacity,
             location,
             status
         };
 
-        onUpdateWarehouse(updatedWarehouse);
+        onMillerRegistered(newMiller);
 
-        setWarehouseName('');
+        setMillerName('');
         setCapacity('');
         setLocation('');
         setStatus(null);
@@ -44,14 +37,14 @@ function WarehouseUpdate({ visible, onHide, selectedWarehouse, onUpdateWarehouse
     };
 
     return (
-        <Dialog visible={visible} onHide={onHide} header="Update Warehouse" modal style={{ width: '40vw' }}>
+        <Dialog visible={visible} onHide={onHide} header="Register Miller" modal style={{ width: '40vw' }}>
             <div className="p-grid p-nogutter">
-                <div className="p-col-12">
+                <div className="p-col-12 p-2">
                     <div className="p-inputgroup mb-3">
                         <span className="p-inputgroup-addon rounded-sm text-white bg-[#005155]">
-                            Warehouse Name
+                            Miller Name
                         </span>
-                        <InputText className="border ml-2 p-2 rounded-sm" value={warehouseName} onChange={(e) => setWarehouseName(e.target.value)} />
+                        <InputText className="border ml-2 p-2 rounded-sm" value={millerName} onChange={(e) => setMillerName(e.target.value)} />
                     </div>
 
                     <div className="p-inputgroup mb-3">
@@ -76,7 +69,7 @@ function WarehouseUpdate({ visible, onHide, selectedWarehouse, onUpdateWarehouse
                     </div>
 
                     <div className="flex justify-center mt-4">
-                        <Button label="Update" onClick={handleUpdate} className="p-button-success border p-2 px-5 text-white font-bold bg-gradient-to-r from-[#00C261] to-[#005155] " />
+                        <Button label="Register" onClick={handleRegister} className="p-button-success border p-2 px-5 text-white font-bold bg-gradient-to-r from-[#00C261] to-[#005155]" />
                     </div>
                 </div>
             </div>
@@ -84,4 +77,4 @@ function WarehouseUpdate({ visible, onHide, selectedWarehouse, onUpdateWarehouse
     );
 }
 
-export default WarehouseUpdate;
+export default MillerRegister;
