@@ -9,12 +9,18 @@ function UserLayout({ children }) {
     const loginButton = async () => {   
         try {
             const authClient = await AuthClient.create();
+
+            const width = 500;
+        const height = 500;
+        const left = (window.screen.width / 2) - (width / 2);
+        const top = (window.screen.height / 2) - (height / 2) - 25;
+
             await new Promise((resolve, reject) => {
                 authClient.login({
                     identityProvider: 'http://be2us-64aaa-aaaaa-qaabq-cai.localhost:4943/',
                     onSuccess: resolve,
                     onError: reject,
-                    windowOpenerFeatures: `width=500,height=500`
+                    windowOpenerFeatures: `width=${width},height=${height},left=${left},top=${top}`
                 });
             });
             window.location.reload();

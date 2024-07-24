@@ -15,11 +15,11 @@ import UserTracking from "./Trader/Tracking";
 import UserInventory from "./Trader/Inventory";
 import UserFacilities from "./Trader/Facilities";
 import UserProfile from "./Trader/Profile";
-import AuthClient from "@dfinity/auth-client";
+import { AuthClient } from "@dfinity/auth-client";
 
 
 function App() {
-    const [isAuthenticated, setIsAuthenticated] = useState(true);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -28,26 +28,22 @@ function App() {
                 const authClient = await AuthClient.create();
                 const identity = authClient.getIdentity();
                 const principal = identity.getPrincipal().toText();
-                console.log(principal);
                 if (principal !== "2vxsx-fae") {
-                    // Check if the user exists in the user table
-                    const res = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/users/principal/${principal}`);
+                    const res = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/nfapersonnels/principal/${principal}`);
                     const data = await res.json();
-                    console.log(data);
                     if(data === null) {
-                        // User does not exist, navigate to the register page
                         navigate('/register');
                     }
                     else if(data !== null) {
+                        setIsAuthenticated(true);
                         navigate('/trader');
                     }
                     else {
                         throw new Error('Error checking user existence');
                     }
                 }
-                else navigate('/');
             } catch (error) {
-                console.error("Error fetching principal:", error.message);
+                console.log(error.message);
             }
         };
         fetchPrincipal();

@@ -4,9 +4,22 @@ import { ChevronFirst, ChevronLast } from 'lucide-react';
 import { Button } from 'primereact/button';
 import { Divider } from 'primereact/divider';
 import { LogOut } from 'lucide-react';
+import { AuthClient } from "@dfinity/auth-client";
         
 const SidebarContext = createContext()
 function Sidebar({ children, expanded }) {
+    const navigate = useNavigate();
+    const logoutButton = async () => {
+        try {
+            const authClient = await AuthClient.create();
+            await authClient.logout();
+            navigate('/');
+        }
+        catch (error) {
+            console.log(error.message);
+        }
+    }
+
     return (
         <aside className="h-screen">
             <nav className={`h-full flex flex-col items-center py-6 ${
@@ -32,7 +45,7 @@ function Sidebar({ children, expanded }) {
                         className: 'bg-primary h-px',
                     } 
                 }} />
-                    <Button className={`relative rounded-md flex text-primary items-center py-4 group ${
+                    <Button onClick={logoutButton} className={`relative rounded-md flex text-primary items-center py-4 group ${
                         expanded ? 'w-full px-10 gap-10' : 'px-4 w-fit gap-0'
                     }`} 
                         aria-label="Logout"
