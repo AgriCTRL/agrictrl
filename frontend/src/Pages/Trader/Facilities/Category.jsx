@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card } from 'primereact/card';
 import {
     Building2,
@@ -7,13 +7,14 @@ import {
 } from "lucide-react";
 import UserLayout from '../../../Layouts/UserLayout';
 
-const [selectedCard, setSelectedCard] = useState(null);
-
-const handleCardClick = (cardId) => {
-    setSelectedCard(cardId);
-};
-
 function Category() {
+
+    const [selectedCard, setSelectedCard] = useState(null);
+
+    const handleCardClick = (cardId) => {
+        setSelectedCard(cardId);
+    };
+
     return (
         <UserLayout activePage="Facilities">
             <div className='bg-white p-4 rounded'>
