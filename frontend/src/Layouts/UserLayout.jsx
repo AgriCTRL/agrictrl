@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { Sidebar, SidebarItem } from "@/components/Sidebar";
 import UserNavbar from '@/components/UserNavbar';
+import { AuthClient } from "@dfinity/auth-client";
 
 const sidebarItems = [
     { 
@@ -45,6 +46,28 @@ const sidebarItems = [
 ];
 
 function UserLayout({ children, activePage }) {
+    const [name, setName] = useState('John Doe')
+
+    useEffect(() => {
+        const fetchUser = async() => {
+            try {
+                const authClient = await AuthClient.create();
+                const identity = authClient.getIdentity();
+                const principal = identity.getPrincipal().toText();
+                const res = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/nfapersonnels/principal/${principal}`, {
+                    method: 'GET',
+                    headers: {'Content-Type': 'application/json'}
+                });
+                const data = res.json;
+                setName(data.firstName);
+            }
+            catch (error) {
+                console.log(error.message)
+            }
+        };
+        fetchUser();
+    }, []);
+
     const [expanded, setExpanded] = useState(true);
     const handleToggleExpanded = () => setExpanded(!expanded);
 
@@ -65,7 +88,7 @@ function UserLayout({ children, activePage }) {
             <div className='w-full pr-10'>
                 <UserNavbar 
                     items={{
-                        user: 'John Doe',
+                        user: name,
                         avatar: 'https://i.pravatar.cc/300',
                         user_type: 'Trader',
                         title: activePage,
