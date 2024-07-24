@@ -8,8 +8,8 @@ import {
     Building2,
     User
 } from "lucide-react";
-import { Sidebar, SidebarItem } from "../Components/Sidebar";
-import UserNavbar from '../Components/UserNavbar';
+import { Sidebar, SidebarItem } from "@/components/Sidebar";
+import UserNavbar from '@/components/UserNavbar';
 
 const sidebarItems = [
     { 

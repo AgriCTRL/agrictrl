@@ -7,7 +7,7 @@ import { Button } from 'primereact/button';
 
 import PalayRegister from './PalayRegister';
 import PalayUpdate from './PalayUpdate';
-import UserLayout from '../../Layouts/UserLayout';
+import UserLayout from '@/Layouts/UserLayout';
 
 function Inventory() {
     const [inventoryData, setInventoryData] = useState([]);
