@@ -4,16 +4,26 @@ import { Column } from 'primereact/column';
 import { Timeline } from 'primereact/timeline';
 import { Tag } from 'primereact/tag';
 import { InputText } from 'primereact/inputtext';
-import { Package, Truck, CheckCircle, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import { Package, Truck, CheckCircle, AlertCircle, ChevronDown, ChevronUp, Search } from 'lucide-react';
 
 const TransactionHistory = () => {
   const [transactions, setTransactions] = useState([]);
+  const [filteredTransactions, setFilteredTransactions] = useState([]);
   const [expandedRows, setExpandedRows] = useState(null);
   const [globalFilter, setGlobalFilter] = useState('');
+  const [selectedStage, setSelectedStage] = useState(null);
+  const [stages, setStages] = useState([]);
 
   useEffect(() => {
     fetchTransactions();
   }, []);
+
+  useEffect(() => {
+    if (transactions.length > 0) {
+      updateStages();
+      filterTransactions();
+    }
+  }, [transactions, selectedStage, globalFilter]);
 
   const fetchTransactions = async () => {
     // Replace this with your actual API call
@@ -22,7 +32,7 @@ const TransactionHistory = () => {
         id: 1,
         trackingNo: '1',
         status: 'Delivered',
-        facility: 'Miller',
+        stage: 'warehouse',
         timeline: [
           { status: 'DELIVERED', date: '2022-02-07T12:55:00', location: 'PASIR GUDANG, MY' },
           { status: 'OUT FOR DELIVERY', date: '2022-02-07T10:55:00', location: 'PASIR GUDANG, MY' },
@@ -32,9 +42,9 @@ const TransactionHistory = () => {
       },
       {
         id: 2,
-        trackingNo: '2',
+        trackingNo: '12',
         status: 'Delivered',
-        facility: 'Miller',
+        stage: 'drying',
         timeline: [
           { status: 'DELIVERED', date: '2022-02-07T12:55:00', location: 'PASIR GUDANG, MY' },
           { status: 'OUT FOR DELIVERY', date: '2022-02-07T10:55:00', location: 'PASIR GUDANG, MY' },
@@ -44,9 +54,9 @@ const TransactionHistory = () => {
       },
       {
         id: 3,
-        trackingNo: '3',
+        trackingNo: '3412',
         status: 'Delivered',
-        facility: 'Miller',
+        stage: 'milling',
         timeline: [
           { status: 'DELIVERED', date: '2022-02-07T12:55:00', location: 'PASIR GUDANG, MY' },
           { status: 'OUT FOR DELIVERY', date: '2022-02-07T10:55:00', location: 'PASIR GUDANG, MY' },
@@ -58,7 +68,31 @@ const TransactionHistory = () => {
         id: 4,
         trackingNo: '4',
         status: 'Delivered',
-        facility: 'Miller',
+        stage: 'dispatch',
+        timeline: [
+          { status: 'DELIVERED', date: '2022-02-07T12:55:00', location: 'PASIR GUDANG, MY' },
+          { status: 'OUT FOR DELIVERY', date: '2022-02-07T10:55:00', location: 'PASIR GUDANG, MY' },
+          { status: 'DEPARTED FROM FACILITY', date: '2022-02-05T06:44:00', location: 'MUAR, MY' },
+          { status: 'PICKED UP BY SHIPPING PARTNER', date: '2022-02-05T05:54:00', location: 'MUAR, MY' },
+        ]
+      },
+            {
+        id: 5,
+        trackingNo: '3453',
+        status: 'Delivered',
+        stage: 'milling',
+        timeline: [
+          { status: 'DELIVERED', date: '2022-02-07T12:55:00', location: 'PASIR GUDANG, MY' },
+          { status: 'OUT FOR DELIVERY', date: '2022-02-07T10:55:00', location: 'PASIR GUDANG, MY' },
+          { status: 'DEPARTED FROM FACILITY', date: '2022-02-05T06:44:00', location: 'MUAR, MY' },
+          { status: 'PICKED UP BY SHIPPING PARTNER', date: '2022-02-05T05:54:00', location: 'MUAR, MY' },
+        ]
+      },
+            {
+        id: 6,
+        trackingNo: '3487',
+        status: 'Delivered',
+        stage: 'milling',
         timeline: [
           { status: 'DELIVERED', date: '2022-02-07T12:55:00', location: 'PASIR GUDANG, MY' },
           { status: 'OUT FOR DELIVERY', date: '2022-02-07T10:55:00', location: 'PASIR GUDANG, MY' },
@@ -69,6 +103,28 @@ const TransactionHistory = () => {
       // ...other transactions
     ];
     setTransactions(mockData);
+  };
+
+  const updateStages = () => {
+    const predefinedStages = ['warehouse', 'milling', 'drying', 'dispatch'];
+    const dataStages = [...new Set(transactions.map(t => t.stage))];
+    const allStages = [...new Set([...predefinedStages, ...dataStages])];
+    setStages(allStages);
+  };
+
+  const filterTransactions = () => {
+    let filtered = [...transactions];
+    if (selectedStage) {
+      filtered = filtered.filter(transaction => transaction.stage === selectedStage);
+    }
+    if (globalFilter) {
+      filtered = filtered.filter(transaction => 
+        transaction.trackingNo.toLowerCase().includes(globalFilter.toLowerCase()) ||
+        transaction.status.toLowerCase().includes(globalFilter.toLowerCase()) ||
+        transaction.stage.toLowerCase().includes(globalFilter.toLowerCase())
+      );
+    }
+    setFilteredTransactions(filtered);
   };
 
   const statusBodyTemplate = (rowData) => {
@@ -146,36 +202,50 @@ const TransactionHistory = () => {
     );
   };
 
-  const header = (
-    <div className="flex justify-between items-center">
-      <h2 className="text-xl font-bold">Transaction History</h2>
-      <span className="p-input-icon-left">
-        <i className="pi pi-search" />
-        <InputText
-          type="search"
-          onInput={(e) => setGlobalFilter(e.target.value)}
-          placeholder="Search Batch No."
-        />
-      </span>
-    </div>
-  );
-
   return (
     <div className="p-4 w-screen h-screen">
+      <div className="mb-4">
+        <span className="p-input-icon-left w-full">
+          <Search className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-400" />
+          <InputText
+            type="search"
+            onInput={(e) => setGlobalFilter(e.target.value)}
+            placeholder="Search"
+            className="w-full pl-10 pr-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
+        </span>
+      </div>
+
+      <div className="bg-gradient-to-r from-green-500 to-green-700 rounded-lg p-4 mb-4">
+        <div className="flex justify-between items-center">
+          {stages.map((stage, index) => (
+            <div 
+              key={stage} 
+              className={`flex flex-col items-center cursor-pointer ${selectedStage?.toLowerCase() === stage.toLowerCase() ? 'opacity-100' : 'opacity-70'}`}
+              onClick={() => setSelectedStage(selectedStage?.toLowerCase() === stage.toLowerCase() ? null : stage)}
+            >
+              <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center mb-2">
+                <Search className="text-green-500" />
+              </div>
+              <div className="text-sm text-white capitalize">{stage}</div>
+              {index < stages.length - 1 && <div className="w-full h-1 bg-white opacity-50 mt-2" />}
+            </div>
+          ))}
+        </div>
+      </div>
+
       <DataTable
-        value={transactions}
+        value={filteredTransactions}
         expandedRows={expandedRows}
         rowExpansionTemplate={rowExpansionTemplate}
         dataKey="id"
-        className="p-datatable-sm"
-        header={header}
-        globalFilter={globalFilter}
+        className="p-datatable-sm border-none"
         emptyMessage="No transactions found."
       >
         <Column body={expansionBodyTemplate} style={{ width: '3em' }} />
-        <Column field="trackingNo" header="Batch No." filter filterPlaceholder="Search Batch No." />
+        <Column field="trackingNo" header="Batch No." />
         <Column field="status" header="Status" body={statusBodyTemplate} />
-        <Column field="facility" header="Facility" />
+        <Column field="stage" header="Stage" />
       </DataTable>
     </div>
   );
