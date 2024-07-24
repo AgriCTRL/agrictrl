@@ -7,6 +7,7 @@ import {
     deleteNfaPersonnel,
     getNfaPersonnel,
     getNfaPersonnels,
+    getPrincipal,
     updateNfaPersonnel
 } from './db';
 
@@ -32,7 +33,7 @@ export function getRouter(): Router {
         res.json(await countNfaPersonnels());
     });
 
-    router.get('/:id', async (req, res) => {
+    router.get('/id/:id', async (req, res) => {
         const { id } = req.params;
 
         const nfaPersonnel = await getNfaPersonnel(Number(id));
@@ -40,16 +41,26 @@ export function getRouter(): Router {
         res.json(nfaPersonnel);
     });
 
+    router.get('/principal/:principal', async (req, res) => {
+        const { principal } = req.params;
+
+        const nfaPersonnel = await getPrincipal(principal);
+
+        res.json(nfaPersonnel);
+    });
+
     router.post(
         '/',
         async (
-            req: Request<any, any, { name: string; position: string; region: string }>,
+            req: Request<any, any, { principal: string; firstName: string; lastName: string; position: string; region: string }>,
             res
         ) => {
-            const { name, position, region } = req.body;
+            const { principal, firstName, lastName, position, region } = req.body;
 
             const nfaPersonnel = await createNfaPersonnel({
-                name,
+                principal,
+                firstName,
+                lastName,
                 position,
                 region
             });
@@ -89,14 +100,15 @@ export function getRouter(): Router {
 }
 
 async function updateHandler(
-    req: Request<any, any, { id: number; name?: string; position?: string; region?: string }>,
+    req: Request<any, any, { id: number; firstName?: string; lastName?: string; position?: string; region?: string }>,
     res: Response
 ): Promise<void> {
-    const { id, name, position, region } = req.body;
+    const { id, firstName, lastName, position, region } = req.body;
 
     const nfaPersonnel = await updateNfaPersonnel({
         id,
-        name,
+        firstName,
+        lastName,
         position,
         region
     });

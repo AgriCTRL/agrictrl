@@ -2,8 +2,35 @@ import { React, useState } from 'react';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { Search } from 'lucide-react';
+import { AuthClient } from "@dfinity/auth-client";
 
 function UserLayout({ children }) {
+
+    const loginButton = async () => {   
+        try {
+            const authClient = await AuthClient.create();
+
+            const width = 500;
+        const height = 500;
+        const left = (window.screen.width / 2) - (width / 2);
+        const top = (window.screen.height / 2) - (height / 2) - 25;
+
+            await new Promise((resolve, reject) => {
+                authClient.login({
+                    identityProvider: 'http://be2us-64aaa-aaaaa-qaabq-cai.localhost:4943/',
+                    onSuccess: resolve,
+                    onError: reject,
+                    windowOpenerFeatures: `width=${width},height=${height},left=${left},top=${top}`
+                });
+            });
+            window.location.reload();
+        }
+        catch (error) {
+            console.log(error.message);
+        }
+        return false;
+    }
+
     return (
         <div >
             <div>
@@ -19,7 +46,7 @@ function UserLayout({ children }) {
                             <a href="#" className="mx-6">Services</a>
                             <a href="#" className="mx-6">About Us</a>
                             <Search className="h-6 w-6 mx-6 text-white"/>
-                            <button className="bg-gradient-to-r from-[#005155] to-[#00C261] px-20 py-3 rounded-lg ml-2 mr-20">Login</button>
+                            <button onClick={ loginButton } className="bg-gradient-to-r from-[#005155] to-[#00C261] px-20 py-3 rounded-lg ml-2 mr-20">Login</button>
                         </nav>
                     </div>
                 </header>
