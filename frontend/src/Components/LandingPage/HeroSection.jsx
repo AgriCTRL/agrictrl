@@ -41,12 +41,12 @@ const HeroSection = () => {
         <section 
             className="relative h-screen flex items-center bg-cover bg-center overflow-hidden" 
                     style={{ 
-                        backgroundImage: 'url("/Landing-HeroBg.jpg")', 
+                        backgroundImage: 'url("/Landing-HeroBg3.jpg")', 
                         backgroundSize: 'cover',
                         backgroundPosition: 'center',
                         backgroundRepeat: 'no-repeat'
                     }}>
-            <div className="absolute inset-0 bg-black opacity-40"></div> {/* Dark overlay */}
+             <div className="absolute inset-0 bg-black opacity-20"></div> {/* Dark overlay */}
                 <div className="container mx-auto flex flex-col lg:flex-row items-center relative">
                     {/* Text Section */}
                     <div className="text-center ml-20 lg:text-left lg:w-1/2 mt-[-8rem] relative z-50">

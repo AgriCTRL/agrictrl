@@ -45,7 +45,7 @@ const WorkingProcessSection = () => {
                                         <Sprout className="absolute text-[#00C261] h-10 w-10" />
                                         <MoveRight className="text-[#00C261] h-10 w-10  translate-x-28 translate-y-28"/>
                                     </div>  
-                                    <div className="shadow-2xl bg-white rounded-lg pl-5 pr-12 pt-3 pb-7 z-40">
+                                    <div className="shadow-2xl bg-white rounded-lg pl-5 pr-10 pt-3 pb-7 z-40">
                                         <div className="flex items-center">
                                             <div className="">
                                                 <div className="text-[#00C261] text-4xl font-bold">1</div>
@@ -70,7 +70,7 @@ const WorkingProcessSection = () => {
                                         <Database className="absolute text-[#00C261] h-10 w-10" />
                                         <MoveRight className="text-[#00C261] h-10 w-10 translate-x-28 translate-y-24"/>
                                     </div> 
-                                    <div className="shadow-2xl bg-white rounded-lg pl-5 pr-10 pt-3 pb-5 z-50">
+                                    <div className="shadow-2xl bg-white rounded-lg pl-5 pr-8 pt-3 pb-5 z-50">
                                         <div className="flex items-center">
                                             <div className="">
                                                 <div className="text-[#00C261] text-4xl font-bold">2</div>

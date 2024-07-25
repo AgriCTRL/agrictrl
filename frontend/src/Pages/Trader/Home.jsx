@@ -14,19 +14,19 @@ function Home() {
     const navigate = useNavigate();
     const [carouselItems] = useState([
         {
-            title: "Lorem ipsum dolor sit amet, consectetur adipiscing.",
-            description: "Lorem ipsum dolor sit amet, consectetur adipiscing",
-            image: "http://picsum.photos/1000/400/"
+            title: "Traceability Power",
+            description: "Discover where is the source of the rice you consume, the processes it took before the palay become a bigas.",
+            image: "Traceability.png"
         },
         {
-            title: "Second slide title", 
-            description: "Second slide description",
-            image: "http://picsum.photos/1000/400/"
+            title: "Decentralized Records", 
+            description: "Utilizing ICP Blockchain Backend and Frontend Services, we can securely save and collect data.",
+            image: "ICP decentralized network.png"
         },
         {
-            title: "Third slide title",
-            description: "Third slide description",
-            image: "http://picsum.photos/1000/400/"
+            title: "Supply Chain Management",
+            description: "Manage the entire supply chain of rice through simple to understand user interfaces.",
+            image: "supply chain.png"
         }
     ]);
 
@@ -39,7 +39,7 @@ function Home() {
                 <div className="absolute bg-gradient-to-r from-black to-transparent inset-0 flex flex-col gap-4 p-10">
                     <div className="text-green-400 flex items-center gap-4">
                         <Wheat />
-                        <p>Latest News</p>
+                        <p>What We Offer</p>
                     </div>
                     <h1 className="text-white text-heading font-bold mb-2">{item.title}</h1>
                     <p className="text-white mb-4">{item.description}</p>
@@ -60,7 +60,7 @@ function Home() {
                         itemTemplate={carouselTemplate}
                         showIndicators = {true}
                         showNavigators={false}
-                        autoplayInterval={5000}
+                        autoplayInterval={7000}
                         pt={{
                             root: {
                                 
