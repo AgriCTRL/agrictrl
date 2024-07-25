@@ -8,6 +8,7 @@ function WarehouseRegister({ visible, onHide, onWarehouseRegistered }) {
     const [warehouseName, setWarehouseName] = useState('');
     const [capacity, setCapacity] = useState('');
     const [location, setLocation] = useState('');
+    const [contact, setContact] = useState('');
     const [status, setStatus] = useState(null);
 
     const statusOptions = [
@@ -23,6 +24,7 @@ function WarehouseRegister({ visible, onHide, onWarehouseRegistered }) {
             warehouseName,
             capacity,
             location,
+            contact,
             status
         }; 
 
@@ -31,6 +33,7 @@ function WarehouseRegister({ visible, onHide, onWarehouseRegistered }) {
         setWarehouseName('');
         setCapacity('');
         setLocation('');
+        setContact('');
         setStatus(null);
 
         onHide();
@@ -59,6 +62,13 @@ function WarehouseRegister({ visible, onHide, onWarehouseRegistered }) {
                             Location
                         </span>
                         <InputText className="border ml-2 p-2 rounded-sm" value={location} onChange={(e) => setLocation(e.target.value)} />
+                    </div>
+
+                    <div className="p-inputgroup mb-3">
+                        <span className="p-inputgroup-addon rounded-sm text-white bg-[#005155]">
+                            Contact
+                        </span>
+                        <InputText className="border ml-2 p-2 rounded-sm" value={contact} onChange={(e) => setContact(e.target.value)} />
                     </div>
 
                     <div className="p-inputgroup mb-3">

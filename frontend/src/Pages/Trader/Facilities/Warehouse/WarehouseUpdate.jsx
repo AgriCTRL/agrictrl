@@ -8,6 +8,7 @@ function WarehouseUpdate({ visible, onHide, selectedWarehouse, onUpdateWarehouse
     const [warehouseName, setWarehouseName] = useState('');
     const [capacity, setCapacity] = useState('');
     const [location, setLocation] = useState('');
+    const [contact, setContact] = useState('');
     const [status, setStatus] = useState(null);
 
     const statusOptions = [
@@ -20,6 +21,7 @@ function WarehouseUpdate({ visible, onHide, selectedWarehouse, onUpdateWarehouse
             setWarehouseName(selectedWarehouse.warehouseName);
             setCapacity(selectedWarehouse.capacity);
             setLocation(selectedWarehouse.location);
+            setContact(selectedWarehouse.contact);
             setStatus(selectedWarehouse.status);
         }
     }, [selectedWarehouse]);
@@ -30,6 +32,7 @@ function WarehouseUpdate({ visible, onHide, selectedWarehouse, onUpdateWarehouse
             warehouseName,
             capacity,
             location,
+            contact,
             status
         };
 
@@ -38,6 +41,7 @@ function WarehouseUpdate({ visible, onHide, selectedWarehouse, onUpdateWarehouse
         setWarehouseName('');
         setCapacity('');
         setLocation('');
+        setContact('');
         setStatus(null);
 
         onHide();
@@ -66,6 +70,13 @@ function WarehouseUpdate({ visible, onHide, selectedWarehouse, onUpdateWarehouse
                             Location
                         </span>
                         <InputText className="border ml-2 p-2 rounded-sm" value={location} onChange={(e) => setLocation(e.target.value)} />
+                    </div>
+
+                    <div className="p-inputgroup mb-3">
+                        <span className="p-inputgroup-addon rounded-sm text-white bg-[#005155]">
+                            Contact
+                        </span>
+                        <InputText className="border ml-2 p-2 rounded-sm" value={contact} onChange={(e) => setContact(e.target.value)} />
                     </div>
 
                     <div className="p-inputgroup mb-3">
