@@ -9,19 +9,19 @@ export class Dryer extends BaseEntity {
     name: string;
 
     @Column()
-    location: string;
-
-    @Column()
     capacity: number;
 
     @Column()
-    contactNo: number;
+    location: string;
 
     @Column()
-    email: string;
+    contactInfo: string;
+
+    @Column()
+    status: string;
 }
 
-export type DryerCreate = Pick<Dryer, 'name' | 'location' | 'capacity' | 'contactNo' | 'email'>;
+export type DryerCreate = Pick<Dryer, 'name' | 'capacity' | 'location' | 'contactInfo' | 'status'>;
 export type DryerUpdate = Pick<Dryer, 'id'> & Partial<DryerCreate>;
 
 export async function getDryers(limit: number, offset: number): Promise<Dryer[]> {
@@ -47,10 +47,10 @@ export async function createDryer(dryerCreate: DryerCreate): Promise<Dryer> {
     let dryer = new Dryer();
 
     dryer.name = dryerCreate.name;
-    dryer.location = dryerCreate.location;
     dryer.capacity = dryerCreate.capacity;
-    dryer.contactNo = dryerCreate.contactNo;
-    dryer.email = dryerCreate.email;
+    dryer.location = dryerCreate.location;
+    dryer.contactInfo = dryerCreate.contactInfo;
+    dryer.status = dryerCreate.status;
 
     return await dryer.save();
 }
@@ -58,10 +58,10 @@ export async function createDryer(dryerCreate: DryerCreate): Promise<Dryer> {
 export async function updateDryer(dryerUpdate: DryerUpdate): Promise<Dryer> {
     await Dryer.update(dryerUpdate.id, {
         name: dryerUpdate.name,
-        location: dryerUpdate.location,
         capacity: dryerUpdate.capacity,
-        contactNo: dryerUpdate.contactNo,
-        email: dryerUpdate.email
+        location: dryerUpdate.location,
+        contactInfo: dryerUpdate.contactInfo,
+        status: dryerUpdate.status
     });
 
     const dryer = await getDryer(dryerUpdate.id);

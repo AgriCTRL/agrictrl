@@ -13,9 +13,15 @@ export class Warehouse extends BaseEntity {
 
     @Column()
     location: string;
+
+    @Column()
+    contactInfo: string;
+
+    @Column()
+    status: string;
 }
 
-export type WarehouseCreate = Pick<Warehouse, 'facilityName' | 'capacity' | 'location'>;
+export type WarehouseCreate = Pick<Warehouse, 'facilityName' | 'capacity' | 'location' | 'contactInfo' | 'status'>;
 export type WarehouseUpdate = Pick<Warehouse, 'id'> & Partial<WarehouseCreate>;
 
 export async function getWarehouses(limit: number, offset: number): Promise<Warehouse[]> {
@@ -43,6 +49,8 @@ export async function createWarehouse(warehouseCreate: WarehouseCreate): Promise
     warehouse.facilityName = warehouseCreate.facilityName;
     warehouse.capacity = warehouseCreate.capacity;
     warehouse.location = warehouseCreate.location;
+    warehouse.contactInfo = warehouseCreate.contactInfo;
+    warehouse.status = warehouseCreate.status;
 
     return await warehouse.save();
 }
@@ -52,6 +60,8 @@ export async function updateWarehouse(warehouseUpdate: WarehouseUpdate): Promise
         facilityName: warehouseUpdate.facilityName,
         capacity: warehouseUpdate.capacity,
         location: warehouseUpdate.location,
+        contactInfo: warehouseUpdate.contactInfo,
+        status: warehouseUpdate.status
     });
 
     const warehouse = await getWarehouse(warehouseUpdate.id);

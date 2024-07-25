@@ -20,7 +20,7 @@ function Home() {
             image: "http://picsum.photos/1000/400/"
         },
         {
-            title: "Second slide title",
+            title: "Second slide title", 
             description: "Second slide description",
             image: "http://picsum.photos/1000/400/"
         },

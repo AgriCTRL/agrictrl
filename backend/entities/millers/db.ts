@@ -9,19 +9,19 @@ export class Miller extends BaseEntity {
     name: string;
 
     @Column()
-    location: string;
-
-    @Column()
     capacity: number;
 
     @Column()
-    contactNo: number;
+    location: string;
 
     @Column()
-    email: string;
+    contactInfo: string;
+
+    @Column()
+    status: string;
 }
 
-export type MillerCreate = Pick<Miller, 'name' | 'location' | 'capacity' | 'contactNo' | 'email'>;
+export type MillerCreate = Pick<Miller, 'name' | 'capacity' | 'location' | 'contactInfo' | 'status'>;
 export type MillerUpdate = Pick<Miller, 'id'> & Partial<MillerCreate>;
 
 export async function getMillers(limit: number, offset: number): Promise<Miller[]> {
@@ -47,10 +47,10 @@ export async function createMiller(millerCreate: MillerCreate): Promise<Miller> 
     let miller = new Miller();
 
     miller.name = millerCreate.name;
-    miller.location = millerCreate.location;
     miller.capacity = millerCreate.capacity;
-    miller.contactNo = millerCreate.contactNo;
-    miller.email = millerCreate.email;
+    miller.location = millerCreate.location;
+    miller.contactInfo = millerCreate.contactInfo;
+    miller.status = millerCreate.status;
 
     return await miller.save();
 }
@@ -58,10 +58,10 @@ export async function createMiller(millerCreate: MillerCreate): Promise<Miller> 
 export async function updateMiller(millerUpdate: MillerUpdate): Promise<Miller> {
     await Miller.update(millerUpdate.id, {
         name: millerUpdate.name,
-        location: millerUpdate.location,
         capacity: millerUpdate.capacity,
-        contactNo: millerUpdate.contactNo,
-        email: millerUpdate.email
+        location: millerUpdate.location,
+        contactInfo: millerUpdate.contactInfo,
+        status: millerUpdate.status
     });
 
     const miller = await getMiller(millerUpdate.id);

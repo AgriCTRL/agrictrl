@@ -43,15 +43,17 @@ export function getRouter(): Router {
     router.post(
         '/',
         async (
-            req: Request<any, any, { facilityName: string; capacity: number; location: string }>,
+            req: Request<any, any, { facilityName: string; capacity: number; location: string;  contactInfo: string; status: string }>,
             res
         ) => {
-            const { facilityName, capacity, location } = req.body;
+            const { facilityName, capacity, location, contactInfo, status } = req.body;
 
             const warehouse = await createWarehouse({
                 facilityName,
-                capacity,
-                location
+                capacity, 
+                location, 
+                contactInfo,
+                status
             });
 
             res.json(warehouse);
@@ -63,7 +65,7 @@ export function getRouter(): Router {
 
     //     for (let i = 0; i < Number(req.params.num); i++) {
     //         await createWarehouse({
-    //             name: `lastmjs${v4()}`,
+    //             facilityName: `lastmjs${v4()}`,
     //             age: i
     //         });
     //     }
@@ -89,16 +91,18 @@ export function getRouter(): Router {
 }
 
 async function updateHandler(
-    req: Request<any, any, { id: number; facilityName?: string; capacity?: number; location?: string }>,
+    req: Request<any, any, { id: number; facilityName?: string; capacity?: number; location?: string; contactInfo?: string; status?: string }>,
     res: Response
 ): Promise<void> {
-    const { id, facilityName, capacity, location } = req.body;
+    const { id, facilityName, capacity, location, contactInfo, status } = req.body;
 
     const warehouse = await updateWarehouse({
         id,
         facilityName,
         capacity,
-        location
+        location,
+        contactInfo,
+        status
     });
 
     res.json(warehouse);

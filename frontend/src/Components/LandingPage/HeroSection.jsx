@@ -1,8 +1,15 @@
 import { React } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from 'primereact/button';
 import { Wheat, Search, Coins, Truck } from 'lucide-react';
 
 const HeroSection = () => {
+    const navigate = useNavigate();
+
+    const handleHistoryClick = () => {
+        navigate('/history');
+    }
+
     return (
         <section 
             className="relative h-screen flex items-center bg-cover bg-center overflow-hidden" 
@@ -28,8 +35,9 @@ const HeroSection = () => {
                                 Get Started
                                 <Wheat className="h-5 w-5 mx-3"/>
                             </button>
-                            <button className="border border-white ml-3 px-16 py-3 text-white font-bold rounded-lg flex justify-items-center items-center">
-                                Read More
+                            <button className="border border-white ml-3 px-16 py-3 text-white font-bold rounded-lg flex justify-items-center items-center"
+                                    onClick={handleHistoryClick}>
+                                Trace your Rice!
                             </button>
                         </div>
                     </div>
@@ -63,9 +71,8 @@ const HeroSection = () => {
                         </div>
                             
                         <p className="text-sm text-white">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
-                            ad minim veniam, quis nostrud exercitation.
+                            Trace the history of your rice. Discover its journey from farm to your plate. 
+                            Appreciate the people who work to serve you with your food.
                         </p>
                     </div>
                 </div>
