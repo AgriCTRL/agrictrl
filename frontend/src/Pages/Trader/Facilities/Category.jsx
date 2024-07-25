@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Card } from 'primereact/card';
 import {
-    Building2,
+    ThermometerSun,
     Warehouse,
     Factory,
 } from "lucide-react";
@@ -52,7 +52,7 @@ function Category() {
                             onClick={() => handleCardClick('dryer')}
                         >
                             <div className="flex flex-col items-center">
-                                <Factory size={40} />
+                                <ThermometerSun size={40} />
                                 <span className='font-bold'>Dryers</span>
                             </div>
                         </Card>
@@ -62,7 +62,7 @@ function Category() {
                             onClick={() => handleCardClick('miller')}
                         >
                             <div className="flex flex-col items-center">
-                                <Building2 size={40} />
+                                <Factory size={40} />
                                 <span className='font-bold'>Millers</span>
                             </div>
                         </Card>
