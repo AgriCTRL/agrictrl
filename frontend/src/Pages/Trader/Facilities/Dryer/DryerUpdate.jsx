@@ -8,6 +8,7 @@ function DryerUpdate({ visible, onHide, selectedDryer, onUpdateDryer }) {
     const [dryerName, setDryerName] = useState('');
     const [capacity, setCapacity] = useState('');
     const [location, setLocation] = useState('');
+    const [contact, setContact] = useState('');
     const [status, setStatus] = useState(null);
 
     const statusOptions = [
@@ -20,6 +21,7 @@ function DryerUpdate({ visible, onHide, selectedDryer, onUpdateDryer }) {
             setDryerName(selectedDryer.dryerName);
             setCapacity(selectedDryer.capacity);
             setLocation(selectedDryer.location);
+            setContact(selectedDryer.contact);
             setStatus(selectedDryer.status);
         }
     }, [selectedDryer]);
@@ -30,6 +32,7 @@ function DryerUpdate({ visible, onHide, selectedDryer, onUpdateDryer }) {
             dryerName,
             capacity,
             location,
+            contact,
             status
         };
 
@@ -38,6 +41,7 @@ function DryerUpdate({ visible, onHide, selectedDryer, onUpdateDryer }) {
         setDryerName('');
         setCapacity('');
         setLocation('');
+        setContact('');
         setStatus(null);
 
         onHide();
@@ -66,6 +70,13 @@ function DryerUpdate({ visible, onHide, selectedDryer, onUpdateDryer }) {
                             Location
                         </span>
                         <InputText className="border ml-2 p-2 rounded-sm" value={location} onChange={(e) => setLocation(e.target.value)} />
+                    </div>
+
+                    <div className="p-inputgroup mb-3">
+                        <span className="p-inputgroup-addon rounded-sm text-white bg-[#005155]">
+                            Contact
+                        </span>
+                        <InputText className="border ml-2 p-2 rounded-sm" value={contact} onChange={(e) => setContact(e.target.value)} />
                     </div>
 
                     <div className="p-inputgroup mb-3">

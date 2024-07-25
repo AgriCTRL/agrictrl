@@ -8,6 +8,7 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
     const [millerName, setMillerName] = useState('');
     const [capacity, setCapacity] = useState('');
     const [location, setLocation] = useState('');
+    const [contact, setContact] = useState('');
     const [status, setStatus] = useState(null);
 
     const statusOptions = [
@@ -20,6 +21,7 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
             setMillerName(selectedMiller.millerName);
             setCapacity(selectedMiller.capacity);
             setLocation(selectedMiller.location);
+            setContact(selectedMiller.contact);
             setStatus(selectedMiller.status);
         }
     }, [selectedMiller]);
@@ -30,6 +32,7 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
             millerName,
             capacity,
             location,
+            contact,
             status
         };
 
@@ -38,6 +41,7 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
         setMillerName('');
         setCapacity('');
         setLocation('');
+        setContact('');
         setStatus(null);
 
         onHide();
@@ -66,6 +70,13 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
                             Location
                         </span>
                         <InputText className="border ml-2 p-2 rounded-sm" value={location} onChange={(e) => setLocation(e.target.value)} />
+                    </div>
+
+                    <div className="p-inputgroup mb-3">
+                        <span className="p-inputgroup-addon rounded-sm text-white bg-[#005155]">
+                            Contact
+                        </span>
+                        <InputText className="border ml-2 p-2 rounded-sm" value={contact} onChange={(e) => setContact(e.target.value)} />
                     </div>
 
                     <div className="p-inputgroup mb-3">
