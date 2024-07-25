@@ -23,6 +23,24 @@ function DryerFacility() {
         });
     }, [globalFilterValue]);
 
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const res = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/dryers', {
+                    method: 'GET',
+                    headers: {'Content-Type': 'application/json'}
+                });
+                const data = await res.json();
+                setDryerData(data);
+            }
+            catch (error) {
+                console.log(error.message);
+            }
+        };
+        fetchData();
+    }, [dryerData]);
+
+
     const handleDryerRegistered = (newDryer) => {
         setDryerData([...dryerData, newDryer]);
         setDisplayDryerRegister(false);
@@ -89,10 +107,10 @@ function DryerFacility() {
                 rows={3} 
                 header={header}
                 filters={filters}
-                globalFilterFields={['dryerName', 'capacity', 'location', 'status']}
+                globalFilterFields={['name', 'capacity', 'location']}
                 emptyMessage="No dryers found."
             >
-                <Column field="dryerName" header="Dryer Name" sortable />
+                <Column field="name" header="Dryer Name" sortable />
                 <Column field="capacity" header="Capacity" sortable />
                 <Column field="location" header="Location" sortable />
                 <Column field="status" header="Status" sortable />

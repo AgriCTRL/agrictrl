@@ -7,7 +7,7 @@ import { Search } from 'lucide-react';
 import MillerRegister from './MillerRegister';
 import MillerUpdate from './MillerUpdate';
 
-function Miller() {
+function MillerFacility() {
     const [millerData, setMillerData] = useState([]);
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [filters, setFilters] = useState({
@@ -22,6 +22,24 @@ function Miller() {
             global: { value: globalFilterValue, matchMode: 'contains' },
         });
     }, [globalFilterValue]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const res = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/millers', {
+                    method: 'GET',
+                    headers: {'Content-Type': 'application/json'}
+                });
+                const data = await res.json();
+                setMillerData(data);
+            }
+            catch (error) {
+                console.log(error.message);
+            }
+        };
+        fetchData();
+    }, [millerData]);
+
 
     const handleMillerRegistered = (newMiller) => {
         setMillerData([...millerData, newMiller]);
@@ -89,10 +107,10 @@ function Miller() {
                 rows={3} 
                 header={header}
                 filters={filters}
-                globalFilterFields={['millerName', 'capacity', 'location', 'status']}
+                globalFilterFields={['name', 'capacity', 'location']}
                 emptyMessage="No millers found."
             >
-                <Column field="millerName" header="Miller Name" sortable />
+                <Column field="name" header="Miller Name" sortable />
                 <Column field="capacity" header="Capacity" sortable />
                 <Column field="location" header="Location" sortable />
                 <Column field="status" header="Status" sortable />
@@ -112,4 +130,4 @@ function Miller() {
     );
 }
 
-export default Miller;
+export default MillerFacility;

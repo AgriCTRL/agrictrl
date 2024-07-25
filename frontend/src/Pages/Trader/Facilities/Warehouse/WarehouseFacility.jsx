@@ -23,6 +23,25 @@ function Warehouse() {
         });
     }, [globalFilterValue]);
 
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const res = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/warehouses', {
+                    method: 'GET',
+                    headers: {'Content-Type': 'application/json'}
+                });
+                const data = await res.json();
+                setWarehouseData(data);
+            }
+            catch (error) {
+                console.log(error.message);
+            }
+        };
+        fetchData();
+    }, [warehouseData]);
+
+    
+
     const handleWarehouseRegistered = (newWarehouse) => {
         setWarehouseData([...warehouseData, newWarehouse]);
         setDisplayWarehouseRegister(false);
@@ -89,10 +108,10 @@ function Warehouse() {
                 rows={3} 
                 header={header}
                 filters={filters}
-                globalFilterFields={['warehouseName', 'capacity', 'location', 'status']}
+                globalFilterFields={['facilityName', 'capacity', 'location']}
                 emptyMessage="No warehouses found."
             >
-                <Column field="warehouseName" header="Warehouse Name" sortable />
+                <Column field="facilityName" header="Warehouse Name" sortable />
                 <Column field="capacity" header="Capacity" sortable />
                 <Column field="location" header="Location" sortable />
                 <Column field="status" header="Status" sortable />
