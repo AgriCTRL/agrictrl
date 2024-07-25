@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Carousel } from 'primereact/carousel';
 import {
-    House,
     LayoutDashboard,
     MapPin,
     Layers,
@@ -77,7 +76,7 @@ function Home() {
                     <p className="font-bold text-black">Quick Links</p>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <CardComponent 
-                            className="text-primary cursor-pointer flex-col gap-4 items-center"
+                            className="text-primary cursor-pointer flex-col gap-4 py-10items-center"
                             onClick={() => navigate('/trader/dashboard')}
                         >
                             <LayoutDashboard size={40}/>
