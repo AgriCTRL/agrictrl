@@ -9,7 +9,7 @@ import { ChevronFirst, ChevronLast } from 'lucide-react';
 
 function UserNavbarComponent({ items, expanded, onToggleExpanded }) {
     return (
-        <header className="w-full py-10">
+        <header className="w-full py-5">
             <nav className="flex items-center justify-between">
                 <div className='flex items-center gap-10'>
                     <button
