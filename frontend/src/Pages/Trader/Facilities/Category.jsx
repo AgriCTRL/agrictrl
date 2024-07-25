@@ -12,7 +12,7 @@ import DryerComponent from './Dryer/DryerFacility';
 import MillerComponent from './Miller/MillerFacility';
 
 function Category() {
-    const [selectedCard, setSelectedCard] = useState(null);
+    const [selectedCard, setSelectedCard] = useState('warehouse');
 
     const handleCardClick = (cardId) => {
         setSelectedCard(cardId);
