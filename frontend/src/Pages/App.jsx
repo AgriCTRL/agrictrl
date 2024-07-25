@@ -64,7 +64,7 @@ function App() {
                 <Route path="/trader/dashboard" element={isAuthenticated ? <UserDashboard /> : <Navigate to="/" replace />} />
                 <Route path="/trader/tracking" element={isAuthenticated ? <UserTracking /> : <Navigate to="/" replace />} />
                 <Route path="/trader/inventory" element={isAuthenticated ? <UserInventory /> : <Navigate to="/" replace />} />
-                <Route path="/trader/facilities/category" element={isAuthenticated ? <UserFacilities /> : <Navigate to="/" replace />} />
+                <Route path="/trader/facilities" element={isAuthenticated ? <UserFacilities /> : <Navigate to="/" replace />} />
                 <Route path="/trader/profile" element={isAuthenticated ? <UserProfile /> : <Navigate to="/" replace />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
