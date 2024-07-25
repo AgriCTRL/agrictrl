@@ -3,3 +3,48 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    body {
+        @apply font-poppins;
+    }
+}
+
+@layer primereact {
+    .p-stepper {
+        
+        .p-stepper-header {
+            @apply opacity-25;
+            .p-stepper-action {
+                display: flex;
+                flex-direction: column;
+                @apply gap-2; 
+
+                .p-stepper-title {
+                    @apply text-white;
+                    @apply m-0;
+                }
+                .p-stepper-number {
+                    @apply text-secondary;
+                    width: 56px;
+                    height: 56px;                    
+                }
+
+            }
+
+            &:has(~.p-highlight) {
+                @apply opacity-100;
+                .p-stepper-separator {
+                    @apply bg-white;
+                }
+            }
+
+            &.p-highlight {
+                .p-stepper-action {
+                    @apply opacity-100;
+                }
+            }
+        }
+
+    }    
+}

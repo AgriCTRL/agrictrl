@@ -8,8 +8,8 @@ import {
     Building2,
     User
 } from "lucide-react";
-import { Sidebar, SidebarItem } from "@/components/Sidebar";
-import UserNavbar from '@/components/UserNavbar';
+import { SidebarComponent, SidebarItem } from "@/Components/SidebarComponent";
+import UserNavbarComponent from '@/Components/UserNavbarComponent';
 import { AuthClient } from "@dfinity/auth-client";
 
 const sidebarItems = [
@@ -76,7 +76,7 @@ function UserLayout({ children, activePage }) {
     }
     return (
         <div className='flex bg-background w-full'>
-            <Sidebar expanded={expanded}>
+            <SidebarComponent expanded={expanded}>
                 {sidebarItems.map((item, index) => (
                     <SidebarItem
                         key={index}
@@ -84,9 +84,9 @@ function UserLayout({ children, activePage }) {
                         active={isItemActive(item.text)}
                     />
                 ))}
-            </Sidebar>
+            </SidebarComponent>
             <div className='w-full pr-10'>
-                <UserNavbar 
+                <UserNavbarComponent 
                     items={{
                         user: name,
                         avatar: 'https://i.pravatar.cc/300',

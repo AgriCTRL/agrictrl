@@ -14,7 +14,7 @@ function SidebarComponent({ children, expanded }) {
             }`}>
                 <div className="flex items-center justify-center w-full pt-0 pb-3">
                     <img 
-                        src="/sidebarLogo.png" 
+                        src="https://img.logoipsum.com/285.svg" 
                         className={`overflow-hidden transition-all cursor-pointer ${
                             expanded ? 'w-auto' : 'w-0'
                         }`} 

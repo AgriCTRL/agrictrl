@@ -1,10 +1,14 @@
 import React from 'react';
+import UserLayout from '@/Layouts/UserLayout';
+import CardComponent from '@/Components/CardComponent';
 
 function Sales() {
     return (
-        <div>
-            <h1>SALES PAGE</h1>
-        </div>
+        <UserLayout>
+            <CardComponent>
+                Sales Page
+            </CardComponent>
+        </UserLayout>
     );
 
 }

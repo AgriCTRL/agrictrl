@@ -2,14 +2,13 @@ import React from 'react';
 import UserLayout from '@/Layouts/UserLayout';
 import CardComponent from '@/Components/CardComponent';
 
-function Dashboard() {
+function Facilities() {
     return (
-        <UserLayout activePage="Dashboard">
-            <CardComponent>
-                Dashboard
-            </CardComponent>
+        <UserLayout activePage="Facilities">
+            <CardComponent>Facilities</CardComponent>
         </UserLayout>
     );
+
 }
 
-export default Dashboard;
+export default Facilities;
