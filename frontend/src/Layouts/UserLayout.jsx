@@ -36,7 +36,7 @@ const sidebarItems = [
     { 
         icon: <Building2 size={20} />, 
         text: 'Facilities', 
-        link: '/trader/facilities/category' 
+        link: '/trader/facilities' 
     },
     { 
         icon: <User size={20} />, 

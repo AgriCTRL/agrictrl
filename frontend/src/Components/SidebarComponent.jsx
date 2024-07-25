@@ -4,17 +4,30 @@ import { ChevronFirst, ChevronLast } from 'lucide-react';
 import { Button } from 'primereact/button';
 import { Divider } from 'primereact/divider';
 import { LogOut } from 'lucide-react';
+import { AuthClient } from "@dfinity/auth-client";
         
 const SidebarContext = createContext()
 function SidebarComponent({ children, expanded }) {
+    const navigate = useNavigate();
+    const logoutButton = async () => {
+        try {
+            const authClient = await AuthClient.create();
+            await authClient.logout();
+            navigate('/');
+        }
+        catch (error) {
+            console.log(error.message);
+        }
+    }
+
     return (
         <aside className="h-screen">
             <nav className={`h-full flex flex-col items-center py-5 ${
                 expanded ? 'px-10' : 'pl-4 pr-10'
             }`}>
-                <div className="flex items-center justify-center w-full pt-0 pb-3">
+                <div className="flex items-center justify-start w-full pt-0 pb-3">
                     <img 
-                        src="https://img.logoipsum.com/285.svg" 
+                        src="/sidebarLogo.png" 
                         className={`overflow-hidden transition-all cursor-pointer ${
                             expanded ? 'w-auto' : 'w-0'
                         }`} 
@@ -32,7 +45,7 @@ function SidebarComponent({ children, expanded }) {
                         className: 'bg-primary h-px',
                     } 
                 }} />
-                    <Button className={`relative rounded-md flex text-primary items-center py-4 group ${
+                    <Button onClick={logoutButton} className={`relative rounded-md flex text-primary items-center py-4 group ${
                         expanded ? 'w-full px-10 gap-10' : 'px-4 w-fit gap-0'
                     }`} 
                         aria-label="Logout"
