@@ -19,7 +19,7 @@ import TransactionHistory from "./TransactionHistory";
 import { AuthClient } from "@dfinity/auth-client";
 
 function App() {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [isAuthenticated, setIsAuthenticated] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -59,7 +59,7 @@ function App() {
             <Routes>
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/register" element={<Register />} />
-                <Route path="/history" element={isAuthenticated ? <TransactionHistory /> : <Navigate to="/" replace />} />
+                <Route path="/history" element={<TransactionHistory />} />
                 <Route path="/trader" element={isAuthenticated ? <UserHome /> : <Navigate to="/" replace />} />
                 <Route path="/trader/dashboard" element={isAuthenticated ? <UserDashboard /> : <Navigate to="/" replace />} />
                 <Route path="/trader/tracking" element={isAuthenticated ? <UserTracking /> : <Navigate to="/" replace />} />
