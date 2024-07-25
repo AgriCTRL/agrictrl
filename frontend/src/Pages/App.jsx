@@ -44,7 +44,7 @@ function App() {
             <Routes>
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/register" element={<Register />} />
-                <Route path="/history" element={isAuthenticated ? <TransactionHistory /> : <Navigate to="/" replace />} />
+                <Route path="/history" element={<TransactionHistory />} />
                 <Route path="/trader" element={isAuthenticated ? <UserHome /> : <Navigate to="/" replace />} />
                 <Route path="/trader/dashboard" element={isAuthenticated ? <UserDashboard /> : <Navigate to="/" replace />} />
                 <Route path="/trader/tracking" element={isAuthenticated ? <UserTracking /> : <Navigate to="/" replace />} />

@@ -12,15 +12,16 @@
   },
   "dependencies": {
     "@dfinity/agent": "^1.4.0",
+    "@dfinity/auth-client": "^1.4.0",
     "@dfinity/candid": "^1.4.0",
     "@dfinity/principal": "^1.4.0",
-    "@dfinity/auth-client": "^1.4.0",
     "lucide-react": "^0.411.0",
     "primeicons": "^7.0.0",
     "primereact": "^10.7.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.25.0",
+    "react-scroll": "^1.9.0",
     "react-transition-group": "^4.4.5"
   },
   "devDependencies": {

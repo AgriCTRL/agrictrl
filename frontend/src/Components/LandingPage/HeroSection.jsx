@@ -1,13 +1,40 @@
 import { React } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AuthClient } from "@dfinity/auth-client";
 import { Button } from 'primereact/button';
 import { Wheat, Search, Coins, Truck } from 'lucide-react';
+
 
 const HeroSection = () => {
     const navigate = useNavigate();
 
     const handleHistoryClick = () => {
         navigate('/history');
+    }
+
+    const loginButton = async () => {   
+        try {
+            const authClient = await AuthClient.create();
+
+            const width = 500;
+        const height = 500;
+        const left = (window.screen.width / 2) - (width / 2);
+        const top = (window.screen.height / 2) - (height / 2) - 25;
+
+            await new Promise((resolve, reject) => {
+                authClient.login({
+                    identityProvider: 'http://be2us-64aaa-aaaaa-qaabq-cai.localhost:4943/',
+                    onSuccess: resolve,
+                    onError: reject,
+                    windowOpenerFeatures: `width=${width},height=${height},left=${left},top=${top}`
+                });
+            });
+            window.location.reload();
+        }
+        catch (error) {
+            console.log(error.message);
+        }
+        return false;
     }
 
     return (
@@ -31,7 +58,8 @@ const HeroSection = () => {
                             peace of mind through blockchain-powered traceability.
                         </p>
                         <div className='flex flex-row'>
-                            <button className="bg-[#00C261] px-10 text-white font-bold rounded-lg flex justify-items-center items-center">
+                            <button className="bg-[#00C261] px-10 text-white font-bold rounded-lg flex justify-items-center items-center"
+                                    onClick={loginButton}>
                                 Get Started
                                 <Wheat className="h-5 w-5 mx-3"/>
                             </button>

@@ -4,7 +4,9 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Timeline } from 'primereact/timeline';
 import { InputText } from 'primereact/inputtext';
-import { AlertCircle, ChevronDown, ChevronUp, Search, Wheat, ThermometerSun, Factory, WheatOff, ArrowLeftToLine } from 'lucide-react';
+import { AlertCircle, Search, Wheat, ThermometerSun, Factory, WheatOff, ArrowLeftToLine } from 'lucide-react';
+
+import emptyIllustration from '@/images/illustrations/space.svg';
 
 const TransactionHistory = () => {
   const [transactions, setTransactions] = useState([]);
@@ -171,11 +173,12 @@ const TransactionHistory = () => {
         emptyMessage="No transactions found."
       >
         <Column field="riceID" header={riceIDHeader} className="pl-20"/>
-        <Column field="type" header={typeHeader} className="pl-"/>
+        <Column field="type" header={typeHeader} className="pl-4"/>
       </DataTable>
       {filteredTransactions.length === 0 && (
-        <div className="text-center text-4xl text-[#00C261] mb-4">
-          Start by Searching RICE ID
+        <div className='flex flex-col items-center justify-center gap-4'>
+            <img src={emptyIllustration} alt="empty" width="150" />
+            <p className='text-primary text-2xl font-semibold'>Start by searching Rice ID</p>
         </div>
       )}
 

@@ -5,7 +5,7 @@ import StatisticsSection from './StatisticsSection'
 
 const OfferSection = () => {
     return (
-        <section className="bg-[#2A2A2A] h-screen text-white relative">
+        <section id="offerSection" className="bg-[#2A2A2A] h-screen text-white relative">
             <StatisticsSection />      
 
             {/* Left Side */}
