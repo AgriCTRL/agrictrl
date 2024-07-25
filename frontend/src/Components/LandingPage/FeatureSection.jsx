@@ -68,32 +68,31 @@ const FeatureSection = () => {
 
                     {/* Right side: Features Section */}
                     <div>
-                        <div className="flex flex-row pt-10">
-                            <Wheat className="text-[#00C261] h-5 w-5"/>
-                            <p className="text-s text-[#00C261] mb-2 px-2">Features</p>
+                        <div className="flex flex-row py-10">
+                            {/* <Wheat className="text-[#00C261] h-10 w-10"/> */}
+                            <h2 className="text-4xl  text-[#00C261] font-bold">Features of AgriCTRL+</h2>
                         </div>
-                        <h2 className="text-4xl text-[#444444] font-bold">Know Where You're Getting</h2>
-                        <h2 className="text-4xl text-[#444444] font-bold mb-8 ">Your Rice</h2>
+
                         <div className="space-y-8">
                             <div className="flex flex-row">
                                 <Sprout className="text-[#00C261] h-12 w-12 mr-8"/>
                                 <div className="flex flex-col mt-2">
-                                    <h3 className="text-xl font-semibold mb-2">The Farm and Farmers</h3>
-                                    <p>The world's largest e-store, has returned more than 79% from Oct 28, 2019, to Oct 28, 2020, and more</p>
+                                    <h3 className="text-xl font-semibold mb-2">Traceability Power</h3>
+                                    <p>Discover where is the source of the rice you consume, the processes it took before the palay become a bigas.</p>
                                 </div>
                             </div>
                             <div className="flex flex-row">
                                 <Microwave className="text-[#00C261] h-12 w-12 mr-8"/>
                                 <div className="flex flex-col mt-2">
-                                    <h3 className="text-xl font-semibold mb-2">Text-to-speech</h3>
-                                    <p>The sole product manufacturer of the group, has returned more than 82% over from Oct 28, 2019, to Oct</p>
+                                    <h3 className="text-xl font-semibold mb-2">Decentralized Records</h3>
+                                    <p>Utilizing ICP Blockchain Backend and Frontend Services, we can securely save and collect data.</p>
                                 </div>
                             </div>
                             <div className="flex flex-row">
                                 <Package className="text-[#00C261] h-12 w-12 mr-8"/>
                                 <div className="flex flex-col mt-2">
-                                    <h3 className="text-xl font-semibold mb-2">Omnichannel</h3>
-                                    <p>The social media maestro, owner of Instagram, WhatsApp, and its namesake website. It has returned mo</p>
+                                    <h3 className="text-xl font-semibold mb-2">Supply Chain Management</h3>
+                                    <p>Manage the entire supply chain of rice through simple to understand user interfaces. </p>
                                 </div>
                             </div>
                         </div>

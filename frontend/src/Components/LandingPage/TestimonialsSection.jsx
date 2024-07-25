@@ -8,31 +8,31 @@ const TestimonialsSection = () => {
 
     const [testimonials] = useState([
     {
-        name: 'Aldrin Abenoja',
-        role: 'Nursing Assistant',
-        image: '/path/to/devon-lane-image.jpg',
-        quote: 'Their blood alcohol levels rose to 0.007 to 0.02 o/oo (parts per thousand), or 0.7 to 2.0 mg/L.',
+        name: 'Aling Maria',
+        role: 'Karinderya Owner',
+        image: 'https://i.pravatar.cc/301',
+        quote: 'Gamit ang AgriCTRL+ mas madali namin makita kung saan galing ang mga bigas na ginagamit namin dito sa negosyo.',
         date: '4/4/18'
     },
     {
-        name: 'Joerel Belen',
-        role: 'Nursing Assistant',
-        image: '/path/to/devon-lane-image.jpg',
-        quote: 'Their blood alcohol levels rose to 0.007 to 0.02 o/oo (parts per thousand), or 0.7 to 2.0 mg/L.',
+        name: 'Tomas Dela Cruz',
+        role: 'Rice Farmer',
+        image: 'https://i.pravatar.cc/302',
+        quote: 'Salamat sa AgriCTRL+ mas madali namin naibebenta ang aming ani sa makataong presyo.',
         date: '4/4/18'
     },
     {
-        name: 'Jobert Mampusti',
-        role: 'Nursing Assistant',
-        image: '/path/to/devon-lane-image.jpg',
-        quote: 'Their blood alcohol levels rose to 0.007 to 0.02 o/oo (parts per thousand), or 0.7 to 2.0 mg/L.',
+        name: 'Jennie Villanueva',
+        role: 'Supermarket Manager',
+        image: 'https://i.pravatar.cc/303',
+        quote: 'Using this application we can assure our customer with fairness for rice products we sell.',
         date: '4/4/18'
     },
     {
-        name: 'Harvy Pontillas',
-        role: 'Nursing Assistant',
-        image: '/path/to/devon-lane-image.jpg',
-        quote: 'Their blood alcohol levels rose to 0.007 to 0.02 o/oo (parts per thousand), or 0.7 to 2.0 mg/L.',
+        name: 'Ronnie Salazar',
+        role: 'NFA Procurement Officer',
+        image: 'https://i.pravatar.cc/304',
+        quote: 'Sa pamamagitan ng AgriCTRL+, napadali and supply chain management ng aming ahensya.',
         date: '4/4/18'
     },
     ]);
@@ -47,7 +47,7 @@ const TestimonialsSection = () => {
                         <Wheat className="text-[#00C261] h-5 w-5" />
                         <span className="text-[#00C261] font-semibold ml-2">Testimonials</span>
                     </div>
-                    <h2 className="text-4xl text-[#444444] font-bold mb-12">What They Say About Us</h2>
+                    <h2 className="text-4xl text-[#444444] font-bold mb-12">What They Say to AgriCTRL+</h2>
                 </div>
 
                 <div className="relative">

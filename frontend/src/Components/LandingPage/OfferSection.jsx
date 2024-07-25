@@ -11,33 +11,36 @@ const OfferSection = () => {
             {/* Left Side */}
             <div className="container mx-auto px-4 flex flex-col md:flex-row items-center -translate-y-14">
                 <div className="md:w-1/2 z-10 p-10">
-                    <div className="flex flex-row pb-10">
-                        <Wheat className="text-[#00C261] h-6 w-6"/>
-                        <div className="text-[#00C261] text-md px-6 tracking-widest">What We offer</div>
-                    </div>
-                    <h2 className="text-4xl font-bold">Transparency With Rice</h2>
-                    <h2 className="text-4xl font-bold mb-6">Supply Chain</h2>
+                    <h2 className="text-4xl font-bold">Our</h2>
+                    <h2 className="text-5xl font-bold mb-10">Mission</h2>
                     <div className="space-y-6">
+                        <div className="flex items-start space-x-4">
+                            <Wheat className="text-[#00C261] h-12 w-12 -translate-y-2"/>
+                            <div>
+                                <h3 className="font-semibold text-green-400">Consumers</h3>
+                                <p className="text-gray-300 text-xl">Increase consumer confidence for rice that they purchase.</p>
+                            </div>
+                        </div>
                         <div className="flex items-start space-x-4">
                             <Sprout className="text-[#00C261] h-12 w-12 -translate-y-2"/>
                             <div>
-                                <h3 className="font-semibold text-green-400">Preview Dialer</h3>
-                                <p className="text-gray-300">The world's largest e-store, has returned more than 79% from Oct 28, 2018, to Oct 28, 2020, and more</p>
+                                <h3 className="font-semibold text-green-400">Farmers</h3>
+                                <p className="text-gray-300 text-xl">Improve fair trade for farmers.</p>
                             </div>
                         </div>
                         <div className="flex items-start space-x-4">
                             <Microwave className="text-[#00C261] h-12 w-12 -translate-y-2"/>
                             <div>
-                                <h3 className="font-semibold text-green-400">Text-to-speech</h3>
-                                <p className="text-gray-300">The sole product manufacturer of the group, has returned more than 82% over from Oct 28, 2018, to Oc</p>
+                                <h3 className="font-semibold text-green-400">Regulators</h3>
+                                <p className="text-gray-300 text-xl">Help the regulators for data driven decision and policy making.</p>
                             </div>
                         </div>
                         <div className="bg-white h-[1px]"></div>
                     </div>
-                    <button className="mt-8 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-lg flex items-center">
+                    {/* <button className="mt-8 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-lg flex items-center">
                         Get Started
                         <Wheat className="text-white h-5 w-5 mx-2"/>
-                    </button>
+                    </button> */}
                 </div>
 
                 {/* Right Side */}

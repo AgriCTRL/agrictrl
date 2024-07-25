@@ -9,11 +9,8 @@ const WorkingProcessSection = () => {
         <section className="bg-white h-screen py-16">
             <div className="container mx-auto px-4">
                 <div className="flex flex-col justify-center items-center">
-                    <div className="flex items-center mb-4">
-                        <Wheat className="text-[#00C261]"/>
-                        <span className="text-[#00C261] font-semibold">Working Process</span>
-                    </div>  
-                    <h2 className="text-4xl text-[#444444] font-bold mb-8">Transparency With Rice Supply Chain</h2>
+                    <div className="flex items-center mb-4"></div>  
+                    <h2 className="text-4xl text-[#444444] font-bold mb-8">Project Roadmap</h2>
                             
                     {/* Stakeholder Selector */}
                     <div className="flex bg-[#F5F5F5] p-3 mb-8 rounded-lg z-50">
@@ -54,11 +51,12 @@ const WorkingProcessSection = () => {
                                                 <div className="text-[#00C261] text-4xl font-bold">1</div>
                                                 <div className="bg-[#00C261] w-6 h-[2px]"></div>
                                             </div>
-                                            <h3 className="text-[#00C261] tracking-wider font-semibold">Plant</h3>
+                                            <h3 className="text-[#00C261] tracking-wider font-semibold">Track 'n Trace</h3>
                                         </div>
                                         <div className="mb-5">
-                                            <p className="text-sm">Farmers plant</p>
-                                            <p className="text-sm">and sow rice.</p>
+                                            <p className="text-sm">Building of</p>
+                                            <p className="text-sm">tracing platform</p>
+                                            <p className="text-sm">for consumers.</p>
                                         </div>
                                     </div>
                                     <div className="h-20 w-20 z-0 bg-[#00C261] rounded-lg -translate-x-14 -translate-y-14"></div>
@@ -78,12 +76,12 @@ const WorkingProcessSection = () => {
                                                 <div className="text-[#00C261] text-4xl font-bold">2</div>
                                                 <div className="bg-[#00C261] w-6 h-[2px]"></div>
                                             </div>
-                                            <h3 className="text-[#00C261] tracking-wider font-semibold">Store</h3>
+                                            <h3 className="text-[#00C261] tracking-wider font-semibold">E-commerce</h3>
                                         </div>
                                         <div className="mb-5">
-                                            <p className="text-sm">Farmers store</p>
-                                            <p className="text-sm">rice data on the</p>
-                                            <p className="text-sm">blockchain</p>
+                                            <p className="text-sm">Integrating</p>
+                                            <p className="text-sm">the e-commerce </p>
+                                            <p className="text-sm">platform for farmers.</p>
                                         </div>
                                     </div>
                                     <div className="h-20 w-20 z-0 bg-[#00C261] rounded-lg -translate-x-14 -translate-y-14"></div>
@@ -100,12 +98,12 @@ const WorkingProcessSection = () => {
                                                 <div className="text-[#00C261] text-4xl font-bold">3</div>
                                                 <div className="bg-[#00C261] w-6 h-[2px]"></div>
                                             </div>
-                                            <h3 className="text-[#00C261] tracking-wider font-semibold">Sell</h3>
+                                            <h3 className="text-[#00C261] tracking-wider font-semibold">Insurance</h3>
                                         </div>
                                         <div className="mb-5">
-                                            <p className="text-sm">Farmers sell</p>
-                                            <p className="text-sm">their hard</p>
-                                            <p className="text-sm">earned rice.</p>
+                                            <p className="text-sm">Develop</p>
+                                            <p className="text-sm">smart contract-based</p>
+                                            <p className="text-sm">insurance.</p>
                                         </div>
                                     </div>
                                     <div className="h-20 w-20 z-0 bg-[#00C261] rounded-lg -translate-x-14 -translate-y-14"></div>
