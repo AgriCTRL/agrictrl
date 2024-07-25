@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { AuthClient } from "@dfinity/auth-client";
+import { useNavigate } from 'react-router-dom';
 
 const RegistrationPage = () => {
   const [principal, setPrincipal] = useState('');
@@ -9,6 +10,8 @@ const RegistrationPage = () => {
   const [lastName, setLastname] = useState('');
   const [position, setPosition] = useState('');
   const [region, setRegion] = useState('');
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchPrincipal = async () => {
@@ -38,7 +41,7 @@ const RegistrationPage = () => {
         if(!res.ok) {
             throw new Error('Error registering user')
         }
-        window.location.reload();
+        navigate('/');
     }
     catch (error) {
         console.log(error.message)

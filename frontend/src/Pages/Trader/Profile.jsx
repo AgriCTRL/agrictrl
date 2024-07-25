@@ -61,9 +61,6 @@ function Profile() {
                 throw new Error('Failed to update');
             }
 
-            const data = await res.json();
-            console.log('User updated: ', data);
-
             setEditing(false);
 
         } catch (error) {
