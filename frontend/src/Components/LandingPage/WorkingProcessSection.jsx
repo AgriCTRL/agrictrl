@@ -102,8 +102,8 @@ const WorkingProcessSection = () => {
                                         </div>
                                         <div className="mb-5">
                                             <p className="text-sm">Develop</p>
-                                            <p className="text-sm">smart contract-based</p>
-                                            <p className="text-sm">insurance.</p>
+                                            <p className="text-sm">smart contract</p>
+                                            <p className="text-sm">based insurance.</p>
                                         </div>
                                     </div>
                                     <div className="h-20 w-20 z-0 bg-[#00C261] rounded-lg -translate-x-14 -translate-y-14"></div>

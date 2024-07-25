@@ -95,7 +95,7 @@ function UserLayout({ children }) {
 
                     {/* Copyright  */}
                     <div className="bg-gray-900 text-gray-400 text-center pb-4 text-sm">
-                        <p>@Copyright 2024</p>
+                        <p>Copyright @ 2024 All Rights Reserved</p>
                     </div>
                 </footer>
             </div>
