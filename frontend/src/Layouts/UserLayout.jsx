@@ -75,7 +75,7 @@ function UserLayout({ children, activePage }) {
         return activePage?.toLowerCase() == text.toLowerCase();
     }
     return (
-        <div className='flex bg-background w-full'>
+        <div className='flex font-poppins bg-background w-full'>
             <SidebarComponent expanded={expanded}>
                 {sidebarItems.map((item, index) => (
                     <SidebarItem

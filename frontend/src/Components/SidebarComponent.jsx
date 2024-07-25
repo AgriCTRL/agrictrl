@@ -61,7 +61,7 @@ function SidebarItem({ icon, text, active, link }) {
         <li className={`
             relative flex items-center py-4 my-4 
             font-medium rounded-md cursor-pointer
-            transition-colors group
+            transition-colors group z-50
             ${
                 active
                     ? 'bg-gradient-to-r from-secondary to-primary text-white'

@@ -1,10 +1,15 @@
-import { React, useState } from 'react';
-import { InputText } from 'primereact/inputtext';
-import { Button } from 'primereact/button';
+import { React, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import { AuthClient } from "@dfinity/auth-client";
+import { Link as ScrollLink } from 'react-scroll';
 
 function UserLayout({ children }) {
+    const navigate = useNavigate();
+
+    const handleHistoryClick = () => {
+        navigate('/history');
+    }
 
     const loginButton = async () => {   
         try {
@@ -42,10 +47,13 @@ function UserLayout({ children }) {
                             <div className="text-2xl font-bold text-[#00C261] letter-spacing-4 ml-2 tracking-wider">AgriCTRL+</div>
                         </div>
                         <nav className="flex items-center">
-                            <a href="#" className="text-[#00C261] underline underline-offset-4 font-bold mx-6">Home</a>
-                            <a href="#" className="mx-6">Services</a>
-                            <a href="#" className="mx-6">About Us</a>
-                            <Search className="h-6 w-6 mx-6 text-white"/>
+                            {/* <a href="#" className="text-[#00C261] underline underline-offset-4 font-bold mx-6">Home</a> */}
+                            <ScrollLink to="featureSection" smooth={true} duration={500} className="mx-6 text-[#00C261] cursor-pointer">Services</ScrollLink>
+                            <ScrollLink to="offerSection" smooth={true} duration={500} className="mx-6 text-[#00C261] cursor-pointer">About Us</ScrollLink>
+                            <button onClick={handleHistoryClick}>
+                                <Search className="h-6 w-6 mx-6 text-[#00C261]"/>
+                            </button>
+                            
                             <button onClick={ loginButton } className="bg-gradient-to-r from-[#005155] to-[#00C261] px-20 py-3 rounded-lg ml-2 mr-20">Login</button>
                         </nav>
                     </div>
