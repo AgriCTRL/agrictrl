@@ -72,21 +72,21 @@ const RegistrationPage = () => {
             <div className="flex flex-row mb-10">
                 <div className="mr-5">
                     <label htmlFor="firstName" className="">First Name</label>
-                    <InputText value={firstName} onChange={(e) => setFirstName(e.target.value)} id="firstName" placeholder="enter your first name" className="Normal border rounded-lg w-full h-10 pl-3 pr-3 mt-2" />
+                    <InputText required value={firstName} onChange={(e) => setFirstName(e.target.value)} id="firstName" placeholder="enter your first name" className="Normal border rounded-lg w-full h-10 pl-3 pr-3 mt-2" />
                 </div>
                 <div>
                     <label htmlFor="lastName" className="">Last Name</label>
-                    <InputText value={lastName} onChange={(e) => setLastname(e.target.value)} id="lastName" placeholder="enter your last name" className="Normal border rounded-lg w-full h-10 pl-3 pr-3 mt-2" />
+                    <InputText required value={lastName} onChange={(e) => setLastname(e.target.value)} id="lastName" placeholder="enter your last name" className="Normal border rounded-lg w-full h-10 pl-3 pr-3 mt-2" />
                 </div>
             </div>
             
             <div className="">
                 <label className="block mb-1">Position</label>
-                <InputText value={position} onChange={(e) => setPosition(e.target.value)} id="position" placeholder="enter your position" className="Normal border rounded-lg w-[48%] h-10 pl-3 pr-3 mt-2" />
+                <InputText required value={position} onChange={(e) => setPosition(e.target.value)} id="position" placeholder="enter your position" className="Normal border rounded-lg w-[48%] h-10 pl-3 pr-3 mt-2" />
             </div>
             <div className="">
                 <label className="block mb-1">Region</label>
-                <InputText value={region} onChange={(e) => setRegion(e.target.value)} id="region" placeholder="enter your region" className="Normal border rounded-lg w-[48%] h-10 pl-3 pr-3 mt-2" />
+                <InputText required value={region} onChange={(e) => setRegion(e.target.value)} id="region" placeholder="enter your region" className="Normal border rounded-lg w-[48%] h-10 pl-3 pr-3 mt-2" />
             </div>
             <Button label="Register" className="ml-[450px] w-40 h-8 text-white bg-[#005155] border-[#005155] hover:bg-teal-700" />
         </form>
