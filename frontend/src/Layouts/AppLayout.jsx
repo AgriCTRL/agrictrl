@@ -35,11 +35,11 @@ function UserLayout({ children }) {
         <div >
             <div> 
                 {/* Header */}
-                <header className="fixed backdrop-blur-sm font-poppins text-white p-3 left-0 w-full z-50">
+                <header className="fixed backdrop-blur-md font-poppins text-white p-3 left-0 w-full z-50">
                     <div className="container mx-auto flex justify-between items-center">
                         <div className="flex items-center">
                             <img src="AgriCTRLLogo.png" alt="AgriCTRL+ Logo" className="h-12 ml-10" />
-                            <div className="text-2xl mx-10 tracking-wider">AgriCTRL+</div>
+                            <div className="text-2xl font-bold text-[#00C261] letter-spacing-4 ml-2 tracking-wider">AgriCTRL+</div>
                         </div>
                         <nav className="flex items-center">
                             <a href="#" className="text-[#00C261] underline underline-offset-4 font-bold mx-6">Home</a>
@@ -56,8 +56,9 @@ function UserLayout({ children }) {
                 </main>
 
                 {/* Footer */}
-                <footer className="bg-gray-900 text-white py-12">
-                    <div className="flex flex-row justify-between mx-24 px-4">
+                <footer className="bg-gray-900 text-white pt-20 pb-10">
+
+                    {/* <div className="flex flex-row justify-between mx-24 px-4">
                             <div className="">
                                 <div className="flex items-center mb-4">
                                     <img src="AgriCTRLLogo.png" alt="AgriCTRL+ Logo" className="h-12 mr-2" />
@@ -90,10 +91,11 @@ function UserLayout({ children }) {
                                     <Button label="SUBSCRIBE NOW" className="" />
                                 </div>
                             </div> 
-                    </div>
+                    </div> */}
+
                     {/* Copyright  */}
                     <div className="bg-gray-900 text-gray-400 text-center pb-4 text-sm">
-                        <p>Propose mes services de plombier et petits travaux</p>
+                        <p>@Copyright 2024</p>
                     </div>
                 </footer>
             </div>

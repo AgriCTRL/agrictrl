@@ -12,7 +12,7 @@ const StatisticsSection = () => {
                 <div className="relative z-10 flex flex-row items-center">
                     <Wheat className="text-white h-14 w-14 mx-2"/>
                     <div className="flex flex-col justify-start">
-                        <div className="text-2xl font-bold">0</div>
+                        <div className="text-2xl font-bold">17,000+</div>
                         <div className="text-sm">Rice</div>
                         <div className="text-sm">Tracked</div>
                     </div>
@@ -22,7 +22,7 @@ const StatisticsSection = () => {
             <div className="flex flex-row items-center p-10">
                 <UtensilsCrossed className="text-white h-14 w-14 mx-2"/>
                 <div className="flex flex-col justify-start">
-                    <div className="text-2xl font-bold">0</div>
+                    <div className="text-2xl font-bold">777</div>
                     <div className="text-sm">Farmers</div>
                 </div>
             </div>
@@ -30,7 +30,7 @@ const StatisticsSection = () => {
             <div className="flex flex-row items-center p-10">
                 <Coins className="text-white h-14 w-14 mx-2"/>
                 <div className="flex flex-col justify-start">
-                    <div className="text-2xl font-bold">0</div>
+                    <div className="text-2xl font-bold">548</div>
                     <div className="text-sm">Rice</div>
                     <div className="text-sm">Sellers</div>
                 </div>
@@ -39,7 +39,7 @@ const StatisticsSection = () => {
             <div className="flex flex-row items-center p-10">
                 <Users className="text-white h-14 w-14 mx-2"/>
                 <div className="flex flex-col justify-start">
-                    <div className="text-2xl font-bold">0</div>
+                    <div className="text-2xl font-bold">1,700+</div>
                     <div className="text-sm">Customers</div>
                 </div>
             </div>
