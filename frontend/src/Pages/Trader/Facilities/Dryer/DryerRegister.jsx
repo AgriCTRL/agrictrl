@@ -5,32 +5,45 @@ import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 
 function Dryer({ visible, onHide, onDryerRegistered }) {
-    const [dryerName, setDryerName] = useState('');
+    const [name, setName] = useState('');
     const [capacity, setCapacity] = useState('');
     const [location, setLocation] = useState('');
-    const [contact, setContact] = useState('');
-    const [status, setStatus] = useState(null);
+    const [contactInfo, setContact] = useState('');
+    const [status, setStatus] = useState('Active');
 
     const statusOptions = [
-        { label: 'Active', value: 'active' },
-        { label: 'Inactive', value: 'inactive' }
+        { label: 'Active', value: 'Active' },
+        { label: 'Inactive', value: 'Inactive' }
     ];
 
-    const handleRegister = () => {
-        const trackingId = Date.now().toString();
+    const handleRegister = async (e) => {
+        e.preventDefault();
 
         const newDryer = {
-            id: trackingId,
-            dryerName,
+            name,
             capacity,
             location,
-            contact,
+            contactInfo,
             status
         };
 
+        try {
+            const res = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/dryers', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(newDryer)
+            });
+            if(!res.ok) {
+                throw new Error('Error adding data')
+            }
+        }
+        catch (error) {
+            console.log(error.message);
+        }
+         
         onDryerRegistered(newDryer);
 
-        setDryerName('');
+        setName('');
         setCapacity('');
         setLocation('');
         setContact('');
@@ -42,33 +55,33 @@ function Dryer({ visible, onHide, onDryerRegistered }) {
     return (
         <Dialog visible={visible} onHide={onHide} header="Register Dryer" modal style={{ width: '40vw' }}>
             <div className="p-grid p-nogutter">
-                <div className="p-col-12 p-2">
+                <form onSubmit={handleRegister} className="p-col-12 p-2">
                     <div className="p-inputgroup mb-3">
                         <span className="p-inputgroup-addon rounded-sm text-white bg-[#005155]">
                             Dryer Name
                         </span>
-                        <InputText className="border ml-2 p-2 rounded-sm" value={dryerName} onChange={(e) => setDryerName(e.target.value)} />
+                        <InputText required className="border ml-2 p-2 rounded-sm" value={name} onChange={(e) => setName(e.target.value)} />
                     </div>
 
                     <div className="p-inputgroup mb-3">
                         <span className="p-inputgroup-addon rounded-sm text-white bg-[#005155]">
                             Capacity
                         </span>
-                        <InputText className="border ml-2 p-2 rounded-sm" value={capacity} onChange={(e) => setCapacity(e.target.value)} />
+                        <InputText required className="border ml-2 p-2 rounded-sm" value={capacity} onChange={(e) => setCapacity(e.target.value)} />
                     </div>
 
                     <div className="p-inputgroup mb-3">
                         <span className="p-inputgroup-addon rounded-sm text-white bg-[#005155]">
                             Location
                         </span>
-                        <InputText className="border ml-2 p-2 rounded-sm" value={location} onChange={(e) => setLocation(e.target.value)} />
+                        <InputText required className="border ml-2 p-2 rounded-sm" value={location} onChange={(e) => setLocation(e.target.value)} />
                     </div>
 
                     <div className="p-inputgroup mb-3">
                         <span className="p-inputgroup-addon rounded-sm text-white bg-[#005155]">
                             Contact
                         </span>
-                        <InputText className="border ml-2 p-2 rounded-sm" value={contact} onChange={(e) => setContact(e.target.value)} />
+                        <InputText required className="border ml-2 p-2 rounded-sm" value={contactInfo} onChange={(e) => setContact(e.target.value)} />
                     </div>
 
                     <div className="p-inputgroup mb-3">
@@ -79,9 +92,9 @@ function Dryer({ visible, onHide, onDryerRegistered }) {
                     </div>
 
                     <div className="flex justify-center mt-4">
-                        <Button label="Register" onClick={handleRegister} className="p-button-success border p-2 px-5 text-white font-bold bg-gradient-to-r from-[#00C261] to-[#005155]" />
+                        <Button label="Register" className="p-button-success border p-2 px-5 text-white font-bold bg-gradient-to-r from-[#00C261] to-[#005155]" />
                     </div>
-                </div>
+                </form>
             </div>
         </Dialog>
     );
