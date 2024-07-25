@@ -22,16 +22,16 @@ function Sidebar({ children, expanded }) {
 
     return (
         <aside className="h-screen">
-            <nav className={`h-full flex flex-col items-center py-6 ${
+            <nav className={`h-full flex flex-col items-center py-5 ${
                 expanded ? 'px-10' : 'pl-4 pr-10'
             }`}>
-                <div className="flex items-center justify-center w-full pt-4 pb-10">
+                <div className="flex items-center justify-start w-full pt-1 pb-2">
                     <img 
-                        src="https://img.logoipsum.com/285.svg" 
+                        src="/sidebarLogo.png" 
                         className={`overflow-hidden transition-all cursor-pointer ${
                             expanded ? 'w-auto' : 'w-0'
                         }`} 
-                        alt="" 
+                        alt="AgriCTRL Logo" 
                     />
                 </div>
                 
