@@ -16,7 +16,6 @@ export default {
                 'tag-grey': '#ECECEC',
             },
             fontFamily: {
-                kanit: ['Kanit'],
                 poppins: ['Poppins', 'sans-serif']
             },
             fontSize: {

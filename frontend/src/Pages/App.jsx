@@ -19,8 +19,7 @@ import TransactionHistory from "./TransactionHistory";
 import { AuthClient } from "@dfinity/auth-client";
 
 function App() {
-    const [isAuthenticated, setIsAuthenticated] = useState(true);
-    const navigate = useNavigate();
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
 
     useEffect(() => {
         const fetchPrincipal = async () => {
@@ -29,30 +28,16 @@ function App() {
                 const identity = authClient.getIdentity();
                 const principal = identity.getPrincipal().toText();
                 if (principal !== "2vxsx-fae") {
-                    const res = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/nfapersonnels/principal/${principal}`);
-                    const data = await res.json();
-                    if(data === null) {
-                        navigate('/register');
-                    }
-                    else if(data !== null) {
-                        setIsAuthenticated(true);
-                        navigate('/trader');
-                    }
-                    else {
-                        throw new Error('Error checking user existence');
-                    }
+                    setIsAuthenticated(true);
                 }
             } catch (error) {
                 console.log(error.message);
             }
         };
-        fetchPrincipal();
+        if(!isAuthenticated) {
+            fetchPrincipal();
+        }
     }, []);
-        // Check if user is authenticated
-        // TODO: Replace with actual authentication
-        // const user = localStorage.getItem("user");
-    //     // setIsAuthenticated(!!user);
-    // }, []);
 
     return (
         <div className="flex h-screen transition-transform duration-300">
