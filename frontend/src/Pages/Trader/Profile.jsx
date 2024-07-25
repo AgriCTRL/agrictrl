@@ -10,9 +10,7 @@ function Profile() {
     const [lastName, setLastName] = useState('');
     const [position, setPosition] = useState('');
     const [region, setRegion] = useState('');
-    const [editingName, setEditingName] = useState(false);
-    const [editingPosition, setEditingPosition] = useState(false);
-    const [editingRegion, setEditingRegion] = useState(false);
+    const [editing, setEditing] = useState(false);
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -37,14 +35,8 @@ function Profile() {
         fetchUser();
     }, []);
 
-    const handleEdit = (field) => {
-        if (field === 'position') {
-            setEditingPosition(!editingPosition);
-        } else if (field === 'region') {
-            setEditingRegion(!editingRegion);
-        } else if (field === 'name') {
-            setEditingName(!editingName);
-        }
+    const handleEdit = () => {
+        setEditing(true);
     };
 
     const handleSave = async (e) => {
@@ -72,16 +64,12 @@ function Profile() {
             const data = await res.json();
             console.log('User updated: ', data);
 
-            setEditingPosition(false);
-            setEditingRegion(false);
-            setEditingName(false);
+            setEditing(false);
 
         } catch (error) {
             console.log(error);
         }
     };
-
-    const isEditing = editingName || editingPosition || editingRegion;
 
     return (
         <UserLayout activePage="Profile">
@@ -93,7 +81,7 @@ function Profile() {
                 <div className='mb-4'>
                     <label className='block text-sm font-medium text-gray-700 mb-1'>Name</label>
                     <div className='flex'>
-                        {editingName ? (
+                        {editing ? (
                             <div className='flex w-1/2 items-center gap-2'>
                                 <InputText
                                     required
@@ -116,19 +104,13 @@ function Profile() {
                                 <div className='p-2 w-full bg-blue-100 rounded'>{lastName}</div>
                             </div>
                         )}
-                        <Button
-                            icon={editingName ? "pi pi-check" : "pi pi-pencil"}
-                            onClick={() => handleEdit('name')}
-                            className='p-button-rounded p-button-text ml-2'
-                            type="button"
-                        />
                     </div>
                 </div>
 
                 <div className='mb-4'>
                     <label className='block text-sm font-medium text-gray-700 mb-1'>Position</label>
                     <div className='flex items-center'>
-                        {editingPosition ? (
+                        {editing ? (
                             <InputText
                                 required
                                 value={position}
@@ -138,19 +120,13 @@ function Profile() {
                         ) : (
                             <div className='w-1/2 p-2 bg-blue-100 rounded'>{position}</div>
                         )}
-                        <Button
-                            icon={editingPosition ? "pi pi-check" : "pi pi-pencil"}
-                            onClick={() => handleEdit('position')}
-                            className='p-button-rounded p-button-text ml-2'
-                            type="button"
-                        />
                     </div>
                 </div>
 
                 <div className='mb-4'>
                     <label className='block text-sm font-medium text-gray-700 mb-1'>Region</label>
                     <div className='flex items-center'>
-                        {editingRegion ? (
+                        {editing ? (
                             <InputText
                                 required
                                 value={region}
@@ -160,25 +136,28 @@ function Profile() {
                         ) : (
                             <div className='w-1/2 p-2 bg-blue-100 rounded'>{region}</div>
                         )}
-                        <Button
-                            icon={editingRegion ? "pi pi-check" : "pi pi-pencil"}
-                            onClick={() => handleEdit('region')}
-                            className='p-button-rounded p-button-text ml-2'
-                            type="button"
-                        />
                     </div>
                 </div>
 
-                {isEditing && (
-                    <div className='flex flex-row mt-4'>
-                        <div className="flex flex-grow"></div>
+                <div className='flex flex-row mt-4'>
+                    <div className="flex flex-grow"></div>
+                    {!editing && (
+                        <Button
+                            label="Edit"
+                            type="button"
+                            onClick={handleEdit}
+                            className='p-button-success border h-14 w-24 text-white font-bold bg-gradient-to-r from-[#00C261] to-[#005155]'
+                        />
+                    )}
+                    
+                    {editing && (
                         <Button
                             label="Save"
                             type="submit"
-                            className='p-button-success border p-3 px-7 text-white font-bold bg-gradient-to-r from-[#00C261] to-[#005155]'
+                            className='p-button-success border h-14 w-24 text-white font-bold bg-gradient-to-r from-[#00C261] to-[#005155]'
                         />
-                    </div>
-                )}
+                    )}
+                </div>
             </form>
         </UserLayout>
     );
