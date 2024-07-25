@@ -33,13 +33,13 @@ function UserLayout({ children }) {
 
     return (
         <div >
-            <div>
+            <div> 
                 {/* Header */}
                 <header className="fixed backdrop-blur-sm font-poppins text-white p-3 left-0 w-full z-50">
                     <div className="container mx-auto flex justify-between items-center">
                         <div className="flex items-center">
                             <img src="AgriCTRLLogo.png" alt="AgriCTRL+ Logo" className="h-12 ml-10" />
-                            <div className="text-3xl mx-10 tracking-wider">AgriCTRL+</div>
+                            <div className="text-2xl mx-10 tracking-wider">AgriCTRL+</div>
                         </div>
                         <nav className="flex items-center">
                             <a href="#" className="text-[#00C261] underline underline-offset-4 font-bold mx-6">Home</a>

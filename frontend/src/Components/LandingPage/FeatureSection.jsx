@@ -19,41 +19,41 @@ const FeatureSection = () => {
                             </div>
                             <div className="h-36 w-32 ml-10 my-2 shadow-lg border rounded-lg flex flex-col items-center justify-center">
                                 <Search className="h-10 w-10 mx-6 my-2 text-[#00C261]"/>
-                                <p className="text-[#00C261] font-bold">Sales Receipt</p>
+                                <p className="text-[#00C261] font-bold">Farmer</p>
                             </div>
                             <div className="h-36 w-32 shadow-lg border rounded-lg flex flex-col items-center justify-center translate-y-20">
                                 <Search className="h-10 w-10 mx-6 my-2 text-[#00C261]"/>
-                                <p className="text-[#00C261] font-bold">Credit Memo</p>
+                                <p className="text-[#00C261] font-bold">Palay</p>
                             </div>
                             <div className="h-36 w-32 mr-10 shadow-lg border rounded-lg flex flex-col items-center justify-center">
                                 <Search className="h-10 w-10 mx-6 my-2 text-[#00C261]"/>
-                                <p className="text-[#00C261] font-bold">Time Activity</p>
+                                <p className="text-[#00C261] font-bold">Price</p>
                             </div>
                             <div className="h-36 w-32 ml-10 shadow-lg border rounded-lg flex flex-col items-center justify-center">
                                 <Search className="h-10 w-10 mx-6 my-2 text-[#00C261]"/>
-                                <p className="text-[#00C261] font-bold">Delayed</p>
-                                <p className="text-[#00C261] font-bold">Charge</p>
+                                <p className="text-[#00C261] font-bold">Delivery</p>
+                                <p className="text-[#00C261] font-bold">Bigas</p>
                             </div>
                             <div className="h-36 w-32 border shadow-lg rounded-lg flex flex-col items-center justify-center translate-y-20">
                                 <Search className="h-10 w-10 mx-6 my-2 text-[#00C261]"/>
-                                <p className="text-[#00C261] font-bold">Delayed</p>
-                                <p className="text-[#00C261] font-bold">Charge</p>
+                                <p className="text-[#00C261] font-bold">Track</p>
+                                <p className="text-[#00C261] font-bold">Trace</p>
                             </div>
                             <div className="h-36 w-32 mr-10 my-5 shadow-lg border rounded-lg flex flex-col items-center justify-center">
                                 <Search className="h-10 w-10 mx-6 my-2 text-[#00C261]"/>
-                                <p className="text-[#00C261] font-bold">Statement</p>
+                                <p className="text-[#00C261] font-bold">Kanin</p>
                             </div>
                             <div className="h-36 w-32 ml-10 shadow-lg border rounded-lg flex flex-col items-center justify-center">
                                 <Search className="h-10 w-10 mx-6 my-2 text-[#00C261]"/>
-                                <p className="text-[#00C261] font-bold">Invoice</p>
+                                <p className="text-[#00C261] font-bold">Miller</p>
                             </div>
                             <div className="h-36 w-32 border shadow-lg rounded-lg flex flex-col items-center justify-center translate-y-20">
                                 <Search className="h-10 w-10 mx-6 my-2 text-[#00C261]"/>
-                                <p className="text-[#00C261] font-bold">Payment</p>
+                                <p className="text-[#00C261] font-bold">Dryer</p>
                             </div>
                             <div className="h-36 w-32 mr-10 shadow-lg border rounded-lg flex flex-col items-center justify-center">
                                 <Search className="h-10 w-10 mx-6 my-2 text-[#00C261]"/>
-                                <p className="text-[#00C261] font-bold">Estimate</p>
+                                <p className="text-[#00C261] font-bold">Transparent</p>
                             </div>
                             <div 
                                 className="absolute inset-0 z-10 pointer-events-none translate-y-80" 
@@ -78,7 +78,7 @@ const FeatureSection = () => {
                             <div className="flex flex-row">
                                 <Sprout className="text-[#00C261] h-12 w-12 mr-8"/>
                                 <div className="flex flex-col mt-2">
-                                    <h3 className="text-xl font-semibold mb-2">Preview Dialer</h3>
+                                    <h3 className="text-xl font-semibold mb-2">The Farm and Farmers</h3>
                                     <p>The world's largest e-store, has returned more than 79% from Oct 28, 2019, to Oct 28, 2020, and more</p>
                                 </div>
                             </div>

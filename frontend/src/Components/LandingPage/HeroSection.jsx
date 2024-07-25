@@ -63,9 +63,8 @@ const HeroSection = () => {
                         </div>
                             
                         <p className="text-sm text-white">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
-                            ad minim veniam, quis nostrud exercitation.
+                            Trace the history of your rice. Discover its journey from farm to your plate. 
+                            Appreciate the people who work to serve you with your food.
                         </p>
                     </div>
                 </div>

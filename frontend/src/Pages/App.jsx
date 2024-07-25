@@ -19,7 +19,7 @@ import TransactionHistory from "./Trader/TransactionHistory";
 import { AuthClient } from "@dfinity/auth-client";
 
 function App() {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [isAuthenticated, setIsAuthenticated] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
