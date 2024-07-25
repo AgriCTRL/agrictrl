@@ -53,9 +53,10 @@ const HeroSection = () => {
                         <p className="mb-2 text-primary font-bold tracking-widest">REVOLUTIONIZING</p>
                         <h1 className="text-6xl text-white font-bold mb-4">Rice Supply Chain</h1>
                         <h1 className="text-6xl text-white font-bold mb-4">Transparency</h1>
-                        <p className="mb-8 text-[19px] font-normal leading-[30px] text-left text-white">
-                            Empowering farmers, ensuring fair prices, and providing consumers with
-                            peace of mind through blockchain-powered traceability.
+                        <p className="mb-8 text-[16px] font-normal leading-[30px] text-left text-white">
+                            Empowering farmers, ensuring fair prices, and providing <br />
+                            consumers with peace of mind through <br />
+                            blockchain-powered traceability.
                         </p>
                         <div className='flex flex-row'>
                             <button className="bg-[#00C261] px-10 text-white font-bold rounded-lg flex justify-items-center items-center"

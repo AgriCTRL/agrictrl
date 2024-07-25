@@ -44,14 +44,14 @@ function UserLayout({ children }) {
                     <div className="container mx-auto flex justify-between items-center">
                         <div className="flex items-center">
                             <img src="AgriCTRLLogo.png" alt="AgriCTRL+ Logo" className="h-12 ml-10" />
-                            <div className="text-2xl font-bold text-[#00C261] letter-spacing-4 ml-2 tracking-wider">AgriCTRL+</div>
+                            <div className="text-2xl font-bold hover:text-[#00C261] letter-spacing-4 ml-2 tracking-wider">AgriCTRL+</div>
                         </div>
                         <nav className="flex items-center">
                             {/* <a href="#" className="text-[#00C261] underline underline-offset-4 font-bold mx-6">Home</a> */}
-                            <ScrollLink to="featureSection" smooth={true} duration={500} className="mx-6 text-[#00C261] cursor-pointer">Services</ScrollLink>
-                            <ScrollLink to="offerSection" smooth={true} duration={500} className="mx-6 text-[#00C261] cursor-pointer">About Us</ScrollLink>
+                            <ScrollLink to="featureSection" smooth={true} duration={500} className="tracking-wider mx-6 cursor-pointer hover:text-[#00C261] hover:underline hover:underline-offset-4 hover:font-bold">Services</ScrollLink>
+                            <ScrollLink to="offerSection" smooth={true} duration={500} className="tracking-wider mx-6 cursor-pointer hover:text-[#00C261] hover:underline hover:underline-offset-4 hover:font-bold">About Us</ScrollLink>
                             <button onClick={handleHistoryClick}>
-                                <Search className="h-6 w-6 mx-6 text-[#00C261]"/>
+                                <Search className="h-6 w-6 mx-6 hover:text-[#00C261] hover:underline hover:underline-offset-4 hover:font-bold"/>
                             </button>
                             
                             <button onClick={ loginButton } className="bg-gradient-to-r from-[#005155] to-[#00C261] px-20 py-3 rounded-lg ml-2 mr-20">Login</button>
@@ -103,7 +103,7 @@ function UserLayout({ children }) {
 
                     {/* Copyright  */}
                     <div className="bg-gray-900 text-gray-400 text-center pb-4 text-sm">
-                        <p>@Copyright 2024</p>
+                        <p>Copyright @ 2024 All Rights Reserved</p>
                     </div>
                 </footer>
             </div>
