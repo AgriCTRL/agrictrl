@@ -43,17 +43,17 @@ export function getRouter(): Router {
     router.post(
         '/',
         async (
-            req: Request<any, any, { name: string; location: string; capacity: number; contactNo: number; email: string }>,
+            req: Request<any, any, { name: string; capacity: number; location: string;  contactInfo: string; status: string }>,
             res
         ) => {
-            const { name, location, capacity, contactNo, email } = req.body;
+            const { name, capacity, location, contactInfo, status } = req.body;
 
             const miller = await createMiller({
                 name,
-                location,
-                capacity,
-                contactNo,
-                email
+                capacity, 
+                location, 
+                contactInfo,
+                status
             });
 
             res.json(miller);
@@ -91,18 +91,18 @@ export function getRouter(): Router {
 }
 
 async function updateHandler(
-    req: Request<any, any, { id: number; name?: string; location?: string; capacity?: number; contactNo?: number; email?: string }>,
+    req: Request<any, any, { id: number; name?: string; capacity?: number; location?: string; contactInfo?: string; status?: string }>,
     res: Response
 ): Promise<void> {
-    const { id, name, location, capacity, contactNo, email } = req.body;
+    const { id, name, capacity, location, contactInfo, status } = req.body;
 
     const miller = await updateMiller({
         id,
         name,
-        location,
         capacity,
-        contactNo,
-        email
+        location,
+        contactInfo,
+        status
     });
 
     res.json(miller);
