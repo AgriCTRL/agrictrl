@@ -18,7 +18,13 @@ export default {
             fontFamily: {
                 kanit: ['Kanit'],
                 poppins: ['Poppins', 'sans-serif']
-            }
+            },
+            fontSize: {
+                'heading': '38px',
+            },
+            boxShadow: {
+                'default': '0px 5px 15px 8px rgba(0, 0, 0, 0.05)',
+            },
         },
     },
     plugins: [],

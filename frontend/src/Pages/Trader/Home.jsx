@@ -1,5 +1,5 @@
-import React from 'react';
-import { Card } from 'primereact/card';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Carousel } from 'primereact/carousel';
 import {
     House,
@@ -10,8 +10,10 @@ import {
     Wheat,
 } from "lucide-react";
 import UserLayout from '@/Layouts/UserLayout';
+import CardComponent from '@/Components/CardComponent';
 function Home() {
-    const [carouselItems] = React.useState([
+    const navigate = useNavigate();
+    const [carouselItems] = useState([
         {
             title: "Lorem ipsum dolor sit amet, consectetur adipiscing.",
             description: "Lorem ipsum dolor sit amet, consectetur adipiscing",
@@ -33,14 +35,14 @@ function Home() {
         return (
             <div className="relative rounded-lg overflow-hidden md:h-80 sm:h-64">
                 <div className='h-full'>
-                    <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
+                    <img src={item.image} className="w-full h-full object-cover" />
                 </div>
                 <div className="absolute bg-gradient-to-r from-black to-transparent inset-0 flex flex-col gap-4 p-10">
                     <div className="text-green-400 flex items-center gap-4">
                         <Wheat />
                         <p>Latest News</p>
                     </div>
-                    <h1 className="text-white text-4xl font-bold mb-2">{item.title}</h1>
+                    <h1 className="text-white text-heading font-bold mb-2">{item.title}</h1>
                     <p className="text-white mb-4">{item.description}</p>
                 </div>
             </div>
@@ -74,30 +76,34 @@ function Home() {
                 <section className='flex flex-col gap-4'>
                     <p className="font-bold text-black">Quick Links</p>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <Card className="shadow-none rounded-md text-primary cursor-pointer">
-                            <div className="flex flex-col items-center">
-                                <LayoutDashboard size={40}/>
-                                <span className='font-bold'>Dashboard</span>
-                            </div>
-                        </Card>
-                        <Card className="shadow-none rounded-md text-primary cursor-pointer">
-                            <div className="flex flex-col items-center">
-                                <MapPin size={40}/>
-                                <span className='font-bold'>Tracking</span>
-                            </div>
-                        </Card>
-                        <Card className="shadow-none rounded-md text-primary cursor-pointer">
-                            <div className="flex flex-col items-center">
-                                <Layers size={40}/>
-                                <span className='font-bold'>Inventory</span>
-                            </div>
-                        </Card>
-                        <Card className="shadow-none rounded-md text-primary cursor-pointer">
-                            <div className="flex flex-col items-center">
-                                <Building2 size={40}/>
-                                <span className='font-bold'>Facilities</span>
-                            </div>
-                        </Card>
+                        <CardComponent 
+                            className="text-primary cursor-pointer flex-col gap-4 items-center"
+                            onClick={() => navigate('/trader/dashboard')}
+                        >
+                            <LayoutDashboard size={40}/>
+                            <span className='font-bold'>Dashboard</span>
+                        </CardComponent>
+                        <CardComponent 
+                            className="text-primary cursor-pointer flex-col gap-4 items-center"
+                            onClick={() => navigate('/trader/tracking')}
+                        >
+                            <MapPin size={40}/>
+                            <span className='font-bold'>Tracking</span>
+                        </CardComponent>
+                        <CardComponent 
+                            className="text-primary cursor-pointer flex-col gap-4 items-center"
+                            onClick={() => navigate('/trader/inventory')}
+                        >
+                            <Layers size={40}/>
+                            <span className='font-bold'>Inventory</span>
+                        </CardComponent>
+                        <CardComponent 
+                            className="text-primary cursor-pointer flex-col gap-4 items-center"
+                            onClick={() => navigate('/trader/facilities')}
+                        >
+                            <Building2 size={40}/>
+                            <span className='font-bold'>Facilities</span>
+                        </CardComponent>
                     </div>
                 </section>
             </div>

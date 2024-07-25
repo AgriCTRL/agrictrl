@@ -1,10 +1,11 @@
 import React from 'react';
 import UserLayout from '@/Layouts/UserLayout';
+import CardComponent from '@/Components/CardComponent';
 
 function Facilities() {
     return (
         <UserLayout activePage="Facilities">
-            <div className='bg-white p-4 rounded'>Facilities</div>
+            <CardComponent>Facilities</CardComponent>
         </UserLayout>
     );
 
