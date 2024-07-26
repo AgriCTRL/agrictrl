@@ -53,12 +53,13 @@ function UserLayout({ children, activePage }) {
 
     useEffect(() => {
         const fetchUser = async() => {
-            if (name) return;
-
             try {
                 const authClient = await AuthClient.create();
                 const identity = authClient.getIdentity();
                 const principal = identity.getPrincipal().toText();
+
+                localStorage.removeItem('userName');
+
                 const res = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/nfapersonnels/principal/${principal}`, {
                     method: 'GET',
                     headers: {'Content-Type': 'application/json'}

@@ -11,7 +11,7 @@ import LandingPage from "./LandingPage";
 import UserHome from "./Trader/Home";
 import UserDashboard from "./Trader/Dashboard";
 import UserTracking from "./Trader/Tracking";
-import UserInventory from "./Trader/Inventory";
+import UserInventory from "./Trader/Inventory/Inventory";
 import UserFacilities from "./Trader/Facilities/Category";
 import UserProfile from "./Trader/Profile";
 import TransactionHistory from "./TransactionHistory";
@@ -20,7 +20,7 @@ import { AuthClient } from "@dfinity/auth-client";
 function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-    const [isIIAuth, setIsIIAuth] = useState(false);
+    const [registerAuth, setRegisterAuth] = useState(false);
 
     useEffect(() => {
         const checkAuthentication = async () => {
@@ -28,6 +28,7 @@ function App() {
                 const authClient = await AuthClient.create();
                 const isAuthenticated = await authClient.isAuthenticated();
                 setIsAuthenticated(isAuthenticated);
+                
             } catch (error) {
                 console.log(error.message);
             } finally {
@@ -35,25 +36,24 @@ function App() {
             }
         };
 
-        const checkIIAuth = async () => {
+        const checkRegisterAuth = async () => {
             try {
                 const authClient = await AuthClient.create();
                 const identity = authClient.getIdentity();
                 const principal = identity.getPrincipal().toText();
-                const res = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/nfapersonnels/principal/${principal}`, {
-                    method: 'GET',
-                    headers: { 'Content-Type': 'application/json' }
-                });
-                if (principal !== '2vsxs-fae') {
-                    setIsIIAuth(true);
+                const res = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/nfapersonnels/principal/${principal}`)
+                const data = await res.json();
+                if (data === null && principal !== '2vxsx-fae') {
+                    setRegisterAuth(true)
                 }
+                else setRegisterAuth(false);
             } catch (error) {
                 console.log(error.message);
             }
         };
 
         checkAuthentication();
-        checkIIAuth();
+        checkRegisterAuth();
     }, []);
 
     if (isLoading) {
@@ -64,7 +64,7 @@ function App() {
         <div className="flex h-screen transition-transform duration-300">
             <Routes>
                 <Route path="/" element={<LandingPage />} />
-                <Route path="/register" element={isIIAuth ? <Navigate to="/trader" replace /> : <Register />} />
+                <Route path="/register" element={registerAuth ? <Register /> : <Navigate to="/trader" replace />} />
                 <Route path="/history" element={<TransactionHistory />} />
                 <Route path="/trader/*" element={isAuthenticated ? <TraderRoutes /> : <Navigate to="/" replace />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
