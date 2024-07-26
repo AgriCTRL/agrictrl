@@ -38,7 +38,7 @@ function App() {
     }, []);
 
     if (isLoading) {
-        return <div>Loading...</div>; // Or a loading spinner component
+        return <div></div>; // Or a loading spinner component
     }
 
     return (

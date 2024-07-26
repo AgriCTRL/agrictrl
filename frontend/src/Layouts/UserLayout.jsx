@@ -89,7 +89,7 @@ function UserLayout({ children, activePage }) {
                 <UserNavbarComponent 
                     items={{
                         user: name,
-                        avatar: 'https://i.pravatar.cc/300',
+                        avatar: '/profileAvatar.png',
                         user_type: 'Trader',
                         title: activePage,
                     }}
