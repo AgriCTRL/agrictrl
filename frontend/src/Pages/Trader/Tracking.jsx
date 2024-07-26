@@ -9,7 +9,7 @@ import { AlertCircle, ChevronDown, ChevronUp, Search, Wheat, ThermometerSun, Fac
 
 import emptyIllustration from '@/images/illustrations/space.svg';
 
-const TransactionHistory = () => {
+const Tracking = () => {
   const [transactions, setTransactions] = useState([]);
   const [filteredTransactions, setFilteredTransactions] = useState([]);
   const [expandedRows, setExpandedRows] = useState(null);
@@ -307,4 +307,4 @@ const TransactionHistory = () => {
   );
 };
 
-export default TransactionHistory;
+export default Tracking;

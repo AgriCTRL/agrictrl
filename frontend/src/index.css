@@ -47,4 +47,16 @@
         }
 
     }    
+
+    .p-datatable {
+        .p-datatable-thead {
+            th {
+                @apply font-bold !important;
+                @apply text-black;
+                @apply bg-white !important;
+                border-bottom: 1px solid #dee2e6 !important;
+                border-top: 1px solid #D9D9D9 !important;
+            }
+        }
+    }
 }
