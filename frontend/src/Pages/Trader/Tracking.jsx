@@ -10,7 +10,6 @@ import CardComponent from '@/Components/CardComponent';
 import UserLayout from '@/Layouts/UserLayout';
 import InputComponent from '@/Components/Form/InputComponent';
 import emptyIllustration from '@/images/illustrations/space.svg';
-        
 
 function Tracking() {
     const stepsMap = ["warehouse", "milling", "drying", "dispatch"];
@@ -151,7 +150,7 @@ function Tracking() {
                 )}
                 {(selectedPalay && activeStatus === 0) &&  (
                     <CardComponent className='flex-col bg-white w-full rounded-md p-4'>
-                        <h1 className="text-center text-2xl font-bold black">Warehouse</h1>
+                        <h1 className="text-center text-2xl font-bold text-black">Warehouse</h1>
                         <Divider pt={{ 
                             root: { 
                                 className: 'bg-lightest-grey h-px',
@@ -177,7 +176,7 @@ function Tracking() {
                 )}
                 {(selectedPalay && activeStatus === 1) &&  (
                     <CardComponent className='flex-col bg-white w-full rounded-md p-4'>
-                        <h1 className="text-center text-2xl font-bold black">Milling</h1>
+                        <h1 className="text-center text-2xl font-bold text-black">Milling</h1>
                         <Divider pt={{ 
                             root: { 
                                 className: 'bg-lightest-grey h-px',
@@ -205,7 +204,7 @@ function Tracking() {
                 )}
                 {(selectedPalay && activeStatus === 2) &&  (
                     <CardComponent className='flex-col bg-white w-full rounded-md p-4'>
-                        <h1 className="text-center text-2xl font-bold black">Drying</h1>
+                        <h1 className="text-center text-2xl font-bold text-black">Drying</h1>
                         <Divider pt={{ 
                             root: { 
                                 className: 'bg-lightest-grey h-px',
@@ -233,7 +232,7 @@ function Tracking() {
                 )}
                 {(selectedPalay && activeStatus === 3) &&  (
                     <CardComponent className='flex-col bg-white w-full rounded-md p-4'>
-                        <h1 className="text-center text-2xl font-bold black">Dispatch</h1>
+                        <h1 className="text-center text-2xl font-bold text-black">Dispatch</h1>
                         <Divider pt={{ 
                             root: { 
                                 className: 'bg-lightest-grey h-px',
