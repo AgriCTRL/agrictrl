@@ -11,7 +11,7 @@ import LandingPage from "./LandingPage";
 import UserHome from "./Trader/Home";
 import UserDashboard from "./Trader/Dashboard";
 import UserTracking from "./Trader/Tracking";
-import UserInventory from "./Trader/Inventory";
+import UserInventory from "./Trader/Inventory/Inventory";
 import UserFacilities from "./Trader/Facilities/Category";
 import UserProfile from "./Trader/Profile";
 import TransactionHistory from "./TransactionHistory";
