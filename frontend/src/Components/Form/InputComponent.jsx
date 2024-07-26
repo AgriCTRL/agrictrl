@@ -1,6 +1,6 @@
 import { IconField } from "primereact/iconfield";
 import { InputIcon } from "primereact/inputicon";
-function InputComponent({ value,inputIcon, styles, placeholder, onChange }) {
+function InputComponent({ value,inputIcon, styles, placeholder, onChange, ...props }) {
     return (
         <IconField 
             iconPosition="left"
@@ -14,6 +14,7 @@ function InputComponent({ value,inputIcon, styles, placeholder, onChange }) {
                 placeholder={placeholder}
                 onChange={onChange}
                 value={value}
+                {...props}
             />
         </IconField>
     );

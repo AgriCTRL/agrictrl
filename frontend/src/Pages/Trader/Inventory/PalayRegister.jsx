@@ -1,23 +1,15 @@
 import React, { useState } from 'react';
 import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
-import { Dropdown } from 'primereact/dropdown';
 import InputComponent from '@/Components/Form/InputComponent';
 import { Wheat } from 'lucide-react';
-
-const statusOptions = [
-    { label: 'Palay', value: 'Palay' },
-    { label: 'Drying', value: 'Drying' },
-    { label: 'Milling', value: 'Milling' },
-    { label: 'Rice', value: 'Rice' }
-];
+import { Dropdown } from 'primereact/dropdown'; // Import Dropdown component from PrimeReact
 
 function PalayRegister({ visible, onHide, onPalayRegistered }) {
     const [dateReceived, setDateReceived] = useState('');
     const [quantity, setQuantity] = useState('');
     const [qualityType, setQualityType] = useState('');
     const [price, setPrice] = useState('');
-    const [status, setStatus] = useState('');
     const [moistureContent, setMoistureContent] = useState('');
     const [purity, setPurity] = useState('');
     const [damaged, setDamaged] = useState('');
@@ -26,7 +18,14 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
     const [plateNumber, setPlateNumber] = useState('');
     const [supplierId, setSupplierId] = useState('');
     const [nfaPersonnel, setNfaPersonnel] = useState('');
-    const [warehouseId, setWarehouseId] = useState('');
+    const [selectedWarehouse, setSelectedWarehouse] = useState(null); // State for selected warehouse
+
+    // Dummy warehouse data
+    const warehouses = [
+        { id: '1', name: 'Warehouse A' },
+        { id: '2', name: 'Warehouse B' },
+        { id: '3', name: 'Warehouse C' },
+    ];
 
     const handleRegister = () => {
         const trackingId = Date.now().toString();
@@ -34,10 +33,10 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
         const newPalay = {
             id: trackingId,
             dateReceived,
-            quantity: parseInt(quantity),
+            quantity: parseInt(quantity, 10),
             qualityType,
             price,
-            status,
+            status: 'Palay', // Default value
             moistureContent,
             purity,
             damaged,
@@ -46,7 +45,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
             plateNumber,
             supplierId,
             nfaPersonnel,
-            warehouseId,
+            warehouseId: selectedWarehouse ? selectedWarehouse.id : '', // Use selected warehouse
         };
 
         onPalayRegistered(newPalay);
@@ -56,7 +55,6 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
         setQuantity('');
         setQualityType('');
         setPrice('');
-        setStatus('');
         setMoistureContent('');
         setPurity('');
         setDamaged('');
@@ -65,7 +63,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
         setPlateNumber('');
         setSupplierId('');
         setNfaPersonnel('');
-        setWarehouseId('');
+        setSelectedWarehouse(null); // Reset selected warehouse
 
         onHide();
     };
@@ -75,6 +73,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
             <section className='Palay Information flex flex-col gap-2'>
                 <p className='text-xl text-black font-semibold'>Palay Information</p>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                    {/* Existing fields */}
                     <div className="sm:col-span-3">
                         <label htmlFor="date_received" className="block text-sm font-medium leading-6 text-gray-900">Date Received</label>
                         <div className="mt-2">
@@ -120,18 +119,6 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                                 value={price}
                                 placeholder="Price"
                                 aria-label="price"
-                            />
-                        </div>
-                    </div>
-                    <div className="sm:col-span-3">
-                        <label htmlFor="status" className="block text-sm font-medium leading-6 text-gray-900">Status</label>
-                        <div className="mt-2">
-                            <Dropdown
-                                value={status}
-                                options={statusOptions}
-                                onChange={(e) => setStatus(e.value)}
-                                placeholder="Select Status"
-                                className="w-full"
                             />
                         </div>
                     </div>
@@ -223,37 +210,14 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                     </div>
 
                     <div className="sm:col-span-3">
-                        <label htmlFor="supplier_id" className="block text-sm font-medium leading-6 text-gray-900">Supplier</label>
-                        <div className="mt-2">
-                            <InputComponent
-                                inputIcon={<Wheat size={20} />}
-                                onChange={(e) => setSupplierId(e.target.value)}
-                                value={supplierId}
-                                placeholder="Supplier"
-                                aria-label="supplier_id"
-                            />
-                        </div>
-                    </div>
-                    <div className="sm:col-span-3">
-                        <label htmlFor="nfa_personnel" className="block text-sm font-medium leading-6 text-gray-900">NFA Personnel</label>
-                        <div className="mt-2">
-                            <InputComponent
-                                inputIcon={<Wheat size={20} />}
-                                onChange={(e) => setNfaPersonnel(e.target.value)}
-                                value={nfaPersonnel}
-                                placeholder="NFA Personnel"
-                                aria-label="nfa_personnel"
-                            />
-                        </div>
-                    </div>
-                    <div className="sm:col-span-3">
                         <label htmlFor="warehouse_id" className="block text-sm font-medium leading-6 text-gray-900">Warehouse</label>
                         <div className="mt-2">
-                            <InputComponent
-                                inputIcon={<Wheat size={20} />}
-                                onChange={(e) => setWarehouseId(e.target.value)}
-                                value={warehouseId}
-                                placeholder="Warehouse"
+                            <Dropdown
+                                value={selectedWarehouse}
+                                options={warehouses}
+                                onChange={(e) => setSelectedWarehouse(e.value)}
+                                optionLabel="name" // Display warehouse names
+                                placeholder="Select a Warehouse"
                                 aria-label="warehouse_id"
                             />
                         </div>
