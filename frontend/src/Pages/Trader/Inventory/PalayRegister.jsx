@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
 import InputComponent from '@/Components/Form/InputComponent';
@@ -14,41 +14,87 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
     const [purity, setPurity] = useState('');
     const [damaged, setDamaged] = useState('');
     const [driverName, setDriverName] = useState('');
-    const [typeOfTransport, setTypeOfTransport] = useState('');
+    const [typeOfTranspo, setTypeOfTranspo] = useState('');
     const [plateNumber, setPlateNumber] = useState('');
     const [supplierId, setSupplierId] = useState('');
     const [nfaPersonnel, setNfaPersonnel] = useState('');
     const [selectedWarehouse, setSelectedWarehouse] = useState(null);
 
-    // Dummy warehouse data
-    const warehouses = [
-        { id: '1', name: 'Warehouse A' },
-        { id: '2', name: 'Warehouse B' },
-        { id: '3', name: 'Warehouse C' },
-    ];
+    const [warehouses, setWarehouses] = useState([]);
 
-    const handleRegister = () => {
-        const trackingId = Date.now().toString();
+    useEffect(() => {
+        fetchWarehouses();
+    }, []);
 
-        const newPalay = {
-            id: trackingId,
-            dateReceived,
-            quantity: parseInt(quantity, 10),
-            qualityType,
-            price,
-            status: 'Palay',
-            moistureContent,
-            purity,
-            damaged,
-            driverName,
-            typeOfTransport,
-            plateNumber,
-            supplierId,
-            nfaPersonnel,
-            warehouseId: selectedWarehouse ? selectedWarehouse.id : '',
-        };
+    const fetchWarehouses = async () => {
+        try {
+            const response = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/warehouses');
+            const data = await response.json();
+            setWarehouses(data);
+        } catch (error) {
+            console.error('Error fetching warehouses:', error);
+        }
+    };
 
-        onPalayRegistered(newPalay);
+    const handleRegister = async () => {
+        try {
+            // Post to qualitySpecs table
+            const qualitySpecResponse = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/qualityspecs', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    moistureContent: parseFloat(moistureContent),
+                    purity: parseFloat(purity),
+                    damaged: parseFloat(damaged),
+                }),
+            });
+            const qualitySpecData = await qualitySpecResponse.json();
+
+            // Post to palayDeliveries table
+            const palayDeliveryResponse = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/palaydeliveries', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    driverName,
+                    typeOfTranspo,
+                    plateNumber,
+                }),
+            });
+            const palayDeliveryData = await palayDeliveryResponse.json();
+
+            // Post to palayBatches table
+            // const newPalay = {
+            //     dateReceived,
+            //     quantity: parseFloat(quantity),
+            //     qualityType,
+            //     price: parseFloat(price),
+            //     status: 'Palay',
+            //     qualitySpecId: qualitySpecData.id,
+            //     palayDeliveryId: palayDeliveryData.id,
+            //     supplierId: 1, // Dummy data
+            //     nfaPersonnelId: 1, // Dummy data
+            //     warehouseId: selectedWarehouse ? selectedWarehouse.id : null,
+            // };
+
+            // const palayBatchResponse = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/palaybatches', {
+            //     method: 'POST',
+            //     headers: {
+            //         'Content-Type': 'application/json',
+            //     },
+            //     body: JSON.stringify(newPalay),
+            // });
+
+            // if (!palayBatchResponse.ok) {
+            //     throw new Error(`HTTP error! status: ${palayBatchResponse.status}`);
+            // }
+
+            // const palayBatchData = await palayBatchResponse.json();
+
+            // onPalayRegistered(palayBatchData);
 
         // Reset all fields
         setDateReceived('');
@@ -59,13 +105,14 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
         setPurity('');
         setDamaged('');
         setDriverName('');
-        setTypeOfTransport('');
+        setTypeOfTranspo('');
         setPlateNumber('');
-        setSupplierId('');
-        setNfaPersonnel('');
         setSelectedWarehouse(null);
 
         onHide();
+        } catch (error) {
+            console.error('Error registering palay:', error);
+        }
     };
 
     return (

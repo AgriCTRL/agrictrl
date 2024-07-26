@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Tag } from 'primereact/tag';
@@ -20,7 +20,19 @@ function Inventory() {
     const [displayPalayRegister, setDisplayPalayRegister] = useState(false);
     const [displayPalayUpdate, setDisplayPalayUpdate] = useState(false);
     const [selectedPalay, setSelectedPalay] = useState(null);
+    useEffect(() => {
+        fetchInventoryData();
+    }, []);
 
+    const fetchInventoryData = async () => {
+        try {
+            const response = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/palaybatches');
+            const data = await response.json();
+            setInventoryData(data);
+        } catch (error) {
+            console.error('Error fetching inventory data:', error);
+        }
+    };
     const getSeverity = (status) => {
         switch (status.toLowerCase()) {
         case 'palay': return 'success';
