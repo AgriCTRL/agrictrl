@@ -5,15 +5,14 @@ import { Column } from 'primereact/column';
 import { Timeline } from 'primereact/timeline';
 import { Tag } from 'primereact/tag';
 import { InputText } from 'primereact/inputtext';
-import { AlertCircle, ChevronDown, ChevronUp, Search, Wheat, ThermometerSun, Factory, WheatOff, ArrowLeftToLine } from 'lucide-react';
-
+import { AlertCircle, Search, Wheat, ThermometerSun, Factory, WheatOff, ArrowLeftToLine } from 'lucide-react';
 import emptyIllustration from '@/images/illustrations/space.svg';
 
 const TransactionHistory = () => {
   const [transactions, setTransactions] = useState([]);
   const [filteredTransactions, setFilteredTransactions] = useState([]);
-  const [expandedRows, setExpandedRows] = useState(null);
   const [globalFilter, setGlobalFilter] = useState('');
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -126,12 +125,18 @@ const TransactionHistory = () => {
   const filterTransactions = () => {
     if (globalFilter) {
       const filtered = transactions.filter(transaction => 
-        transaction.riceID.toLowerCase().includes(globalFilter.toLowerCase()) ||
-        transaction.status.toLowerCase().includes(globalFilter.toLowerCase())
+        transaction.riceID.toLowerCase().includes(globalFilter.toLowerCase())
       );
       setFilteredTransactions(filtered);
+
+      if (filtered.length > 0) {
+        setSelectedTransaction(filtered[0]);
+      } else {
+        setSelectedTransaction(null);
+      }
     } else {
       setFilteredTransactions([]);
+      setSelectedTransaction(null);
     }
   };
 
@@ -149,7 +154,7 @@ const TransactionHistory = () => {
     return <Tag value={rowData.status} severity={getStatusColor(rowData.status)} className="w-24 text-center" />;
   };
 
-  const expandedContent = (rowData) => {
+  const timelineContent = (timeline) => {
     const customizedMarker = (item) => {
       switch (item.status) {
         case 'PALAY':
@@ -167,7 +172,7 @@ const TransactionHistory = () => {
 
     return (
       <Timeline
-        value={rowData.timeline}
+        value={timeline}
         align="alternate"
         className="p-4"
         marker={customizedMarker}
@@ -191,34 +196,6 @@ const TransactionHistory = () => {
     );
   };
 
-  const toggleRow = (rowData) => {
-    setExpandedRows((prevExpandedRows) => {
-      if (prevExpandedRows && prevExpandedRows[rowData.id]) {
-        return {};
-      }
-      return { [rowData.id]: true };
-    });
-  };
-
-  const rowExpansionTemplate = (data) => {
-    return expandedRows && expandedRows[data.id] ? expandedContent(data) : null;
-  };
-
-  const expansionBodyTemplate = (rowData) => {
-    return (
-      <button
-        onClick={() => toggleRow(rowData)}
-        className="p-2 rounded-full hover:bg-gray-200"
-      >
-        {expandedRows && expandedRows[rowData.id] ? (
-          <ChevronUp className="w-5 h-5" />
-        ) : (
-          <ChevronDown className="w-5 h-5" />
-        )}
-      </button>
-    );
-  };
-
   const Header = () => {
     const navigate = useNavigate();
 
@@ -229,7 +206,7 @@ const TransactionHistory = () => {
           Go back
         </button>
         <div className="flex flex-grow"></div>
-        <h1 className="text-white text-4xl font-poppins font-bold">TRACE YOUR RICE!</h1>
+        <h1 className="text-white text-4xl mr-7 font-poppins font-bold">TRACE YOUR RICE!</h1>
         <div className="flex flex-grow"></div>
       </div>
     );
@@ -249,6 +226,10 @@ const TransactionHistory = () => {
     </div>
   );
 
+  const handleRowClick = (rowData) => {
+    setSelectedTransaction(rowData);
+  };
+
   return (
     <div className="p-4 w-screen h-screen pt-5 bg-[#F1F5F9]">
       <Header />
@@ -256,32 +237,35 @@ const TransactionHistory = () => {
         <span className="p-input-icon-left w-full"> 
           <Search className="ml-3 -translate-y-1 text-[#00C261]" />
           <InputText
-            type="search"
-            onInput={(e) => setGlobalFilter(e.target.value)}
-            placeholder="Search"
-            className="w-full pl-10 pr-4 py-4 rounded-lg placeholder-[#00C261] text-[#00C261] border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+            value={globalFilter}
+            onChange={(e) => setGlobalFilter(e.target.value)}
+            placeholder="Search by Rice ID"
+            className="pl-10 pr-4 py-4 rounded-lg placeholder-[#00C261] text-[#00C261] w-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
           />
         </span>
       </div>
 
       <DataTable
         value={filteredTransactions}
-        expandedRows={expandedRows}
-        rowExpansionTemplate={rowExpansionTemplate}
-        dataKey="id"
         className="p-datatable-sm border-none rounded-lg"
         rowClassName={() => 'h-16'}
         emptyMessage=" "
+        onRowClick={(e) => handleRowClick(e.data)}
       >
-        <Column body={expansionBodyTemplate} style={{ width: '3em' }}/>
         <Column field="riceID" header={riceIDHeader} className="pl-9"/>
         <Column field="status" header={statusHeader} body={statusBodyTemplate} className="-translate-x-6"/>
       </DataTable>
-      
+
+      {selectedTransaction && (
+        <div className="mt-4">
+          {timelineContent(selectedTransaction.timeline)}
+        </div>
+      )}
+
       {filteredTransactions.length === 0 && (
         <div className='flex flex-col items-center justify-center mt-8'>
-            <img src={emptyIllustration} alt="empty" width="130" />
-            <p className='text-primary text-2xl font-semibold'>Start by searching Rice ID</p>
+          <img src={emptyIllustration} alt="empty" width="130" />
+          <p className='text-primary text-2xl font-semibold'>Start by searching Rice ID</p>
         </div>
       )}
     </div>
