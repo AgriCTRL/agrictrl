@@ -3,8 +3,7 @@ import {
     BrowserRouter as Router,
     Route,
     Routes,
-    Navigate,
-    useNavigate
+    Navigate
 } from "react-router-dom";
 
 import Register from "./Register";
@@ -21,6 +20,7 @@ import { AuthClient } from "@dfinity/auth-client";
 function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [isIIAuth, setIsIIAuth] = useState(false);
 
     useEffect(() => {
         const checkAuthentication = async () => {
@@ -34,18 +34,37 @@ function App() {
                 setIsLoading(false);
             }
         };
+
+        const checkIIAuth = async () => {
+            try {
+                const authClient = await AuthClient.create();
+                const identity = authClient.getIdentity();
+                const principal = identity.getPrincipal().toText();
+                const res = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/nfapersonnels/principal/${principal}`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                if (principal !== '2vsxs-fae') {
+                    setIsIIAuth(true);
+                }
+            } catch (error) {
+                console.log(error.message);
+            }
+        };
+
         checkAuthentication();
+        checkIIAuth();
     }, []);
 
     if (isLoading) {
-        return <div></div>; // Or a loading spinner component
+        return <div></div>; // TODO: add loading modal
     }
 
     return (
         <div className="flex h-screen transition-transform duration-300">
             <Routes>
                 <Route path="/" element={<LandingPage />} />
-                <Route path="/register" element={<Register />} />
+                <Route path="/register" element={isIIAuth ? <Navigate to="/trader" replace /> : <Register />} />
                 <Route path="/history" element={<TransactionHistory />} />
                 <Route path="/trader/*" element={isAuthenticated ? <TraderRoutes /> : <Navigate to="/" replace />} />
                 <Route path="*" element={<Navigate to="/" replace />} />

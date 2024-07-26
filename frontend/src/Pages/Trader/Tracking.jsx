@@ -9,6 +9,9 @@ import { AlertCircle, ChevronDown, ChevronUp, Search, Wheat, ThermometerSun, Fac
 
 import emptyIllustration from '@/images/illustrations/space.svg';
 
+
+//TODO: rice recipients tracking
+
 const Tracking = () => {
   const [transactions, setTransactions] = useState([]);
   const [filteredTransactions, setFilteredTransactions] = useState([]);
