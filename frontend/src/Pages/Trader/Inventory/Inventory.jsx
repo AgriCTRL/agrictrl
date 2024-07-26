@@ -4,6 +4,8 @@ import { Column } from 'primereact/column';
 import { Tag } from 'primereact/tag';
 import { FilterMatchMode } from 'primereact/api';
 import { Button } from 'primereact/button';
+import { InputText } from 'primereact/inputtext';
+import { Search } from 'lucide-react';
 
 import PalayRegister from './PalayRegister';
 import PalayUpdate from './PalayUpdate';
@@ -21,12 +23,12 @@ function Inventory() {
 
     const getSeverity = (status) => {
         switch (status.toLowerCase()) {
-            case 'palay': return 'info';
-            case 'drying': return 'success';
-            case 'milling': return 'warning';
-            case 'rice': return 'danger';
-            default: return null;
-        }
+        case 'palay': return 'success';
+        case 'drying': return 'info';
+        case 'milling': return 'warning';
+        case 'rice': return 'danger';
+        default: return 'secondary';
+      }
     };
 
     const statusBodyTemplate = (rowData) => (
@@ -76,18 +78,21 @@ function Inventory() {
 
     const header = (
         <div className="p-grid p-nogutter">
-            <div className="p-col-6 flex items-center">
-                <span className="p-input-icon-left">
-                    <i className="pi pi-search" />
-                    <input 
+            <div className="px-3 flex items-center">
+                <span className="p-input-icon-left ">
+                    <Search className="ml-3 -translate-y-1 text-[#00C261]"/>
+                    <InputText 
+                        type="search"
                         value={globalFilterValue} 
                         onChange={(e) => setGlobalFilterValue(e.target.value)} 
                         placeholder="Search" 
-                        className="p-inputtext p-component ml-2"
+                        className="w-full pl-10 pr-4 py-2 rounded-lg placeholder-[#00C261] text-[#00C261] border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
                     />
                 </span>
-                <div className="flex flex-grow"></div>
-                <Button label="+ Add New" onClick={() => setDisplayPalayRegister(true)} className="p-button-success" />
+                <div className="flex-grow"></div>
+                <div className="justify-end items-center">
+                    <Button label="+ Add New" onClick={() => setDisplayPalayRegister(true)} className="p-button-success text-white bg-gradient-to-r from-[#005155] to-[#00C261] p-2" />
+                </div>
             </div>
         </div>
     );

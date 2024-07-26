@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import UserLayout from '@/Layouts/UserLayout';
 import CardComponent from '@/Components/CardComponent';
+
 function Home() {
     const navigate = useNavigate();
     const [carouselItems] = useState([
@@ -58,13 +59,11 @@ function Home() {
                         numScroll={1} 
                         className="custom-carousel" 
                         itemTemplate={carouselTemplate}
-                        showIndicators = {true}
+                        showIndicators={true}
                         showNavigators={false}
                         autoplayInterval={7000}
                         pt={{
-                            root: {
-                                
-                            },
+                            root: {},
                             indicators: {
                                 className: 'absolute w-100 bottom-0 flex justify-content-center',
                             }
@@ -76,28 +75,28 @@ function Home() {
                     <p className="font-bold text-black">Quick Links</p>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <CardComponent 
-                            className="text-primary cursor-pointer flex-col gap-4 py-6 items-center"
+                            className="text-primary cursor-pointer flex-col gap-4 py-6 items-center transition-transform duration-300 hover:bg-primary hover:text-white hover:scale-105"
                             onClick={() => navigate('/trader/dashboard')}
                         >
                             <LayoutDashboard size={40}/>
                             <span className='font-bold'>Dashboard</span>
                         </CardComponent>
                         <CardComponent 
-                            className="text-primary cursor-pointer flex-col gap-4 py-6 items-center"
+                            className="text-primary cursor-pointer flex-col gap-4 py-6 items-center transition-transform duration-300 hover:bg-primary hover:text-white hover:scale-105"
                             onClick={() => navigate('/trader/tracking')}
                         >
                             <MapPin size={40}/>
                             <span className='font-bold'>Tracking</span>
                         </CardComponent>
                         <CardComponent 
-                            className="text-primary cursor-pointer flex-col gap-4 py-6 items-center"
+                            className="text-primary cursor-pointer flex-col gap-4 py-6 items-center transition-transform duration-300 hover:bg-primary hover:text-white hover:scale-105"
                             onClick={() => navigate('/trader/inventory')}
                         >
                             <Layers size={40}/>
                             <span className='font-bold'>Inventory</span>
                         </CardComponent>
                         <CardComponent 
-                            className="text-primary cursor-pointer flex-col gap-4 py-6 items-center"
+                            className="text-primary cursor-pointer flex-col gap-4 py-6 items-center transition-transform duration-300 hover:bg-primary hover:text-white hover:scale-105"
                             onClick={() => navigate('/trader/facilities')}
                         >
                             <Building2 size={40}/>
@@ -108,6 +107,6 @@ function Home() {
             </div>
         </UserLayout>
     );
-  }
-  
-  export default Home;
+}
+
+export default Home;

@@ -3,7 +3,7 @@ import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
 import InputComponent from '@/Components/Form/InputComponent';
 import { Wheat } from 'lucide-react';
-import { Dropdown } from 'primereact/dropdown'; // Import Dropdown component from PrimeReact
+import { Dropdown } from 'primereact/dropdown';
 
 function PalayRegister({ visible, onHide, onPalayRegistered }) {
     const [dateReceived, setDateReceived] = useState('');
@@ -18,7 +18,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
     const [plateNumber, setPlateNumber] = useState('');
     const [supplierId, setSupplierId] = useState('');
     const [nfaPersonnel, setNfaPersonnel] = useState('');
-    const [selectedWarehouse, setSelectedWarehouse] = useState(null); // State for selected warehouse
+    const [selectedWarehouse, setSelectedWarehouse] = useState(null);
 
     // Dummy warehouse data
     const warehouses = [
@@ -36,7 +36,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
             quantity: parseInt(quantity, 10),
             qualityType,
             price,
-            status: 'Palay', // Default value
+            status: 'Palay',
             moistureContent,
             purity,
             damaged,
@@ -45,7 +45,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
             plateNumber,
             supplierId,
             nfaPersonnel,
-            warehouseId: selectedWarehouse ? selectedWarehouse.id : '', // Use selected warehouse
+            warehouseId: selectedWarehouse ? selectedWarehouse.id : '',
         };
 
         onPalayRegistered(newPalay);
@@ -63,7 +63,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
         setPlateNumber('');
         setSupplierId('');
         setNfaPersonnel('');
-        setSelectedWarehouse(null); // Reset selected warehouse
+        setSelectedWarehouse(null);
 
         onHide();
     };
@@ -73,7 +73,6 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
             <section className='Palay Information flex flex-col gap-2'>
                 <p className='text-xl text-black font-semibold'>Palay Information</p>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                    {/* Existing fields */}
                     <div className="sm:col-span-3">
                         <label htmlFor="date_received" className="block text-sm font-medium leading-6 text-gray-900">Date Received</label>
                         <div className="mt-2">
@@ -216,7 +215,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                                 value={selectedWarehouse}
                                 options={warehouses}
                                 onChange={(e) => setSelectedWarehouse(e.value)}
-                                optionLabel="name" // Display warehouse names
+                                optionLabel="name"
                                 placeholder="Select a Warehouse"
                                 aria-label="warehouse_id"
                             />
