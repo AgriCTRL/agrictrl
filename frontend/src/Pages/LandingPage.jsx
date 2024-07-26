@@ -14,29 +14,26 @@ const LandingPage = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchPrincipal = async () => {
-            try {
-                const authClient = await AuthClient.create();
+    const checkUserAndRedirect = async () => {
+        try {
+            const authClient = await AuthClient.create();
+            const isAuthenticated = await authClient.isAuthenticated();
+            if (isAuthenticated) {
                 const identity = authClient.getIdentity();
                 const principal = identity.getPrincipal().toText();
-                if (principal !== "2vxsx-fae") {
-                    const res = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/nfapersonnels/principal/${principal}`);
-                    const data = await res.json();
-                    if(data === null) {
-                        navigate('/register');
-                    }
-                    else if(data !== null) {
-                        navigate('/trader');
-                    }
-                    else {
-                        throw new Error('Error checking user existence');
-                    }
+                const res = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/nfapersonnels/principal/${principal}`);
+                const data = await res.json();
+                if (data === null) {
+                    navigate('/register');
+                } else {
+                    navigate('/trader');
                 }
-            } catch (error) {
-                console.log(error.message);
             }
-        };
-        fetchPrincipal();
+        } catch (error) {
+            console.log(error.message);
+        }
+    };
+    checkUserAndRedirect();
     }, []);
 
     return (

@@ -46,10 +46,15 @@ const sidebarItems = [
 ];
  
 function UserLayout({ children, activePage }) {
-    const [name, setName] = useState('')
+    const [name, setName] = useState(() => {
+        // Try to get the name from localStorage on initial render
+        return localStorage.getItem('userName') || '';
+    });
 
     useEffect(() => {
         const fetchUser = async() => {
+            if (name) return;
+
             try {
                 const authClient = await AuthClient.create();
                 const identity = authClient.getIdentity();
@@ -60,12 +65,24 @@ function UserLayout({ children, activePage }) {
                 });
                 const data = await res.json();
                 setName(data.firstName);
+
+                localStorage.setItem('userName', data.firstName);
             }
             catch (error) {
                 console.log(error.message)
             }
         };
         fetchUser();
+
+        const handleStorageChange = () => {
+            setName(localStorage.getItem('userName') || '');
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+        };
     }, []);
 
     const [expanded, setExpanded] = useState(true);
@@ -89,7 +106,7 @@ function UserLayout({ children, activePage }) {
                 <UserNavbarComponent 
                     items={{
                         user: name,
-                        avatar: 'https://i.pravatar.cc/300',
+                        avatar: '/profileAvatar.png',
                         user_type: 'Trader',
                         title: activePage,
                     }}
