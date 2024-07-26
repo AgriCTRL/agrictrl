@@ -13,47 +13,59 @@ const statusOptions = [
 ];
 
 function PalayRegister({ visible, onHide, onPalayRegistered }) {
-    const [variety, setVariety] = useState('');
-    const [status, setStatus] = useState('');
-    const [price, setPrice] = useState('');
-    const [quantityKg, setQuantityKg] = useState('');
     const [dateReceived, setDateReceived] = useState('');
-    const [qualitySpecification, setQualitySpecification] = useState('');
-    const [supplier, setSupplier] = useState('');
-    const [personnel, setPersonnel] = useState('');
-    const [delivery, setDelivery] = useState('');
-    const [warehouse, setWarehouse] = useState('');
+    const [quantity, setQuantity] = useState('');
+    const [qualityType, setQualityType] = useState('');
+    const [price, setPrice] = useState('');
+    const [status, setStatus] = useState('');
+    const [moistureContent, setMoistureContent] = useState('');
+    const [purity, setPurity] = useState('');
+    const [damaged, setDamaged] = useState('');
+    const [driverName, setDriverName] = useState('');
+    const [typeOfTransport, setTypeOfTransport] = useState('');
+    const [plateNumber, setPlateNumber] = useState('');
+    const [supplierId, setSupplierId] = useState('');
+    const [nfaPersonnel, setNfaPersonnel] = useState('');
+    const [warehouseId, setWarehouseId] = useState('');
 
     const handleRegister = () => {
         const trackingId = Date.now().toString();
 
         const newPalay = {
             id: trackingId,
-            variety,
-            status,
-            price,
-            quantityKg: parseInt(quantityKg),
             dateReceived,
-            qualitySpecification,
-            supplier,
-            personnel,
-            delivery,
-            warehouse
+            quantity: parseInt(quantity),
+            qualityType,
+            price,
+            status,
+            moistureContent,
+            purity,
+            damaged,
+            driverName,
+            typeOfTransport,
+            plateNumber,
+            supplierId,
+            nfaPersonnel,
+            warehouseId,
         };
 
         onPalayRegistered(newPalay);
 
-        setVariety('');
-        setStatus('');
-        setInventory('');
-        setPrice('');
-        setQuantityKg('');
+        // Reset all fields
         setDateReceived('');
-        setQualitySpecification('');
-        setSupplier('');
-        setPersonnel('');
-        setDelivery('');
-        setWarehouse('');
+        setQuantity('');
+        setQualityType('');
+        setPrice('');
+        setStatus('');
+        setMoistureContent('');
+        setPurity('');
+        setDamaged('');
+        setDriverName('');
+        setTypeOfTransport('');
+        setPlateNumber('');
+        setSupplierId('');
+        setNfaPersonnel('');
+        setWarehouseId('');
 
         onHide();
     };
@@ -64,26 +76,38 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                 <p className='text-xl text-black font-semibold'>Palay Information</p>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                     <div className="sm:col-span-3">
-                        <label htmlFor="variety" className="block text-sm font-medium leading-6 text-gray-900">Variety</label>
+                        <label htmlFor="date_received" className="block text-sm font-medium leading-6 text-gray-900">Date Received</label>
                         <div className="mt-2">
                             <InputComponent
                                 inputIcon={<Wheat size={20} />}
-                                onChange={(e) => setVariety(e.target.value)}
-                                value={variety}
-                                placeholder="Variety"
-                                aria-label="variety"
+                                onChange={(e) => setDateReceived(e.target.value)}
+                                value={dateReceived}
+                                placeholder="Date Received"
+                                aria-label="date_received"
                             />
                         </div>
                     </div>
                     <div className="sm:col-span-3">
-                        <label htmlFor="status" className="block text-sm font-medium leading-6 text-gray-900">Status</label>
+                        <label htmlFor="quantity" className="block text-sm font-medium leading-6 text-gray-900">Quantity (KG)</label>
                         <div className="mt-2">
-                            <Dropdown
-                                value={status}
-                                options={statusOptions}
-                                onChange={(e) => setStatus(e.value)}
-                                placeholder="Select Status"
-                                className="w-full"
+                            <InputComponent
+                                inputIcon={<Wheat size={20} />}
+                                onChange={(e) => setQuantity(e.target.value)}
+                                value={quantity}
+                                placeholder="Quantity (KG)"
+                                aria-label="quantity"
+                            />
+                        </div>
+                    </div>
+                    <div className="sm:col-span-3">
+                        <label htmlFor="quality_type" className="block text-sm font-medium leading-6 text-gray-900">Quality Type</label>
+                        <div className="mt-2">
+                            <InputComponent
+                                inputIcon={<Wheat size={20} />}
+                                onChange={(e) => setQualityType(e.target.value)}
+                                value={qualityType}
+                                placeholder="Quality Type"
+                                aria-label="quality_type"
                             />
                         </div>
                     </div>
@@ -100,91 +124,145 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                         </div>
                     </div>
                     <div className="sm:col-span-3">
-                        <label htmlFor="quantity_kg" className="block text-sm font-medium leading-6 text-gray-900">Quantity (KG)</label>
+                        <label htmlFor="status" className="block text-sm font-medium leading-6 text-gray-900">Status</label>
                         <div className="mt-2">
-                            <InputComponent
-                                inputIcon={<Wheat size={20} />}
-                                onChange={(e) => setQuantityKg(e.target.value)}
-                                value={quantityKg}
-                                placeholder="Quantity (KG)"
-                                aria-label="quantity_kg"
+                            <Dropdown
+                                value={status}
+                                options={statusOptions}
+                                onChange={(e) => setStatus(e.value)}
+                                placeholder="Select Status"
+                                className="w-full"
                             />
                         </div>
                     </div>
+
+                    {/* Quality Specifications */}
                     <div className="sm:col-span-3">
-                        <label htmlFor="date_received" className="block text-sm font-medium leading-6 text-gray-900">Date Received</label>
-                        <div className="mt-2">
-                            <InputComponent
-                                inputIcon={<Wheat size={20} />}
-                                onChange={(e) => setDateReceived(e.target.value)}
-                                value={dateReceived}
-                                placeholder="Date Received"
-                                aria-label="date_received"
-                            />
+                        <p className="block text-sm font-medium leading-6 text-gray-900">Quality Specifications</p>
+                        <div className="grid grid-cols-3 gap-4">
+                            <div>
+                                <label htmlFor="moisture_content" className="block text-sm font-medium leading-6 text-gray-900">Moisture Content</label>
+                                <div className="mt-2">
+                                    <InputComponent
+                                        inputIcon={<Wheat size={20} />}
+                                        onChange={(e) => setMoistureContent(e.target.value)}
+                                        value={moistureContent}
+                                        placeholder="Moisture Content"
+                                        aria-label="moisture_content"
+                                    />
+                                </div>
+                            </div>
+                            <div>
+                                <label htmlFor="purity" className="block text-sm font-medium leading-6 text-gray-900">Purity</label>
+                                <div className="mt-2">
+                                    <InputComponent
+                                        inputIcon={<Wheat size={20} />}
+                                        onChange={(e) => setPurity(e.target.value)}
+                                        value={purity}
+                                        placeholder="Purity"
+                                        aria-label="purity"
+                                    />
+                                </div>
+                            </div>
+                            <div>
+                                <label htmlFor="damaged" className="block text-sm font-medium leading-6 text-gray-900">Damaged</label>
+                                <div className="mt-2">
+                                    <InputComponent
+                                        inputIcon={<Wheat size={20} />}
+                                        onChange={(e) => setDamaged(e.target.value)}
+                                        value={damaged}
+                                        placeholder="Damaged"
+                                        aria-label="damaged"
+                                    />
+                                </div>
+                            </div>
                         </div>
                     </div>
+
+                    {/* Delivery Details */}
                     <div className="sm:col-span-3">
-                        <label htmlFor="quality_specification" className="block text-sm font-medium leading-6 text-gray-900">Quality Specification</label>
-                        <div className="mt-2">
-                            <InputComponent
-                                inputIcon={<Wheat size={20} />}
-                                onChange={(e) => setQualitySpecification(e.target.value)}
-                                value={qualitySpecification}
-                                placeholder="Quality Specification"
-                                aria-label="quality_specification"
-                            />
+                        <p className="block text-sm font-medium leading-6 text-gray-900">Delivery Details</p>
+                        <div className="grid grid-cols-3 gap-4">
+                            <div>
+                                <label htmlFor="driver_name" className="block text-sm font-medium leading-6 text-gray-900">Driver Name</label>
+                                <div className="mt-2">
+                                    <InputComponent
+                                        inputIcon={<Wheat size={20} />}
+                                        onChange={(e) => setDriverName(e.target.value)}
+                                        value={driverName}
+                                        placeholder="Driver Name"
+                                        aria-label="driver_name"
+                                    />
+                                </div>
+                            </div>
+                            <div>
+                                <label htmlFor="type_of_transport" className="block text-sm font-medium leading-6 text-gray-900">Type of Transport</label>
+                                <div className="mt-2">
+                                    <InputComponent
+                                        inputIcon={<Wheat size={20} />}
+                                        onChange={(e) => setTypeOfTransport(e.target.value)}
+                                        value={typeOfTransport}
+                                        placeholder="Type of Transport"
+                                        aria-label="type_of_transport"
+                                    />
+                                </div>
+                            </div>
+                            <div>
+                                <label htmlFor="plate_number" className="block text-sm font-medium leading-6 text-gray-900">Plate Number</label>
+                                <div className="mt-2">
+                                    <InputComponent
+                                        inputIcon={<Wheat size={20} />}
+                                        onChange={(e) => setPlateNumber(e.target.value)}
+                                        value={plateNumber}
+                                        placeholder="Plate Number"
+                                        aria-label="plate_number"
+                                    />
+                                </div>
+                            </div>
                         </div>
                     </div>
+
                     <div className="sm:col-span-3">
-                        <label htmlFor="supplier" className="block text-sm font-medium leading-6 text-gray-900">Supplier</label>
+                        <label htmlFor="supplier_id" className="block text-sm font-medium leading-6 text-gray-900">Supplier</label>
                         <div className="mt-2">
                             <InputComponent
                                 inputIcon={<Wheat size={20} />}
-                                onChange={(e) => setSupplier(e.target.value)}
-                                value={supplier}
+                                onChange={(e) => setSupplierId(e.target.value)}
+                                value={supplierId}
                                 placeholder="Supplier"
-                                aria-label="supplier"
+                                aria-label="supplier_id"
                             />
                         </div>
                     </div>
                     <div className="sm:col-span-3">
-                        <label htmlFor="personnel" className="block text-sm font-medium leading-6 text-gray-900">Personnel</label>
+                        <label htmlFor="nfa_personnel" className="block text-sm font-medium leading-6 text-gray-900">NFA Personnel</label>
                         <div className="mt-2">
                             <InputComponent
                                 inputIcon={<Wheat size={20} />}
-                                onChange={(e) => setPersonnel(e.target.value)}
-                                value={personnel}
-                                placeholder="Personnel"
-                                aria-label="personnel"
+                                onChange={(e) => setNfaPersonnel(e.target.value)}
+                                value={nfaPersonnel}
+                                placeholder="NFA Personnel"
+                                aria-label="nfa_personnel"
                             />
                         </div>
                     </div>
                     <div className="sm:col-span-3">
-                        <label htmlFor="delivery" className="block text-sm font-medium leading-6 text-gray-900">Delivery</label>
+                        <label htmlFor="warehouse_id" className="block text-sm font-medium leading-6 text-gray-900">Warehouse</label>
                         <div className="mt-2">
                             <InputComponent
                                 inputIcon={<Wheat size={20} />}
-                                onChange={(e) => setDelivery(e.target.value)}
-                                value={delivery}
-                                placeholder="Delivery"
-                                aria-label="delivery"
-                            />
-                        </div>
-                    </div>
-                    <div className="sm:col-span-3">
-                        <label htmlFor="warehouse" className="block text-sm font-medium leading-6 text-gray-900">Warehouse</label>
-                        <div className="mt-2">
-                            <InputComponent
-                                inputIcon={<Wheat size={20} />}
-                                onChange={(e) => setWarehouse(e.target.value)}
-                                value={warehouse}
+                                onChange={(e) => setWarehouseId(e.target.value)}
+                                value={warehouseId}
                                 placeholder="Warehouse"
-                                aria-label="warehouse"
+                                aria-label="warehouse_id"
                             />
                         </div>
                     </div>
                 </div>
-                <Button label="Register" onClick={handleRegister} className="p-button-success mt-4" />
+                <div className="mt-4 flex justify-end gap-2">
+                    <Button label="Cancel" icon="pi pi-times" onClick={onHide} className="p-button-text" />
+                    <Button label="Register" icon="pi pi-check" onClick={handleRegister} autoFocus />
+                </div>
             </section>
         </Dialog>
     );

@@ -47,13 +47,29 @@ function Inventory() {
     );
 
     const handlePalayRegistered = (newPalay) => {
-        setInventoryData([...inventoryData, newPalay]);
+        const relevantFields = {
+            id: newPalay.id,
+            dateReceived: newPalay.dateReceived,
+            quantity: newPalay.quantity,
+            qualityType: newPalay.qualityType,
+            price: newPalay.price,
+            status: newPalay.status,
+        };
+        setInventoryData([...inventoryData, relevantFields]);
         setDisplayPalayRegister(false);
     };
 
     const handlePalayUpdated = (updatedPalay) => {
+        const relevantFields = {
+            id: updatedPalay.id,
+            dateReceived: updatedPalay.dateReceived,
+            quantity: updatedPalay.quantity,
+            qualityType: updatedPalay.qualityType,
+            price: updatedPalay.price,
+            status: updatedPalay.status,
+        };
         setInventoryData(inventoryData.map(palay => 
-            palay.id === updatedPalay.id ? updatedPalay : palay
+            palay.id === updatedPalay.id ? relevantFields : palay
         ));
         setDisplayPalayUpdate(false);
     };
@@ -84,13 +100,13 @@ function Inventory() {
                 rows={5} 
                 header={header}
                 filters={filters}
-                globalFilterFields={['variety', 'status']}
+                globalFilterFields={['qualityType', 'status']}
                 emptyMessage="No inventory found."
             >
                 <Column field="id" header="Batch ID"/>
                 <Column field="price" header="Price"/>
-                <Column field="quantityKg" header="Quantity"/>
-                <Column field="qualitySpecification" header="Quality"/>
+                <Column field="quantity" header="Quantity"/>
+                <Column field="qualityType" header="Quality"/>
                 <Column field="status" header="Status" body={statusBodyTemplate}/>
                 <Column body={actionBodyTemplate} exportable={false} style={{ minWidth: '4rem' }} />
             </DataTable>
