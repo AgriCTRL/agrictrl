@@ -63,6 +63,10 @@ function Profile() {
 
             setEditing(false);
 
+            localStorage.setItem('userName', firstName);
+
+            window.dispatchEvent(new Event('storage'));
+
         } catch (error) {
             console.log(error);
         }
