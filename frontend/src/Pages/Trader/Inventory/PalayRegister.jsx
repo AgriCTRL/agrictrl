@@ -16,8 +16,6 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
     const [driverName, setDriverName] = useState('');
     const [typeOfTranspo, setTypeOfTranspo] = useState('');
     const [plateNumber, setPlateNumber] = useState('');
-    const [supplierId, setSupplierId] = useState('');
-    const [nfaPersonnel, setNfaPersonnel] = useState('');
     const [selectedWarehouse, setSelectedWarehouse] = useState(null);
 
     const [warehouses, setWarehouses] = useState([]);
@@ -67,49 +65,55 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
             const palayDeliveryData = await palayDeliveryResponse.json();
 
             // Post to palayBatches table
-            // const newPalay = {
-            //     dateReceived,
-            //     quantity: parseFloat(quantity),
-            //     qualityType,
-            //     price: parseFloat(price),
-            //     status: 'Palay',
-            //     qualitySpecId: qualitySpecData.id,
-            //     palayDeliveryId: palayDeliveryData.id,
-            //     supplierId: 1, // Dummy data
-            //     nfaPersonnelId: 1, // Dummy data
-            //     warehouseId: selectedWarehouse ? selectedWarehouse.id : null,
-            // };
+            const newPalay = {
+                dateReceived,
+                quantity,
+                qualityType,
+                price,
+                status: 'Palay',
+                moistureContent: moistureContent,
+                purity: purity,
+                damaged: damaged,
+                driverName: driverName,
+                typeOfTranspo: typeOfTranspo,
+                plateNumber: plateNumber,
+                qualitySpecId: qualitySpecData.id,
+                palayDeliveryId: palayDeliveryData.id,
+                supplierId: 1, // Dummy data
+                nfaPersonnelId: 1, // Dummy data
+                warehouseId: selectedWarehouse ? selectedWarehouse.id : null,
+            };
 
-            // const palayBatchResponse = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/palaybatches', {
-            //     method: 'POST',
-            //     headers: {
-            //         'Content-Type': 'application/json',
-            //     },
-            //     body: JSON.stringify(newPalay),
-            // });
+            const palayBatchResponse = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/palaybatches', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newPalay),
+            });
 
-            // if (!palayBatchResponse.ok) {
-            //     throw new Error(`HTTP error! status: ${palayBatchResponse.status}`);
-            // }
+            if (!palayBatchResponse.ok) {
+                throw new Error(`HTTP error! status: ${palayBatchResponse.status}`);
+            }
 
-            // const palayBatchData = await palayBatchResponse.json();
+            const palayBatchData = await palayBatchResponse.json();
 
-            // onPalayRegistered(palayBatchData);
+            onPalayRegistered(palayBatchData);
 
-        // Reset all fields
-        setDateReceived('');
-        setQuantity('');
-        setQualityType('');
-        setPrice('');
-        setMoistureContent('');
-        setPurity('');
-        setDamaged('');
-        setDriverName('');
-        setTypeOfTranspo('');
-        setPlateNumber('');
-        setSelectedWarehouse(null);
+            // Reset all fields
+            setDateReceived('');
+            setQuantity('');
+            setQualityType('');
+            setPrice('');
+            setMoistureContent('');
+            setPurity('');
+            setDamaged('');
+            setDriverName('');
+            setTypeOfTranspo('');
+            setPlateNumber('');
+            setSelectedWarehouse(null);
 
-        onHide();
+            onHide();
         } catch (error) {
             console.error('Error registering palay:', error);
         }
@@ -171,87 +175,77 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
 
                     {/* Quality Specifications */}
                     <div className="sm:col-span-3">
-                        <p className="block text-sm font-medium leading-6 text-gray-900">Quality Specifications</p>
-                        <div className="grid grid-cols-3 gap-4">
-                            <div>
-                                <label htmlFor="moisture_content" className="block text-sm font-medium leading-6 text-gray-900">Moisture Content</label>
-                                <div className="mt-2">
-                                    <InputComponent
-                                        inputIcon={<Wheat size={20} />}
-                                        onChange={(e) => setMoistureContent(e.target.value)}
-                                        value={moistureContent}
-                                        placeholder="Moisture Content"
-                                        aria-label="moisture_content"
-                                    />
-                                </div>
-                            </div>
-                            <div>
-                                <label htmlFor="purity" className="block text-sm font-medium leading-6 text-gray-900">Purity</label>
-                                <div className="mt-2">
-                                    <InputComponent
-                                        inputIcon={<Wheat size={20} />}
-                                        onChange={(e) => setPurity(e.target.value)}
-                                        value={purity}
-                                        placeholder="Purity"
-                                        aria-label="purity"
-                                    />
-                                </div>
-                            </div>
-                            <div>
-                                <label htmlFor="damaged" className="block text-sm font-medium leading-6 text-gray-900">Damaged</label>
-                                <div className="mt-2">
-                                    <InputComponent
-                                        inputIcon={<Wheat size={20} />}
-                                        onChange={(e) => setDamaged(e.target.value)}
-                                        value={damaged}
-                                        placeholder="Damaged"
-                                        aria-label="damaged"
-                                    />
-                                </div>
-                            </div>
+                        <label htmlFor="moisture_content" className="block text-sm font-medium leading-6 text-gray-900">Moisture Content</label>
+                        <div className="mt-2">
+                            <InputComponent
+                                inputIcon={<Wheat size={20} />}
+                                onChange={(e) => setMoistureContent(e.target.value)}
+                                value={moistureContent}
+                                placeholder="Moisture Content"
+                                aria-label="moisture_content"
+                            />
+                        </div>
+                    </div>
+                    <div className="sm:col-span-3">
+                        <label htmlFor="purity" className="block text-sm font-medium leading-6 text-gray-900">Purity</label>
+                        <div className="mt-2">
+                            <InputComponent
+                                inputIcon={<Wheat size={20} />}
+                                onChange={(e) => setPurity(e.target.value)}
+                                value={purity}
+                                placeholder="Purity"
+                                aria-label="purity"
+                            />
+                        </div>
+                    </div>
+                    <div className="sm:col-span-3">
+                        <label htmlFor="damaged" className="block text-sm font-medium leading-6 text-gray-900">Damaged</label>
+                        <div className="mt-2">
+                            <InputComponent
+                                inputIcon={<Wheat size={20} />}
+                                onChange={(e) => setDamaged(e.target.value)}
+                                value={damaged}
+                                placeholder="Damaged"
+                                aria-label="damaged"
+                            />
                         </div>
                     </div>
 
                     {/* Delivery Details */}
                     <div className="sm:col-span-3">
-                        <p className="block text-sm font-medium leading-6 text-gray-900">Delivery Details</p>
-                        <div className="grid grid-cols-3 gap-4">
-                            <div>
-                                <label htmlFor="driver_name" className="block text-sm font-medium leading-6 text-gray-900">Driver Name</label>
-                                <div className="mt-2">
-                                    <InputComponent
-                                        inputIcon={<Wheat size={20} />}
-                                        onChange={(e) => setDriverName(e.target.value)}
-                                        value={driverName}
-                                        placeholder="Driver Name"
-                                        aria-label="driver_name"
-                                    />
-                                </div>
-                            </div>
-                            <div>
-                                <label htmlFor="type_of_transport" className="block text-sm font-medium leading-6 text-gray-900">Type of Transport</label>
-                                <div className="mt-2">
-                                    <InputComponent
-                                        inputIcon={<Wheat size={20} />}
-                                        onChange={(e) => setTypeOfTransport(e.target.value)}
-                                        value={typeOfTransport}
-                                        placeholder="Type of Transport"
-                                        aria-label="type_of_transport"
-                                    />
-                                </div>
-                            </div>
-                            <div>
-                                <label htmlFor="plate_number" className="block text-sm font-medium leading-6 text-gray-900">Plate Number</label>
-                                <div className="mt-2">
-                                    <InputComponent
-                                        inputIcon={<Wheat size={20} />}
-                                        onChange={(e) => setPlateNumber(e.target.value)}
-                                        value={plateNumber}
-                                        placeholder="Plate Number"
-                                        aria-label="plate_number"
-                                    />
-                                </div>
-                            </div>
+                        <label htmlFor="driver_name" className="block text-sm font-medium leading-6 text-gray-900">Driver Name</label>
+                        <div className="mt-2">
+                            <InputComponent
+                                inputIcon={<Wheat size={20} />}
+                                onChange={(e) => setDriverName(e.target.value)}
+                                value={driverName}
+                                placeholder="Driver Name"
+                                aria-label="driver_name"
+                            />
+                        </div>
+                    </div>
+                    <div className="sm:col-span-3">
+                        <label htmlFor="type_of_transpo" className="block text-sm font-medium leading-6 text-gray-900">Type of Transport</label>
+                        <div className="mt-2">
+                            <InputComponent
+                                inputIcon={<Wheat size={20} />}
+                                onChange={(e) => setTypeOfTranspo(e.target.value)}
+                                value={typeOfTranspo}
+                                placeholder="Type of Transport"
+                                aria-label="type_of_transpo"
+                            />
+                        </div>
+                    </div>
+                    <div className="sm:col-span-3">
+                        <label htmlFor="plate_number" className="block text-sm font-medium leading-6 text-gray-900">Plate Number</label>
+                        <div className="mt-2">
+                            <InputComponent
+                                inputIcon={<Wheat size={20} />}
+                                onChange={(e) => setPlateNumber(e.target.value)}
+                                value={plateNumber}
+                                placeholder="Plate Number"
+                                aria-label="plate_number"
+                            />
                         </div>
                     </div>
 
@@ -262,7 +256,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                                 value={selectedWarehouse}
                                 options={warehouses}
                                 onChange={(e) => setSelectedWarehouse(e.value)}
-                                optionLabel="name"
+                                optionLabel="facilityName"
                                 placeholder="Select a Warehouse"
                                 aria-label="warehouse_id"
                             />
