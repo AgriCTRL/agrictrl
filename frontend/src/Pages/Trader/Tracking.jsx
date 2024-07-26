@@ -16,6 +16,7 @@ const TransactionHistory = () => {
   const [globalFilter, setGlobalFilter] = useState('');
   const [selectedStatus, setSelectedStatus] = useState(null);
   const [statuses, setStatuses] = useState(['Palay', 'Drying', 'Milling', 'Rice']);
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -249,7 +250,7 @@ const TransactionHistory = () => {
 
   return (
     <UserLayout activePage="Tracking">
-      <div className="px-4 w-full h-full pt-10 bg-[#F1F5F9]">
+      <div className="px-4 w-full h-full bg-[#F1F5F9]">
         <div className="mb-4">
           <span className="p-input-icon-left w-full"> 
             <Search className="ml-3 -translate-y-1 text-[#00C261]" />
@@ -285,8 +286,7 @@ const TransactionHistory = () => {
           rowExpansionTemplate={rowExpansionTemplate}
           dataKey="id"
           scrollable={true}
-          scrollHeight="50vh"
-          loading={loading}
+          scrollHeight="54vh"
           className="p-datatable-sm border-none rounded-lg"
           rowClassName={() => 'h-16'}
           emptyMessage=" "
@@ -297,9 +297,9 @@ const TransactionHistory = () => {
         </DataTable>
         
         {filteredTransactions.length === 0 && (
-          <div className='flex flex-col items-center justify-center mt-5 gap-4'>
+          <div className='flex flex-col items-center justify-center mt-8'>
               <img src={emptyIllustration} alt="empty" width="130" />
-              <p className='text-primary text-2xl font-semibold'>No Transactions Found</p>
+              <p className='text-primary text-2xl font-semibold'>No Data Found</p>
           </div>
         )}
       </div>
