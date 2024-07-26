@@ -10,7 +10,6 @@ import CardComponent from '@/Components/CardComponent';
 import UserLayout from '@/Layouts/UserLayout';
 import InputComponent from '@/Components/Form/InputComponent';
 import emptyIllustration from '@/images/illustrations/space.svg';
-        
 
 function Tracking() {
     const stepsMap = ["warehouse", "milling", "drying", "dispatch"];

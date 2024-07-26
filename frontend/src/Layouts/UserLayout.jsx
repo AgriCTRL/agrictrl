@@ -85,7 +85,7 @@ function UserLayout({ children, activePage }) {
                     />
                 ))}
             </SidebarComponent>
-            <div className='w-full pr-10'>
+            <div className='h-screen w-full pr-10'>
                 <UserNavbarComponent 
                     items={{
                         user: name,
