@@ -33,6 +33,7 @@ function Inventory() {
             console.error('Error fetching inventory data:', error);
         }
     };
+
     const getSeverity = (status) => {
         switch (status.toLowerCase()) {
         case 'palay': return 'success';
@@ -88,6 +89,11 @@ function Inventory() {
         setDisplayPalayUpdate(false);
     };
 
+    const customFilter = (value, data) => {
+        if (!value) return data;
+        return data.filter(item => item.id.toString().includes(value));
+    };
+
     const header = (
         <div className="p-grid p-nogutter">
             <div className="px-3 flex items-center">
@@ -112,9 +118,9 @@ function Inventory() {
     return (
         <UserLayout activePage="Inventory">
             <DataTable 
-                value={inventoryData} 
-                paginator 
-                rows={5} 
+                value={customFilter(globalFilterValue, inventoryData)} 
+                scrollable={true}
+                scrollHeight="70vh"
                 header={header}
                 filters={filters}
                 globalFilterFields={['qualityType', 'status']}

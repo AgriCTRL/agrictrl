@@ -105,17 +105,17 @@ function Warehouse() {
         <div>
             <DataTable 
                 value={warehouseData} 
-                paginator 
-                rows={3} 
+                scrollable={true}
+                scrollHeight="45vh"
                 header={header}
                 filters={filters}
                 globalFilterFields={['facilityName', 'capacity', 'location']}
                 emptyMessage="No warehouses found."
             >
-                <Column field="facilityName" header="Warehouse Name" sortable />
-                <Column field="capacity" header="Capacity" sortable />
-                <Column field="location" header="Location" sortable />
-                <Column field="status" header="Status" sortable />
+                <Column field="facilityName" header="Warehouse Name"/>
+                <Column field="capacity" header="Capacity"/>
+                <Column field="location" header="Location"/>
+                <Column field="status" header="Status"/>
                 <Column body={actionBodyTemplate} exportable={false} style={{ minWidth: '4rem' }} />
             </DataTable>
 

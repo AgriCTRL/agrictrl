@@ -1,27 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
 import InputComponent from '@/Components/Form/InputComponent';
 import { Wheat } from 'lucide-react';
-
-const warehouses = [
-    { label: 'Warehouse A', value: 'warehouse-a' },
-    { label: 'Warehouse B', value: 'warehouse-b' },
-    { label: 'Warehouse C', value: 'warehouse-c' },
-];
-
-const dryers = [
-    { label: 'Dryer X', value: 'dryer-x' },
-    { label: 'Dryer Y', value: 'dryer-y' },
-    { label: 'Dryer Z', value: 'dryer-z' },
-];
-
-const millers = [
-    { label: 'Miller 1', value: 'miller-1' },
-    { label: 'Miller 2', value: 'miller-2' },
-    { label: 'Miller 3', value: 'miller-3' },
-];
+import { Toast } from 'primereact/toast';
 
 const statusOptions = [
     { label: 'Palay', value: 'Palay' },
@@ -36,6 +19,12 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
     const [selectedWarehouse, setSelectedWarehouse] = useState(null);
     const [selectedDryer, setSelectedDryer] = useState(null);
     const [selectedMiller, setSelectedMiller] = useState(null);
+    const [warehouses, setWarehouses] = useState([]);
+    const [dryers, setDryers] = useState([]);
+    const [millers, setMillers] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const toast = useRef(null);
 
     useEffect(() => {
         if (selectedPalay) {
@@ -53,8 +42,81 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
         }
     }, [selectedPalay]);
 
+    useEffect(() => {
+        fetchWarehouses();
+        fetchDryers();
+        fetchMillers();
+    }, []);
+
+    const fetchWarehouses = async () => {
+        try {
+            setLoading(true);
+            const response = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/warehouses');
+            const data = await response.json();
+            setWarehouses(data.map(warehouse => ({ label: warehouse.facilityName, value: warehouse.id })));
+        } catch (error) {
+            console.error('Error fetching warehouses:', error);
+            setError('Error fetching warehouses');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchDryers = async () => {
+        try {
+            setLoading(true);
+            const response = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/dryers');
+            const data = await response.json();
+            setDryers(data.map(dryer => ({ label: dryer.name, value: dryer.id })));
+        } catch (error) {
+            console.error('Error fetching dryers:', error);
+            setError('Error fetching dryers');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchMillers = async () => {
+        try {
+            setLoading(true);
+            const response = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/millers');
+            const data = await response.json();
+            setMillers(data.map(miller => ({ label: miller.name, value: miller.id })));
+        } catch (error) {
+            console.error('Error fetching millers:', error);
+            setError('Error fetching millers');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handleInputChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const updatePalayBatch = async (updatedPalay) => {
+        try {
+            setLoading(true);
+            const response = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/palaybatches/${updatedPalay.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updatedPalay),
+            });
+            if (!response.ok) {
+                throw new Error('Failed to update palay batch');
+            }
+            const result = await response.json();
+            toast.current.show({ severity: 'success', summary: 'Success', detail: 'Palay batch updated successfully' });
+            onUpdatePalay(result);
+            onHide();
+        } catch (error) {
+            console.error('Error updating palay batch:', error);
+            toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to update palay batch' });
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleUpdate = () => {
@@ -62,328 +124,91 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
             ...selectedPalay,
             ...formData,
             status,
-            warehouseId: selectedWarehouse ? selectedWarehouse.value : formData.warehouseId,
-            dryerId: selectedDryer ? selectedDryer.value : formData.dryerId,
-            millerId: selectedMiller ? selectedMiller.value : formData.millerId
+            warehouseId: selectedWarehouse ? selectedWarehouse.value : formData.warehouseId
         };
 
-        onUpdatePalay(updatedPalay);
-        onHide();
+        if (status === 'Palay') {
+            updatePalayBatch(updatedPalay);
+        } else {
+            onUpdatePalay(updatedPalay);
+            onHide();
+        }
     };
+
+    const renderInputField = (label, name, type = "text", placeholder) => (
+        <div className="sm:col-span-3">
+            <label htmlFor={name} className="block text-sm font-medium leading-6 text-gray-900">{label}</label>
+            <div className="mt-2">
+                <InputComponent
+                    inputIcon={<Wheat size={20} />}
+                    onChange={handleInputChange}
+                    value={formData[name] || ''}
+                    name={name}
+                    type={type}
+                    placeholder={placeholder}
+                    aria-label={name}
+                />
+            </div>
+        </div>
+    );
+
+    const renderDropdownField = (label, name, value, options, placeholder, onChange) => (
+        <div className="sm:col-span-3">
+            <label htmlFor={name} className="block text-sm font-medium leading-6 text-gray-900">{label}</label>
+            <div className="mt-2">
+                <Dropdown
+                    value={value}
+                    options={options}
+                    onChange={onChange}
+                    placeholder={placeholder}
+                    className="w-full"
+                />
+            </div>
+        </div>
+    );
 
     const renderForm = () => {
         switch (status) {
             case 'Drying':
                 return (
                     <>
-                        <div className="sm:col-span-3">
-                            <label htmlFor="type" className="block text-sm font-medium leading-6 text-gray-900">Type</label>
-                            <div className="mt-2">
-                                <InputComponent
-                                    inputIcon={<Wheat size={20} />}
-                                    onChange={handleInputChange}
-                                    value={formData.type || ''}
-                                    name="type"
-                                    placeholder="Type"
-                                    aria-label="type"
-                                />
-                            </div>
-                        </div>
-                        <div className="sm:col-span-3">
-                            <label htmlFor="dryerName" className="block text-sm font-medium leading-6 text-gray-900">Dryer Name</label>
-                            <div className="mt-2">
-                                <Dropdown
-                                    value={selectedDryer}
-                                    options={dryers}
-                                    onChange={(e) => setSelectedDryer(e.value)}
-                                    placeholder="Select Dryer"
-                                    className="w-full"
-                                />
-                            </div>
-                        </div>
-                        <div className="sm:col-span-3">
-                            <label htmlFor="dateSent" className="block text-sm font-medium leading-6 text-gray-900">Date Sent</label>
-                            <div className="mt-2">
-                                <InputComponent
-                                    inputIcon={<Wheat size={20} />}
-                                    onChange={handleInputChange}
-                                    value={formData.dateSent || ''}
-                                    name="dateSent"
-                                    type="date"
-                                    placeholder="Date Sent"
-                                    aria-label="dateSent"
-                                />
-                            </div>
-                        </div>
-                        <div className="sm:col-span-3">
-                            <label htmlFor="dateReturned" className="block text-sm font-medium leading-6 text-gray-900">Date Returned</label>
-                            <div className="mt-2">
-                                <InputComponent
-                                    inputIcon={<Wheat size={20} />}
-                                    onChange={handleInputChange}
-                                    value={formData.dateReturned || ''}
-                                    name="dateReturned"
-                                    type="date"
-                                    placeholder="Date Returned"
-                                    aria-label="dateReturned"
-                                />
-                            </div>
-                        </div>
-                        <div className="sm:col-span-3">
-                            <label htmlFor="palayQuantitySent" className="block text-sm font-medium leading-6 text-gray-900">Palay Quantity Sent</label>
-                            <div className="mt-2">
-                                <InputComponent
-                                    inputIcon={<Wheat size={20} />}
-                                    onChange={handleInputChange}
-                                    value={formData.palayQuantitySent || ''}
-                                    name="palayQuantitySent"
-                                    type="number"
-                                    placeholder="Palay Quantity Sent"
-                                    aria-label="palayQuantitySent"
-                                />
-                            </div>
-                        </div>
-                        <div className="sm:col-span-3">
-                            <label htmlFor="palayQuantityReturned" className="block text-sm font-medium leading-6 text-gray-900">Palay Quantity Returned</label>
-                            <div className="mt-2">
-                                <InputComponent
-                                    inputIcon={<Wheat size={20} />}
-                                    onChange={handleInputChange}
-                                    value={formData.palayQuantityReturned || ''}
-                                    name="palayQuantityReturned"
-                                    type="number"
-                                    placeholder="Palay Quantity Returned"
-                                    aria-label="palayQuantityReturned"
-                                />
-                            </div>
-                        </div>
+                        {renderInputField("Type", "type", "text", "Type")}
+                        {renderDropdownField("Dryer Name", "dryerName", selectedDryer, dryers, "Select Dryer", (e) => setSelectedDryer(e.value))}
+                        {renderInputField("Date Sent", "dateSent", "date", "Date Sent")}
+                        {renderInputField("Date Returned", "dateReturned", "date", "Date Returned")}
+                        {renderInputField("Palay Quantity Sent", "palayQuantitySent", "number", "Palay Quantity Sent")}
+                        {renderInputField("Palay Quantity Returned", "palayQuantityReturned", "number", "Palay Quantity Returned")}
                     </>
                 );
             case 'Milling':
                 return (
                     <>
-                        <div className="sm:col-span-3">
-                            <label htmlFor="type" className="block text-sm font-medium leading-6 text-gray-900">Type</label>
-                            <div className="mt-2">
-                                <InputComponent
-                                    inputIcon={<Wheat size={20} />}
-                                    onChange={handleInputChange}
-                                    value={formData.type || ''}
-                                    name="type"
-                                    placeholder="Type"
-                                    aria-label="type"
-                                />
-                            </div>
-                        </div>
-                        <div className="sm:col-span-3">
-                            <label htmlFor="millerName" className="block text-sm font-medium leading-6 text-gray-900">Miller Name</label>
-                            <div className="mt-2">
-                                <Dropdown
-                                    value={selectedMiller}
-                                    options={millers}
-                                    onChange={(e) => setSelectedMiller(e.value)}
-                                    placeholder="Select Miller"
-                                    className="w-full"
-                                />
-                            </div>
-                        </div>
-                        <div className="sm:col-span-3">
-                            <label htmlFor="dateSent" className="block text-sm font-medium leading-6 text-gray-900">Date Sent</label>
-                            <div className="mt-2">
-                                <InputComponent
-                                    inputIcon={<Wheat size={20} />}
-                                    onChange={handleInputChange}
-                                    value={formData.dateSent || ''}
-                                    name="dateSent"
-                                    type="date"
-                                    placeholder="Date Sent"
-                                    aria-label="dateSent"
-                                />
-                            </div>
-                        </div>
-                        <div className="sm:col-span-3">
-                            <label htmlFor="dateReturned" className="block text-sm font-medium leading-6 text-gray-900">Date Returned</label>
-                            <div className="mt-2">
-                                <InputComponent
-                                    inputIcon={<Wheat size={20} />}
-                                    onChange={handleInputChange}
-                                    value={formData.dateReturned || ''}
-                                    name="dateReturned"
-                                    type="date"
-                                    placeholder="Date Returned"
-                                    aria-label="dateReturned"
-                                />
-                            </div>
-                        </div>
-                        <div className="sm:col-span-3">
-                            <label htmlFor="palayQuantitySent" className="block text-sm font-medium leading-6 text-gray-900">Palay Quantity Sent</label>
-                            <div className="mt-2">
-                                <InputComponent
-                                    inputIcon={<Wheat size={20} />}
-                                    onChange={handleInputChange}
-                                    value={formData.palayQuantitySent || ''}
-                                    name="palayQuantitySent"
-                                    type="number"
-                                    placeholder="Palay Quantity Sent"
-                                    aria-label="palayQuantitySent"
-                                />
-                            </div>
-                        </div>
-                        <div className="sm:col-span-3">
-                            <label htmlFor="palayQuantityReturned" className="block text-sm font-medium leading-6 text-gray-900">Palay Quantity Returned</label>
-                            <div className="mt-2">
-                                <InputComponent
-                                    inputIcon={<Wheat size={20} />}
-                                    onChange={handleInputChange}
-                                    value={formData.palayQuantityReturned || ''}
-                                    name="palayQuantityReturned"
-                                    type="number"
-                                    placeholder="Palay Quantity Returned"
-                                    aria-label="palayQuantityReturned"
-                                />
-                            </div>
-                        </div>
-                        <div className="sm:col-span-3">
-                            <label htmlFor="efficiency" className="block text-sm font-medium leading-6 text-gray-900">Efficiency</label>
-                            <div className="mt-2">
-                                <InputComponent
-                                    inputIcon={<Wheat size={20} />}
-                                    onChange={handleInputChange}
-                                    value={formData.efficiency || ''}
-                                    name="efficiency"
-                                    placeholder="efficiency"
-                                    aria-label="efficiency"
-                                />
-                            </div>
-                        </div>
+                        {renderInputField("Type", "type", "text", "Type")}
+                        {renderDropdownField("Miller Name", "millerName", selectedMiller, millers, "Select Miller", (e) => setSelectedMiller(e.value))}
+                        {renderInputField("Date Sent", "dateSent", "date", "Date Sent")}
+                        {renderInputField("Date Returned", "dateReturned", "date", "Date Returned")}
+                        {renderInputField("Palay Quantity Sent", "palayQuantitySent", "number", "Palay Quantity Sent")}
+                        {renderInputField("Palay Quantity Returned", "palayQuantityReturned", "number", "Palay Quantity Returned")}
+                        {renderInputField("Efficiency", "efficiency", "text", "Efficiency")}
                     </>
                 );
             case 'Rice':
                 return (
                     <>
-                        <div className="sm:col-span-3">
-                            <label htmlFor="date_received" className="block text-sm font-medium leading-6 text-gray-900">Date Received</label>
-                            <div className="mt-2">
-                                <InputComponent
-                                    inputIcon={<Wheat size={20} />}
-                                    onChange={handleInputChange}
-                                    value={formData.dateReceived || ''}
-                                    name="dateReceived"
-                                    type="date"
-                                    placeholder="Date Received"
-                                    aria-label="date_received"
-                                />
-                            </div>
-                        </div>
-                        <div className="sm:col-span-3">
-                            <label htmlFor="quantity" className="block text-sm font-medium leading-6 text-gray-900">Quantity</label>
-                            <div className="mt-2">
-                                <InputComponent
-                                    inputIcon={<Wheat size={20} />}
-                                    onChange={handleInputChange}
-                                    value={formData.quantity || ''}
-                                    name="quantity"
-                                    type="number"
-                                    placeholder="Quantity"
-                                    aria-label="quantity"
-                                />
-                            </div>
-                        </div>
-                        <div className="sm:col-span-3">
-                            <label htmlFor="quality_type" className="block text-sm font-medium leading-6 text-gray-900">Quality Type</label>
-                            <div className="mt-2">
-                                <InputComponent
-                                    inputIcon={<Wheat size={20} />}
-                                    onChange={handleInputChange}
-                                    value={formData.qualityType || ''}
-                                    name="qualityType"
-                                    placeholder="Quality Type"
-                                    aria-label="quality_type"
-                                />
-                            </div>
-                        </div>
-                        <div className="sm:col-span-3">
-                            <label htmlFor="recipient_id" className="block text-sm font-medium leading-6 text-gray-900">Recipient ID</label>
-                            <div className="mt-2">
-                                <InputComponent
-                                    inputIcon={<Wheat size={20} />}
-                                    onChange={handleInputChange}
-                                    value={formData.recipientId || ''}
-                                    name="recipientId"
-                                    placeholder="Recipient ID"
-                                    aria-label="recipient_id"
-                                />
-                            </div>
-                        </div>
-                        <div className="sm:col-span-3">
-                            <label htmlFor="warehouse" className="block text-sm font-medium leading-6 text-gray-900">Warehouse</label>
-                            <div className="mt-2">
-                                <Dropdown
-                                    value={selectedWarehouse}
-                                    options={warehouses}
-                                    onChange={(e) => setSelectedWarehouse(e.value)}
-                                    placeholder="Select Warehouse"
-                                    className="w-full"
-                                />
-                            </div>
-                        </div>
-                        <div className="sm:col-span-3">
-                            <label htmlFor="driver_name" className="block text-sm font-medium leading-6 text-gray-900">Driver Name</label>
-                            <div className="mt-2">
-                                <InputComponent
-                                    inputIcon={<Wheat size={20} />}
-                                    onChange={handleInputChange}
-                                    value={formData.driverName || ''}
-                                    name="driverName"
-                                    placeholder="Driver Name"
-                                    aria-label="driver_name"
-                                />
-                            </div>
-                        </div>
-                        <div className="sm:col-span-3">
-                            <label htmlFor="type_of_transpo" className="block text-sm font-medium leading-6 text-gray-900">Type of Transpo</label>
-                            <div className="mt-2">
-                                <InputComponent
-                                    inputIcon={<Wheat size={20} />}
-                                    onChange={handleInputChange}
-                                    value={formData.typeOfTranspo || ''}
-                                    name="typeOfTranspo"
-                                    placeholder="Type of Transpo"
-                                    aria-label="type_of_transpo"
-                                />
-                            </div>
-                        </div>
-                        <div className="sm:col-span-3">
-                            <label htmlFor="plate_number" className="block text-sm font-medium leading-6 text-gray-900">Plate Number</label>
-                            <div className="mt-2">
-                                <InputComponent
-                                    inputIcon={<Wheat size={20} />}
-                                    onChange={handleInputChange}
-                                    value={formData.plateNumber || ''}
-                                    name="plateNumber"
-                                    placeholder="Plate Number"
-                                    aria-label="plate_number"
-                                />
-                            </div>
-                        </div>
+                        {renderInputField("Date Received", "dateReceived", "date", "Date Received")}
+                        {renderInputField("Quantity", "quantity", "number", "Quantity")}
+                        {renderInputField("Quality Type", "qualityType", "text", "Quality Type")}
+                        {renderInputField("Recipient ID", "recipientId", "text", "Recipient ID")}
+                        {renderDropdownField("Warehouse", "warehouseId", selectedWarehouse, warehouses, "Select Warehouse", (e) => setSelectedWarehouse(e.value))}
+                        {renderInputField("Driver Name", "driverName", "text", "Driver Name")}
+                        {renderInputField("Type of Transpo", "typeOfTranspo", "text", "Type of Transpo")}
+                        {renderInputField("Plate Number", "plateNumber", "text", "Plate Number")}
                     </>
                 );
             case 'Palay':
                 return (
                     <>
-                        <div className="sm:col-span-3">
-                            <label htmlFor="warehouseName" className="block text-sm font-medium leading-6 text-gray-900">Warehouse</label>
-                            <div className="mt-2">
-                                <Dropdown
-                                    value={selectedWarehouse}
-                                    options={warehouses}
-                                    onChange={(e) => setSelectedWarehouse(e.value)}
-                                    placeholder="Select Warehouse"
-                                    className="w-full"
-                                />
-                            </div>
-                        </div>
-                        {/* Other fields remain the same */}
+                        {renderDropdownField("Warehouse", "warehouseName", selectedWarehouse, warehouses, "Select Warehouse", (e) => setSelectedWarehouse(e.value))}
                     </>
                 );
             default:
@@ -392,7 +217,7 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
     };
 
     return (
-        <Dialog visible={visible} onHide={onHide} header="Update Palay" modal style={{ width: '60vw' }}>
+        <Dialog visible={visible} onHide={onHide} header="Update Palay" modal style={{ width: '40vw' }}>
             <section className='Palay Information flex flex-col gap-2'>
                 <p className='text-xl text-black font-semibold'>Update Palay Information</p>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">

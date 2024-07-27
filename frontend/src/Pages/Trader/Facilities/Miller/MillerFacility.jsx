@@ -103,17 +103,17 @@ function MillerFacility() {
         <div>
             <DataTable 
                 value={millerData} 
-                paginator 
-                rows={3} 
+                scrollable={true}
+                scrollHeight="45vh"
                 header={header}
                 filters={filters}
                 globalFilterFields={['name', 'capacity', 'location']}
                 emptyMessage="No millers found."
             >
-                <Column field="name" header="Miller Name" sortable />
-                <Column field="capacity" header="Capacity" sortable />
-                <Column field="location" header="Location" sortable />
-                <Column field="status" header="Status" sortable />
+                <Column field="name" header="Miller Name"/>
+                <Column field="capacity" header="Capacity"/>
+                <Column field="location" header="Location"/>
+                <Column field="status" header="Status"/>
                 <Column body={actionBodyTemplate} exportable={false} style={{ minWidth: '4rem' }} />
             </DataTable>
 
