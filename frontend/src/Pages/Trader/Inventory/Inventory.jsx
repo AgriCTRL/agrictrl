@@ -22,7 +22,7 @@ function Inventory() {
     const [selectedPalay, setSelectedPalay] = useState(null);
     useEffect(() => {
         fetchInventoryData();
-    }, []);
+    }, [inventoryData]);
 
     const fetchInventoryData = async () => {
         try {

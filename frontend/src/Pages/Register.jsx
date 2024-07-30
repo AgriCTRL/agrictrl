@@ -4,7 +4,7 @@ import { Button } from 'primereact/button';
 import { AuthClient } from "@dfinity/auth-client";
 import { useNavigate } from 'react-router-dom';
 
-const RegistrationPage = () => {
+const RegistrationPage = ({ onRegisterSuccess }) => {
   const [principal, setPrincipal] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastname] = useState('');
@@ -21,7 +21,7 @@ const RegistrationPage = () => {
       setPrincipal(principal);
     };
     fetchPrincipal();
-  }, [])
+  }, []);
   
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -39,12 +39,13 @@ const RegistrationPage = () => {
             body: JSON.stringify(nfaPersonnel)
         });
         if(!res.ok) {
-            throw new Error('Error registering user')
+            throw new Error('Error registering user');
         }
-        navigate('/');
+        onRegisterSuccess();
+        navigate('/trader');
     }
     catch (error) {
-        console.log(error.message)
+        console.log(error.message);
     }
   }
 
