@@ -47,45 +47,22 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
 
     const handleRegister = async () => {
         try {
-            // Post to qualitySpecs table
-            const qualitySpecResponse = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/qualityspecs', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    moistureContent: parseFloat(formData.moistureContent),
-                    purity: parseFloat(formData.purity),
-                    damaged: parseFloat(formData.damaged),
-                }),
-            });
-            const qualitySpecData = await qualitySpecResponse.json();
-
-            // Post to palayDeliveries table
-            const palayDeliveryResponse = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/palaydeliveries', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    driverName: formData.driverName,
-                    typeOfTranspo: formData.typeOfTranspo,
-                    plateNumber: formData.plateNumber,
-                }),
-            });
-            const palayDeliveryData = await palayDeliveryResponse.json();
-
-            // Post to palayBatches table
+            // Prepare the data for a single POST request
             const newPalay = {
                 ...formData,
                 status: 'Palay',
-                qualitySpecId: qualitySpecData.id,
-                palayDeliveryId: palayDeliveryData.id,
+                moistureContent: parseFloat(formData.moistureContent),
+                purity: parseFloat(formData.purity),
+                damaged: parseFloat(formData.damaged),
+                driverName: formData.driverName,
+                typeOfTranspo: formData.typeOfTranspo,
+                plateNumber: formData.plateNumber,
                 supplierId: 1, // Dummy data
                 nfaPersonnelId: 1, // Dummy data
                 warehouseId: formData.selectedWarehouse ? formData.selectedWarehouse.id : null,
             };
 
+            // Single POST request to palaybatches
             const palayBatchResponse = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/palaybatches', {
                 method: 'POST',
                 headers: {
