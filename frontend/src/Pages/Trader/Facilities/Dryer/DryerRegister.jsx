@@ -1,20 +1,41 @@
 import React, { useState } from 'react';
 import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
-import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
+import InputComponent from '@/Components/Form/InputComponent';
+import { ThermometerSun } from 'lucide-react';
 
-function Dryer({ visible, onHide, onDryerRegistered }) {
+function DryerRegister({ visible, onHide, onDryerRegistered }) {
     const [name, setName] = useState('');
     const [capacity, setCapacity] = useState('');
     const [location, setLocation] = useState('');
-    const [contactInfo, setContact] = useState('');
+    const [contactInfo, setContactInfo] = useState('');
     const [status, setStatus] = useState('Active');
 
     const statusOptions = [
         { label: 'Active', value: 'Active' },
         { label: 'Inactive', value: 'Inactive' }
     ];
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        switch (name) {
+            case 'name':
+                setName(value);
+                break;
+            case 'capacity':
+                setCapacity(value);
+                break;
+            case 'location':
+                setLocation(value);
+                break;
+            case 'contactInfo':
+                setContactInfo(value);
+                break;
+            default:
+                break;
+        }
+    };
 
     const handleRegister = async (e) => {
         e.preventDefault();
@@ -30,66 +51,69 @@ function Dryer({ visible, onHide, onDryerRegistered }) {
         try {
             const res = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/dryers', {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(newDryer)
             });
-            if(!res.ok) {
-                throw new Error('Error adding data')
+            if (!res.ok) {
+                throw new Error('Error adding data');
             }
-        }
-        catch (error) {
+        } catch (error) {
             console.log(error.message);
         }
-         
+
         onDryerRegistered(newDryer);
 
         setName('');
         setCapacity('');
         setLocation('');
-        setContact('');
-        setStatus(null);
+        setContactInfo('');
+        setStatus('Active');
 
         onHide();
     };
+
+    const renderInputField = (label, name, value, placeholder) => (
+        <div className="sm:col-span-3 mb-3">
+            <label htmlFor={name} className="block text-sm font-medium leading-6 text-gray-900">{label}</label>
+            <div className="mt-2">
+                <InputComponent
+                    inputIcon={<ThermometerSun size={20} />}
+                    onChange={handleInputChange}
+                    value={value}
+                    name={name}
+                    placeholder={placeholder}
+                    aria-label={name}
+                />
+            </div>
+        </div>
+    );
+
+    const renderDropdownField = (label, name, value, options, placeholder, onChange) => (
+        <div className="sm:col-span-3 mb-3">
+            <label htmlFor={name} className="block text-sm font-medium leading-6 text-gray-900">{label}</label>
+            <div className="mt-2">
+                <Dropdown
+                    id={name}
+                    name={name}
+                    value={value || null}
+                    options={options}
+                    onChange={onChange}
+                    placeholder={placeholder}
+                    className="w-full"
+                />
+            </div>
+        </div>
+    );
 
     return (
         <Dialog visible={visible} onHide={onHide} header="Register Dryer" modal style={{ width: '40vw' }}>
             <div className="p-grid p-nogutter">
                 <form onSubmit={handleRegister} className="p-col-12 p-2">
-                    <div className="p-inputgroup mb-3">
-                        <span className="p-inputgroup-addon rounded-sm text-white bg-[#005155]">
-                            Dryer Name
-                        </span>
-                        <InputText required className="border ml-2 p-2 rounded-sm" value={name} onChange={(e) => setName(e.target.value)} />
-                    </div>
-
-                    <div className="p-inputgroup mb-3">
-                        <span className="p-inputgroup-addon rounded-sm text-white bg-[#005155]">
-                            Capacity
-                        </span>
-                        <InputText required className="border ml-2 p-2 rounded-sm" value={capacity} onChange={(e) => setCapacity(e.target.value)} />
-                    </div>
-
-                    <div className="p-inputgroup mb-3">
-                        <span className="p-inputgroup-addon rounded-sm text-white bg-[#005155]">
-                            Location
-                        </span>
-                        <InputText required className="border ml-2 p-2 rounded-sm" value={location} onChange={(e) => setLocation(e.target.value)} />
-                    </div>
-
-                    <div className="p-inputgroup mb-3">
-                        <span className="p-inputgroup-addon rounded-sm text-white bg-[#005155]">
-                            Contact
-                        </span>
-                        <InputText required className="border ml-2 p-2 rounded-sm" value={contactInfo} onChange={(e) => setContact(e.target.value)} />
-                    </div>
-
-                    <div className="p-inputgroup mb-3">
-                        <span className="p-inputgroup-addon rounded-sm text-white bg-[#005155]">
-                            Status
-                        </span>
-                        <Dropdown className="border ml-2 rounded-sm" value={status} options={statusOptions} onChange={(e) => setStatus(e.value)} placeholder="Select Status" />
-                    </div>
+                    {renderInputField("Dryer Name", "name", name, "Enter dryer name")}
+                    {renderInputField("Capacity", "capacity", capacity, "Enter capacity")}
+                    {renderInputField("Location", "location", location, "Enter location")}
+                    {renderInputField("Contact Info", "contactInfo", contactInfo, "Enter contact info")}
+                    {renderDropdownField("Status", "status", status, statusOptions, "Select status", (e) => setStatus(e.value))}
 
                     <div className="flex justify-center mt-4">
                         <Button label="Register" className="p-button-success border p-2 px-5 text-white font-bold bg-gradient-to-r from-[#00C261] to-[#005155]" />
@@ -100,4 +124,4 @@ function Dryer({ visible, onHide, onDryerRegistered }) {
     );
 }
 
-export default Dryer;
+export default DryerRegister;
