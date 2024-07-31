@@ -86,8 +86,23 @@ function UserLayout({ children, activePage }) {
         };
     }, []);
 
-    const [expanded, setExpanded] = useState(true);
-    const handleToggleExpanded = () => setExpanded(!expanded);
+    const [expanded, setExpanded] = useState(() => {
+        // Set default expanded state if not present in localStorage
+        const storedState = localStorage.getItem('sidebarExpanded');
+        if (storedState === null) {
+            localStorage.setItem('sidebarExpanded', 'true');
+            return true;
+        }
+        return storedState === 'true';
+    });
+
+    const handleToggleExpanded = () => {
+        setExpanded((prevExpanded) => {
+            const newExpanded = !prevExpanded;
+            localStorage.setItem('sidebarExpanded', newExpanded);
+            return newExpanded;
+        });
+    };
 
     const isItemActive = (text) => {
         return activePage?.toLowerCase() == text.toLowerCase();
