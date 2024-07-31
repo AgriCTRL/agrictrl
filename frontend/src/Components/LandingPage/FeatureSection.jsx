@@ -1,7 +1,49 @@
 import { React } from 'react';
+import { Carousel } from 'primereact/carousel';
 import { Wheat, Search, Sprout, Microwave, Package } from 'lucide-react';
 
+const features = [
+    {
+        title: 'Agrictrl+TnT',
+        subtitle: '(Track ‘n Trace App)',
+        description: 'Increasing consumer confidence for the bigas that they purchase. Ensuring transparency and traceability in the rice supply chain. Consumers can make informed choices about the rice they bought, knowing its origin and quality.',
+        icon: <Sprout className="text-[#00C261] h-12 w-12" />,
+    },
+    {
+        title: 'Agrictrl+SMS',
+        subtitle: '(Supply Chain Management Software)',
+        description: 'Building resilient infrastructure, promoting inclusive and sustainable industrialization, and fostering innovation. The platform provides a modern and efficient way to manage agricultural data and the rice supply chain, contributing to the digital transformation of the agricultural sector.',
+        icon: <Microwave className="text-[#00C261] h-12 w-12" />,
+    },
+    {
+        title: 'AgriCTRL+ eCommerce',
+        subtitle: '',
+        description: 'Ensuring that farmers receive fair compensation for their produce. By improving market access and providing better pricing for their harvest.',
+        icon: <Package className="text-[#00C261] h-12 w-12" />,
+    },
+    {
+        title: 'AgriCTRL+ MIC ',
+        subtitle: '(Micro Insurance for Crops)',
+        description: 'Protecting our farmers na nasa laylayan. By offering them affordable, accessible and mabilis na Smart Contract-based insurance for their crops.',
+        icon: <Sprout className="text-[#00C261] h-12 w-12" />,
+    },
+    {
+        title: 'AgriCTRL+ Finance',
+        description: 'Offering capital to our local farmer, in the form of NFT crowdfunding.',
+        icon: <Microwave className="text-[#00C261] h-12 w-12" />,
+    },
+];
+
 const FeatureSection = () => {
+    const itemTemplate = (feature) => (
+        <div className="p-12 flex flex-col h-full w-full font-poppins items-center bg-white shadow-lg rounded-lg">
+            {feature.icon}
+            <h3 className="text-4xl font-semibold mt-4 mb-2 text-primary">{feature.title}</h3>
+            <h3 className="text-xl font-semibold mt-4 mb-2 text-primary">{feature.subtitle}</h3>
+            <p className="text-lg text-justify">{feature.description}</p>
+        </div>
+    );
+
     return (
         <section id="featureSection" className="relative bg-white h-screen pt-5 z-0">
             <div className="container mx-auto">
@@ -68,33 +110,20 @@ const FeatureSection = () => {
 
                     {/* Right side: Features Section */}
                     <div>
-                        <div className="flex flex-row py-10">
-                            {/* <Wheat className="text-[#00C261] h-10 w-10"/> */}
+                        <div className="flex flex-row py-5">
+                            <Wheat className="text-[#00C261] h-10 w-10 mr-2"/>
                             <h2 className="text-4xl  text-[#00C261] font-bold">Features of AgriCTRL+</h2>
                         </div>
 
-                        <div className="space-y-8">
-                            <div className="flex flex-row">
-                                <Sprout className="text-[#00C261] h-12 w-12 mr-8"/>
-                                <div className="flex flex-col mt-2">
-                                    <h3 className="text-xl font-semibold mb-2">Traceability Power</h3>
-                                    <p>Discover where is the source of the rice you consume, the processes it took before the palay become a bigas.</p>
-                                </div>
-                            </div>
-                            <div className="flex flex-row">
-                                <Microwave className="text-[#00C261] h-12 w-12 mr-8"/>
-                                <div className="flex flex-col mt-2">
-                                    <h3 className="text-xl font-semibold mb-2">Decentralized Records</h3>
-                                    <p>Utilizing ICP Blockchain Backend and Frontend Services, we can securely save and collect data.</p>
-                                </div>
-                            </div>
-                            <div className="flex flex-row">
-                                <Package className="text-[#00C261] h-12 w-12 mr-8"/>
-                                <div className="flex flex-col mt-2">
-                                    <h3 className="text-xl font-semibold mb-2">Supply Chain Management</h3>
-                                    <p>Manage the entire supply chain of rice through simple to understand user interfaces. </p>
-                                </div>
-                            </div>
+                        <div className="flex flex-col pb-5">
+                            <Carousel 
+                                value={features} 
+                                itemTemplate={itemTemplate} 
+                                numVisible={1} 
+                                circular 
+                                autoplayInterval={4000}
+                                className="w-full"
+                            />
                         </div>
                     </div>
                 </div>
