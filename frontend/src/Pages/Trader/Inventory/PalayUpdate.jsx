@@ -123,7 +123,6 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
                         typeOfTranspo: deliveryData.typeOfTranspo || '',
                         plateNumber: deliveryData.plateNumber || ''
                     });
-                    console.log(formData);
                     if (!selectedWarehouse) {
                         setSelectedWarehouse(warehouses.find(w => w.value === data.warehouseId) || null);
                     }
@@ -148,7 +147,7 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
     const formatDate = (date) => {
         if (!date) return '';
         const d = new Date(date);
-        return d.toISOString().split('T')[0]; // Returns date in yyyy-MM-dd format
+        return d.toISOString().split('T')[0];
     };
 
     const handleInputChange = (e) => {
@@ -168,12 +167,10 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
     };
 
     const handleUpdatePalay = async () => {
-        console.log('Selected Warehouse ID in handleUpdatePalay:', selectedWarehouse); // Log the ID directly
-
         // Base payload with status
         const updatePayload = {
             id: selectedPalay.id,
-            status: status, // Always include status
+            status: status,
         };
 
         // Conditionally add warehouseId if status is 'Palay'
@@ -206,7 +203,7 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
                 }
 
                 toast.current.show({ severity: 'success', summary: 'Success', detail: 'Palay updated successfully' });
-                onHide(); // Hide the dialog after successful update
+                onHide();
             } else {
                 throw new Error('Update failed');
             }
@@ -228,7 +225,7 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
             if (existingData && existingData.id) {
                 // Update existing drying process data
                 requestBody = {
-                    ...existingData, // Preserve existing fields
+                    ...existingData,
                     type: formData.type,
                     dryerId: selectedDryer,
                     dateSent: formData.dateSent,
@@ -236,8 +233,6 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
                     palayQuantitySent: formData.palayQuantitySent,
                     palayQuantityReturned: formData.palayQuantityReturned,
                 };
-
-                console.log('Update Request Body:', JSON.stringify(requestBody, null, 2)); // Log the body for update
 
                 const updateResponse = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/dryingprocesses', {
                     method: 'PUT',
@@ -260,8 +255,6 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
                     palayQuantityReturned: formData.palayQuantityReturned,
                     warehouseId: 2
                 };
-
-                console.log('Create Request Body:', JSON.stringify(requestBody, null, 2)); // Log the body for create
 
                 const createResponse = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/dryingprocesses', {
                     method: 'POST',
@@ -291,7 +284,7 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
             if (existingData && existingData.id) {
                 // Update existing milling process data
                 requestBody = {
-                    ...existingData, // Preserve existing fields
+                    ...existingData,
                     type: formData.type,
                     millerId: selectedMiller,
                     dateSent: formData.dateSent,
@@ -300,8 +293,6 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
                     palayQuantityReturned: formData.palayQuantityReturned,
                     efficiency: formData.efficiency,
                 };
-
-                console.log('Update Request Body:', JSON.stringify(requestBody, null, 2)); // Log the body for update
 
                 const updateResponse = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/millingprocesses', {
                     method: 'PUT',
@@ -325,8 +316,6 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
                     efficiency: formData.efficiency,
                     warehouseId: 2
                 };
-
-                console.log('Create Request Body:', JSON.stringify(requestBody, null, 2)); // Log the body for create
 
                 const createResponse = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/millingprocesses', {
                     method: 'POST',
@@ -360,7 +349,8 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
                     dateReceived: formData.dateReceived,
                     quantity: formData.quantity,
                     qualityType: formData.qualityType,
-                    recipientId: formData.recipientId,
+                    recipientId: 1,
+                    // recipientId: formData.recipientId,
                     warehouseId: selectedWarehouse,
                 };
 
@@ -511,7 +501,7 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
                         {renderInputField("Date Received", "dateReceived", "date", "Date Received")}
                         {renderInputField("Quantity", "quantity", "number", "Quantity")}
                         {renderInputField("Quality Type", "qualityType", "text", "Quality Type")}
-                        {renderInputField("Recipient ID", "recipientId", "text", "Recipient ID")}
+                        {/* {renderInputField("Recipient ID", "recipientId", "text", "Recipient ID")} */}
                         {renderDropdownField("Warehouse", "warehouseId", selectedWarehouse, warehouses, "Select Warehouse", handleWarehouseChange)}
                         {renderInputField("Driver Name", "driverName", "text", "Driver Name")}
                         {renderInputField("Type of Transpo", "typeOfTranspo", "text", "Type of Transpo")}

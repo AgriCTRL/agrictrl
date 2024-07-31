@@ -72,7 +72,7 @@ function DryerRegister({ visible, onHide, onDryerRegistered }) {
         onHide();
     };
 
-    const renderInputField = (label, name, value, placeholder) => (
+    const renderInputField = (label, name, type, value, placeholder) => (
         <div className="sm:col-span-3 mb-3">
             <label htmlFor={name} className="block text-sm font-medium leading-6 text-gray-900">{label}</label>
             <div className="mt-2">
@@ -81,6 +81,7 @@ function DryerRegister({ visible, onHide, onDryerRegistered }) {
                     onChange={handleInputChange}
                     value={value}
                     name={name}
+                    type={type}
                     placeholder={placeholder}
                     aria-label={name}
                 />
@@ -109,10 +110,10 @@ function DryerRegister({ visible, onHide, onDryerRegistered }) {
         <Dialog visible={visible} onHide={onHide} header="Register Dryer" modal style={{ width: '40vw' }}>
             <div className="p-grid p-nogutter">
                 <form onSubmit={handleRegister} className="p-col-12 p-2">
-                    {renderInputField("Dryer Name", "name", name, "Enter dryer name")}
-                    {renderInputField("Capacity", "capacity", capacity, "Enter capacity")}
-                    {renderInputField("Location", "location", location, "Enter location")}
-                    {renderInputField("Contact Info", "contactInfo", contactInfo, "Enter contact info")}
+                    {renderInputField("Dryer Name", "name", "text", name, "Enter dryer name")}
+                    {renderInputField("Capacity", "capacity", "number", capacity, "Enter capacity")}
+                    {renderInputField("Location", "location", "text", location, "Enter location")}
+                    {renderInputField("Contact Info", "contactInfo", "text", contactInfo, "Enter contact info")}
                     {renderDropdownField("Status", "status", status, statusOptions, "Select status", (e) => setStatus(e.value))}
 
                     <div className="flex justify-center mt-4">

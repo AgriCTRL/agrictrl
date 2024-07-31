@@ -72,7 +72,7 @@ function MillerRegister({ visible, onHide, onMillerRegistered }) {
         onHide();
     };
 
-    const renderInputField = (label, name, value, placeholder) => (
+    const renderInputField = (label, name, type, value, placeholder) => (
         <div className="sm:col-span-3 mb-3">
             <label htmlFor={name} className="block text-sm font-medium leading-6 text-gray-900">{label}</label>
             <div className="mt-2">
@@ -81,6 +81,7 @@ function MillerRegister({ visible, onHide, onMillerRegistered }) {
                     onChange={handleInputChange}
                     value={value}
                     name={name}
+                    type={type}
                     placeholder={placeholder}
                     aria-label={name}
                 />
@@ -109,10 +110,10 @@ function MillerRegister({ visible, onHide, onMillerRegistered }) {
         <Dialog visible={visible} onHide={onHide} header="Register Miller" modal style={{ width: '40vw' }}>
             <div className="p-grid p-nogutter">
                 <form onSubmit={handleRegister} className="p-col-12 p-2">
-                    {renderInputField("Miller Name", "name", name, "Enter miller name")}
-                    {renderInputField("Capacity", "capacity", capacity, "Enter capacity")}
-                    {renderInputField("Location", "location", location, "Enter location")}
-                    {renderInputField("Contact Info", "contactInfo", contactInfo, "Enter contact info")}
+                    {renderInputField("Miller Name", "name", "text", name, "Enter miller name")}
+                    {renderInputField("Capacity", "capacity", "number", capacity, "Enter capacity")}
+                    {renderInputField("Location", "location", "text", location, "Enter location")}
+                    {renderInputField("Contact Info", "contactInfo", "text", contactInfo, "Enter contact info")}
                     {renderDropdownField("Status", "status", status, statusOptions, "Select status", (e) => setStatus(e.value))}
 
                     <div className="flex justify-center mt-4">

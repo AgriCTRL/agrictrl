@@ -62,7 +62,7 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
         onHide();
     };
 
-    const renderInputField = (label, name, value, placeholder, onChange) => (
+    const renderInputField = (label, name, type, value, placeholder, onChange) => (
         <div className="sm:col-span-3 mb-3">
             <label htmlFor={name} className="block text-sm font-medium leading-6 text-gray-900">{label}</label>
             <div className="mt-2">
@@ -71,6 +71,7 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
                     onChange={onChange}
                     value={value}
                     name={name}
+                    type={type}
                     placeholder={placeholder}
                     aria-label={name}
                 />
@@ -99,10 +100,10 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
         <Dialog visible={visible} onHide={onHide} header="Update Miller" modal style={{ width: '40vw' }}>
             <div className="p-grid p-nogutter">
                 <form onSubmit={handleUpdate} className="p-col-12 p-2">
-                    {renderInputField('Miller Name', 'name', name, 'Enter miller name', (e) => setName(e.target.value))}
-                    {renderInputField('Capacity', 'capacity', capacity, 'Enter capacity', (e) => setCapacity(e.target.value))}
-                    {renderInputField('Location', 'location', location, 'Enter location', (e) => setLocation(e.target.value))}
-                    {renderInputField('Contact Info', 'contactInfo', contactInfo, 'Enter contact info', (e) => setContactInfo(e.target.value))}
+                    {renderInputField('Miller Name', 'name', 'text', name, 'Enter miller name', (e) => setName(e.target.value))}
+                    {renderInputField('Capacity', 'capacity', 'number', capacity, 'Enter capacity', (e) => setCapacity(e.target.value))}
+                    {renderInputField('Location', 'location', 'text', location, 'Enter location', (e) => setLocation(e.target.value))}
+                    {renderInputField('Contact Info', 'contactInfo', 'text', contactInfo, 'Enter contact info', (e) => setContactInfo(e.target.value))}
                     {renderDropdownField('Status', 'status', status, statusOptions, 'Select status', (e) => setStatus(e.value))}
 
                     <div className="flex justify-center mt-4">
