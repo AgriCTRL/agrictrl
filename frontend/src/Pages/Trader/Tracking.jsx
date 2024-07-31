@@ -289,7 +289,7 @@ const Tracking = () => {
           rowExpansionTemplate={rowExpansionTemplate}
           dataKey="id"
           scrollable={true}
-          scrollHeight="54vh"
+          scrollHeight="52vh"
           className="p-datatable-sm border-none rounded-lg"
           rowClassName={() => 'h-16'}
           emptyMessage=" "

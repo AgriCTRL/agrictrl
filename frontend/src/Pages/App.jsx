@@ -28,7 +28,6 @@ function App() {
                 const authClient = await AuthClient.create();
                 const isAuthenticated = await authClient.isAuthenticated();
                 setIsAuthenticated(isAuthenticated);
-                
             } catch (error) {
                 console.log(error.message);
             } finally {
@@ -41,12 +40,13 @@ function App() {
                 const authClient = await AuthClient.create();
                 const identity = authClient.getIdentity();
                 const principal = identity.getPrincipal().toText();
-                const res = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/nfapersonnels/principal/${principal}`)
+                const res = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/nfapersonnels/principal/${principal}`);
                 const data = await res.json();
                 if (data === null && principal !== '2vxsx-fae') {
-                    setRegisterAuth(true)
+                    setRegisterAuth(true);
+                } else {
+                    setRegisterAuth(false);
                 }
-                else setRegisterAuth(false);
             } catch (error) {
                 console.log(error.message);
             }
@@ -56,6 +56,11 @@ function App() {
         checkRegisterAuth();
     }, []);
 
+    const handleRegisterSuccess = () => {
+        setIsAuthenticated(true);
+        setRegisterAuth(false);
+    };
+
     if (isLoading) {
         return <div></div>; // TODO: add loading modal
     }
@@ -64,9 +69,9 @@ function App() {
         <div className="flex h-screen transition-transform duration-300">
             <Routes>
                 <Route path="/" element={<LandingPage />} />
-                <Route path="/register" element={registerAuth ? <Register /> : <Navigate to="/trader" replace />} />
+                <Route path="/register" element={registerAuth ? <Register onRegisterSuccess={handleRegisterSuccess} /> : <Navigate to="/trader" replace />} />
                 <Route path="/history" element={<TransactionHistory />} />
-                <Route path="/trader/*" element={isAuthenticated ? <TraderRoutes /> : <Navigate to="/" replace />} />
+                <Route path="/trader/*" element={isAuthenticated && !registerAuth ? <TraderRoutes /> : <Navigate to="/" replace />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
         </div>

@@ -11,6 +11,7 @@ function Profile() {
     const [position, setPosition] = useState('');
     const [region, setRegion] = useState('');
     const [editing, setEditing] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -41,6 +42,7 @@ function Profile() {
 
     const handleSave = async (e) => {
         e.preventDefault();
+        setIsSubmitting(true);
 
         const user = {
             id,
@@ -69,6 +71,8 @@ function Profile() {
 
         } catch (error) {
             console.log(error);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -154,6 +158,7 @@ function Profile() {
                     {editing && (
                         <Button
                             label="Save"
+                            disabled={isSubmitting}
                             type="submit"
                             className='p-button-success border h-14 w-24 text-white font-bold bg-gradient-to-r from-[#00C261] to-[#005155]'
                         />
