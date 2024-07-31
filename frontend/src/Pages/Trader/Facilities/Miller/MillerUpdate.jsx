@@ -11,6 +11,7 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
     const [location, setLocation] = useState('');
     const [contactInfo, setContactInfo] = useState('');
     const [status, setStatus] = useState(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const statusOptions = [
         { label: 'Active', value: 'Active' },
@@ -29,6 +30,7 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
 
     const handleUpdate = async (e) => {
         e.preventDefault();
+        setIsSubmitting(true);
         const updatedMiller = {
             ...selectedMiller,
             name,
@@ -59,6 +61,7 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
         setContactInfo('');
         setStatus(null);
 
+        setIsSubmitting(false);
         onHide();
     };
 
@@ -106,7 +109,7 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
                     {renderDropdownField('Status', 'status', status, statusOptions, 'Select status', (e) => setStatus(e.value))}
 
                     <div className="flex justify-center mt-4">
-                        <Button label="Update" className="p-button-success border p-2 px-5 text-white font-bold bg-gradient-to-r from-[#00C261] to-[#005155]" />
+                        <Button label="Update" disabled={isSubmitting} className="p-button-success border p-2 px-5 text-white font-bold bg-gradient-to-r from-[#00C261] to-[#005155]" />
                     </div>
                 </form>
             </div>

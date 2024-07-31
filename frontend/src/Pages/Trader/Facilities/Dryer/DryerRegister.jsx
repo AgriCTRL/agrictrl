@@ -11,6 +11,7 @@ function DryerRegister({ visible, onHide, onDryerRegistered }) {
     const [location, setLocation] = useState('');
     const [contactInfo, setContactInfo] = useState('');
     const [status, setStatus] = useState('Active');
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const statusOptions = [
         { label: 'Active', value: 'Active' },
@@ -39,6 +40,7 @@ function DryerRegister({ visible, onHide, onDryerRegistered }) {
 
     const handleRegister = async (e) => {
         e.preventDefault();
+        setIsSubmitting(true);
 
         const newDryer = {
             name,
@@ -69,6 +71,7 @@ function DryerRegister({ visible, onHide, onDryerRegistered }) {
         setContactInfo('');
         setStatus('Active');
 
+        setIsSubmitting(false);
         onHide();
     };
 
@@ -116,7 +119,7 @@ function DryerRegister({ visible, onHide, onDryerRegistered }) {
                     {renderDropdownField("Status", "status", status, statusOptions, "Select status", (e) => setStatus(e.value))}
 
                     <div className="flex justify-center mt-4">
-                        <Button label="Register" className="p-button-success border p-2 px-5 text-white font-bold bg-gradient-to-r from-[#00C261] to-[#005155]" />
+                        <Button label="Register" disabled={isSubmitting} className="p-button-success border p-2 px-5 text-white font-bold bg-gradient-to-r from-[#00C261] to-[#005155]" />
                     </div>
                 </form>
             </div>
