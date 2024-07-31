@@ -26,68 +26,128 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
     const [error, setError] = useState(null);
     const toast = useRef(null);
 
+    
     useEffect(() => {
-        if (selectedPalay) {
-            setStatus(selectedPalay.status);
-            setFormData(selectedPalay);
-            if (selectedPalay.warehouseId) {
-                setSelectedWarehouse({ label: selectedPalay.warehouseId, value: selectedPalay.warehouseId });
+        const fetchData = async () => {
+            await Promise.all([
+                fetchFacilities('warehouses', setWarehouses),
+                fetchFacilities('dryers', setDryers),
+                fetchFacilities('millers', setMillers)
+            ]);
+            if (selectedPalay) {
+                setStatus(selectedPalay.status);
+                await fetchDataForStatus(selectedPalay.id, selectedPalay.status);
             }
-            if (selectedPalay.dryerId) {
-                setSelectedDryer({ label: selectedPalay.dryerId, value: selectedPalay.dryerId });
-            }
-            if (selectedPalay.millerId) {
-                setSelectedMiller({ label: selectedPalay.millerId, value: selectedPalay.millerId });
-            }
-        }
+        };
+        fetchData();
     }, [selectedPalay]);
 
+    //use effect for resetting the form when the status changes
     useEffect(() => {
-        fetchWarehouses();
-        fetchDryers();
-        fetchMillers();
-    }, []);
+        if (status !== selectedPalay.status) {
+            setFormData({});
+            setSelectedWarehouse(null);
+            setSelectedDryer(null);
+            setSelectedMiller(null);
+        }
+    }, [status]);
 
-    const fetchWarehouses = async () => {
+    const fetchFacilities = async (facilityType, setFacilityState) => {
         try {
             setLoading(true);
-            const response = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/warehouses');
+            const response = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/${facilityType}`);
             const data = await response.json();
-            setWarehouses(data.map(warehouse => ({ label: warehouse.facilityName, value: warehouse.id })));
+            const formattedData = data.map(item => ({ label: item.name || item.facilityName, value: item.id }));
+            setFacilityState(formattedData);
         } catch (error) {
-            console.error('Error fetching warehouses:', error);
-            setError('Error fetching warehouses');
+            console.error(`Error fetching ${facilityType}:`, error);
+            setError(`Error fetching ${facilityType}`);
         } finally {
             setLoading(false);
         }
     };
 
-    const fetchDryers = async () => {
+    const fetchDataForStatus = async (id, status) => {
         try {
-            setLoading(true);
-            const response = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/dryers');
-            const data = await response.json();
-            setDryers(data.map(dryer => ({ label: dryer.name, value: dryer.id })));
+            let response;
+            let data;
+
+            switch (status) {
+                case 'Drying':
+                    response = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/dryingprocesses/${id}`);
+                    data = await response.json();
+                    setFormData({
+                        type: data.type || '',
+                        dateSent: formatDate(data.dateSent) || '',
+                        dateReturned: formatDate(data.dateReturned) || '',
+                        palayQuantitySent: data.palayQuantitySent || '',
+                        palayQuantityReturned: data.palayQuantityReturned || ''
+                    });
+                    if (!selectedDryer) {
+                        setSelectedDryer(dryers.find(d => d.value === data.dryerId) || null);
+                    }
+                    break;
+
+                case 'Milling':
+                    response = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/millingprocesses/${id}`);
+                    data = await response.json();
+                    setFormData({
+                        type: data.type || '',
+                        dateSent: formatDate(data.dateSent) || '',
+                        dateReturned: formatDate(data.dateReturned) || '',
+                        palayQuantitySent: data.palayQuantitySent || '',
+                        palayQuantityReturned: data.palayQuantityReturned || '',
+                        efficiency: data.efficiency || ''
+                    });
+                    if (!selectedMiller) {
+                        setSelectedMiller(millers.find(m => m.value === data.millerId) || null);
+                    }
+                    break;
+
+                case 'Rice':
+                    response = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/ricebatches/${id}`);
+                    data = await response.json();
+
+                    // Fetch rice delivery details
+                    let deliveryResponse = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/ricedeliveries/${data.riceDeliveryId}`);
+                    let deliveryData = await deliveryResponse.json();
+
+                    setFormData({
+                        dateReceived: formatDate(data.dateReceived) || '',
+                        quantity: data.quantity || '',
+                        qualityType: data.qualityType || '',
+                        recipientId: data.recipientId || '',
+                        driverName: deliveryData.driverName || '',
+                        typeOfTranspo: deliveryData.typeOfTranspo || '',
+                        plateNumber: deliveryData.plateNumber || ''
+                    });
+                    console.log(formData);
+                    if (!selectedWarehouse) {
+                        setSelectedWarehouse(warehouses.find(w => w.value === data.warehouseId) || null);
+                    }
+                    break;
+
+                case 'Palay':
+                    setFormData({});
+                    if (!selectedWarehouse) {
+                        setSelectedWarehouse(warehouses.find(w => w.value === data.warehouseId) || null);
+                    }
+                    break;
+
+                default:
+                    setFormData({});
+            }
         } catch (error) {
-            console.error('Error fetching dryers:', error);
-            setError('Error fetching dryers');
-        } finally {
-            setLoading(false);
+            console.error(`Error fetching data for ${status}:`, error);
+            toast.current.show({ severity: 'error', summary: 'Error', detail: `Failed to fetch ${status} data` });
         }
     };
 
-    const fetchMillers = async () => {
-        try {
-            setLoading(true);
-            const response = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/millers');
-            const data = await response.json();
-            setMillers(data.map(miller => ({ label: miller.name, value: miller.id })));
-        } catch (error) {
-            console.error('Error fetching millers:', error);
-            setError('Error fetching millers');
-        } finally {
-            setLoading(false);
-        }
+
+    const formatDate = (date) => {
+        if (!date) return '';
+        const d = new Date(date);
+        return d.toISOString().split('T')[0]; // Returns date in yyyy-MM-dd format
     };
 
     const handleInputChange = (e) => {
@@ -96,7 +156,14 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
 
     const handleWarehouseChange = (e) => {
         setSelectedWarehouse(e.value);
-        console.log('Selected Warehouse ID:', e.value);
+    };
+
+    const handleDryerChange = (e) => {
+        setSelectedDryer(e.value);
+    };
+
+    const handleMillerChange = (e) => {
+        setSelectedMiller(e.value);
     };
 
     const handleUpdatePalay = async () => {
@@ -282,64 +349,101 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
             const response = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/ricebatches/${selectedPalay.id}`);
             const existingData = await response.json();
 
-            let requestBody;
+            let riceBatchBody;
+            let riceDeliveryBody;
 
             if (existingData && existingData.id) {
                 // Update existing rice batch data
-                requestBody = {
+                riceBatchBody = {
                     ...existingData,
                     dateReceived: formData.dateReceived,
                     quantity: formData.quantity,
                     qualityType: formData.qualityType,
                     recipientId: formData.recipientId,
                     warehouseId: selectedWarehouse,
+                };
+
+                // Update existing rice delivery data
+                riceDeliveryBody = {
+                    id: existingData.riceDeliveryId,
                     driverName: formData.driverName,
                     typeOfTranspo: formData.typeOfTranspo,
                     plateNumber: formData.plateNumber,
                 };
 
-                const updateResponse = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/ricebatches', {
+                // Update rice batch
+                const updateRiceBatchResponse = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/ricebatches', {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(requestBody),
+                    body: JSON.stringify(riceBatchBody),
                 });
 
-                if (!updateResponse.ok) throw new Error('Update failed');
+                if (!updateRiceBatchResponse.ok) throw new Error('Rice batch update failed');
+
+                // Update rice delivery
+                const updateRiceDeliveryResponse = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/ricedeliveries', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(riceDeliveryBody),
+                });
+
+                if (!updateRiceDeliveryResponse.ok) throw new Error('Rice delivery update failed');
             } else {
                 // Create new rice batch data
-                requestBody = {
+                riceBatchBody = {
                     palayBatchId: selectedPalay.id,
                     dateReceived: formData.dateReceived,
                     quantity: formData.quantity,
                     qualityType: formData.qualityType,
                     recipientId: formData.recipientId,
                     warehouseId: selectedWarehouse,
+                };
+
+                // Create new rice delivery data
+                riceDeliveryBody = {
                     driverName: formData.driverName,
                     typeOfTranspo: formData.typeOfTranspo,
                     plateNumber: formData.plateNumber,
                 };
 
-                const createResponse = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/ricebatches', {
+                // Create rice delivery first
+                const createRiceDeliveryResponse = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/ricedeliveries', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(requestBody),
+                    body: JSON.stringify(riceDeliveryBody),
                 });
 
-                if (!createResponse.ok) throw new Error('Creation failed');
+                if (!createRiceDeliveryResponse.ok) throw new Error('Rice delivery creation failed');
+
+                const newRiceDelivery = await createRiceDeliveryResponse.json();
+
+                // Add the new rice delivery ID to the rice batch data
+                riceBatchBody.riceDeliveryId = newRiceDelivery.id;
+
+                // Create rice batch
+                const createRiceBatchResponse = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/ricebatches', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(riceBatchBody),
+                });
+
+                if (!createRiceBatchResponse.ok) throw new Error('Rice batch creation failed');
             }
+
+            toast.current.show({ severity: 'success', summary: 'Success', detail: 'Rice batch and delivery updated successfully' });
         } catch (error) {
             console.error('Error handling rice update:', error);
-            toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to update or create Rice Batch' });
+            toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to update or create Rice Batch and Delivery' });
         }
     };
-
-
-
-
 
     const renderInputField = (label, name, type = "text", placeholder) => (
         <div className="sm:col-span-3">
@@ -365,7 +469,7 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
                 <Dropdown
                     id={name}
                     name={name}
-                    value={value}
+                    value={value || null}
                     options={options}
                     onChange={onChange}
                     placeholder={placeholder}
@@ -381,7 +485,7 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
                 return (
                     <>
                         {renderInputField("Type", "type", "text", "Type")}
-                        {renderDropdownField("Dryer Name", "dryerId", selectedDryer, dryers, "Select Dryer", (e) => setSelectedDryer(e.value))}
+                        {renderDropdownField("Dryer Name", "dryerId", selectedDryer, dryers, "Select Dryer", handleDryerChange)}
                         {renderInputField("Date Sent", "dateSent", "date", "Date Sent")}
                         {renderInputField("Date Returned", "dateReturned", "date", "Date Returned")}
                         {renderInputField("Palay Quantity Sent", "palayQuantitySent", "number", "Palay Quantity Sent")}
@@ -392,7 +496,7 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
                 return (
                     <>
                         {renderInputField("Type", "type", "text", "Type")}
-                        {renderDropdownField("Miller Name", "millerId", selectedMiller, millers, "Select Miller", (e) => setSelectedMiller(e.value))}
+                        {renderDropdownField("Miller Name", "millerId", selectedMiller, millers, "Select Miller", handleMillerChange)}
                         {renderInputField("Date Sent", "dateSent", "date", "Date Sent")}
                         {renderInputField("Date Returned", "dateReturned", "date", "Date Returned")}
                         {renderInputField("Palay Quantity Sent", "palayQuantitySent", "number", "Palay Quantity Sent")}
