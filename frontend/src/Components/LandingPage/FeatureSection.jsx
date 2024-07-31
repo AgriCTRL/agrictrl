@@ -1,36 +1,36 @@
 import { React } from 'react';
 import { Carousel } from 'primereact/carousel';
-import { Wheat, Search, Sprout, Microwave, Package } from 'lucide-react';
+import { Bean, Link, ShoppingBasket, ShieldPlus, HandCoins, Wheat, Search, Sprout, Microwave, Package } from 'lucide-react';
 
 const features = [
     {
-        title: 'Agrictrl+TnT',
+        title: 'AgriCTRL+TnT',
         subtitle: '(Track ‘n Trace App)',
         description: 'Increasing consumer confidence for the bigas that they purchase. Ensuring transparency and traceability in the rice supply chain. Consumers can make informed choices about the rice they bought, knowing its origin and quality.',
-        icon: <Sprout className="text-[#00C261] h-12 w-12" />,
+        icon: <Bean className="text-[#00C261] h-12 w-12" />,
     },
     {
-        title: 'Agrictrl+SMS',
+        title: 'AgriCTRL+SMS',
         subtitle: '(Supply Chain Management Software)',
         description: 'Building resilient infrastructure, promoting inclusive and sustainable industrialization, and fostering innovation. The platform provides a modern and efficient way to manage agricultural data and the rice supply chain, contributing to the digital transformation of the agricultural sector.',
-        icon: <Microwave className="text-[#00C261] h-12 w-12" />,
+        icon: <Link className="text-[#00C261] h-12 w-12" />,
     },
     {
         title: 'AgriCTRL+ eCommerce',
         subtitle: '',
         description: 'Ensuring that farmers receive fair compensation for their produce. By improving market access and providing better pricing for their harvest.',
-        icon: <Package className="text-[#00C261] h-12 w-12" />,
+        icon: <ShoppingBasket className="text-[#00C261] h-12 w-12" />,
     },
     {
         title: 'AgriCTRL+ MIC ',
         subtitle: '(Micro Insurance for Crops)',
         description: 'Protecting our farmers na nasa laylayan. By offering them affordable, accessible and mabilis na Smart Contract-based insurance for their crops.',
-        icon: <Sprout className="text-[#00C261] h-12 w-12" />,
+        icon: <ShieldPlus className="text-[#00C261] h-12 w-12" />,
     },
     {
         title: 'AgriCTRL+ Finance',
         description: 'Offering capital to our local farmer, in the form of NFT crowdfunding.',
-        icon: <Microwave className="text-[#00C261] h-12 w-12" />,
+        icon: <HandCoins className="text-[#00C261] h-12 w-12" />,
     },
 ];
 

@@ -1,6 +1,6 @@
 import { React, useState } from 'react';
 import { Button } from 'primereact/button';
-import { Wheat, Coins, Sprout, Database, MoveRight } from 'lucide-react';
+import {  ScanSearch , Link, ShoppingBasket, ShieldPlus, HandCoins } from 'lucide-react';
 
 const WorkingProcessSection = () => {
     const [selectedButton, setSelectedButton] = useState('Farmers');
@@ -48,7 +48,7 @@ const WorkingProcessSection = () => {
                                 {/* Feature 1 */}
                                 <div className='z-30 flex flex-col items-center'>
                                     <div className="relative mb-2 z-50">
-                                        <Sprout className="text-[#00C261] h-10 w-10" />
+                                        <ScanSearch  className="text-[#00C261] h-9 w-9" />
                                     </div>  
                                     <div className="h-36 w-36 flex flex-col items-center justify-center p-2 shadow-2xl bg-white border rounded-lg z-40">
                                         <div className="flex items-center">
@@ -72,7 +72,7 @@ const WorkingProcessSection = () => {
                                 {/* Feature 2 */}
                                 <div className='z-30 flex flex-col items-center translate-x-16 translate-y-10'>
                                     <div className="relative mb-2 z-50">
-                                        <Sprout className="text-[#00C261] h-10 w-10" />
+                                        <Link className="text-[#00C261] h-9 w-9" />
                                     </div>  
                                     <div className="h-36 w-36 flex flex-col items-center justify-center p-2 shadow-2xl bg-white border rounded-lg z-40">
                                         <div className="flex items-center">
@@ -96,7 +96,7 @@ const WorkingProcessSection = () => {
                                 {/* Feature 3 */}
                                 <div className='z-30 flex flex-col items-center translate-x-28 translate-y-20'>
                                     <div className="relative mb-2 z-50">
-                                        <Sprout className="text-[#00C261] h-10 w-10" />
+                                        <ShoppingBasket className="text-[#00C261] h-9 w-9" />
                                     </div>  
                                     <div className="h-36 w-36 flex flex-col items-center justify-center p-2 shadow-2xl bg-white border rounded-lg z-40">
                                         <div className="flex items-center">
@@ -122,7 +122,7 @@ const WorkingProcessSection = () => {
                                 {/* Feature 5 */}
                                 <div className='z-30 flex flex-col items-center translate-x-10 translate-y-14'>
                                     <div className="relative mb-2 z-50">
-                                        <Sprout className="text-[#00C261] h-10 w-10" />
+                                        <HandCoins className="text-[#00C261] h-9 w-9" />
                                     </div>  
                                     <div className="h-36 w-36 flex flex-col items-center justify-center p-2 shadow-2xl bg-white border rounded-lg z-40">
                                         <div className="flex items-center">
@@ -146,7 +146,7 @@ const WorkingProcessSection = () => {
                                 {/* Feature 4 */}
                                 <div className='z-30 flex flex-col items-center translate-x-24'>
                                     <div className="relative mb-2 z-50">
-                                        <Sprout className="text-[#00C261] h-10 w-10" />
+                                        <ShieldPlus className="text-[#00C261] h-9 w-9" />
                                     </div>  
                                     <div className="h-36 w-36 flex flex-col items-center justify-center p-2 shadow-2xl bg-white border rounded-lg z-40">
                                         <div className="flex items-center">
