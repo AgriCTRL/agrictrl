@@ -3,6 +3,8 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
 import { Search } from 'lucide-react';
+import { InputText } from 'primereact/inputtext';
+
 
 import WarehouseRegister from './WarehouseRegister';
 import WarehouseUpdate from './WarehouseUpdate';
@@ -81,22 +83,21 @@ function Warehouse() {
     };
 
     const header = (
-        <div className="p-grid p-nogutter">
-            <div className="px-3 flex items-center">
-                <span className="p-input-icon-left ">
-                    <Search className="ml-4 -translate-y-1"/>
-                    <input 
-                        value={globalFilterValue} 
-                        onChange={(e) => setGlobalFilterValue(e.target.value)} 
-                        placeholder="Search" 
-                        className="p-inputtext p-component ml-2 pl-10 p-2"
-                    />
-                </span>
-                <div className="flex-grow"></div>
+        <div className="px-3 flex items-center">
+            <span className="p-input-icon-left ">
+                <Search className="ml-3 -translate-y-1 text-[#00C261]"/>
+                <InputText 
+                    type="search"
+                    value={globalFilterValue} 
+                    onChange={(e) => setGlobalFilterValue(e.target.value)} 
+                    placeholder="Search" 
+                    className="w-full pl-10 pr-4 py-2 rounded-lg placeholder-[#00C261] text-[#00C261] border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+            </span>
+            <div className="flex-grow"></div>
                 <div className="justify-end items-center">
-                    <Button label="+ Add New" onClick={showDialog} className="p-button-success bg-white p-2" />
+                    <Button label="+ Add New" onClick={showDialog} className="p-button-success text-white bg-gradient-to-r from-[#005155] to-[#00C261] p-2" />
                 </div>
-            </div>
         </div>
     );
 
@@ -104,17 +105,17 @@ function Warehouse() {
         <div>
             <DataTable 
                 value={warehouseData} 
-                paginator 
-                rows={3} 
+                scrollable={true}
+                scrollHeight="45vh"
                 header={header}
                 filters={filters}
                 globalFilterFields={['facilityName', 'capacity', 'location']}
                 emptyMessage="No warehouses found."
             >
-                <Column field="facilityName" header="Warehouse Name" sortable />
-                <Column field="capacity" header="Capacity" sortable />
-                <Column field="location" header="Location" sortable />
-                <Column field="status" header="Status" sortable />
+                <Column field="facilityName" header="Warehouse Name"/>
+                <Column field="capacity" header="Capacity"/>
+                <Column field="location" header="Location"/>
+                <Column field="status" header="Status"/>
                 <Column body={actionBodyTemplate} exportable={false} style={{ minWidth: '4rem' }} />
             </DataTable>
 

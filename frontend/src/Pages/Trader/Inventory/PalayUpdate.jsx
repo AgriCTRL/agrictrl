@@ -1,27 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
 import InputComponent from '@/Components/Form/InputComponent';
 import { Wheat } from 'lucide-react';
-
-const warehouses = [
-    { label: 'Warehouse A', value: 'warehouse-a' },
-    { label: 'Warehouse B', value: 'warehouse-b' },
-    { label: 'Warehouse C', value: 'warehouse-c' },
-];
-
-const dryers = [
-    { label: 'Dryer X', value: 'dryer-x' },
-    { label: 'Dryer Y', value: 'dryer-y' },
-    { label: 'Dryer Z', value: 'dryer-z' },
-];
-
-const millers = [
-    { label: 'Miller 1', value: 'miller-1' },
-    { label: 'Miller 2', value: 'miller-2' },
-    { label: 'Miller 3', value: 'miller-3' },
-];
+import { Toast } from 'primereact/toast';
 
 const statusOptions = [
     { label: 'Palay', value: 'Palay' },
@@ -36,354 +19,512 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
     const [selectedWarehouse, setSelectedWarehouse] = useState(null);
     const [selectedDryer, setSelectedDryer] = useState(null);
     const [selectedMiller, setSelectedMiller] = useState(null);
+    const [warehouses, setWarehouses] = useState([]);
+    const [dryers, setDryers] = useState([]);
+    const [millers, setMillers] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const toast = useRef(null);
 
+    
     useEffect(() => {
-        if (selectedPalay) {
-            setStatus(selectedPalay.status);
-            setFormData(selectedPalay);
-            if (selectedPalay.warehouseId) {
-                setSelectedWarehouse({ label: selectedPalay.warehouseId, value: selectedPalay.warehouseId });
+        const fetchData = async () => {
+            await Promise.all([
+                fetchFacilities('warehouses', setWarehouses),
+                fetchFacilities('dryers', setDryers),
+                fetchFacilities('millers', setMillers)
+            ]);
+            if (selectedPalay) {
+                setStatus(selectedPalay.status);
+                await fetchDataForStatus(selectedPalay.id, selectedPalay.status);
             }
-            if (selectedPalay.dryerId) {
-                setSelectedDryer({ label: selectedPalay.dryerId, value: selectedPalay.dryerId });
-            }
-            if (selectedPalay.millerId) {
-                setSelectedMiller({ label: selectedPalay.millerId, value: selectedPalay.millerId });
-            }
-        }
+        };
+        fetchData();
     }, [selectedPalay]);
+
+    //use effect for resetting the form when the status changes
+    useEffect(() => {
+        if (status !== selectedPalay.status) {
+            setFormData({});
+            setSelectedWarehouse(null);
+            setSelectedDryer(null);
+            setSelectedMiller(null);
+        }
+    }, [status]);
+
+    const fetchFacilities = async (facilityType, setFacilityState) => {
+        try {
+            setLoading(true);
+            const response = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/${facilityType}`);
+            const data = await response.json();
+            // Filter active facilities
+            const activeFacilities = data.filter(facility => facility.status === 'Active');
+            const formattedData = activeFacilities.map(item => ({ label: item.name || item.facilityName, value: item.id }));
+            setFacilityState(formattedData);
+        } catch (error) {
+            console.error(`Error fetching ${facilityType}:`, error);
+            setError(`Error fetching ${facilityType}`);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchDataForStatus = async (id, status) => {
+        try {
+            let response;
+            let data;
+
+            switch (status) {
+                case 'Drying':
+                    response = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/dryingprocesses/${id}`);
+                    data = await response.json();
+                    setFormData({
+                        type: data.type || '',
+                        dateSent: formatDate(data.dateSent) || '',
+                        dateReturned: formatDate(data.dateReturned) || '',
+                        palayQuantitySent: data.palayQuantitySent || '',
+                        palayQuantityReturned: data.palayQuantityReturned || ''
+                    });
+                    if (!selectedDryer) {
+                        setSelectedDryer(dryers.find(d => d.value === data.dryerId) || null);
+                    }
+                    break;
+
+                case 'Milling':
+                    response = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/millingprocesses/${id}`);
+                    data = await response.json();
+                    setFormData({
+                        type: data.type || '',
+                        dateSent: formatDate(data.dateSent) || '',
+                        dateReturned: formatDate(data.dateReturned) || '',
+                        palayQuantitySent: data.palayQuantitySent || '',
+                        palayQuantityReturned: data.palayQuantityReturned || '',
+                        efficiency: data.efficiency || ''
+                    });
+                    if (!selectedMiller) {
+                        setSelectedMiller(millers.find(m => m.value === data.millerId) || null);
+                    }
+                    break;
+
+                case 'Rice':
+                    response = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/ricebatches/${id}`);
+                    data = await response.json();
+
+                    // Fetch rice delivery details
+                    let deliveryResponse = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/ricedeliveries/${data.riceDeliveryId}`);
+                    let deliveryData = await deliveryResponse.json();
+
+                    setFormData({
+                        dateReceived: formatDate(data.dateReceived) || '',
+                        quantity: data.quantity || '',
+                        qualityType: data.qualityType || '',
+                        recipientId: data.recipientId || '',
+                        driverName: deliveryData.driverName || '',
+                        typeOfTranspo: deliveryData.typeOfTranspo || '',
+                        plateNumber: deliveryData.plateNumber || ''
+                    });
+                    if (!selectedWarehouse) {
+                        setSelectedWarehouse(warehouses.find(w => w.value === data.warehouseId) || null);
+                    }
+                    break;
+
+                case 'Palay':
+                    setFormData({});
+                    if (!selectedWarehouse) {
+                        setSelectedWarehouse(warehouses.find(w => w.value === data.warehouseId) || null);
+                    }
+                    break;
+
+                default:
+                    setFormData({});
+            }
+        } catch (error) {
+            console.error(`Error fetching data for ${status}:`, error);
+            toast.current.show({ severity: 'error', summary: 'Error', detail: `Failed to fetch ${status} data` });
+        }
+    };
+
+    const formatDate = (date) => {
+        if (!date) return '';
+        const d = new Date(date);
+        return d.toISOString().split('T')[0];
+    };
 
     const handleInputChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleUpdate = () => {
-        const updatedPalay = {
-            ...selectedPalay,
-            ...formData,
-            status,
-            warehouseId: selectedWarehouse ? selectedWarehouse.value : formData.warehouseId,
-            dryerId: selectedDryer ? selectedDryer.value : formData.dryerId,
-            millerId: selectedMiller ? selectedMiller.value : formData.millerId
+    const handleWarehouseChange = (e) => {
+        setSelectedWarehouse(e.value);
+    };
+
+    const handleDryerChange = (e) => {
+        setSelectedDryer(e.value);
+    };
+
+    const handleMillerChange = (e) => {
+        setSelectedMiller(e.value);
+    };
+
+    const handleUpdatePalay = async () => {
+        // Base payload with status
+        setIsSubmitting(true);
+        const updatePayload = {
+            id: selectedPalay.id,
+            status: status,
         };
 
-        onUpdatePalay(updatedPalay);
-        onHide();
+        // Conditionally add warehouseId if status is 'Palay'
+        if (status === 'Palay' && selectedWarehouse) {
+            updatePayload.warehouseId = selectedWarehouse;
+        }
+
+        try {
+            // Update the Palay batch status
+            const response = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/palaybatches', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updatePayload),
+            });
+
+            if (response.ok) {
+                // Handle special cases based on status
+                switch (status) {
+                    case 'Drying':
+                        await handleDryingUpdate();
+                        break;
+                    case 'Milling':
+                        await handleMillingUpdate();
+                        break;
+                    case 'Rice':
+                        await handleRiceUpdate();
+                        break;
+                }
+
+                toast.current.show({ severity: 'success', summary: 'Success', detail: 'Palay updated successfully' });
+                onHide();
+            } else {
+                throw new Error('Update failed');
+            }
+        } catch (error) {
+            console.error('Error updating palay:', error);
+            toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to update Palay' });
+        } finally {
+            setIsSubmitting(false);
+        }
     };
+
+    // Function to handle Drying update
+    const handleDryingUpdate = async () => {
+        try {
+            setIsSubmitting(true);
+            // Check if drying process data exists
+            const response = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/dryingprocesses/${selectedPalay.id}`);
+            const existingData = await response.json();
+
+            let requestBody;
+
+            if (existingData && existingData.id) {
+                // Update existing drying process data
+                requestBody = {
+                    ...existingData,
+                    type: formData.type,
+                    dryerId: selectedDryer,
+                    dateSent: formData.dateSent,
+                    dateReturned: formData.dateReturned,
+                    palayQuantitySent: formData.palayQuantitySent,
+                    palayQuantityReturned: formData.palayQuantityReturned,
+                };
+
+                const updateResponse = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/dryingprocesses', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody),
+                });
+
+                if (!updateResponse.ok) throw new Error('Update failed');
+            } else {
+                // Create new drying process data
+                requestBody = {
+                    palayBatchId: selectedPalay.id,
+                    type: formData.type,
+                    dryerId: selectedDryer,
+                    dateSent: formData.dateSent,
+                    dateReturned: formData.dateReturned,
+                    palayQuantitySent: formData.palayQuantitySent,
+                    palayQuantityReturned: formData.palayQuantityReturned,
+                    warehouseId: 2
+                };
+
+                const createResponse = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/dryingprocesses', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody),
+                });
+
+                if (!createResponse.ok) throw new Error('Creation failed');
+            }
+        } catch (error) {
+            console.error('Error handling drying update:', error);
+            toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to update or create Drying Process' });
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    // Function to handle Milling update
+    const handleMillingUpdate = async () => {
+        try {
+            setIsSubmitting(true);
+            // Check if milling process data exists
+            const response = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/millingprocesses/${selectedPalay.id}`);
+            const existingData = await response.json();
+
+            let requestBody;
+
+            if (existingData && existingData.id) {
+                // Update existing milling process data
+                requestBody = {
+                    ...existingData,
+                    type: formData.type,
+                    millerId: selectedMiller,
+                    dateSent: formData.dateSent,
+                    dateReturned: formData.dateReturned,
+                    palayQuantitySent: formData.palayQuantitySent,
+                    palayQuantityReturned: formData.palayQuantityReturned,
+                    efficiency: formData.efficiency,
+                };
+
+                const updateResponse = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/millingprocesses', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody),
+                });
+
+                if (!updateResponse.ok) throw new Error('Update failed');
+            } else {
+                // Create new milling process data
+                requestBody = {
+                    palayBatchId: selectedPalay.id,
+                    type: formData.type,
+                    millerId: selectedMiller,
+                    dateSent: formData.dateSent,
+                    dateReturned: formData.dateReturned,
+                    palayQuantitySent: formData.palayQuantitySent,
+                    palayQuantityReturned: formData.palayQuantityReturned,
+                    efficiency: formData.efficiency,
+                    warehouseId: 2
+                };
+
+                const createResponse = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/millingprocesses', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody),
+                });
+
+                if (!createResponse.ok) throw new Error('Creation failed');
+            }
+        } catch (error) {
+            console.error('Error handling milling update:', error);
+            toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to update or create Milling Process' });
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleRiceUpdate = async () => {
+        try {
+            setIsSubmitting(true);
+            // Check if rice batch data exists
+            const response = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/ricebatches/${selectedPalay.id}`);
+            const existingData = await response.json();
+
+            let riceBatchBody;
+            let riceDeliveryBody;
+
+            if (existingData && existingData.id) {
+                // Update existing rice batch data
+                riceBatchBody = {
+                    ...existingData,
+                    dateReceived: formData.dateReceived,
+                    quantity: formData.quantity,
+                    qualityType: formData.qualityType,
+                    recipientId: 1,
+                    // recipientId: formData.recipientId,
+                    warehouseId: selectedWarehouse,
+                };
+
+                // Update existing rice delivery data
+                riceDeliveryBody = {
+                    id: existingData.riceDeliveryId,
+                    driverName: formData.driverName,
+                    typeOfTranspo: formData.typeOfTranspo,
+                    plateNumber: formData.plateNumber,
+                };
+
+                // Update rice batch
+                const updateRiceBatchResponse = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/ricebatches', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(riceBatchBody),
+                });
+
+                if (!updateRiceBatchResponse.ok) throw new Error('Rice batch update failed');
+
+                // Update rice delivery
+                const updateRiceDeliveryResponse = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/ricedeliveries', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(riceDeliveryBody),
+                });
+
+                if (!updateRiceDeliveryResponse.ok) throw new Error('Rice delivery update failed');
+            } else {
+                // Create new rice batch data
+                riceBatchBody = {
+                    palayBatchId: selectedPalay.id,
+                    dateReceived: formData.dateReceived,
+                    quantity: formData.quantity,
+                    qualityType: formData.qualityType,
+                    recipientId: formData.recipientId,
+                    warehouseId: selectedWarehouse,
+                };
+
+                // Create new rice delivery data
+                riceDeliveryBody = {
+                    driverName: formData.driverName,
+                    typeOfTranspo: formData.typeOfTranspo,
+                    plateNumber: formData.plateNumber,
+                };
+
+                // Create rice delivery first
+                const createRiceDeliveryResponse = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/ricedeliveries', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(riceDeliveryBody),
+                });
+
+                if (!createRiceDeliveryResponse.ok) throw new Error('Rice delivery creation failed');
+
+                const newRiceDelivery = await createRiceDeliveryResponse.json();
+
+                // Add the new rice delivery ID to the rice batch data
+                riceBatchBody.riceDeliveryId = newRiceDelivery.id;
+
+                // Create rice batch
+                const createRiceBatchResponse = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/ricebatches', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(riceBatchBody),
+                });
+
+                if (!createRiceBatchResponse.ok) throw new Error('Rice batch creation failed');
+            }
+
+            toast.current.show({ severity: 'success', summary: 'Success', detail: 'Rice batch and delivery updated successfully' });
+        } catch (error) {
+            console.error('Error handling rice update:', error);
+            toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to update or create Rice Batch and Delivery' });
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const renderInputField = (label, name, type = "text", placeholder) => (
+        <div className="sm:col-span-3">
+            <label htmlFor={name} className="block text-sm font-medium leading-6 text-gray-900">{label}</label>
+            <div className="mt-2">
+                <InputComponent
+                    inputIcon={<Wheat size={20} />}
+                    onChange={handleInputChange}
+                    value={formData[name] || ''}
+                    name={name}
+                    type={type}
+                    placeholder={placeholder}
+                    aria-label={name}
+                />
+            </div>
+        </div>
+    );
+
+    const renderDropdownField = (label, name, value, options, placeholder, onChange) => (
+        <div className="sm:col-span-3">
+            <label htmlFor={name} className="block text-sm font-medium leading-6 text-gray-900">{label}</label>
+            <div className="mt-2">
+                <Dropdown
+                    id={name}
+                    name={name}
+                    value={value || null}
+                    options={options}
+                    onChange={onChange}
+                    placeholder={placeholder}
+                    className="w-full"
+                />
+            </div>
+        </div>
+    );
 
     const renderForm = () => {
         switch (status) {
             case 'Drying':
                 return (
                     <>
-                        <div className="sm:col-span-3">
-                            <label htmlFor="type" className="block text-sm font-medium leading-6 text-gray-900">Type</label>
-                            <div className="mt-2">
-                                <InputComponent
-                                    inputIcon={<Wheat size={20} />}
-                                    onChange={handleInputChange}
-                                    value={formData.type || ''}
-                                    name="type"
-                                    placeholder="Type"
-                                    aria-label="type"
-                                />
-                            </div>
-                        </div>
-                        <div className="sm:col-span-3">
-                            <label htmlFor="dryerName" className="block text-sm font-medium leading-6 text-gray-900">Dryer Name</label>
-                            <div className="mt-2">
-                                <Dropdown
-                                    value={selectedDryer}
-                                    options={dryers}
-                                    onChange={(e) => setSelectedDryer(e.value)}
-                                    placeholder="Select Dryer"
-                                    className="w-full"
-                                />
-                            </div>
-                        </div>
-                        <div className="sm:col-span-3">
-                            <label htmlFor="dateSent" className="block text-sm font-medium leading-6 text-gray-900">Date Sent</label>
-                            <div className="mt-2">
-                                <InputComponent
-                                    inputIcon={<Wheat size={20} />}
-                                    onChange={handleInputChange}
-                                    value={formData.dateSent || ''}
-                                    name="dateSent"
-                                    type="date"
-                                    placeholder="Date Sent"
-                                    aria-label="dateSent"
-                                />
-                            </div>
-                        </div>
-                        <div className="sm:col-span-3">
-                            <label htmlFor="dateReturned" className="block text-sm font-medium leading-6 text-gray-900">Date Returned</label>
-                            <div className="mt-2">
-                                <InputComponent
-                                    inputIcon={<Wheat size={20} />}
-                                    onChange={handleInputChange}
-                                    value={formData.dateReturned || ''}
-                                    name="dateReturned"
-                                    type="date"
-                                    placeholder="Date Returned"
-                                    aria-label="dateReturned"
-                                />
-                            </div>
-                        </div>
-                        <div className="sm:col-span-3">
-                            <label htmlFor="palayQuantitySent" className="block text-sm font-medium leading-6 text-gray-900">Palay Quantity Sent</label>
-                            <div className="mt-2">
-                                <InputComponent
-                                    inputIcon={<Wheat size={20} />}
-                                    onChange={handleInputChange}
-                                    value={formData.palayQuantitySent || ''}
-                                    name="palayQuantitySent"
-                                    type="number"
-                                    placeholder="Palay Quantity Sent"
-                                    aria-label="palayQuantitySent"
-                                />
-                            </div>
-                        </div>
-                        <div className="sm:col-span-3">
-                            <label htmlFor="palayQuantityReturned" className="block text-sm font-medium leading-6 text-gray-900">Palay Quantity Returned</label>
-                            <div className="mt-2">
-                                <InputComponent
-                                    inputIcon={<Wheat size={20} />}
-                                    onChange={handleInputChange}
-                                    value={formData.palayQuantityReturned || ''}
-                                    name="palayQuantityReturned"
-                                    type="number"
-                                    placeholder="Palay Quantity Returned"
-                                    aria-label="palayQuantityReturned"
-                                />
-                            </div>
-                        </div>
+                        {renderInputField("Type", "type", "text", "Type")}
+                        {renderDropdownField("Dryer Name", "dryerId", selectedDryer, dryers, "Select Dryer", handleDryerChange)}
+                        {renderInputField("Date Sent", "dateSent", "date", "Date Sent")}
+                        {renderInputField("Date Returned", "dateReturned", "date", "Date Returned")}
+                        {renderInputField("Palay Quantity Sent", "palayQuantitySent", "number", "Palay Quantity Sent")}
+                        {renderInputField("Palay Quantity Returned", "palayQuantityReturned", "number", "Palay Quantity Returned")}
                     </>
                 );
             case 'Milling':
                 return (
                     <>
-                        <div className="sm:col-span-3">
-                            <label htmlFor="type" className="block text-sm font-medium leading-6 text-gray-900">Type</label>
-                            <div className="mt-2">
-                                <InputComponent
-                                    inputIcon={<Wheat size={20} />}
-                                    onChange={handleInputChange}
-                                    value={formData.type || ''}
-                                    name="type"
-                                    placeholder="Type"
-                                    aria-label="type"
-                                />
-                            </div>
-                        </div>
-                        <div className="sm:col-span-3">
-                            <label htmlFor="millerName" className="block text-sm font-medium leading-6 text-gray-900">Miller Name</label>
-                            <div className="mt-2">
-                                <Dropdown
-                                    value={selectedMiller}
-                                    options={millers}
-                                    onChange={(e) => setSelectedMiller(e.value)}
-                                    placeholder="Select Miller"
-                                    className="w-full"
-                                />
-                            </div>
-                        </div>
-                        <div className="sm:col-span-3">
-                            <label htmlFor="dateSent" className="block text-sm font-medium leading-6 text-gray-900">Date Sent</label>
-                            <div className="mt-2">
-                                <InputComponent
-                                    inputIcon={<Wheat size={20} />}
-                                    onChange={handleInputChange}
-                                    value={formData.dateSent || ''}
-                                    name="dateSent"
-                                    type="date"
-                                    placeholder="Date Sent"
-                                    aria-label="dateSent"
-                                />
-                            </div>
-                        </div>
-                        <div className="sm:col-span-3">
-                            <label htmlFor="dateReturned" className="block text-sm font-medium leading-6 text-gray-900">Date Returned</label>
-                            <div className="mt-2">
-                                <InputComponent
-                                    inputIcon={<Wheat size={20} />}
-                                    onChange={handleInputChange}
-                                    value={formData.dateReturned || ''}
-                                    name="dateReturned"
-                                    type="date"
-                                    placeholder="Date Returned"
-                                    aria-label="dateReturned"
-                                />
-                            </div>
-                        </div>
-                        <div className="sm:col-span-3">
-                            <label htmlFor="palayQuantitySent" className="block text-sm font-medium leading-6 text-gray-900">Palay Quantity Sent</label>
-                            <div className="mt-2">
-                                <InputComponent
-                                    inputIcon={<Wheat size={20} />}
-                                    onChange={handleInputChange}
-                                    value={formData.palayQuantitySent || ''}
-                                    name="palayQuantitySent"
-                                    type="number"
-                                    placeholder="Palay Quantity Sent"
-                                    aria-label="palayQuantitySent"
-                                />
-                            </div>
-                        </div>
-                        <div className="sm:col-span-3">
-                            <label htmlFor="palayQuantityReturned" className="block text-sm font-medium leading-6 text-gray-900">Palay Quantity Returned</label>
-                            <div className="mt-2">
-                                <InputComponent
-                                    inputIcon={<Wheat size={20} />}
-                                    onChange={handleInputChange}
-                                    value={formData.palayQuantityReturned || ''}
-                                    name="palayQuantityReturned"
-                                    type="number"
-                                    placeholder="Palay Quantity Returned"
-                                    aria-label="palayQuantityReturned"
-                                />
-                            </div>
-                        </div>
-                        <div className="sm:col-span-3">
-                            <label htmlFor="efficiency" className="block text-sm font-medium leading-6 text-gray-900">Efficiency</label>
-                            <div className="mt-2">
-                                <InputComponent
-                                    inputIcon={<Wheat size={20} />}
-                                    onChange={handleInputChange}
-                                    value={formData.efficiency || ''}
-                                    name="efficiency"
-                                    placeholder="efficiency"
-                                    aria-label="efficiency"
-                                />
-                            </div>
-                        </div>
+                        {renderInputField("Type", "type", "text", "Type")}
+                        {renderDropdownField("Miller Name", "millerId", selectedMiller, millers, "Select Miller", handleMillerChange)}
+                        {renderInputField("Date Sent", "dateSent", "date", "Date Sent")}
+                        {renderInputField("Date Returned", "dateReturned", "date", "Date Returned")}
+                        {renderInputField("Palay Quantity Sent", "palayQuantitySent", "number", "Palay Quantity Sent")}
+                        {renderInputField("Palay Quantity Returned", "palayQuantityReturned", "number", "Palay Quantity Returned")}
+                        {renderInputField("Efficiency", "efficiency", "text", "Efficiency")}
                     </>
                 );
             case 'Rice':
                 return (
                     <>
-                        <div className="sm:col-span-3">
-                            <label htmlFor="date_received" className="block text-sm font-medium leading-6 text-gray-900">Date Received</label>
-                            <div className="mt-2">
-                                <InputComponent
-                                    inputIcon={<Wheat size={20} />}
-                                    onChange={handleInputChange}
-                                    value={formData.dateReceived || ''}
-                                    name="dateReceived"
-                                    type="date"
-                                    placeholder="Date Received"
-                                    aria-label="date_received"
-                                />
-                            </div>
-                        </div>
-                        <div className="sm:col-span-3">
-                            <label htmlFor="quantity" className="block text-sm font-medium leading-6 text-gray-900">Quantity</label>
-                            <div className="mt-2">
-                                <InputComponent
-                                    inputIcon={<Wheat size={20} />}
-                                    onChange={handleInputChange}
-                                    value={formData.quantity || ''}
-                                    name="quantity"
-                                    type="number"
-                                    placeholder="Quantity"
-                                    aria-label="quantity"
-                                />
-                            </div>
-                        </div>
-                        <div className="sm:col-span-3">
-                            <label htmlFor="quality_type" className="block text-sm font-medium leading-6 text-gray-900">Quality Type</label>
-                            <div className="mt-2">
-                                <InputComponent
-                                    inputIcon={<Wheat size={20} />}
-                                    onChange={handleInputChange}
-                                    value={formData.qualityType || ''}
-                                    name="qualityType"
-                                    placeholder="Quality Type"
-                                    aria-label="quality_type"
-                                />
-                            </div>
-                        </div>
-                        <div className="sm:col-span-3">
-                            <label htmlFor="recipient_id" className="block text-sm font-medium leading-6 text-gray-900">Recipient ID</label>
-                            <div className="mt-2">
-                                <InputComponent
-                                    inputIcon={<Wheat size={20} />}
-                                    onChange={handleInputChange}
-                                    value={formData.recipientId || ''}
-                                    name="recipientId"
-                                    placeholder="Recipient ID"
-                                    aria-label="recipient_id"
-                                />
-                            </div>
-                        </div>
-                        <div className="sm:col-span-3">
-                            <label htmlFor="warehouse" className="block text-sm font-medium leading-6 text-gray-900">Warehouse</label>
-                            <div className="mt-2">
-                                <Dropdown
-                                    value={selectedWarehouse}
-                                    options={warehouses}
-                                    onChange={(e) => setSelectedWarehouse(e.value)}
-                                    placeholder="Select Warehouse"
-                                    className="w-full"
-                                />
-                            </div>
-                        </div>
-                        <div className="sm:col-span-3">
-                            <label htmlFor="driver_name" className="block text-sm font-medium leading-6 text-gray-900">Driver Name</label>
-                            <div className="mt-2">
-                                <InputComponent
-                                    inputIcon={<Wheat size={20} />}
-                                    onChange={handleInputChange}
-                                    value={formData.driverName || ''}
-                                    name="driverName"
-                                    placeholder="Driver Name"
-                                    aria-label="driver_name"
-                                />
-                            </div>
-                        </div>
-                        <div className="sm:col-span-3">
-                            <label htmlFor="type_of_transpo" className="block text-sm font-medium leading-6 text-gray-900">Type of Transpo</label>
-                            <div className="mt-2">
-                                <InputComponent
-                                    inputIcon={<Wheat size={20} />}
-                                    onChange={handleInputChange}
-                                    value={formData.typeOfTranspo || ''}
-                                    name="typeOfTranspo"
-                                    placeholder="Type of Transpo"
-                                    aria-label="type_of_transpo"
-                                />
-                            </div>
-                        </div>
-                        <div className="sm:col-span-3">
-                            <label htmlFor="plate_number" className="block text-sm font-medium leading-6 text-gray-900">Plate Number</label>
-                            <div className="mt-2">
-                                <InputComponent
-                                    inputIcon={<Wheat size={20} />}
-                                    onChange={handleInputChange}
-                                    value={formData.plateNumber || ''}
-                                    name="plateNumber"
-                                    placeholder="Plate Number"
-                                    aria-label="plate_number"
-                                />
-                            </div>
-                        </div>
+                        {renderInputField("Date Received", "dateReceived", "date", "Date Received")}
+                        {renderInputField("Quantity", "quantity", "number", "Quantity")}
+                        {renderInputField("Quality Type", "qualityType", "text", "Quality Type")}
+                        {/* {renderInputField("Recipient ID", "recipientId", "text", "Recipient ID")} */}
+                        {renderDropdownField("Warehouse", "warehouseId", selectedWarehouse, warehouses, "Select Warehouse", handleWarehouseChange)}
+                        {renderInputField("Driver Name", "driverName", "text", "Driver Name")}
+                        {renderInputField("Type of Transpo", "typeOfTranspo", "text", "Type of Transpo")}
+                        {renderInputField("Plate Number", "plateNumber", "text", "Plate Number")}
                     </>
                 );
             case 'Palay':
                 return (
                     <>
-                        <div className="sm:col-span-3">
-                            <label htmlFor="warehouseName" className="block text-sm font-medium leading-6 text-gray-900">Warehouse</label>
-                            <div className="mt-2">
-                                <Dropdown
-                                    value={selectedWarehouse}
-                                    options={warehouses}
-                                    onChange={(e) => setSelectedWarehouse(e.value)}
-                                    placeholder="Select Warehouse"
-                                    className="w-full"
-                                />
-                            </div>
-                        </div>
-                        {/* Other fields remain the same */}
+                        {renderDropdownField("Warehouse", "warehouseId", selectedWarehouse, warehouses, "Select Warehouse", handleWarehouseChange)}
                     </>
                 );
             default:
@@ -392,30 +533,17 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
     };
 
     return (
-        <Dialog visible={visible} onHide={onHide} header="Update Palay" modal style={{ width: '60vw' }}>
-            <section className='Palay Information flex flex-col gap-2'>
-                <p className='text-xl text-black font-semibold'>Update Palay Information</p>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                    <div className="sm:col-span-3">
-                        <label htmlFor="status" className="block text-sm font-medium leading-6 text-gray-900">Status</label>
-                        <div className="mt-2">
-                            <Dropdown
-                                value={status}
-                                options={statusOptions}
-                                onChange={(e) => setStatus(e.value)}
-                                placeholder="Select Status"
-                                className="w-full"
-                            />
-                        </div>
-                    </div>
-
-                    {renderForm()}
-                </div>
-                <div className="mt-4 flex justify-end gap-2">
-                    <Button label="Cancel" icon="pi pi-times" onClick={onHide} className="p-button-text" />
-                    <Button label="Update" icon="pi pi-check" onClick={handleUpdate} autoFocus />
-                </div>
-            </section>
+        <Dialog header="Update Palay" visible={visible} onHide={onHide} footer={
+            <div className="flex gap-2">
+                <Button label="Cancel" disabled={isSubmitting} icon="pi pi-times" onClick={onHide} className="p-button-text" />
+                <Button label="Update" disabled={isSubmitting} icon="pi pi-check" onClick={handleUpdatePalay} />
+            </div>
+        }>
+            <Toast ref={toast} />
+            <div className="grid grid-cols-1 gap-4">
+                {renderDropdownField("Status", "status", status, statusOptions, "Select Status", (e) => setStatus(e.value))}
+                {renderForm()}
+            </div>
         </Dialog>
     );
 }

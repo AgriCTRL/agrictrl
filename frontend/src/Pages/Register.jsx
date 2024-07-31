@@ -4,7 +4,7 @@ import { Button } from 'primereact/button';
 import { AuthClient } from "@dfinity/auth-client";
 import { useNavigate } from 'react-router-dom';
 
-const RegistrationPage = () => {
+const RegistrationPage = ({ onRegisterSuccess }) => {
   const [principal, setPrincipal] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastname] = useState('');
@@ -21,7 +21,7 @@ const RegistrationPage = () => {
       setPrincipal(principal);
     };
     fetchPrincipal();
-  }, [])
+  }, []);
   
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -39,12 +39,13 @@ const RegistrationPage = () => {
             body: JSON.stringify(nfaPersonnel)
         });
         if(!res.ok) {
-            throw new Error('Error registering user')
+            throw new Error('Error registering user');
         }
-        navigate('/');
+        onRegisterSuccess();
+        navigate('/trader');
     }
     catch (error) {
-        console.log(error.message)
+        console.log(error.message);
     }
   }
 
@@ -67,7 +68,7 @@ const RegistrationPage = () => {
       {/* Right side with form */}
       <div className="w-full md:w-1/2 p-8 flex flex-col justify-center">
         <h2 className="text-2xl font-bold text-[#005155] mb-6">Personal Information</h2>
-        <p className="mb-6 text-gray-600">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam auctor nisi eget.</p>
+        <p className="mb-6 text-gray-600">Please fill out the information below.</p>
         <form onSubmit={ handleRegister } className="space-y-4 flex flex-col">
             <div className="flex flex-row mb-10">
                 <div className="mr-5">
