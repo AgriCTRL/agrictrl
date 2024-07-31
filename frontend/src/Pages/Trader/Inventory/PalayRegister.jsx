@@ -30,7 +30,9 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
         try {
             const response = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/warehouses');
             const data = await response.json();
-            setWarehouses(data);
+            // Filter active warehouses
+            const activeWarehouses = data.filter(warehouse => warehouse.status === 'Active');
+            setWarehouses(activeWarehouses);
         } catch (error) {
             console.error('Error fetching warehouses:', error);
         }

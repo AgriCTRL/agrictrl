@@ -57,7 +57,9 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
             setLoading(true);
             const response = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/${facilityType}`);
             const data = await response.json();
-            const formattedData = data.map(item => ({ label: item.name || item.facilityName, value: item.id }));
+            // Filter active facilities
+            const activeFacilities = data.filter(facility => facility.status === 'Active');
+            const formattedData = activeFacilities.map(item => ({ label: item.name || item.facilityName, value: item.id }));
             setFacilityState(formattedData);
         } catch (error) {
             console.error(`Error fetching ${facilityType}:`, error);
@@ -142,7 +144,6 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
             toast.current.show({ severity: 'error', summary: 'Error', detail: `Failed to fetch ${status} data` });
         }
     };
-
 
     const formatDate = (date) => {
         if (!date) return '';
