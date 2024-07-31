@@ -6,6 +6,7 @@ import { Wheat } from 'lucide-react';
 import { Dropdown } from 'primereact/dropdown';
 
 function PalayRegister({ visible, onHide, onPalayRegistered }) {
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState({
         dateReceived: '',
         quantity: '',
@@ -49,6 +50,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
 
     const handleRegister = async () => {
         try {
+            setIsSubmitting(true);
             // Prepare the data for a single POST request
             const newPalay = {
                 ...formData,
@@ -96,6 +98,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                 selectedWarehouse: null
             });
 
+            setIsSubmitting(false);
             onHide();
         } catch (error) {
             console.error('Error registering palay:', error);
@@ -174,8 +177,8 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                 </div>
 
                 <div className="mt-4 flex justify-end gap-2">
-                    <Button label="Cancel" icon="pi pi-times" onClick={onHide} className="bg-primary p-2 font-bold text-white" />
-                    <Button label="Register" icon="pi pi-check" onClick={handleRegister} className="bg-primary p-2 font-bold text-white"  />
+                    <Button label="Cancel" disabled={isSubmitting} icon="pi pi-times" onClick={onHide} className="bg-primary p-2 font-bold text-white" />
+                    <Button label="Register" disabled={isSubmitting} icon="pi pi-check" onClick={handleRegister} className="bg-primary p-2 font-bold text-white"  />
                 </div>
             </section>
         </Dialog>

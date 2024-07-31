@@ -24,6 +24,7 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
     const [millers, setMillers] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const toast = useRef(null);
 
     
@@ -168,6 +169,7 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
 
     const handleUpdatePalay = async () => {
         // Base payload with status
+        setIsSubmitting(true);
         const updatePayload = {
             id: selectedPalay.id,
             status: status,
@@ -210,12 +212,15 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
         } catch (error) {
             console.error('Error updating palay:', error);
             toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to update Palay' });
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
     // Function to handle Drying update
     const handleDryingUpdate = async () => {
         try {
+            setIsSubmitting(true);
             // Check if drying process data exists
             const response = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/dryingprocesses/${selectedPalay.id}`);
             const existingData = await response.json();
@@ -269,12 +274,15 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
         } catch (error) {
             console.error('Error handling drying update:', error);
             toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to update or create Drying Process' });
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
     // Function to handle Milling update
     const handleMillingUpdate = async () => {
         try {
+            setIsSubmitting(true);
             // Check if milling process data exists
             const response = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/millingprocesses/${selectedPalay.id}`);
             const existingData = await response.json();
@@ -330,11 +338,14 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
         } catch (error) {
             console.error('Error handling milling update:', error);
             toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to update or create Milling Process' });
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
     const handleRiceUpdate = async () => {
         try {
+            setIsSubmitting(true);
             // Check if rice batch data exists
             const response = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/ricebatches/${selectedPalay.id}`);
             const existingData = await response.json();
@@ -433,6 +444,8 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
         } catch (error) {
             console.error('Error handling rice update:', error);
             toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to update or create Rice Batch and Delivery' });
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -522,8 +535,8 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
     return (
         <Dialog header="Update Palay" visible={visible} onHide={onHide} footer={
             <div className="flex gap-2">
-                <Button label="Cancel" icon="pi pi-times" onClick={onHide} className="p-button-text" />
-                <Button label="Update" icon="pi pi-check" onClick={handleUpdatePalay} />
+                <Button label="Cancel" disabled={isSubmitting} icon="pi pi-times" onClick={onHide} className="p-button-text" />
+                <Button label="Update" disabled={isSubmitting} icon="pi pi-check" onClick={handleUpdatePalay} />
             </div>
         }>
             <Toast ref={toast} />
