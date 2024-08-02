@@ -46,6 +46,8 @@ const sidebarItems = [
 ];
  
 function UserLayout({ children, activePage }) {
+
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const [name, setName] = useState(() => {
         // Try to get the name from localStorage on initial render
         return localStorage.getItem('userName') || '';
@@ -60,7 +62,7 @@ function UserLayout({ children, activePage }) {
 
                 localStorage.removeItem('userName');
 
-                const res = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/nfapersonnels/principal/${principal}`, {
+                const res = await fetch(`${apiUrl}/nfapersonnels/principal/${principal}`, {
                     method: 'GET',
                     headers: {'Content-Type': 'application/json'}
                 });

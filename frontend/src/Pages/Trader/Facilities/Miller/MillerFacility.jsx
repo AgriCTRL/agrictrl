@@ -9,6 +9,7 @@ import MillerRegister from './MillerRegister';
 import MillerUpdate from './MillerUpdate';
 
 function MillerFacility() {
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const [millerData, setMillerData] = useState([]);
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [filters, setFilters] = useState({
@@ -27,7 +28,7 @@ function MillerFacility() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/millers', {
+                const res = await fetch(`${apiUrl}/millers`, {
                     method: 'GET',
                     headers: {'Content-Type': 'application/json'}
                 });

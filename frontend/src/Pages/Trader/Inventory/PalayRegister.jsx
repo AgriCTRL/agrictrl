@@ -6,6 +6,7 @@ import { Wheat } from 'lucide-react';
 import { Dropdown } from 'primereact/dropdown';
 
 function PalayRegister({ visible, onHide, onPalayRegistered }) {
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState({
         dateReceived: '',
@@ -29,7 +30,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
 
     const fetchWarehouses = async () => {
         try {
-            const response = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/warehouses');
+            const response = await fetch(`${apiUrl}/warehouses`);
             const data = await response.json();
             // Filter active warehouses
             const activeWarehouses = data.filter(warehouse => warehouse.status === 'Active');
@@ -67,7 +68,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
             };
 
             // Single POST request to palaybatches
-            const palayBatchResponse = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/palaybatches', {
+            const palayBatchResponse = await fetch(`${apiUrl}/palaybatches`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

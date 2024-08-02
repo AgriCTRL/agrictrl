@@ -9,6 +9,7 @@ import {
     Building2
 } from "lucide-react";
 function Dashboard() {
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const [riceBatchesCount, setRiceBatchesCount] = useState(0);
     const [tradersCount, setTradersCount] = useState(0);
     const [warehousesCount, setWarehousesCount] = useState(0);
@@ -20,7 +21,7 @@ function Dashboard() {
     useEffect(() => {
         const fetchRiceBatchesCount = async () => {
             try {
-                const res = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/ricebatches/count', {
+                const res = await fetch(`${apiUrl}/palaybatches/count`, {
                     method: 'GET',
                     headers: { 'Content-Type': 'application/json'}
                 });
@@ -33,7 +34,7 @@ function Dashboard() {
         };
         const fetchTradersCount = async () => {
             try {
-                const res = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/nfapersonnels/count', {
+                const res = await fetch(`${apiUrl}/nfapersonnels/count`, {
                     method: 'GET',
                     headers: { 'Content-Type': 'application/json'}
                 });
@@ -46,7 +47,7 @@ function Dashboard() {
         };
         const fetchWarehousesCount = async () => {
             try {
-                const res = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/warehouses/count', {
+                const res = await fetch(`${apiUrl}/warehouses/count`, {
                     method: 'GET',
                     headers: { 'Content-Type': 'application/json'}
                 });
@@ -59,7 +60,7 @@ function Dashboard() {
         };
         const fetchDryersCount = async () => {
             try {
-                const res = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/dryers/count', {
+                const res = await fetch(`${apiUrl}/dryers/count`, {
                     method: 'GET',
                     headers: { 'Content-Type': 'application/json'}
                 });
@@ -72,7 +73,7 @@ function Dashboard() {
         };
         const fetchMillersCount = async () => {
             try {
-                const res = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/millers/count', {
+                const res = await fetch(`${apiUrl}/millers/count`, {
                     method: 'GET',
                     headers: { 'Content-Type': 'application/json'}
                 });

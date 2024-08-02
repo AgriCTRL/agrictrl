@@ -5,6 +5,7 @@ import { AuthClient } from "@dfinity/auth-client";
 import { Link as ScrollLink } from 'react-scroll';
 
 function UserLayout({ children }) {
+    const identityUrl = import.meta.env.VITE_INTERNET_IDENTITY_URL;
     const navigate = useNavigate();
 
     const handleHistoryClick = () => {
@@ -22,7 +23,7 @@ function UserLayout({ children }) {
 
             await new Promise((resolve, reject) => {
                 authClient.login({
-                    identityProvider: 'http://be2us-64aaa-aaaaa-qaabq-cai.localhost:4943/',
+                    identityProvider: `${identityUrl}/`,
                     onSuccess: resolve,
                     onError: reject,
                     windowOpenerFeatures: `width=${width},height=${height},left=${left},top=${top}`

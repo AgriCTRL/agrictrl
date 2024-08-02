@@ -6,6 +6,7 @@ import InputComponent from '@/Components/Form/InputComponent';
 import { Factory } from 'lucide-react';
 
 function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const [name, setName] = useState('');
     const [capacity, setCapacity] = useState('');
     const [location, setLocation] = useState('');
@@ -41,7 +42,7 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
         };
 
         try {
-            const res = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/millers', {
+            const res = await fetch(`${apiUrl}/millers`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(updatedMiller)

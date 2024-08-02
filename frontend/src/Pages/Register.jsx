@@ -5,6 +5,7 @@ import { AuthClient } from "@dfinity/auth-client";
 import { useNavigate } from 'react-router-dom';
 
 const RegistrationPage = ({ onRegisterSuccess }) => {
+  const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const [principal, setPrincipal] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastname] = useState('');
@@ -33,7 +34,7 @@ const RegistrationPage = ({ onRegisterSuccess }) => {
         region,
     };
     try {
-        const res = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/nfapersonnels', {
+        const res = await fetch(`${apiUrl}/nfapersonnels`, {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(nfaPersonnel)

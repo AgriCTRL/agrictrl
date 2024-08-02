@@ -6,6 +6,7 @@ import { Wheat, Search, Coins, Truck } from 'lucide-react';
 
 
 const HeroSection = () => {
+    const identityUrl = import.meta.env.VITE_INTERNET_IDENTITY_URL;
     const navigate = useNavigate();
 
     const handleHistoryClick = () => {
@@ -23,7 +24,7 @@ const HeroSection = () => {
 
             await new Promise((resolve, reject) => {
                 authClient.login({
-                    identityProvider: 'http://be2us-64aaa-aaaaa-qaabq-cai.localhost:4943/',
+                    identityProvider: `${identityUrl}/`,
                     onSuccess: resolve,
                     onError: reject,
                     windowOpenerFeatures: `width=${width},height=${height},left=${left},top=${top}`

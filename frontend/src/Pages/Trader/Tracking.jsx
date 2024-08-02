@@ -13,6 +13,7 @@ import emptyIllustration from '@/images/illustrations/space.svg';
 //TODO: rice recipients tracking
 
 const Tracking = () => {
+  const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const [transactions, setTransactions] = useState([]);
   const [filteredTransactions, setFilteredTransactions] = useState([]);
   const [expandedRows, setExpandedRows] = useState(null);
@@ -45,13 +46,13 @@ const Tracking = () => {
         millersRes,
         riceBatchesRes
       ] = await Promise.all([
-        fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/palaybatches'),
-        fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/warehouses'),
-        fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/dryingprocesses'),
-        fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/dryers'),
-        fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/millingprocesses'),
-        fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/millers'),
-        fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/ricebatches'),
+        fetch(`${apiUrl}/palaybatches`),
+        fetch(`${apiUrl}/warehouses`),
+        fetch(`${apiUrl}/dryingprocesses`),
+        fetch(`${apiUrl}/dryers`),
+        fetch(`${apiUrl}/millingprocesses`),
+        fetch(`${apiUrl}/millers`),
+        fetch(`${apiUrl}/ricebatches`),
       ]);
 
       const [

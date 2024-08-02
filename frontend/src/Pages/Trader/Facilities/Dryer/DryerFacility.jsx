@@ -9,6 +9,7 @@ import DryerRegister from './DryerRegister';
 import DryerUpdate from './DryerUpdate';
 
 function DryerFacility() {
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const [dryerData, setDryerData] = useState([]);
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [filters, setFilters] = useState({
@@ -27,7 +28,7 @@ function DryerFacility() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/dryers', {
+                const res = await fetch(`${apiUrl}/dryers`, {
                     method: 'GET',
                     headers: {'Content-Type': 'application/json'}
                 });

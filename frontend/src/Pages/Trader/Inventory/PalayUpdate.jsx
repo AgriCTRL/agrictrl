@@ -14,6 +14,7 @@ const statusOptions = [
 ];
 
 function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const [status, setStatus] = useState('');
     const [formData, setFormData] = useState({});
     const [selectedWarehouse, setSelectedWarehouse] = useState(null);
@@ -56,7 +57,7 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
     const fetchFacilities = async (facilityType, setFacilityState) => {
         try {
             setLoading(true);
-            const response = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/${facilityType}`);
+            const response = await fetch(`${apiUrl}/${facilityType}`);
             const data = await response.json();
             // Filter active facilities
             const activeFacilities = data.filter(facility => facility.status === 'Active');
@@ -77,7 +78,7 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
 
             switch (status) {
                 case 'Drying':
-                    response = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/dryingprocesses/${id}`);
+                    response = await fetch(`${apiUrl}/dryingprocesses/${id}`);
                     data = await response.json();
                     setFormData({
                         type: data.type || '',
@@ -92,7 +93,7 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
                     break;
 
                 case 'Milling':
-                    response = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/millingprocesses/${id}`);
+                    response = await fetch(`${apiUrl}/millingprocesses/${id}`);
                     data = await response.json();
                     setFormData({
                         type: data.type || '',
@@ -108,11 +109,11 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
                     break;
 
                 case 'Rice':
-                    response = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/ricebatches/${id}`);
+                    response = await fetch(`${apiUrl}/ricebatches/${id}`);
                     data = await response.json();
 
                     // Fetch rice delivery details
-                    let deliveryResponse = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/ricedeliveries/${data.riceDeliveryId}`);
+                    let deliveryResponse = await fetch(`${apiUrl}/ricedeliveries/${data.riceDeliveryId}`);
                     let deliveryData = await deliveryResponse.json();
 
                     setFormData({
@@ -182,7 +183,7 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
 
         try {
             // Update the Palay batch status
-            const response = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/palaybatches', {
+            const response = await fetch(`${apiUrl}/palaybatches`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -222,7 +223,7 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
         try {
             setIsSubmitting(true);
             // Check if drying process data exists
-            const response = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/dryingprocesses/${selectedPalay.id}`);
+            const response = await fetch(`${apiUrl}/dryingprocesses/${selectedPalay.id}`);
             const existingData = await response.json();
 
             let requestBody;
@@ -239,7 +240,7 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
                     palayQuantityReturned: formData.palayQuantityReturned,
                 };
 
-                const updateResponse = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/dryingprocesses', {
+                const updateResponse = await fetch(`${apiUrl}/dryingprocesses`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -261,7 +262,7 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
                     warehouseId: 2
                 };
 
-                const createResponse = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/dryingprocesses', {
+                const createResponse = await fetch(`${apiUrl}/dryingprocesses`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -284,7 +285,7 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
         try {
             setIsSubmitting(true);
             // Check if milling process data exists
-            const response = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/millingprocesses/${selectedPalay.id}`);
+            const response = await fetch(`${apiUrl}/millingprocesses/${selectedPalay.id}`);
             const existingData = await response.json();
 
             let requestBody;
@@ -302,7 +303,7 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
                     efficiency: formData.efficiency,
                 };
 
-                const updateResponse = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/millingprocesses', {
+                const updateResponse = await fetch(`${apiUrl}/millingprocesses`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -325,7 +326,7 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
                     warehouseId: 2
                 };
 
-                const createResponse = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/millingprocesses', {
+                const createResponse = await fetch(`${apiUrl}/millingprocesses`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -347,7 +348,7 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
         try {
             setIsSubmitting(true);
             // Check if rice batch data exists
-            const response = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/ricebatches/${selectedPalay.id}`);
+            const response = await fetch(`${apiUrl}/ricebatches/${selectedPalay.id}`);
             const existingData = await response.json();
 
             let riceBatchBody;
@@ -374,7 +375,7 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
                 };
 
                 // Update rice batch
-                const updateRiceBatchResponse = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/ricebatches', {
+                const updateRiceBatchResponse = await fetch(`${apiUrl}/ricebatches`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -385,7 +386,7 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
                 if (!updateRiceBatchResponse.ok) throw new Error('Rice batch update failed');
 
                 // Update rice delivery
-                const updateRiceDeliveryResponse = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/ricedeliveries', {
+                const updateRiceDeliveryResponse = await fetch(`${apiUrl}/ricedeliveries`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -413,7 +414,7 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
                 };
 
                 // Create rice delivery first
-                const createRiceDeliveryResponse = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/ricedeliveries', {
+                const createRiceDeliveryResponse = await fetch(`${apiUrl}/ricedeliveries`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -429,7 +430,7 @@ function PalayUpdate({ visible, onHide, selectedPalay, onUpdatePalay }) {
                 riceBatchBody.riceDeliveryId = newRiceDelivery.id;
 
                 // Create rice batch
-                const createRiceBatchResponse = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/ricebatches', {
+                const createRiceBatchResponse = await fetch(`${apiUrl}/ricebatches`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

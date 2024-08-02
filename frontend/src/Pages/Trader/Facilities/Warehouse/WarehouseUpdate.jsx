@@ -6,6 +6,7 @@ import InputComponent from '@/Components/Form/InputComponent';
 import { Warehouse } from 'lucide-react';
 
 function WarehouseUpdate({ visible, onHide, selectedWarehouse, onUpdateWarehouse }) {
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const [facilityName, setFacilityName] = useState('');
     const [capacity, setCapacity] = useState('');
     const [location, setLocation] = useState('');
@@ -41,7 +42,7 @@ function WarehouseUpdate({ visible, onHide, selectedWarehouse, onUpdateWarehouse
         };
 
         try {
-            const res = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/warehouses', {
+            const res = await fetch(`${apiUrl}/warehouses`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(updatedWarehouse)

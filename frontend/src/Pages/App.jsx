@@ -18,6 +18,7 @@ import TransactionHistory from "./TransactionHistory";
 import { AuthClient } from "@dfinity/auth-client";
 
 function App() {
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [registerAuth, setRegisterAuth] = useState(false);
@@ -40,7 +41,7 @@ function App() {
                 const authClient = await AuthClient.create();
                 const identity = authClient.getIdentity();
                 const principal = identity.getPrincipal().toText();
-                const res = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/nfapersonnels/principal/${principal}`);
+                const res = await fetch(`${apiUrl}/nfapersonnels/principal/${principal}`);
                 const data = await res.json();
                 if (data === null && principal !== '2vxsx-fae') {
                     setRegisterAuth(true);

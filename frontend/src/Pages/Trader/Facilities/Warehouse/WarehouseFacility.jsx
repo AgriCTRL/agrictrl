@@ -10,6 +10,7 @@ import WarehouseRegister from './WarehouseRegister';
 import WarehouseUpdate from './WarehouseUpdate';
 
 function Warehouse() {
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const [warehouseData, setWarehouseData] = useState([]);
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [filters, setFilters] = useState({
@@ -28,7 +29,7 @@ function Warehouse() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/warehouses', {
+                const res = await fetch(`${apiUrl}/warehouses`, {
                     method: 'GET',
                     headers: {'Content-Type': 'application/json'}
                 });

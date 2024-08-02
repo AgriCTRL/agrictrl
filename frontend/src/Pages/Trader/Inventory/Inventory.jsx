@@ -12,6 +12,7 @@ import PalayUpdate from './PalayUpdate';
 import UserLayout from '@/Layouts/UserLayout';
 
 function Inventory() {
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const [inventoryData, setInventoryData] = useState([]);
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [filters, setFilters] = useState({
@@ -26,7 +27,7 @@ function Inventory() {
 
     const fetchInventoryData = async () => {
         try {
-            const response = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/palaybatches');
+            const response = await fetch(`${apiUrl}/palaybatches`);
             const data = await response.json();
             setInventoryData(data);
         } catch (error) {

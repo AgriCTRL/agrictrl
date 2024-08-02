@@ -6,6 +6,7 @@ import InputComponent from '@/Components/Form/InputComponent';
 import { ThermometerSun } from 'lucide-react';
 
 function DryerUpdate({ visible, onHide, selectedDryer, onUpdateDryer }) {
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const [name, setName] = useState('');
     const [capacity, setCapacity] = useState('');
     const [location, setLocation] = useState('');
@@ -41,7 +42,7 @@ function DryerUpdate({ visible, onHide, selectedDryer, onUpdateDryer }) {
         };
 
         try {
-            const res = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/dryers', {
+            const res = await fetch(`${apiUrl}/dryers`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(updatedDryer)

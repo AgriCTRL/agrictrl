@@ -11,6 +11,7 @@ import TestimonialsSection from '@/Components/LandingPage/TestimonialsSection';
 import { AuthClient } from "@dfinity/auth-client";
 
 const LandingPage = () => {
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -21,7 +22,7 @@ const LandingPage = () => {
             if (isAuthenticated) {
                 const identity = authClient.getIdentity();
                 const principal = identity.getPrincipal().toText();
-                const res = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/nfapersonnels/principal/${principal}`);
+                const res = await fetch(`${apiUrl}/nfapersonnels/principal/${principal}`);
                 const data = await res.json();
                 if (data === null) {
                     navigate('/register');

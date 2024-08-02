@@ -5,6 +5,7 @@ import { Button } from 'primereact/button';
 import { AuthClient } from "@dfinity/auth-client";
 
 function Profile() {
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const [id, setId] = useState('');
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
@@ -19,7 +20,7 @@ function Profile() {
                 const authClient = await AuthClient.create();
                 const identity = authClient.getIdentity();
                 const principal = identity.getPrincipal().toText();
-                const res = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/nfapersonnels/principal/${principal}`, {
+                const res = await fetch(`${apiUrl}/nfapersonnels/principal/${principal}`, {
                     method: 'GET',
                     headers: { 'Content-Type': 'application/json' }
                 });
@@ -53,7 +54,7 @@ function Profile() {
         };
 
         try {
-            const res = await fetch(`http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/nfapersonnels`, {
+            const res = await fetch(`${apiUrl}/nfapersonnels`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(user)
