@@ -128,7 +128,7 @@ async function updateHandler(
     req: Request<
         any,
         any,
-        { id: number; dateReceived?: Date; quantity?: number, qualityType?: string, price?: number; status?: string;
+        { id: number; dateReceived?: Date; quantity?: number; qualityType?: string; price?: number; status?: string;
             supplierId?: number; nfaPersonnelId?: number; warehouseId?: number }
     >,
     res: Response

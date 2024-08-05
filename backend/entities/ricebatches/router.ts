@@ -114,7 +114,7 @@ async function updateHandler(
     req: Request<
         any,
         any,
-        { id: number; palayBatchId?: number; dateReceived?: Date, quantity?: number, qualityType?: string; warehouseId?: number; recipientId?: number }
+        { id: number; palayBatchId?: number; dateReceived?: Date; quantity?: number; qualityType?: string; warehouseId?: number; recipientId?: number }
     >,
     res: Response
 ): Promise<void> {
