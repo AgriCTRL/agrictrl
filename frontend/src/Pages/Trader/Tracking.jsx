@@ -197,11 +197,11 @@ const Tracking = () => {
             year: 'numeric', 
             month: 'long', 
             day: 'numeric', 
-            hour: '2-digit', 
-            minute: '2-digit', 
-            second: '2-digit',
-            hour12: true,
-            timeZone: 'UTC'  // Specify UTC to avoid timezone issues
+            // hour: '2-digit', 
+            // minute: '2-digit', 
+            // second: '2-digit',
+            // hour12: true,
+            // timeZone: 'UTC'  // Specify UTC to avoid timezone issues
           })}</div>
             <div>{item.location}</div>
           </div>
