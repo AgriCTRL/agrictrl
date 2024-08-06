@@ -105,7 +105,7 @@ function Dashboard() {
                 <CardComponent className='flex-1 flex-col gap-4 justify-center'>
                     <div className='flex gap-4 text-black'>
                         <HeartHandshake />
-                        <p className='font-bold'>Traders</p>
+                        <p className='font-bold'>Personnels</p>
                     </div>
                     <h1 className='text-heading text-primary text-center font-bold'>{tradersCount}</h1>
                 </CardComponent>
