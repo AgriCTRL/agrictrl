@@ -21,8 +21,14 @@ import { getRouter as getRouterMillingProcess } from '../entities/millingprocess
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export function initServer() {
     let app = express();
+    const corsOptions = {
+        origin: 'https://n4xxm-fyaaa-aaaan-qmuva-cai.icp0.io',
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Add the methods you need
+        allowedHeaders: ['Content-Type', 'Authorization'],
+        credentials: true,
+    };
 
-    app.use(cors());
+    app.use(cors(corsOptions));
     app.use(express.json());
 
     app.use('/users', getRouterUsers());
