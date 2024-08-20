@@ -42,8 +42,8 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
         };
 
         try {
-            const res = await fetch(`${apiUrl}/millers`, {
-                method: 'PUT',
+            const res = await fetch(`${apiUrl}/millers/update`, {
+                method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(updatedMiller)
             });

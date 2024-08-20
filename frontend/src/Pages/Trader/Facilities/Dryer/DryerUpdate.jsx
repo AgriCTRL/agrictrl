@@ -42,8 +42,8 @@ function DryerUpdate({ visible, onHide, selectedDryer, onUpdateDryer }) {
         };
 
         try {
-            const res = await fetch(`${apiUrl}/dryers`, {
-                method: 'PUT',
+            const res = await fetch(`${apiUrl}/dryers/update`, {
+                method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(updatedDryer)
             });

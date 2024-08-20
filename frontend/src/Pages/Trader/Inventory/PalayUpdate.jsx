@@ -182,8 +182,8 @@ function PalayUpdate({ visible, onHide, selectedPalay }) {
 
         try {
             // Update the Palay batch status
-            const response = await fetch(`${apiUrl}/palaybatches`, {
-                method: 'PUT',
+            const response = await fetch(`${apiUrl}/palaybatches/update`, {
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -239,8 +239,8 @@ function PalayUpdate({ visible, onHide, selectedPalay }) {
                     palayQuantityReturned: formData.palayQuantityReturned,
                 };
 
-                const updateResponse = await fetch(`${apiUrl}/dryingprocesses`, {
-                    method: 'PUT',
+                const updateResponse = await fetch(`${apiUrl}/dryingprocesses/update`, {
+                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
@@ -302,8 +302,8 @@ function PalayUpdate({ visible, onHide, selectedPalay }) {
                     efficiency: formData.efficiency,
                 };
 
-                const updateResponse = await fetch(`${apiUrl}/millingprocesses`, {
-                    method: 'PUT',
+                const updateResponse = await fetch(`${apiUrl}/millingprocesses/update`, {
+                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
@@ -371,8 +371,8 @@ const handleRiceUpdate = async () => {
             };
 
             // Update rice batch
-            const updateRiceBatchResponse = await fetch(`${apiUrl}/ricebatches`, {
-                method: 'PUT',
+            const updateRiceBatchResponse = await fetch(`${apiUrl}/ricebatches/update`, {
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -382,8 +382,8 @@ const handleRiceUpdate = async () => {
             if (!updateRiceBatchResponse.ok) throw new Error('Rice batch update failed');
 
             // Update rice delivery
-            const updateRiceDeliveryResponse = await fetch(`${apiUrl}/ricedeliveries`, {
-                method: 'PUT',
+            const updateRiceDeliveryResponse = await fetch(`${apiUrl}/ricedeliveries/update`, {
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },

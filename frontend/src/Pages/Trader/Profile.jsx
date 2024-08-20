@@ -54,8 +54,8 @@ function Profile() {
         };
 
         try {
-            const res = await fetch(`${apiUrl}/nfapersonnels`, {
-                method: 'PUT',
+            const res = await fetch(`${apiUrl}/nfapersonnels/update`, {
+                method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(user)
             });

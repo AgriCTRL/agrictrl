@@ -42,8 +42,8 @@ function WarehouseUpdate({ visible, onHide, selectedWarehouse, onUpdateWarehouse
         };
 
         try {
-            const res = await fetch(`${apiUrl}/warehouses`, {
-                method: 'PUT',
+            const res = await fetch(`${apiUrl}/warehouses/update`, {
+                method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(updatedWarehouse)
             });
