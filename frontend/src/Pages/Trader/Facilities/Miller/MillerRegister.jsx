@@ -41,6 +41,13 @@ function MillerRegister({ visible, onHide, onMillerRegistered }) {
 
     const handleRegister = async (e) => {
         e.preventDefault();
+
+        // Input validation
+        if (!name || !capacity || !location || !contactInfo) {
+            alert('All fields are required.');
+            return;
+        }
+
         setIsSubmitting(true);
 
         const newMiller = {
@@ -88,6 +95,7 @@ function MillerRegister({ visible, onHide, onMillerRegistered }) {
                     type={type}
                     placeholder={placeholder}
                     aria-label={name}
+                    required
                 />
             </div>
         </div>
@@ -105,6 +113,7 @@ function MillerRegister({ visible, onHide, onMillerRegistered }) {
                     onChange={onChange}
                     placeholder={placeholder}
                     className="w-full"
+                    required
                 />
             </div>
         </div>

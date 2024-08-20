@@ -31,6 +31,9 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
 
     const handleUpdate = async (e) => {
         e.preventDefault();
+
+        
+
         setIsSubmitting(true);
         const updatedMiller = {
             ...selectedMiller,

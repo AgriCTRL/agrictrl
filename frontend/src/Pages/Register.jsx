@@ -26,6 +26,13 @@ const RegistrationPage = ({ onRegisterSuccess }) => {
   
   const handleRegister = async (e) => {
     e.preventDefault();
+
+    // Input validation
+    if (!firstName || !lastName || !position || !region) {
+        alert('All fields are required.');
+        return;
+    }
+
     const nfaPersonnel = {
         principal,  
         firstName,
