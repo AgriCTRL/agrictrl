@@ -125,7 +125,7 @@ function UserLayout({ children, activePage }) {
                     items={{
                         user: name,
                         avatar: '/profileAvatar.png',
-                        user_type: 'NFA',
+                        user_type: 'Palay Buyer',
                         title: activePage,
                     }}
                     expanded={expanded}
