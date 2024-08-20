@@ -21,17 +21,23 @@ function Inventory() {
     const [displayPalayRegister, setDisplayPalayRegister] = useState(false);
     const [displayPalayUpdate, setDisplayPalayUpdate] = useState(false);
     const [selectedPalay, setSelectedPalay] = useState(null);
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
+
     useEffect(() => {
         fetchInventoryData();
-    }, []);
+    }, [refreshTrigger]);
 
     const fetchInventoryData = async () => {
         try {
             const response = await fetch(`${apiUrl}/palaybatches`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch inventory data');
+            }
             const data = await response.json();
             setInventoryData(data);
         } catch (error) {
             console.error('Error fetching inventory data:', error);
+            toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to fetch inventory data' });
         }
     };
 
@@ -75,19 +81,29 @@ function Inventory() {
         setDisplayPalayRegister(false);
     };
 
-    const handlePalayUpdated = (updatedPalay) => {
-        const relevantFields = {
-            id: updatedPalay.id,
-            dateReceived: updatedPalay.dateReceived,
-            quantity: updatedPalay.quantity,
-            qualityType: updatedPalay.qualityType,
-            price: updatedPalay.price,
-            status: updatedPalay.status,
-        };
-        setInventoryData(inventoryData.map(palay => 
-            palay.id === updatedPalay.id ? relevantFields : palay
-        ));
-        setDisplayPalayUpdate(false);
+    const handlePalayUpdated = async (updatedPalay) => {
+        try {
+            // Update UI optimistically
+            const relevantFields = {
+                id: updatedPalay.id,
+                dateReceived: updatedPalay.dateReceived,
+                quantity: updatedPalay.quantity,
+                qualityType: updatedPalay.qualityType,
+                price: updatedPalay.price,
+                status: updatedPalay.status,
+            };
+            setInventoryData(inventoryData.map(palay => 
+                palay.id === updatedPalay.id ? relevantFields : palay
+            ));
+
+            // Optionally refetch the entire data for consistency
+            await fetchInventoryData();
+        } catch (error) {
+            console.error('Error updating palay data:', error);
+        } finally {
+            setRefreshTrigger(prev => prev + 1);
+            setDisplayPalayUpdate(false);
+        }
     };
 
     const customFilter = (value, data) => {
@@ -141,7 +157,7 @@ function Inventory() {
                     visible={displayPalayUpdate} 
                     onHide={() => setDisplayPalayUpdate(false)} 
                     selectedPalay={selectedPalay} 
-                    onUpdatePalay={handlePalayUpdated} 
+                    onUpdateSuccess={handlePalayUpdated} 
                 />
             )}
         </UserLayout>

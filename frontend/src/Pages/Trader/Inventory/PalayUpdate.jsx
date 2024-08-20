@@ -13,7 +13,7 @@ const statusOptions = [
     { label: 'Rice', value: 'Rice' }
 ];
 
-function PalayUpdate({ visible, onHide, selectedPalay }) {
+function PalayUpdate({ visible, onHide, selectedPalay, onUpdateSuccess }) {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const [status, setStatus] = useState('');
     const [formData, setFormData] = useState({});
@@ -25,11 +25,12 @@ function PalayUpdate({ visible, onHide, selectedPalay }) {
     const [millers, setMillers] = useState([]);
     const [facilitiesLoaded, setFacilitiesLoaded] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+    const [generalError, setGeneralError] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [errors, setErrors] = useState({});
     const toast = useRef(null);
-
     
+
     useEffect(() => {
         const fetchData = async () => {
             setFacilitiesLoaded(false);
@@ -67,7 +68,7 @@ function PalayUpdate({ visible, onHide, selectedPalay }) {
             setFacilityState(formattedData);
         } catch (error) {
             console.error(`Error fetching ${facilityType}:`, error);
-            setError(`Error fetching ${facilityType}`);
+            setGeneralError(`Error fetching ${facilityType}`);
         } finally {
             setLoading(false);
         }
@@ -166,10 +167,66 @@ function PalayUpdate({ visible, onHide, selectedPalay }) {
         setSelectedMiller(e.value);
     };
 
+    const validateForm = () => {
+        let newErrors = {};
+        
+        // Validate status
+        if (!status) {
+            newErrors.status = "Status is required";
+        }
+
+        // Validate based on current status
+        switch (status) {
+            case 'Drying':
+                if (!formData.type) newErrors.type = "Type is required";
+                if (!selectedDryer) newErrors.dryerId = "Dryer must be selected";
+                if (!formData.dateSent) newErrors.dateSent = "Date Sent is required";
+                if (!formData.dateReturned) newErrors.dateReturned = "Date Returned is required";
+                if (!formData.palayQuantitySent) newErrors.palayQuantitySent = "Palay Quantity Sent is required";
+                if (parseFloat(formData.palayQuantitySent) < 0) newErrors.palayQuantitySent = "Palay Quantity Sent must be non-negative";
+                if (!formData.palayQuantityReturned) newErrors.palayQuantityReturned = "Palay Quantity Returned is required";
+                if (parseFloat(formData.palayQuantityReturned) < 0) newErrors.palayQuantityReturned = "Palay Quantity Returned must be non-negative";
+                break;
+            case 'Milling':
+                if (!formData.type) newErrors.type = "Type is required";
+                if (!selectedMiller) newErrors.millerId = "Miller must be selected";
+                if (!formData.dateSent) newErrors.dateSent = "Date Sent is required";
+                if (!formData.dateReturned) newErrors.dateReturned = "Date Returned is required";
+                if (!formData.palayQuantitySent) newErrors.palayQuantitySent = "Palay Quantity Sent is required";
+                if (parseFloat(formData.palayQuantitySent) < 0) newErrors.palayQuantitySent = "Palay Quantity Sent must be non-negative";
+                if (!formData.palayQuantityReturned) newErrors.palayQuantityReturned = "Palay Quantity Returned is required";
+                if (parseFloat(formData.palayQuantityReturned) < 0) newErrors.palayQuantityReturned = "Palay Quantity Returned must be non-negative";
+                if (!formData.efficiency) newErrors.efficiency = "Efficiency is required";
+                if (parseFloat(formData.efficiency) < 0) newErrors.efficiency = "Efficiency must be non-negative";
+                break;
+            case 'Rice':
+                if (!formData.dateReceived) newErrors.dateReceived = "Date Received is required";
+                if (!formData.quantity) newErrors.quantity = "Quantity is required";
+                if (parseFloat(formData.quantity) < 0) newErrors.quantity = "Quantity must be non-negative";
+                if (!formData.qualityType) newErrors.qualityType = "Quality Type is required";
+                if (!selectedWarehouse) newErrors.warehouseId = "Warehouse must be selected";
+                if (!formData.driverName) newErrors.driverName = "Driver Name is required";
+                if (!formData.typeOfTranspo) newErrors.typeOfTranspo = "Type of Transportation is required";
+                if (!formData.plateNumber) newErrors.plateNumber = "Plate Number is required";
+                break;
+            case 'Palay':
+                if (!selectedWarehouse) newErrors.warehouseId = "Warehouse must be selected";
+                break;
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
     // Function to handle Palay update
     const handleUpdatePalay = async () => {
-        // Base payload with status
+        if (!validateForm()) {
+            toast.current.show({ severity: 'error', summary: 'Validation Error', detail: 'Please fill all required fields correctly.' });
+            return;
+        }
+
         setIsSubmitting(true);
+        // Base payload with status
         const updatePayload = {
             id: selectedPalay.id,
             status: status,
@@ -206,6 +263,8 @@ function PalayUpdate({ visible, onHide, selectedPalay }) {
 
                 toast.current.show({ severity: 'success', summary: 'Success', detail: 'Palay updated successfully' });
                 onHide();
+                // Call a callback function to notify the parent component
+                onUpdateSuccess(updatePayload);
             } else {
                 throw new Error('Update failed');
             }
@@ -344,86 +403,86 @@ function PalayUpdate({ visible, onHide, selectedPalay }) {
     };
 
     // Function to handle Rice update
-const handleRiceUpdate = async () => {
-    try {
-        setIsSubmitting(true);
-        // Check if rice batch data exists
-        const response = await fetch(`${apiUrl}/ricebatches/${selectedPalay.id}`);
-        const existingData = await response.json();
+    const handleRiceUpdate = async () => {
+        try {
+            setIsSubmitting(true);
+            // Check if rice batch data exists
+            const response = await fetch(`${apiUrl}/ricebatches/${selectedPalay.id}`);
+            const existingData = await response.json();
 
-        if (existingData && existingData.id) {
-            // Update existing rice batch data
-            const riceBatchBody = {
-                ...existingData,
-                dateReceived: formData.dateReceived,
-                quantity: formData.quantity,
-                qualityType: formData.qualityType,
-                recipientId: 1,
-                warehouseId: selectedWarehouse,
-            };
+            if (existingData && existingData.id) {
+                // Update existing rice batch data
+                const riceBatchBody = {
+                    ...existingData,
+                    dateReceived: formData.dateReceived,
+                    quantity: formData.quantity,
+                    qualityType: formData.qualityType,
+                    recipientId: 1,
+                    warehouseId: selectedWarehouse,
+                };
 
-            // Update existing rice delivery data
-            const riceDeliveryBody = {
-                id: existingData.riceDeliveryId,
-                driverName: formData.driverName,
-                typeOfTranspo: formData.typeOfTranspo,
-                plateNumber: formData.plateNumber,
-            };
+                // Update existing rice delivery data
+                const riceDeliveryBody = {
+                    id: existingData.riceDeliveryId,
+                    driverName: formData.driverName,
+                    typeOfTranspo: formData.typeOfTranspo,
+                    plateNumber: formData.plateNumber,
+                };
 
-            // Update rice batch
-            const updateRiceBatchResponse = await fetch(`${apiUrl}/ricebatches/update`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(riceBatchBody),
-            });
+                // Update rice batch
+                const updateRiceBatchResponse = await fetch(`${apiUrl}/ricebatches/update`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(riceBatchBody),
+                });
 
-            if (!updateRiceBatchResponse.ok) throw new Error('Rice batch update failed');
+                if (!updateRiceBatchResponse.ok) throw new Error('Rice batch update failed');
 
-            // Update rice delivery
-            const updateRiceDeliveryResponse = await fetch(`${apiUrl}/ricedeliveries/update`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(riceDeliveryBody),
-            });
+                // Update rice delivery
+                const updateRiceDeliveryResponse = await fetch(`${apiUrl}/ricedeliveries/update`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(riceDeliveryBody),
+                });
 
-            if (!updateRiceDeliveryResponse.ok) throw new Error('Rice delivery update failed');
-        } else {
-            // Create new rice batch and delivery data in a single request
-            const newRiceData = {
-                palayBatchId: selectedPalay.id,
-                dateReceived: formData.dateReceived,
-                quantity: formData.quantity,
-                qualityType: formData.qualityType,
-                recipientId: 1,
-                warehouseId: selectedWarehouse,
-                driverName: formData.driverName,
-                typeOfTranspo: formData.typeOfTranspo,
-                plateNumber: formData.plateNumber
-            };
+                if (!updateRiceDeliveryResponse.ok) throw new Error('Rice delivery update failed');
+            } else {
+                // Create new rice batch and delivery data in a single request
+                const newRiceData = {
+                    palayBatchId: selectedPalay.id,
+                    dateReceived: formData.dateReceived,
+                    quantity: formData.quantity,
+                    qualityType: formData.qualityType,
+                    recipientId: 1,
+                    warehouseId: selectedWarehouse,
+                    driverName: formData.driverName,
+                    typeOfTranspo: formData.typeOfTranspo,
+                    plateNumber: formData.plateNumber
+                };
 
-            const createResponse = await fetch(`${apiUrl}/ricebatches`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(newRiceData),
-            });
+                const createResponse = await fetch(`${apiUrl}/ricebatches`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(newRiceData),
+                });
 
-            if (!createResponse.ok) throw new Error('Rice batch and delivery creation failed');
+                if (!createResponse.ok) throw new Error('Rice batch and delivery creation failed');
+            }
+
+            toast.current.show({ severity: 'success', summary: 'Success', detail: 'Rice batch and delivery updated successfully' });
+        } catch (error) {
+            console.error('Error handling rice update:', error);
+            toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to update or create Rice Batch and Delivery' });
+        } finally {
+            setIsSubmitting(false);
         }
-
-        toast.current.show({ severity: 'success', summary: 'Success', detail: 'Rice batch and delivery updated successfully' });
-    } catch (error) {
-        console.error('Error handling rice update:', error);
-        toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to update or create Rice Batch and Delivery' });
-    } finally {
-        setIsSubmitting(false);
-    }
-};
+    };
 
     const renderInputField = (label, name, type = "text", placeholder) => (
         <div className="sm:col-span-3">
@@ -437,8 +496,13 @@ const handleRiceUpdate = async () => {
                     type={type}
                     placeholder={placeholder}
                     aria-label={name}
+                    required
+                    min={type === "number" ? "0" : undefined}
                 />
             </div>
+            {errors[name] && (
+                <p className="mt-1 text-sm text-red-600">{errors[name]}</p>
+            )}
         </div>
     );
 
@@ -457,11 +521,15 @@ const handleRiceUpdate = async () => {
                         optionValue="value"
                         placeholder={placeholder}
                         className="w-full"
+                        required
                     />
                 ) : (
                     <p>Loading facilities...</p>
                 )}
             </div>
+            {errors[name] && (
+                <p className="mt-1 text-sm text-red-600">{errors[name]}</p>
+            )}
         </div>
     );
 

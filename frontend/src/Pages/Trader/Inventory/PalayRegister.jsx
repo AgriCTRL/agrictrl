@@ -50,6 +50,21 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
     };
 
     const handleRegister = async () => {
+        // Validation
+        if (!formData.dateReceived || !formData.quantity || !formData.qualityType || !formData.price ||
+            !formData.moistureContent || !formData.purity || !formData.damaged ||
+            !formData.driverName || !formData.typeOfTranspo || !formData.plateNumber ||
+            !formData.selectedWarehouse) {
+            alert("All fields are required. Please fill in all fields.");
+            return;
+        }
+
+        if (formData.quantity <= 0 || formData.price <= 0 || formData.moistureContent < 0 ||
+            formData.purity < 0 || formData.damaged < 0) {
+            alert("Please enter valid positive numbers.");
+            return;
+        }
+
         try {
             setIsSubmitting(true);
             // Prepare the data for a single POST request
@@ -118,6 +133,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                     type={type}
                     placeholder={placeholder}
                     aria-label={name}
+                    required
                 />
             </div>
         </div>
@@ -135,6 +151,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                     optionLabel="facilityName"
                     optionValue="id"
                     className="w-full p-3 bg-neutral-200"
+                    required
                 />
             </div>
         </div>
