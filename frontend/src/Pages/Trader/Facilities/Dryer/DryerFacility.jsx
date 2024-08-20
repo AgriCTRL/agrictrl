@@ -40,7 +40,7 @@ function DryerFacility() {
             }
         };
         fetchData();
-    }, [dryerData]);
+    }, []);
 
 
     const handleDryerRegistered = (newDryer) => {

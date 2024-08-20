@@ -40,7 +40,7 @@ function MillerFacility() {
             }
         };
         fetchData();
-    }, [millerData]);
+    }, []);
 
 
     const handleMillerRegistered = (newMiller) => {

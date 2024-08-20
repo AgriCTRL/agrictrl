@@ -84,7 +84,7 @@ export function getRouter(): Router {
     //     });
     // });
 
-    router.put('/', updateHandler);
+    router.post('/update', updateHandler);
 
     router.patch('/', updateHandler);
 

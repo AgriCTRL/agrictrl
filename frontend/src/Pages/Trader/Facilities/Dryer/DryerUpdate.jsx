@@ -31,6 +31,13 @@ function DryerUpdate({ visible, onHide, selectedDryer, onUpdateDryer }) {
 
     const handleUpdate = async (e) => {
         e.preventDefault();
+
+        // Input validation
+        if (!name || !capacity || !location || !contactInfo) {
+            alert('All fields are required.');
+            return;
+        }
+
         setIsSubmitting(true);
         const updatedDryer = {
             ...selectedDryer,
@@ -42,8 +49,8 @@ function DryerUpdate({ visible, onHide, selectedDryer, onUpdateDryer }) {
         };
 
         try {
-            const res = await fetch(`${apiUrl}/dryers`, {
-                method: 'PUT',
+            const res = await fetch(`${apiUrl}/dryers/update`, {
+                method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(updatedDryer)
             });
@@ -78,6 +85,7 @@ function DryerUpdate({ visible, onHide, selectedDryer, onUpdateDryer }) {
                     type={type}
                     placeholder={placeholder}
                     aria-label={name}
+                    required
                 />
             </div>
         </div>
@@ -95,6 +103,7 @@ function DryerUpdate({ visible, onHide, selectedDryer, onUpdateDryer }) {
                     onChange={onChange}
                     placeholder={placeholder}
                     className="w-full"
+                    required
                 />
             </div>
         </div>

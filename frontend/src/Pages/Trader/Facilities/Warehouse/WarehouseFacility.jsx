@@ -41,7 +41,7 @@ function Warehouse() {
             }
         };
         fetchData();
-    }, [warehouseData]);
+    }, []);
 
     
 

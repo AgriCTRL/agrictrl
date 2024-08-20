@@ -31,6 +31,13 @@ function WarehouseUpdate({ visible, onHide, selectedWarehouse, onUpdateWarehouse
 
     const handleUpdate = async (e) => {
         e.preventDefault();
+        
+        //Input Validation
+        if (!facilityName || !capacity || !location || !contactInfo || !status) {
+            alert('All fields are required.');
+            return;
+        }
+
         setIsSubmitting(true);
         const updatedWarehouse = {
             ...selectedWarehouse,
@@ -42,8 +49,8 @@ function WarehouseUpdate({ visible, onHide, selectedWarehouse, onUpdateWarehouse
         };
 
         try {
-            const res = await fetch(`${apiUrl}/warehouses`, {
-                method: 'PUT',
+            const res = await fetch(`${apiUrl}/warehouses/update`, {
+                method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(updatedWarehouse)
             });
@@ -78,6 +85,7 @@ function WarehouseUpdate({ visible, onHide, selectedWarehouse, onUpdateWarehouse
                     type={type}
                     placeholder={placeholder}
                     aria-label={name}
+                    required
                 />
             </div>
         </div>
@@ -95,6 +103,7 @@ function WarehouseUpdate({ visible, onHide, selectedWarehouse, onUpdateWarehouse
                     onChange={onChange}
                     placeholder={placeholder}
                     className="w-full"
+                    required
                 />
             </div>
         </div>

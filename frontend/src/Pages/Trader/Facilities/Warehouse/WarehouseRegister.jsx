@@ -41,6 +41,13 @@ function WarehouseRegister({ visible, onHide, onWarehouseRegistered }) {
 
     const handleRegister = async (e) => {
         e.preventDefault();
+
+        // Input validation
+        if (!facilityName || !capacity || !location || !contactInfo) {
+            alert('All fields are required.');
+            return;
+        }
+
         setIsSubmitting(true);
 
         const newWarehouse = {
@@ -88,6 +95,7 @@ function WarehouseRegister({ visible, onHide, onWarehouseRegistered }) {
                     type={type}
                     placeholder={placeholder}
                     aria-label={name}
+                    required
                 />
             </div>
         </div>
@@ -105,6 +113,7 @@ function WarehouseRegister({ visible, onHide, onWarehouseRegistered }) {
                     onChange={onChange}
                     placeholder={placeholder}
                     className="w-full"
+                    required
                 />
             </div>
         </div>

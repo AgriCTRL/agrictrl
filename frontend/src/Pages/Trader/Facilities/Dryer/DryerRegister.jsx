@@ -41,6 +41,13 @@ function DryerRegister({ visible, onHide, onDryerRegistered }) {
 
     const handleRegister = async (e) => {
         e.preventDefault();
+
+        // Input validation
+        if (!name || !capacity || !location || !contactInfo) {
+            alert('All fields are required.');
+            return;
+        }
+
         setIsSubmitting(true);
 
         const newDryer = {
@@ -88,6 +95,7 @@ function DryerRegister({ visible, onHide, onDryerRegistered }) {
                     type={type}
                     placeholder={placeholder}
                     aria-label={name}
+                    required
                 />
             </div>
         </div>
@@ -105,6 +113,7 @@ function DryerRegister({ visible, onHide, onDryerRegistered }) {
                     onChange={onChange}
                     placeholder={placeholder}
                     className="w-full"
+                    required
                 />
             </div>
         </div>
