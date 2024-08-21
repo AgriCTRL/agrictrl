@@ -27,11 +27,11 @@ function SidebarComponent({ children, expanded }) {
             }`}>
                 <div className="flex items-center justify-start w-full py-4">
                     <img 
-                        src="/sidebarLogo.png" 
+                        src={`${expanded ? '/favicon_expanded.ico' : '/favicon.ico'}`} 
                         className={`overflow-hidden transition-all cursor-pointer ${
-                            expanded ? 'w-auto' : 'w-0'
+                            expanded ? 'w-[15rem]' : 'w-[52px]'
                         }`} 
-                        alt="AgriCTRL sibebar logo" 
+                        alt="AgriCTRL sibebar logo"
                     />
                 </div>
                 
