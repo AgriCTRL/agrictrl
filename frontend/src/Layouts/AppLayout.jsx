@@ -43,8 +43,8 @@ function UserLayout({ children }) {
                 {/* Header */}
                 <header className="fixed backdrop-blur-md font-poppins text-white p-3 left-0 w-full z-50">
                     <div className="container mx-auto flex justify-between items-center">
-                        <div className="flex items-center">
-                            <img src="AgriCTRLLogo.png" alt="AgriCTRL+ Logo" className="h-12 ml-10" />
+                        <div className="flex items-center gap-2">
+                            <img src="favicon.ico" alt="AgriCTRL+ Logo" className="h-12 ml-10" />
                             <div className="text-2xl font-bold hover:text-[#00C261] letter-spacing-4 ml-2 tracking-wider">AgriCTRL+</div>
                         </div>
                         <nav className="flex items-center">
