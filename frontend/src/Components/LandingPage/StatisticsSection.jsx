@@ -26,13 +26,12 @@ const StatisticsSection = () => {
                     <div className="text-sm">Farmers</div>
                 </div>
             </div>
-            {/* Rice Sellers */}
+            {/* Customers */}
             <div className="flex flex-row items-center p-10">
                 <Coins className="text-white h-14 w-14 mx-2"/>
                 <div className="flex flex-col justify-start">
                     <div className="text-2xl font-bold">548</div>
-                    <div className="text-sm">Rice</div>
-                    <div className="text-sm">Sellers</div>
+                    <div className="text-sm">User</div>
                 </div>
             </div>
             {/* Customers */}

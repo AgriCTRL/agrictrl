@@ -126,7 +126,7 @@ function Inventory() {
                 </span>
                 <div className="flex-grow"></div>
                 <div className="justify-end items-center">
-                    <Button label="+ Add New" onClick={() => setDisplayPalayRegister(true)} className="p-button-success text-white bg-gradient-to-r from-[#005155] to-[#00C261] p-2" />
+                    <Button label="+ Add Palay" onClick={() => setDisplayPalayRegister(true)} className="p-button-success text-white bg-gradient-to-r from-[#005155] to-[#00C261] p-2" />
                 </div>
             </div>
         </div>

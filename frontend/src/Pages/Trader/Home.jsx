@@ -17,17 +17,17 @@ function Home() {
         {
             title: "Traceability Power",
             description: "Discover where is the source of the rice you consume, the processes it took before the palay become a bigas.",
-            image: "Traceability.png"
+            image: "palay.png"
         },
         {
             title: "Decentralized Records", 
             description: "Utilizing ICP Blockchain Backend and Frontend Services, we can securely save and collect data.",
-            image: "ICP decentralized network.png"
+            image: "palay.png"
         },
         {
             title: "Supply Chain Management",
             description: "Manage the entire supply chain of rice through simple to understand user interfaces.",
-            image: "supply chain.png"
+            image: "palay.png"
         }
     ]);
 
@@ -37,7 +37,7 @@ function Home() {
                 <div className='h-full'>
                     <img src={item.image} className="w-full h-full object-cover" />
                 </div>
-                <div className="absolute bg-gradient-to-r from-black to-transparent inset-0 flex flex-col gap-4 p-10">
+                <div className="absolute bg-gradient-to-r from-[#2A2A2A] to-transparent inset-0 flex flex-col gap-4 p-10">
                     <div className="text-green-400 flex items-center gap-4">
                         <Wheat />
                         <p>What We Offer</p>

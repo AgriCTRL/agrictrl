@@ -9,7 +9,7 @@ function UserLayout({ children }) {
     const navigate = useNavigate();
 
     const handleHistoryClick = () => {
-        navigate('/history');
+        navigate('/TnT');
     }
 
     const loginButton = async () => {   

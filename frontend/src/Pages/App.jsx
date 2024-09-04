@@ -71,7 +71,7 @@ function App() {
             <Routes>
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/register" element={registerAuth ? <Register onRegisterSuccess={handleRegisterSuccess} /> : <Navigate to="/trader" replace />} />
-                <Route path="/history" element={<TransactionHistory />} />
+                <Route path="/TnT" element={<TransactionHistory />} />
                 <Route path="/trader/*" element={<TraderRoutes />} />
 
                 {/* <Route path="/trader/*" element={isAuthenticated && !registerAuth ? <TraderRoutes /> : <Navigate to="/" replace />} /> */}

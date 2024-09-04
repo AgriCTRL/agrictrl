@@ -10,7 +10,7 @@ const HeroSection = () => {
     const navigate = useNavigate();
 
     const handleHistoryClick = () => {
-        navigate('/history');
+        navigate('/TnT');
     }
 
     const loginButton = async () => {   
@@ -67,7 +67,7 @@ const HeroSection = () => {
                             </button>
                             <button className="border border-white ml-3 px-16 py-3 text-white font-bold rounded-lg flex justify-items-center items-center"
                                     onClick={handleHistoryClick}>
-                                Trace your Rice!
+                                Start Tracking!
                             </button>
                         </div>
                     </div>

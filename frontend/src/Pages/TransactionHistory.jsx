@@ -207,7 +207,7 @@ const TransactionHistory = () => {
           Go back
         </button>
         <div className="flex flex-grow"></div>
-        <h1 className="text-white text-4xl mr-7 font-poppins font-bold">TRACE YOUR RICE!</h1>
+        <h1 className="text-white text-4xl mr-7 font-poppins font-bold">RICE EXPLORER!</h1>
         <div className="flex flex-grow"></div>
       </div>
     );
