@@ -50,7 +50,7 @@ const RegistrationPage = ({ onRegisterSuccess }) => {
             throw new Error('Error registering user');
         }
         onRegisterSuccess();
-        navigate('/trader');
+        navigate('/admin');
     }
     catch (error) {
         console.log(error.message);

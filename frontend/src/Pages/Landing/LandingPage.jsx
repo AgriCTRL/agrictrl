@@ -2,12 +2,12 @@ import { React, useEffect } from 'react';
 import AppLayout from '@/Layouts/AppLayout';
 import { useNavigate } from 'react-router-dom';
 
-import HeroSection from '@/Components/LandingPage/HeroSection';
-import FeatureSection from '@/Components/LandingPage/FeatureSection';
-import OfferSection from '@/Components/LandingPage/OfferSection';
-import WorkingProcessSection from '@/Components/LandingPage/WorkingProcessSection';
-import CompanyNameSection from '@/Components/LandingPage/CompanyNameSection';
-import TestimonialsSection from '@/Components/LandingPage/TestimonialsSection';
+import HeroSection from './components/HeroSection';
+import FeatureSection from './components/FeatureSection';
+import OfferSection from './components/OfferSection';
+import WorkingProcessSection from './components/WorkingProcessSection';
+import CompanyNameSection from './components/CompanyNameSection';
+import TestimonialsSection from './components/TestimonialsSection';
 import { AuthClient } from "@dfinity/auth-client";
 
 const LandingPage = () => {
@@ -27,7 +27,7 @@ const LandingPage = () => {
                 if (data === null) {
                     navigate('/register');
                 } else {
-                    navigate('/trader');
+                    navigate('/admin');
                 }
             }
         } catch (error) {
