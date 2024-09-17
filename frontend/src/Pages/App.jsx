@@ -6,15 +6,15 @@ import {
     Navigate
 } from "react-router-dom";
 
-import Register from "./Register";
-import LandingPage from "./LandingPage";
-import UserHome from "./Trader/Home";
-import UserDashboard from "./Trader/Dashboard";
-import UserTracking from "./Trader/Tracking";
-import UserInventory from "./Trader/Inventory/Inventory";
-import UserFacilities from "./Trader/Facilities/Category";
-import UserProfile from "./Trader/Profile";
-import TransactionHistory from "./TransactionHistory";
+import Register from "./Authentication/Registration/Register";
+import LandingPage from "./Landing/LandingPage";
+import UserHome from "./SMS/Admin/Home";
+import UserDashboard from "./SMS/Admin/Dashboard";
+import UserTracking from "./SMS/Admin/Tracking";
+import UserInventory from "./SMS/Admin/Inventory/Inventory";
+import UserFacilities from "./SMS/Admin/Facilities/Category";
+import UserProfile from "./SMS/Admin/Profile";
+import TransactionHistory from "./TNT/TransactionHistory";
 import { AuthClient } from "@dfinity/auth-client";
 
 function App() {
@@ -69,12 +69,10 @@ function App() {
     return (
         <div className="flex h-screen transition-transform duration-300">
             <Routes>
-                <Route path="/" element={<LandingPage />} />
-                <Route path="/register" element={registerAuth ? <Register onRegisterSuccess={handleRegisterSuccess} /> : <Navigate to="/trader" replace />} />
+                <Route path="/" element={<LandingPage />} /> 
+                <Route path="/register" element={registerAuth ? <Register onRegisterSuccess={handleRegisterSuccess} /> : <Navigate to="/admin" replace />} />
                 <Route path="/TnT" element={<TransactionHistory />} />
-                <Route path="/trader/*" element={<TraderRoutes />} />
-
-                {/* <Route path="/trader/*" element={isAuthenticated && !registerAuth ? <TraderRoutes /> : <Navigate to="/" replace />} /> */}
+                <Route path="/admin/*" element={<AdminRoutes />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
         </div>
@@ -89,7 +87,7 @@ function AppWrapper() {
     );
 }
 
-function TraderRoutes() {
+function AdminRoutes() {
     return (
         <Routes>
             <Route index element={<UserHome />} />

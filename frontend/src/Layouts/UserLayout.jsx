@@ -16,32 +16,32 @@ const sidebarItems = [
     { 
         icon: <House size={20} />, 
         text: 'Home', 
-        link: '/trader' 
+        link: '/admin' 
     },
     { 
         icon: <LayoutDashboard size={20} />, 
         text: 'Dashboard', 
-        link: '/trader/dashboard' 
+        link: '/admin/dashboard' 
     },
     { 
         icon: <MapPin size={20} />, 
         text: 'Tracking', 
-        link: '/trader/tracking' 
+        link: '/admin/tracking' 
     },
     { 
         icon: <Layers size={20} />, 
         text: 'Inventory', 
-        link: '/trader/inventory' 
+        link: '/admin/inventory' 
     },
     { 
         icon: <Building2 size={20} />, 
         text: 'Facilities', 
-        link: '/trader/facilities' 
+        link: '/admin/facilities' 
     },
     { 
         icon: <User size={20} />, 
         text: 'Profile', 
-        link: '/trader/profile' 
+        link: '/admin/profile' 
     },
 ];
  
