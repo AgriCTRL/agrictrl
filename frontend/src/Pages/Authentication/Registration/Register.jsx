@@ -1,16 +1,52 @@
 import React, { useState, useEffect } from 'react';
-import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { AuthClient } from "@dfinity/auth-client";
 import { useNavigate } from 'react-router-dom';
+import { Stepper, Step, StepLabel } from '@mui/material';
+import { CircleUserRound, Contact, SlidersVertical, CircleCheckBig } from 'lucide-react';
+
+import PersonalInformation from './RegistrationComponents/PersonalInformation';
+import AccountDetails from './RegistrationComponents/AccountDetails';
+import OfficeAddress from './RegistrationComponents/OfficeAddress';
+import Finishing from './RegistrationComponents/Finishing';
+
+// Step configuration
+const steps = [
+  { number: 1, label: 'Personal Information', icon: <CircleUserRound /> },
+  { number: 2, label: 'Account Details', icon: <Contact /> },
+  { number: 3, label: 'Office Address', icon: <SlidersVertical /> },
+  { number: 4, label: 'Finishing', icon: <CircleCheckBig /> },
+];
+
+const CustomStepLabel = ({ icon, isActive }) => {
+  return (
+    <div 
+      className={`
+        flex items-center justify-center -translate-x-3
+        w-12 h-12 rounded-full transition-all
+        ${isActive 
+          ? 'bg-white text-secondary scale-110' 
+          : 'bg-transparent text-white border-2 border-white'
+        }
+      `}
+    >
+      {React.cloneElement(icon, { 
+        size: isActive ? 28 : 24,
+        className: 'transition-all'
+      })}
+    </div>
+  );
+};
 
 const RegistrationPage = ({ onRegisterSuccess }) => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const [principal, setPrincipal] = useState('');
   const [firstName, setFirstName] = useState('');
-  const [lastName, setLastname] = useState('');
+  const [lastName, setLastName] = useState('');
   const [position, setPosition] = useState('');
   const [region, setRegion] = useState('');
+
+  const [activeStep, setActiveStep] = useState(0);
 
   const navigate = useNavigate();
 
@@ -23,50 +59,87 @@ const RegistrationPage = ({ onRegisterSuccess }) => {
     };
     fetchPrincipal();
   }, []);
-  
+
+  // Handle registration process
   const handleRegister = async (e) => {
     e.preventDefault();
-
-    // Input validation
+    
     if (!firstName || !lastName || !position || !region) {
-        alert('All fields are required.');
-        return;
+      alert('All fields are required.');
+      return;
     }
 
     const nfaPersonnel = {
-        principal,  
-        firstName,
-        lastName,
-        position,
-        region,
+      principal,
+      firstName,
+      lastName,
+      position,
+      region,
     };
     try {
-        const res = await fetch(`${apiUrl}/nfapersonnels`, {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify(nfaPersonnel)
-        });
-        if(!res.ok) {
-            throw new Error('Error registering user');
-        }
-        onRegisterSuccess();
-        navigate('/admin');
+      const res = await fetch(`${apiUrl}/nfapersonnels`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(nfaPersonnel),
+      });
+      if (!res.ok) {
+        throw new Error('Error registering user');
+      }
+      onRegisterSuccess();
+      navigate('/admin');
+    } catch (error) {
+      console.log(error.message);
     }
-    catch (error) {
-        console.log(error.message);
+  };
+
+  const handleNext = () => {
+    setActiveStep((prev) => Math.min(prev + 1, steps.length - 1));
+  };
+
+  const handleBack = () => {
+    setActiveStep((prev) => Math.max(prev - 1, 0));
+  };
+
+  const renderStep = () => {
+    switch (activeStep) {
+      case 0:
+        return <PersonalInformation onNext={handleNext} />;
+      case 1:
+        return <AccountDetails onNext={handleNext} />;
+      case 2:
+        return <OfficeAddress onNext={handleNext} />;
+      case 3:
+        return <Finishing onNext={handleNext} />;
+      default:
+        return null;
     }
-  }
+  };
 
   return (
     <div className="font-poppins flex h-screen w-screen bg-gray-100">
-      {/* Left side with background image */}
-      <div className="hidden md:flex md:w-[30%] bg-green-500 relative rounded-2xl mx-5 my-14 ">
-        <div className="absolute inset-0 rounded-2xl bg-cover bg-center" style={{backgroundImage: "url('Registration-leftBG.png')"}}>
+      {/* Left side with stepper and background image */}
+      <div className="hidden md:flex md:w-[30%] bg-green-500 relative rounded-2xl mx-5 my-14">
+        <div className="absolute inset-0 rounded-2xl bg-cover bg-center" style={{ backgroundImage: "url('Registration-leftBG.png')" }}>
           <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-[#005155] to-[#00C26100]/5"></div>
         </div>
         <div className="relative w-full z-10 p-8 text-white">
           <h2 className="text-3xl font-bold mb-6 flex justify-center items-center">Registration</h2>
-          <div className="flex justify-center items-center pt-96">
+          
+          {/* Vertical Stepper */}
+          <Stepper orientation="vertical" activeStep={activeStep} className="mb-8">
+            {steps.map(({ label, icon }, index) => (
+              <Step key={label}>
+                <StepLabel StepIconComponent={() => <CustomStepLabel icon={icon} isActive={index === activeStep} />}>
+                  <div className={`text-white transition-all ${index === activeStep ? 'text-lg font-semibold' : 'text-base'}`}>
+                    <span>Step {index + 1}</span><br />{/* Line break here */}
+                    {label}
+                  </div>
+                </StepLabel>
+              </Step>
+            ))}
+          </Stepper>
+
+          <div className="flex justify-center items-center pt-8">
             <img src="favicon.ico" alt="AgriCTRL+ Logo" className="h-12 mr-2" />
             <span className="text-2xl font-bold">AgriCTRL+</span>
           </div>
@@ -74,31 +147,18 @@ const RegistrationPage = ({ onRegisterSuccess }) => {
       </div>
 
       {/* Right side with form */}
-      <div className="w-full md:w-1/2 p-8 flex flex-col justify-center">
-        <h2 className="text-2xl font-bold text-[#005155] mb-6">Personal Information</h2>
-        <p className="mb-6 text-gray-600">Please fill out the information below.</p>
-        <form onSubmit={ handleRegister } className="space-y-4 flex flex-col">
-            <div className="flex flex-row mb-10">
-                <div className="mr-5">
-                    <label htmlFor="firstName" className="">First Name</label>
-                    <InputText required value={firstName} onChange={(e) => setFirstName(e.target.value)} id="firstName" placeholder="enter your first name" className="Normal border rounded-lg w-full h-10 pl-3 pr-3 mt-2" />
-                </div>
-                <div>
-                    <label htmlFor="lastName" className="">Last Name</label>
-                    <InputText required value={lastName} onChange={(e) => setLastname(e.target.value)} id="lastName" placeholder="enter your last name" className="Normal border rounded-lg w-full h-10 pl-3 pr-3 mt-2" />
-                </div>
-            </div>
-            
-            <div className="">
-                <label className="block mb-1">Position</label>
-                <InputText required value={position} onChange={(e) => setPosition(e.target.value)} id="position" placeholder="enter your position" className="Normal border rounded-lg w-[48%] h-10 pl-3 pr-3 mt-2" />
-            </div>
-            <div className="">
-                <label className="block mb-1">Region</label>
-                <InputText required value={region} onChange={(e) => setRegion(e.target.value)} id="region" placeholder="enter your region" className="Normal border rounded-lg w-[48%] h-10 pl-3 pr-3 mt-2" />
-            </div>
-            <Button label="Register" className="ml-[450px] w-40 h-8 text-white bg-[#005155] border-[#005155] hover:bg-teal-700" />
-        </form>
+      <div className="w-full md:w-2/3 p-8 flex flex-col">
+        {renderStep()}
+        <div className="flex justify-between mt-4">
+          <Button label="Previous" onClick={handleBack} disabled={activeStep === 0} />
+          <Button
+            label={activeStep === steps.length - 1 ? "Submit" : "Next"}
+            onClick={activeStep === steps.length - 1 ? handleRegister : handleNext}
+          />
+        </div>
+        <div className="flex justify-between mt-4">
+          <p>Login Here</p>
+        </div>
       </div>
     </div>
   );

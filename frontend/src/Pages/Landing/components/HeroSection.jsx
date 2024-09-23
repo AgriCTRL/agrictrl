@@ -42,7 +42,7 @@ const HeroSection = () => {
         <section 
             className="relative h-screen flex items-center bg-cover bg-center overflow-hidden" 
                     style={{ 
-                        backgroundImage: 'url("/Landing-HeroBg3.jpg")', 
+                        backgroundImage: 'url("/Landing-HeroBg.jpg")', 
                         backgroundSize: 'cover',
                         backgroundPosition: 'center',
                         backgroundRepeat: 'no-repeat'
