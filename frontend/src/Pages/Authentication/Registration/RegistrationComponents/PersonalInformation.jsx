@@ -31,12 +31,20 @@ const PersonalInformation = () => {
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div>
           <label htmlFor="firstName" className="block mb-2 text-sm font-medium text-gray-700">First Name</label>
-          <InputText id="firstName" value={firstName} onChange={(e) => setFirstName(e.target.value)} className="ring-0 w-full p-inputtext-sm p-2 rounded-md border border-gray-300" placeholder="Juan" />
+          <InputText 
+            id="firstName" 
+            value={firstName} onChange={(e) => setFirstName(e.target.value)} 
+            className="ring-0 w-full p-inputtext-sm p-4 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium" 
+            placeholder="first name" />
         </div>
         
         <div>
           <label htmlFor="lastName" className="block mb-2 text-sm font-medium text-gray-700">Last Name</label>
-          <InputText id="lastName" value={lastName} onChange={(e) => setLastName(e.target.value)} className="ring-0 w-full p-inputtext-sm p-2 rounded-md border border-gray-300" placeholder="Dela Cruz" />
+          <InputText 
+            id="lastName" 
+            value={lastName} onChange={(e) => setLastName(e.target.value)} 
+            className="ring-0 w-full p-inputtext-sm p-4 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium" 
+            placeholder="last name" />
         </div>
       </div>
 
@@ -47,19 +55,30 @@ const PersonalInformation = () => {
             id="gender" 
             value={gender} 
             options={genderOptions} 
-            onChange={(e) => setGender(e.value)} 
-            className="ring-0 w-full p-inputtext-sm p-2 font-medium rounded-md border border-gray-300" 
+            onChange={(e) => setGender(e.value)}
+            placeholder="Select Gender"
+            className="ring-0 w-full p-inputtext-md p-2 font-medium rounded-md border border-gray-300" 
           />
         </div>
         <div>
           <label htmlFor="birthDate" className="block mb-2 text-sm font-medium text-gray-700">Birth Date</label>
-          <Calendar id="birthDate" value={birthDate} onChange={(e) => setBirthDate(e.value)} className="ring-0 w-full h-[52px] p-inputtext-sm p-2 rounded-md border bg-white border-gray-300" showIcon/>
+          <Calendar 
+            id="birthDate" 
+            value={birthDate} onChange={(e) => setBirthDate(e.value)}
+            placeholder="MM/DD/YYYY" 
+            className="ring-0 w-full h-[58px] p-inputtext-sm p-2 rounded-md border bg-white border-gray-300 placeholder:text-gray-500 placeholder:font-medium" 
+            showIcon/>
         </div>
       </div>
 
       <div className="mb-4">
         <label htmlFor="contactNumber" className="block mb-2 text-sm font-medium text-gray-700">Contact Number</label>
-        <InputText id="contactNumber" value={contactNumber} onChange={handleContactNumberChange} className="ring-0 w-1/2 p-inputtext-sm p-2 rounded-md border border-gray-300" placeholder="+63 9" type="tel"/>
+        <InputText 
+          id="contactNumber" 
+          value={contactNumber} onChange={handleContactNumberChange} 
+          className="ring-0 w-1/2 p-inputtext-sm p-4 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium" 
+          placeholder="+63 9" 
+          type="tel"/>
       </div>
     </form>
   );

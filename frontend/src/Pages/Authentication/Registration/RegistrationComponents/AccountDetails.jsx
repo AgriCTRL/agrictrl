@@ -38,8 +38,9 @@ const AccountDetails = () => {
           id="userType" 
           value={userType} 
           options={userTypeOptions} 
-          onChange={(e) => setUserType(e.value)} 
-          className="ring-0 w-full p-inputtext-sm font-medium rounded-md border border-gray-300"  
+          onChange={(e) => setUserType(e.value)}
+          placeholder="Select User Type" 
+          className="ring-0 w-full p-inputtext-sm font-medium rounded-md border border-gray-300 "  
         />
       </div>
 
@@ -49,8 +50,8 @@ const AccountDetails = () => {
           id="organizationName" 
           value={organizationName} 
           onChange={(e) => setOrganizationName(e.target.value)} 
-          className="ring-0 w-full p-inputtext-sm p-1 rounded-md border border-gray-300" 
-          placeholder="National Food Authority" 
+          placeholder="organization name" 
+          className="ring-0 w-full p-inputtext-sm p-1 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-normal"           
         />
       </div>
 
@@ -60,8 +61,8 @@ const AccountDetails = () => {
           id="jobTitle" 
           value={jobTitle} 
           onChange={(e) => setJobTitle(e.target.value)} 
-          className="ring-0 w-full p-inputtext-sm p-1 rounded-md border border-gray-300" 
-          placeholder="Procurement Officer" 
+          placeholder="job title" 
+          className="ring-0 w-full p-inputtext-sm p-1 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-normal"           
         />
       </div>
 
@@ -72,7 +73,8 @@ const AccountDetails = () => {
             id="region" 
             value={region} 
             options={regionOptions} 
-            onChange={(e) => setRegion(e.value)} 
+            onChange={(e) => setRegion(e.value)}
+            placeholder="Select Region" 
             className="ring-0 w-full p-inputtext-sm rounded-md border border-gray-300"
           />
         </div>
@@ -82,7 +84,8 @@ const AccountDetails = () => {
             id="branchOffice" 
             value={branchOffice} 
             options={branchOfficeOptions} 
-            onChange={(e) => setBranchOffice(e.value)} 
+            onChange={(e) => setBranchOffice(e.value)}
+            placeholder="Select Branch" 
             className="ring-0 w-full p-inputtext-sm rounded-md border border-gray-300"
           />
         </div>
