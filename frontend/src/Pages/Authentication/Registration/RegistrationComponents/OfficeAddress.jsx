@@ -34,7 +34,7 @@ const OfficeAddress = () => {
   ];
 
   return (
-    <form className="h-full w-full p-10">
+    <form className="h-full w-full px-16">
       <h2 className="text-4xl font-medium mb-2 text-secondary">Office Address</h2>
       <p className="mb-6 font-medium text-black0">Enter your office address</p>
       
