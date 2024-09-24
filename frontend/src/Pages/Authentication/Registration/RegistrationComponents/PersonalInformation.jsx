@@ -17,35 +17,43 @@ const PersonalInformation = () => {
   ];
 
   return (
-    <form className="h-full w-full p-10 bg-red-500">
-      <h2 className="text-2xl font-bold mb-2 text-teal-800">Personal Information</h2>
-      <p className="mb-6 text-gray-600">Please provide your basic details to get started.</p>
+    <form className="h-full w-full p-16">
+      <h2 className="text-4xl font-medium mb-6 text-secondary">Personal Information</h2>
+      <p className="mb-10 font-bold text-black">Please provide your basic details to get started.</p>
       
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div>
           <label htmlFor="firstName" className="block mb-2 text-sm font-medium text-gray-700">First Name</label>
-          <InputText id="firstName" value={firstName} onChange={(e) => setFirstName(e.target.value)} className="w-full p-inputtext-sm" placeholder="Juan" />
+          <InputText id="firstName" value={firstName} onChange={(e) => setFirstName(e.target.value)} className="ring-0 w-full p-inputtext-sm p-2 rounded-md border border-gray-300" placeholder="Juan" />
         </div>
+        
         <div>
           <label htmlFor="lastName" className="block mb-2 text-sm font-medium text-gray-700">Last Name</label>
-          <InputText id="lastName" value={lastName} onChange={(e) => setLastName(e.target.value)} className="w-full p-inputtext-sm" placeholder="Dela Cruz" />
+          <InputText id="lastName" value={lastName} onChange={(e) => setLastName(e.target.value)} className="ring-0 w-full p-inputtext-sm p-2 rounded-md border border-gray-300" placeholder="Dela Cruz" />
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div>
           <label htmlFor="gender" className="block mb-2 text-sm font-medium text-gray-700">Gender</label>
-          <Dropdown id="gender" value={gender} options={genderOptions} onChange={(e) => setGender(e.value)} className="w-full p-inputtext-sm" placeholder="Select gender" />
+          <Dropdown 
+            id="gender" 
+            value={gender} 
+            options={genderOptions} 
+            onChange={(e) => setGender(e.value)} 
+            className="ring-0 w-full p-inputtext-sm p-2 font-medium rounded-md border  border-gray-300" 
+            inputStyle={{ color: 'red' }}
+          />
         </div>
         <div>
           <label htmlFor="birthDate" className="block mb-2 text-sm font-medium text-gray-700">Birth Date</label>
-          <Calendar id="birthDate" value={birthDate} onChange={(e) => setBirthDate(e.value)} className="w-full p-inputtext-sm" placeholder="Select date" />
+          <Calendar id="birthDate" value={birthDate} onChange={(e) => setBirthDate(e.value)} className="ring-0 w-full h-[52px] p-inputtext-sm p-2 rounded-md border bg-white border-gray-300" showIcon/>
         </div>
       </div>
 
       <div className="mb-4">
         <label htmlFor="contactNumber" className="block mb-2 text-sm font-medium text-gray-700">Contact Number</label>
-        <InputText id="contactNumber" value={contactNumber} onChange={(e) => setContactNumber(e.target.value)} className="w-full p-inputtext-sm" placeholder="+63 9" />
+        <InputText id="contactNumber" value={contactNumber} onChange={(e) => setContactNumber(e.target.value)} className="ring-0 w-1/2 p-inputtext-sm p-2 rounded-md border border-gray-300" placeholder="+63 9" />
       </div>
     </form>
   );

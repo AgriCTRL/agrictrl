@@ -6,7 +6,7 @@ import {
     Navigate
 } from "react-router-dom";
 
-import Register from "./Authentication/Registration/Register";
+import RegistrationPage from "./Authentication/Registration/RegistrationPage";
 import LandingPage from "./Landing/LandingPage";
 import UserHome from "./SMS/Admin/Home";
 import UserDashboard from "./SMS/Admin/Dashboard";
@@ -70,7 +70,7 @@ function App() {
         <div className="flex h-screen transition-transform duration-300">
             <Routes>
                 <Route path="/" element={<LandingPage />} /> 
-                <Route path="/register" element={registerAuth ? <Register onRegisterSuccess={handleRegisterSuccess} /> : <Navigate to="/admin" replace />} />
+                <Route path="/register" element={registerAuth ? <RegistrationPage onRegisterSuccess={handleRegisterSuccess} /> : <Navigate to="/admin" replace />} />
                 <Route path="/TnT" element={<TransactionHistory />} />
                 <Route path="/admin/*" element={<AdminRoutes />} />
                 <Route path="*" element={<Navigate to="/" replace />} />

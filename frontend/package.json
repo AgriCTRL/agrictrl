@@ -15,6 +15,7 @@
     "@dfinity/auth-client": "^1.4.0",
     "@dfinity/candid": "^1.4.0",
     "@dfinity/principal": "^1.4.0",
+    "date-fns": "^4.1.0",
     "frontend": "file:",
     "lucide-react": "^0.411.0",
     "primeicons": "^7.0.0",

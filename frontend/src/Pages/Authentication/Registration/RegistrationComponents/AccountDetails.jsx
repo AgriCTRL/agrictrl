@@ -22,7 +22,7 @@ const AccountDetails = () => {
   ];
 
   return (
-    <form className="h-full w-full p-10 bg-red-500">
+    <form className="h-full w-full p-10 ">
       <h2 className="text-2xl font-bold mb-2 text-teal-800">Account Details</h2>
       <p className="mb-6 text-gray-600">To set up your account, please select your user type first, then fill up the form, and upload a valid ID of your organization.</p>
       
