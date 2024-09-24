@@ -16,10 +16,17 @@ const PersonalInformation = () => {
     { label: 'Other', value: 'other' }
   ];
 
+  const handleContactNumberChange = (e) => {
+    const value = e.target.value;
+    if (/^\d{0,11}$/.test(value)) {
+      setContactNumber(value);
+    }
+  };
+
   return (
-    <form className="h-full w-full p-16">
+    <form className="h-full w-full px-16">
       <h2 className="text-4xl font-medium mb-6 text-secondary">Personal Information</h2>
-      <p className="mb-10 font-bold text-black">Please provide your basic details to get started.</p>
+      <p className="mb-10 font-medium text-black">Please provide your basic details to get started.</p>
       
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div>
@@ -41,8 +48,7 @@ const PersonalInformation = () => {
             value={gender} 
             options={genderOptions} 
             onChange={(e) => setGender(e.value)} 
-            className="ring-0 w-full p-inputtext-sm p-2 font-medium rounded-md border  border-gray-300" 
-            inputStyle={{ color: 'red' }}
+            className="ring-0 w-full p-inputtext-sm p-2 font-medium rounded-md border border-gray-300" 
           />
         </div>
         <div>
@@ -53,7 +59,7 @@ const PersonalInformation = () => {
 
       <div className="mb-4">
         <label htmlFor="contactNumber" className="block mb-2 text-sm font-medium text-gray-700">Contact Number</label>
-        <InputText id="contactNumber" value={contactNumber} onChange={(e) => setContactNumber(e.target.value)} className="ring-0 w-1/2 p-inputtext-sm p-2 rounded-md border border-gray-300" placeholder="+63 9" />
+        <InputText id="contactNumber" value={contactNumber} onChange={handleContactNumberChange} className="ring-0 w-1/2 p-inputtext-sm p-2 rounded-md border border-gray-300" placeholder="+63 9" type="tel"/>
       </div>
     </form>
   );
