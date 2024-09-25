@@ -1,14 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { FileUpload } from 'primereact/fileupload';
+import { useRegistration } from '../RegistrationContext';
 
 const AccountDetails = () => {
-  const [userType, setUserType] = useState(null);
-  const [organizationName, setOrganizationName] = useState('');
-  const [jobTitle, setJobTitle] = useState('');
-  const [region, setRegion] = useState(null);
-  const [branchOffice, setBranchOffice] = useState('');
+  const { registrationData, updateRegistrationData } = useRegistration();
+  const { userType, organizationName, jobTitle, region, branchOffice, validId, validIdName } = registrationData.accountDetails;
 
   const userTypeOptions = [
     { label: 'NFA Branch Staff', value: 'nfaBranchStaff' },
@@ -27,6 +25,21 @@ const AccountDetails = () => {
     { label: 'Office 3', value: 'office3' }
   ];
 
+  const handleInputChange = (field, value) => {
+    updateRegistrationData('accountDetails', { [field]: value });
+  };
+
+  const handleFileUpload = (event) => {
+    const file = event.files[0];
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64Data = reader.result;
+      handleInputChange('validId', base64Data);
+      handleInputChange('validIdName', file.name);
+    };
+    reader.readAsDataURL(file);
+  };
+
   return (
     <form className="h-full w-full px-16">
       <h2 className="text-4xl font-medium mb-2 text-secondary">Account Details</h2>
@@ -38,7 +51,7 @@ const AccountDetails = () => {
           id="userType" 
           value={userType} 
           options={userTypeOptions} 
-          onChange={(e) => setUserType(e.value)}
+          onChange={(e) => handleInputChange('userType', e.value)}
           placeholder="Select User Type" 
           className="ring-0 w-full p-inputtext-sm font-medium rounded-md border border-gray-300 "  
         />
@@ -49,7 +62,7 @@ const AccountDetails = () => {
         <InputText 
           id="organizationName" 
           value={organizationName} 
-          onChange={(e) => setOrganizationName(e.target.value)} 
+          onChange={(e) => handleInputChange('organizationName', e.value)} 
           placeholder="organization name" 
           className="ring-0 w-full p-inputtext-sm p-1 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-normal"           
         />
@@ -60,7 +73,7 @@ const AccountDetails = () => {
         <InputText 
           id="jobTitle" 
           value={jobTitle} 
-          onChange={(e) => setJobTitle(e.target.value)} 
+          onChange={(e) => handleInputChange('jobTitle', e.value)} 
           placeholder="job title" 
           className="ring-0 w-full p-inputtext-sm p-1 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-normal"           
         />
@@ -73,7 +86,7 @@ const AccountDetails = () => {
             id="region" 
             value={region} 
             options={regionOptions} 
-            onChange={(e) => setRegion(e.value)}
+            onChange={(e) => handleInputChange('region', e.value)}
             placeholder="Select Region" 
             className="ring-0 w-full p-inputtext-sm rounded-md border border-gray-300"
           />
@@ -84,7 +97,7 @@ const AccountDetails = () => {
             id="branchOffice" 
             value={branchOffice} 
             options={branchOfficeOptions} 
-            onChange={(e) => setBranchOffice(e.value)}
+            onChange={(e) => handleInputChange('branchOffice', e.value)}
             placeholder="Select Branch" 
             className="ring-0 w-full p-inputtext-sm rounded-md border border-gray-300"
           />
@@ -96,14 +109,14 @@ const AccountDetails = () => {
         <FileUpload 
           mode="basic" 
           name="validId" 
-          url="/api/upload" 
           accept="image/*" 
           maxFileSize={1000000} 
-          chooseLabel="Select Image" 
+          chooseLabel={validIdName || "Select Image"}  // Show file name or default label
           className="w-full h-24 ring-0 flex justify-center items-center border border-gray-300 rounded-md"
           chooseOptions={{
             className: 'bg-transparent text-primary flex flex-col items-center ring-0'
           }}
+          onSelect={handleFileUpload}
         />
       </div>
     </form>

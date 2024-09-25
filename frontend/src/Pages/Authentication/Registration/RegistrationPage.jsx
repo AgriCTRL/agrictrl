@@ -1,14 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from 'primereact/button';
 import { AuthClient } from "@dfinity/auth-client";
 import { useNavigate } from 'react-router-dom';
 import { Stepper, Step, StepLabel } from '@mui/material';
 import { CircleUserRound, Contact, SlidersVertical, CircleCheckBig } from 'lucide-react';
+import { Toast } from 'primereact/toast';
 
 import PersonalInformation from './RegistrationComponents/PersonalInformation';
 import AccountDetails from './RegistrationComponents/AccountDetails';
 import OfficeAddress from './RegistrationComponents/OfficeAddress';
 import Finishing from './RegistrationComponents/Finishing';
+import { RegistrationProvider, useRegistration } from './RegistrationContext';
 
 // Step configuration
 const steps = [
@@ -38,17 +40,13 @@ const CustomStepLabel = ({ icon, isActive }) => {
   );
 };
 
-const RegistrationPage = ({ onRegisterSuccess }) => {
+const RegistrationPageContent = ({ onRegisterSuccess }) => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const [principal, setPrincipal] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [position, setPosition] = useState('');
-  const [region, setRegion] = useState('');
-
   const [activeStep, setActiveStep] = useState(0);
-
   const navigate = useNavigate();
+  const { registrationData, updateRegistrationData } = useRegistration();
+  const toast = useRef(null);
 
   useEffect(() => {
     const fetchPrincipal = async () => {
@@ -60,35 +58,38 @@ const RegistrationPage = ({ onRegisterSuccess }) => {
     fetchPrincipal();
   }, []);
 
-  // Handle registration process
+  const handleRegister1 = (e) => {
+    e.preventDefault();
+    toast.current.show({severity: 'success', summary: 'Success', detail: 'Registration Successful!', life: 3000});
+    console.log('Registration Data:', registrationData);
+    navigate('/admin');
+    localStorage.removeItem('registrationData');
+  };
+
   const handleRegister = async (e) => {
     e.preventDefault();
     
-    if (!firstName || !lastName || !position || !region) {
-      alert('All fields are required.');
-      return;
-    }
-
-    const nfaPersonnel = {
-      principal,
-      firstName,
-      lastName,
-      position,
-      region,
-    };
     try {
       const res = await fetch(`${apiUrl}/nfapersonnels`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(nfaPersonnel),
+        body: JSON.stringify({
+          principal,
+          ...registrationData.personalInfo,
+          ...registrationData.accountDetails,
+          ...registrationData.officeAddress,
+          ...registrationData.finishingDetails
+        }),
       });
       if (!res.ok) {
         throw new Error('Error registering user');
       }
       onRegisterSuccess();
       navigate('/admin');
+      localStorage.removeItem('registrationData');
     } catch (error) {
       console.log(error.message);
+      toast.current.show({severity: 'error', summary: 'Error', detail: 'Registration failed. Please try again.', life: 3000});
     }
   };
 
@@ -103,13 +104,13 @@ const RegistrationPage = ({ onRegisterSuccess }) => {
   const renderStep = () => {
     switch (activeStep) {
       case 0:
-        return <PersonalInformation onNext={handleNext} />;
+        return <PersonalInformation />;
       case 1:
-        return <AccountDetails onNext={handleNext} />;
+        return <AccountDetails />;
       case 2:
-        return <OfficeAddress onNext={handleNext} />;
+        return <OfficeAddress />;
       case 3:
-        return <Finishing onNext={handleNext} />;
+        return <Finishing />;
       default:
         return null;
     }
@@ -117,7 +118,7 @@ const RegistrationPage = ({ onRegisterSuccess }) => {
 
   return (
     <div className="font-poppins flex h-screen w-screen bg-gray-100">
-      {/* Left side with stepper and background image */}
+      <Toast ref={toast} />
       <div className="md:flex md:w-[40%] relative">
         <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('Registration-leftBG.png')" }}>
           <div className="absolute inset-0 bg-gradient-to-t from-secondary via-[#00c26170] to-transparent"></div>
@@ -125,13 +126,12 @@ const RegistrationPage = ({ onRegisterSuccess }) => {
         <div className="relative w-full z-10 p-8 text-white">
           <h2 className="text-3xl font-bold mb-6 flex justify-center items-center drop-shadow-lg">Registration</h2>
           
-          {/* Vertical Stepper */}
           <Stepper orientation="vertical" activeStep={activeStep} className="mb-8 mt-12 ml-8">
             {steps.map(({ label, icon }, index) => (
               <Step key={label}>
                 <StepLabel StepIconComponent={() => <CustomStepLabel icon={icon} isActive={index === activeStep} />}>
                   <div className={`text-white transition-all ${index === activeStep ? 'text-lg font-semibold' : 'text-base'}`}>
-                    <span>Step {index + 1}</span><br />{/* Line break here */}
+                    <span>Step {index + 1}</span><br />
                     {label}
                   </div>
                 </StepLabel>
@@ -146,14 +146,11 @@ const RegistrationPage = ({ onRegisterSuccess }) => {
         </div>
       </div>
 
-      {/* Right side with form */}
       <div className="w-full md:w-2/3 p-8 flex flex-col justify-between relative">
-        {/* Form content */}
         <div className="flex-grow">
           {renderStep()}
         </div>
 
-        {/* Buttons at the bottom */}
         <div className="absolute bottom-16 left-32 right-24 flex justify-between m-2 p-2">
           <Button 
             className='border-2 border-secondary py-1 px-16 text-secondary transition duration-200 hover:bg-secondary hover:text-white ring-0' 
@@ -162,11 +159,10 @@ const RegistrationPage = ({ onRegisterSuccess }) => {
           <Button
             className='border-2 border-secondary py-1 px-16 text-secondary transition duration-200 hover:bg-secondary hover:text-white ring-0'
             label={activeStep === steps.length - 1 ? "Submit" : "Next"}
-            onClick={activeStep === steps.length - 1 ? handleRegister : handleNext}
+            onClick={activeStep === steps.length - 1 ? handleRegister1 : handleNext}
           />
         </div>
 
-        {/* Login Here text */}
         <div className="absolute bottom-4 left-0 right-0 flex justify-center p-4">
           <p className="text-center">Login Here</p>
         </div>
@@ -174,5 +170,11 @@ const RegistrationPage = ({ onRegisterSuccess }) => {
     </div>
   );
 };
+
+const RegistrationPage = (props) => (
+  <RegistrationProvider>
+    <RegistrationPageContent {...props} />
+  </RegistrationProvider>
+);
 
 export default RegistrationPage;

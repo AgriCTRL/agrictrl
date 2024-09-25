@@ -1,14 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { Calendar } from 'primereact/calendar';
+import { useRegistration } from '../RegistrationContext';
 
 const PersonalInformation = () => {
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [gender, setGender] = useState(null);
-  const [birthDate, setBirthDate] = useState(null);
-  const [contactNumber, setContactNumber] = useState('');
+  const { registrationData, updateRegistrationData } = useRegistration();
+  const { firstName, lastName, gender, birthDate, contactNumber } = registrationData.personalInfo;
 
   const genderOptions = [
     { label: 'Male', value: 'male' },
@@ -16,10 +14,14 @@ const PersonalInformation = () => {
     { label: 'Other', value: 'other' }
   ];
 
+  const handleInputChange = (field, value) => {
+    updateRegistrationData('personalInfo', { [field]: value });
+  };
+
   const handleContactNumberChange = (e) => {
     const value = e.target.value;
     if (/^\d{0,11}$/.test(value)) {
-      setContactNumber(value);
+      handleInputChange('contactNumber', value);
     }
   };
 
@@ -33,7 +35,8 @@ const PersonalInformation = () => {
           <label htmlFor="firstName" className="block mb-2 text-sm font-medium text-gray-700">First Name</label>
           <InputText 
             id="firstName" 
-            value={firstName} onChange={(e) => setFirstName(e.target.value)} 
+            value={firstName} 
+            onChange={(e) => handleInputChange('firstName', e.target.value)} 
             className="ring-0 w-full p-inputtext-sm p-4 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium" 
             placeholder="first name" />
         </div>
@@ -42,7 +45,8 @@ const PersonalInformation = () => {
           <label htmlFor="lastName" className="block mb-2 text-sm font-medium text-gray-700">Last Name</label>
           <InputText 
             id="lastName" 
-            value={lastName} onChange={(e) => setLastName(e.target.value)} 
+            value={lastName} 
+            onChange={(e) => handleInputChange('lastName', e.target.value)} 
             className="ring-0 w-full p-inputtext-sm p-4 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium" 
             placeholder="last name" />
         </div>
@@ -55,7 +59,7 @@ const PersonalInformation = () => {
             id="gender" 
             value={gender} 
             options={genderOptions} 
-            onChange={(e) => setGender(e.value)}
+            onChange={(e) => handleInputChange('gender', e.value)}
             placeholder="Select Gender"
             className="ring-0 w-full p-inputtext-md p-2 font-medium rounded-md border border-gray-300" 
           />
@@ -64,7 +68,8 @@ const PersonalInformation = () => {
           <label htmlFor="birthDate" className="block mb-2 text-sm font-medium text-gray-700">Birth Date</label>
           <Calendar 
             id="birthDate" 
-            value={birthDate} onChange={(e) => setBirthDate(e.value)}
+            value={birthDate} 
+            onChange={(e) => handleInputChange('birthDate', e.value)}
             placeholder="MM/DD/YYYY" 
             className="ring-0 w-full h-[58px] p-inputtext-sm p-2 rounded-md border bg-white border-gray-300 placeholder:text-gray-500 placeholder:font-medium" 
             showIcon/>
@@ -75,7 +80,8 @@ const PersonalInformation = () => {
         <label htmlFor="contactNumber" className="block mb-2 text-sm font-medium text-gray-700">Contact Number</label>
         <InputText 
           id="contactNumber" 
-          value={contactNumber} onChange={handleContactNumberChange} 
+          value={contactNumber} 
+          onChange={handleContactNumberChange} 
           className="ring-0 w-1/2 p-inputtext-sm p-4 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium" 
           placeholder="+63 9" 
           type="tel"/>

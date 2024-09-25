@@ -1,13 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
+import { useRegistration } from '../RegistrationContext';
 
 const OfficeAddress = () => {
-  const [region, setRegion] = useState(null);
-  const [province, setProvince] = useState(null);
-  const [cityTown, setCityTown] = useState('');
-  const [barangay, setBarangay] = useState(null);
-  const [street, setStreet] = useState('');
+  const { registrationData, updateRegistrationData } = useRegistration();
+  const { region, province, cityTown, barangay, street } = registrationData.officeAddress;
 
   const regionOptions = [
     { label: 'Region 1', value: 'region1' },
@@ -33,6 +31,10 @@ const OfficeAddress = () => {
     { label: 'Barangay 3', value: 'barangay3' }
   ];
 
+  const handleInputChange = (field, value) => {
+    updateRegistrationData('officeAddress', { [field]: value });
+  };
+
   return (
     <form className="h-full w-full px-16">
       <h2 className="text-4xl font-medium mb-2 text-secondary">Office Address</h2>
@@ -45,7 +47,7 @@ const OfficeAddress = () => {
             id="region" 
             value={region} 
             options={regionOptions} 
-            onChange={(e) => setRegion(e.value)}
+            onChange={(e) => handleInputChange('region', e.target.value)}
             placeholder="Select a province" 
             className="ring-0 w-full p-inputtext-md p-2 font-medium rounded-md border border-gray-300" />
         </div>
@@ -59,7 +61,7 @@ const OfficeAddress = () => {
             id="province" 
             value={province} 
             options={provinceOptions} 
-            onChange={(e) => setProvince(e.value)}
+            onChange={(e) => handleInputChange('province', e.target.value)}
             placeholder="Select a province" 
             className="ring-0 w-full p-inputtext-md p-2 font-medium rounded-md border border-gray-300"/>
         </div>
@@ -67,11 +69,11 @@ const OfficeAddress = () => {
         <div>
           <label htmlFor="cityTown" className="block mb-2 text-sm font-medium text-gray-700">City / Town</label>
           <Dropdown 
-            id="province" 
+            id="cityTown" 
             value={cityTown} 
             options={cityOptions} 
-            onChange={(e) => setCityTown(e.value)} 
-            placeholder="Select a province" 
+            onChange={(e) => handleInputChange('cityTown', e.target.value)}
+            placeholder="Select a city" 
             className="ring-0 w-full p-inputtext-md p-2 font-medium rounded-md border border-gray-300"/>
         </div>
       </div>
@@ -83,7 +85,7 @@ const OfficeAddress = () => {
             id="barangay" 
             value={barangay} 
             options={barangayOptions} 
-            onChange={(e) => setBarangay(e.value)} 
+            onChange={(e) => handleInputChange('barangay', e.target.value)} 
             placeholder="Select a barangay" 
             className="ring-0 w-full p-inputtext-md p-2 font-medium rounded-md border border-gray-300"/>
         </div>
@@ -93,7 +95,7 @@ const OfficeAddress = () => {
           <InputText 
             id="street" 
             value={street} 
-            onChange={(e) => setStreet(e.target.value)} 
+            onChange={(e) => handleInputChange('street', e.target.value)} 
             className="ring-0 w-full p-inputtext-sm p-4 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium" 
             placeholder="#123 Sample Street" />
         </div>

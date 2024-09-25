@@ -1,11 +1,15 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { InputText } from 'primereact/inputtext';
 import CustomPasswordInput from '../../../../Components/Form/PasswordComponent';
+import { useRegistration } from '../RegistrationContext';
 
 const Finishing = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const { registrationData, updateRegistrationData } = useRegistration();
+  const { email, password, confirmPassword } = registrationData.finishingDetails;
+
+  const handleInputChange = (field, value) => {
+    updateRegistrationData('finishingDetails', { [field]: value });
+  };
 
   return (
     <form className="h-full w-full px-16">
@@ -18,7 +22,7 @@ const Finishing = () => {
           id="email" 
           type="email" 
           value={email} 
-          onChange={(e) => setEmail(e.target.value)} 
+          onChange={(e) => handleInputChange('email', e.target.value)}  
           placeholder="Enter your email" 
           className="ring-0 w-full p-inputtext-sm p-4 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
         />
@@ -29,7 +33,7 @@ const Finishing = () => {
         <CustomPasswordInput 
           id="password" 
           value={password} 
-          onChange={(e) => setPassword(e.target.value)} 
+          onChange={(e) => handleInputChange('password', e.target.value)} 
           placeholder="Enter your password" 
           className="ring-0 w-full p-inputtext-sm p-4 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
         />
@@ -40,7 +44,7 @@ const Finishing = () => {
         <CustomPasswordInput 
           id="confirmPassword" 
           value={confirmPassword} 
-          onChange={(e) => setConfirmPassword(e.target.value)} 
+          onChange={(e) => handleInputChange('confirmPassword', e.target.value)}  
           placeholder="Confirm your password" 
           className="ring-0 w-full p-inputtext-sm p-4 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
         />
