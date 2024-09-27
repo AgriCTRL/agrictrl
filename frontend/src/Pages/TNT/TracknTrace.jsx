@@ -8,7 +8,7 @@ import { InputText } from 'primereact/inputtext';
 import { AlertCircle, Search, Wheat, ThermometerSun, Factory, WheatOff, ArrowLeftToLine } from 'lucide-react';
 import emptyIllustration from '@/images/illustrations/space.svg';
 
-const TransactionHistory = () => {
+const TracknTrace = () => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const [transactions, setTransactions] = useState([]);
   const [filteredTransactions, setFilteredTransactions] = useState([]);
@@ -273,4 +273,4 @@ const TransactionHistory = () => {
   );
 };
 
-export default TransactionHistory;
+export default TracknTrace;

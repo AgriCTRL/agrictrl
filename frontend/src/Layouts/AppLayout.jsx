@@ -8,8 +8,12 @@ function UserLayout({ children }) {
     const identityUrl = import.meta.env.VITE_INTERNET_IDENTITY_URL;
     const navigate = useNavigate();
 
-    const handleHistoryClick = () => {
+    const handleTnTClick = () => {
         navigate('/TnT');
+    }
+
+    const loginButton1 = () => {
+        navigate('/login');
     }
 
     const loginButton = async () => {   
@@ -51,11 +55,11 @@ function UserLayout({ children }) {
                             {/* <a href="#" className="text-[#00C261] underline underline-offset-4 font-bold mx-6">Home</a> */}
                             <ScrollLink to="featureSection" smooth={true} duration={500} className="tracking-wider mx-6 cursor-pointer hover:text-[#00C261] hover:underline hover:underline-offset-4 hover:font-bold">Services</ScrollLink>
                             <ScrollLink to="offerSection" smooth={true} duration={500} className="tracking-wider mx-6 cursor-pointer hover:text-[#00C261] hover:underline hover:underline-offset-4 hover:font-bold">About Us</ScrollLink>
-                            <button onClick={handleHistoryClick}>
+                            <button onClick={handleTnTClick}>
                                 <Search className="h-6 w-6 mx-6 hover:text-[#00C261] hover:underline hover:underline-offset-4 hover:font-bold"/>
                             </button>
                             
-                            <button onClick={ loginButton } className="bg-gradient-to-r from-[#005155] to-[#00C261] px-20 py-3 rounded-lg ml-2 mr-20">Login</button>
+                            <button onClick={ loginButton1 } className="bg-gradient-to-r from-[#005155] to-[#00C261] px-20 py-3 rounded-lg ml-2 mr-20">Login</button>
                         </nav>
                     </div>
                 </header>
