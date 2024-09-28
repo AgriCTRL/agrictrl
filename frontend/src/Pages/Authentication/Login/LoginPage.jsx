@@ -25,10 +25,15 @@ const LoginPage = () => {
     navigate('/register');
   }
 
+	const forgotButton = (e) => {
+		e.preventDefault();   
+    navigate('/forgotpassword');
+  }
+
   return (
     <div className="h-screen w-screen flex flex-row">
-      {/* Left side Login form */}
-      <div className="flex flex-col items-center justify-between h-full w-[45%] bg-white p-8">
+      {/* Left side */}
+      <div className="flex flex-col items-center justify-between h-full w-[45%] p-8">
         <h1 className="text-3xl font-bold bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent mb-6">Login</h1>
 
         <p className="text-md font-medium text-black mb-6">Login by providing your user type and user credentials</p>
@@ -81,7 +86,7 @@ const LoginPage = () => {
 							<input type="checkbox" id="remember" className="mr-2" />
 							<label htmlFor="remember" className="text-sm font-medium text-primary">Remember Me</label>
 						</div>
-						<a href="#" className="text-sm font-medium text-primary hover:underline">Forgot Password</a>
+						<a href="#" onClick={forgotButton} className="text-sm font-medium text-primary hover:underline">Forgot Password</a>
 					</div>
 
 					<Button 
@@ -92,12 +97,12 @@ const LoginPage = () => {
         
         <div className="mt-6 text-center">
           <span className="text-sm font-medium text-black">No Account? </span>
-          <a href="#" onClick={RegisterButton} className="text-sm font-medium text-green-600 hover:underline">Register here</a>
+          <a href="#" onClick={RegisterButton} className="text-sm font-medium text-primary hover:underline">Register here</a>
         </div>
       </div>
 
-      {/* Right side CTRL with Links */}
-			<div className="flex flex-col justify-between h-full w-[55%] bg-green-700 p-8 text-white relative">
+      {/* Right side */}
+			<div className="flex flex-col justify-between h-full w-[55%] p-8 text-white relative">
 				{/* Background Image */}
 				<div 
 					className="absolute inset-0 bg-cover bg-center z-0" 

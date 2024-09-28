@@ -110,10 +110,13 @@ const RegistrationPageContent = ({ onRegisterSuccess }) => {
   return (
     <div className="font-poppins flex h-screen w-screen bg-gray-100">
       <Toast ref={toast} />
+
+      {/* Left Side */}
       <div className="md:flex md:w-[40%] relative">
         <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('Registration-leftBG.png')" }}>
           <div className="absolute inset-0 bg-gradient-to-t from-secondary via-[#00c26170] to-transparent"></div>
         </div>
+
         <div className="relative w-full z-10 p-8 text-white">
           <h2 className="text-3xl font-bold mb-6 flex justify-center items-center drop-shadow-lg">Registration</h2>
           
@@ -137,6 +140,7 @@ const RegistrationPageContent = ({ onRegisterSuccess }) => {
         </div>
       </div>
 
+      {/* Right Side */}
       <div className="w-full md:w-2/3 p-8 flex flex-col justify-between relative">
         <div className="flex-grow">
           {renderStep()}
@@ -156,7 +160,7 @@ const RegistrationPageContent = ({ onRegisterSuccess }) => {
 
         <div className="mt-6 text-center">
           <span className="text-sm text-gray-600">Already have an account? </span>
-          <a href="#" onClick={LoginButton} className="text-sm text-primary hover:underline">Login here</a>
+          <a onClick={LoginButton} className="text-sm text-primary hover:underline">Login here</a>
         </div>
       </div>
     </div>

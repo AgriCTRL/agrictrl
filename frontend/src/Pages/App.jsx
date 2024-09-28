@@ -8,8 +8,10 @@ import {
 
 import LandingPage from "./Landing/LandingPage";
 import TracknTrace from "./TNT/TracknTrace";
+
 import RegistrationPage from "./Authentication/Registration/RegistrationPage";
 import LoginPage from "./Authentication/Login/LoginPage";
+import ForgotPassword from "./Authentication/Forgot Password/ForgotPassword";
 
 import AdminHome from "./SMS/Admin/Home";
 import AdminDashboard from "./SMS/Admin/Dashboard";
@@ -25,6 +27,7 @@ function App() {
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/register" element={<RegistrationPage />} />
                 <Route path="/login" element={<LoginPage />} />
+                <Route path="/forgotpassword" element={<ForgotPassword />} />
                 <Route path="/TnT" element={<TracknTrace />} />
                 <Route path="/admin/*" element={<AdminRoutes />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
