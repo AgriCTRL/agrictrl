@@ -15,21 +15,21 @@ const OfferSection = () => {
                     <h2 className="text-5xl font-bold mb-10">Mission</h2>
                     <div className="space-y-6">
                         <div className="flex items-start space-x-4">
-                            <Wheat className="text-[#00C261] h-12 w-12 -translate-y-2"/>
+                            <Wheat className="text-primary h-12 w-12 -translate-y-2"/>
                             <div>
                                 <h3 className="font-semibold text-green-400">Consumers</h3>
                                 <p className="text-gray-300 text-xl">Increase consumer confidence for rice that they purchase.</p>
                             </div>
                         </div>
                         <div className="flex items-start space-x-4">
-                            <Sprout className="text-[#00C261] h-12 w-12 -translate-y-2"/>
+                            <Sprout className="text-primary h-12 w-12 -translate-y-2"/>
                             <div>
                                 <h3 className="font-semibold text-green-400">Farmers</h3>
                                 <p className="text-gray-300 text-xl">Improve fair trade for farmers.</p>
                             </div>
                         </div>
                         <div className="flex items-start space-x-4">
-                            <Microwave className="text-[#00C261] h-12 w-12 -translate-y-2"/>
+                            <Microwave className="text-primary h-12 w-12 -translate-y-2"/>
                             <div>
                                 <h3 className="font-semibold text-green-400">Regulators</h3>
                                 <p className="text-gray-300 text-xl">Help the regulators for data driven decision and policy making.</p>
@@ -51,7 +51,7 @@ const OfferSection = () => {
                         <div className="absolute rounded-xl inset-[2px] z-20 flex justify-center items-center">
                             <img src="Landing-Offer-Farmer1.png" alt="Centered" className="h-full rounded-xl object-cover" />
                         </div>
-                        <div className="absolute rounded-xl inset-0 bg-gradient-to-t from-[#00C261] to-black/5 z-10"></div>
+                        <div className="absolute rounded-xl inset-0 bg-gradient-to-t from-primary to-black/5 z-10"></div>
                     </div>
 
                     {/* Farmer 2 */}
@@ -60,7 +60,7 @@ const OfferSection = () => {
                         <div className="absolute rounded-xl inset-[2px] z-20 flex justify-center items-center">
                             <img src="Landing-Offer-Farmer2.png" alt="Centered" className="h-full w-full rounded-xl object-cover" />
                         </div>
-                        <div className="absolute rounded-xl inset-0 bg-gradient-to-t from-[#00C261] to-black/5 z-10"></div>
+                        <div className="absolute rounded-xl inset-0 bg-gradient-to-t from-primary to-black/5 z-10"></div>
                     </div>
 
                     {/* Farmer 3 */}
@@ -69,7 +69,7 @@ const OfferSection = () => {
                         <div className="absolute rounded-xl inset-[2px] z-20 flex justify-center items-center">
                             <img src="Landing-Offer-Farmer3.png" alt="Centered" className="h-full w-full rounded-xl object-cover" />
                         </div>
-                        <div className="absolute rounded-xl inset-0 bg-gradient-to-t from-[#00C261] to-black/5 z-10"></div>
+                        <div className="absolute rounded-xl inset-0 bg-gradient-to-t from-primary to-black/5 z-10"></div>
                     </div>
                 </div>
             </div>

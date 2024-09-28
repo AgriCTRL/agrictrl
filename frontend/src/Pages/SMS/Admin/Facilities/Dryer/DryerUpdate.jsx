@@ -120,7 +120,7 @@ function DryerUpdate({ visible, onHide, selectedDryer, onUpdateDryer }) {
                     {renderDropdownField('Status', 'status', status, statusOptions, 'Select status', (e) => setStatus(e.value))}
 
                     <div className="flex justify-center mt-4">
-                        <Button label="Update" disabled={isSubmitting} className="p-button-success border p-2 px-5 text-white font-bold bg-gradient-to-r from-[#00C261] to-[#005155]" />
+                        <Button label="Update" disabled={isSubmitting} className="p-button-success border p-2 px-5 text-white font-bold bg-gradient-to-r from-primary to-secondary" />
                     </div>
                 </form>
             </div>

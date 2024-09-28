@@ -239,14 +239,14 @@ const Tracking = () => {
   };
 
   const batchIdHeader = () => (
-    <div className="ml-4 flex items-center p-2 text-[#00C261]">
+    <div className="ml-4 flex items-center p-2 text-primary">
       <Wheat className="mr-2 h-5 w-5"/>
       <span className="text-md">Batch ID</span>
     </div>
   );
 
   const statusHeader = () => (
-    <div className="flex items-center text-[#00C261]">
+    <div className="flex items-center text-primary">
       <Factory className="mr-2 h-5 w-5"/>
       <span className="text-md">Status</span>
     </div>
@@ -257,17 +257,17 @@ const Tracking = () => {
       <div className="px-4 w-full h-full bg-[#F1F5F9]">
         <div className="mb-4">
           <span className="p-input-icon-left w-full"> 
-            <Search className="ml-3 -translate-y-1 text-[#00C261]" />
+            <Search className="ml-3 -translate-y-1 text-primary" />
             <InputText
               type="search"
               onInput={(e) => setGlobalFilter(e.target.value)}
               placeholder="Search"
-              className="w-full pl-10 pr-4 py-4 rounded-lg placeholder-[#00C261] text-[#00C261] border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="w-full pl-10 pr-4 py-4 rounded-lg placeholder-primary text-primary border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
             />
           </span>
         </div>
 
-        <div className="bg-gradient-to-r from-[#005155] to-[#00C261] rounded-lg p-4 mb-4">
+        <div className="bg-gradient-to-r from-secondary to-primary rounded-lg p-4 mb-4">
           <div className="flex justify-between items-center px-20">
             {statuses.map((status) => (
               <div 
@@ -276,7 +276,7 @@ const Tracking = () => {
                 onClick={() => setSelectedStatus(selectedStatus?.toLowerCase() === status.toLowerCase() ? null : status)}
               >
                 <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center mb-2">
-                  <Search className="text-[#00C261]" />
+                  <Search className="text-primary" />
                 </div>
                 <div className="text-sm text-white capitalize">{status}</div>
               </div>

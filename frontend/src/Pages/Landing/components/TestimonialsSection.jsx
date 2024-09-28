@@ -44,8 +44,8 @@ const TestimonialsSection = () => {
             <div className="container mx-auto px-4">
                 <div className="flex flex-col justify-center items-center">
                     <div className="flex items-center mb-8">
-                        <Wheat className="text-[#00C261] h-5 w-5" />
-                        <span className="text-[#00C261] font-semibold ml-2">Testimonials</span>
+                        <Wheat className="text-primary h-5 w-5" />
+                        <span className="text-primary font-semibold ml-2">Testimonials</span>
                     </div>
                     <h2 className="text-4xl text-[#444444] font-bold mb-12">What They Say to AgriCTRL+</h2>
                 </div>
@@ -60,8 +60,8 @@ const TestimonialsSection = () => {
                         showIndicators={true}
                         className="z-50"
                         ref={carouselRef}
-                        prevIcon={<MoveLeft className="h-6 w-6 text-[#00C261]" />}
-                        nextIcon={<MoveRight className="h-6 w-6 text-[#00C261]" />}
+                        prevIcon={<MoveLeft className="h-6 w-6 text-primary" />}
+                        nextIcon={<MoveRight className="h-6 w-6 text-primary" />}
                         itemTemplate={(item) => (
                             <div className="bg-white rounded-lg shadow-lg p-8 my-5 mx-28">
                                 <div className="flex items-center mb-4">

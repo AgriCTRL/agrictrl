@@ -201,7 +201,7 @@ const TracknTrace = () => {
     const navigate = useNavigate();
 
     return(
-      <div className='flex flex-row p-6 rounded-lg mb-5 bg-gradient-to-r from-[#005155] to-[#00C261]'>
+      <div className='flex flex-row p-6 rounded-lg mb-5 bg-gradient-to-r from-secondary to-primary'>
         <button onClick={() => navigate(-1)} className="flex items-center text-white">
           <ArrowLeftToLine className="w-6 h-6 mr-2 text-white"/>
           Go back
@@ -214,14 +214,14 @@ const TracknTrace = () => {
   };
 
   const riceIDHeader = () => (
-    <div className="ml-4 flex items-center p-2 text-[#00C261]">
+    <div className="ml-4 flex items-center p-2 text-primary">
       <Wheat className="mr-2 h-5 w-5"/>
       <span className="text-md">Rice ID</span>
     </div>
   );
 
   const statusHeader = () => (
-    <div className="flex items-center text-[#00C261]">
+    <div className="flex items-center text-primary">
       <Factory className="mr-2 h-5 w-5"/>
       <span className="text-md">Status</span>
     </div>
@@ -236,12 +236,12 @@ const TracknTrace = () => {
       <Header />
       <div className="mb-4">
         <span className="p-input-icon-left w-full"> 
-          <Search className="ml-3 -translate-y-1 text-[#00C261]" />
+          <Search className="ml-3 -translate-y-1 text-primary" />
           <InputText
             value={globalFilter}
             onChange={(e) => setGlobalFilter(e.target.value)}
             placeholder="Search by Rice ID"
-            className="pl-10 pr-4 py-4 rounded-lg placeholder-[#00C261] text-[#00C261] w-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="pl-10 pr-4 py-4 rounded-lg placeholder-primary text-primary w-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
           />
         </span>
       </div>

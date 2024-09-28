@@ -78,7 +78,8 @@ const RegistrationPageContent = ({ onRegisterSuccess }) => {
     }
   };
 
-  const LoginButton = (e) => {   
+  const LoginButton = (e) => {  
+    localStorage.removeItem('registrationData'); 
     e.preventDefault();
     navigate('/login');
   }

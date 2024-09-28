@@ -64,7 +64,7 @@ const HeroSection = () => {
                             blockchain-powered traceability.
                         </p>
                         <div className='flex flex-row'>
-                            <button className="bg-[#00C261] px-10 text-white font-bold rounded-lg flex justify-items-center items-center"
+                            <button className="bg-primary px-10 text-white font-bold rounded-lg flex justify-items-center items-center"
                                     onClick={loginButton1}>
                                 Get Started
                                 <Wheat className="h-5 w-5 mx-3"/>
