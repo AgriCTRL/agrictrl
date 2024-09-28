@@ -7,30 +7,30 @@ const features = [
         title: 'AgriCTRL+TnT',
         subtitle: '(Track ‘n Trace App)',
         description: 'Increasing consumer confidence for the bigas that they purchase. Ensuring transparency and traceability in the rice supply chain. Consumers can make informed choices about the rice they bought, knowing its origin and quality.',
-        icon: <Bean className="text-[#00C261] h-12 w-12" />,
+        icon: <Bean className="text-primary h-12 w-12" />,
     },
     {
         title: 'AgriCTRL+SMS',
         subtitle: '(Supply Chain Management Software)',
         description: 'Building resilient infrastructure, promoting inclusive and sustainable industrialization, and fostering innovation. The platform provides a modern and efficient way to manage agricultural data and the rice supply chain, contributing to the digital transformation of the agricultural sector.',
-        icon: <Link className="text-[#00C261] h-12 w-12" />,
+        icon: <Link className="text-primary h-12 w-12" />,
     },
     {
         title: 'AgriCTRL+ eCommerce',
         subtitle: '',
         description: 'Ensuring that farmers receive fair compensation for their produce. By improving market access and providing better pricing for their harvest.',
-        icon: <ShoppingBasket className="text-[#00C261] h-12 w-12" />,
+        icon: <ShoppingBasket className="text-primary h-12 w-12" />,
     },
     {
         title: 'AgriCTRL+ MIC ',
         subtitle: '(Micro Insurance for Crops)',
         description: 'Protecting our farmers na nasa laylayan. By offering them affordable, accessible and mabilis na Smart Contract-based insurance for their crops.',
-        icon: <ShieldPlus className="text-[#00C261] h-12 w-12" />,
+        icon: <ShieldPlus className="text-primary h-12 w-12" />,
     },
     {
         title: 'AgriCTRL+ Finance',
         description: 'Offering capital to our local farmer, in the form of NFT crowdfunding.',
-        icon: <HandCoins className="text-[#00C261] h-12 w-12" />,
+        icon: <HandCoins className="text-primary h-12 w-12" />,
     },
 ];
 
@@ -60,42 +60,42 @@ const FeatureSection = () => {
                             >
                             </div>
                             <div className="h-36 w-32 ml-10 my-2 shadow-lg border rounded-lg flex flex-col items-center justify-center">
-                                <Search className="h-10 w-10 mx-6 my-2 text-[#00C261]"/>
-                                <p className="text-[#00C261] font-bold">Farmer</p>
+                                <Search className="h-10 w-10 mx-6 my-2 text-primary"/>
+                                <p className="text-primary font-bold">Farmer</p>
                             </div>
                             <div className="h-36 w-32 shadow-lg border rounded-lg flex flex-col items-center justify-center translate-y-20">
-                                <Search className="h-10 w-10 mx-6 my-2 text-[#00C261]"/>
-                                <p className="text-[#00C261] font-bold">Palay</p>
+                                <Search className="h-10 w-10 mx-6 my-2 text-primary"/>
+                                <p className="text-primary font-bold">Palay</p>
                             </div>
                             <div className="h-36 w-32 mr-10 shadow-lg border rounded-lg flex flex-col items-center justify-center">
-                                <Search className="h-10 w-10 mx-6 my-2 text-[#00C261]"/>
-                                <p className="text-[#00C261] font-bold">Price</p>
+                                <Search className="h-10 w-10 mx-6 my-2 text-primary"/>
+                                <p className="text-primary font-bold">Price</p>
                             </div>
                             <div className="h-36 w-32 ml-10 shadow-lg border rounded-lg flex flex-col items-center justify-center">
-                                <Search className="h-10 w-10 mx-6 my-2 text-[#00C261]"/>
-                                <p className="text-[#00C261] font-bold">Delivery</p>
-                                <p className="text-[#00C261] font-bold">Bigas</p>
+                                <Search className="h-10 w-10 mx-6 my-2 text-primary"/>
+                                <p className="text-primary font-bold">Delivery</p>
+                                <p className="text-primary font-bold">Bigas</p>
                             </div>
                             <div className="h-36 w-32 border shadow-lg rounded-lg flex flex-col items-center justify-center translate-y-20">
-                                <Search className="h-10 w-10 mx-6 my-2 text-[#00C261]"/>
-                                <p className="text-[#00C261] font-bold">Track</p>
-                                <p className="text-[#00C261] font-bold">Trace</p>
+                                <Search className="h-10 w-10 mx-6 my-2 text-primary"/>
+                                <p className="text-primary font-bold">Track</p>
+                                <p className="text-primary font-bold">Trace</p>
                             </div>
                             <div className="h-36 w-32 mr-10 my-5 shadow-lg border rounded-lg flex flex-col items-center justify-center">
-                                <Search className="h-10 w-10 mx-6 my-2 text-[#00C261]"/>
-                                <p className="text-[#00C261] font-bold">Kanin</p>
+                                <Search className="h-10 w-10 mx-6 my-2 text-primary"/>
+                                <p className="text-primary font-bold">Kanin</p>
                             </div>
                             <div className="h-36 w-32 ml-10 shadow-lg border rounded-lg flex flex-col items-center justify-center">
-                                <Search className="h-10 w-10 mx-6 my-2 text-[#00C261]"/>
-                                <p className="text-[#00C261] font-bold">Miller</p>
+                                <Search className="h-10 w-10 mx-6 my-2 text-primary"/>
+                                <p className="text-primary font-bold">Miller</p>
                             </div>
                             <div className="h-36 w-32 border shadow-lg rounded-lg flex flex-col items-center justify-center translate-y-20">
-                                <Search className="h-10 w-10 mx-6 my-2 text-[#00C261]"/>
-                                <p className="text-[#00C261] font-bold">Dryer</p>
+                                <Search className="h-10 w-10 mx-6 my-2 text-primary"/>
+                                <p className="text-primary font-bold">Dryer</p>
                             </div>
                             <div className="h-36 w-32 mr-10 shadow-lg border rounded-lg flex flex-col items-center justify-center">
-                                <Search className="h-10 w-10 mx-6 my-2 text-[#00C261]"/>
-                                <p className="text-[#00C261] font-bold">Transparent</p>
+                                <Search className="h-10 w-10 mx-6 my-2 text-primary"/>
+                                <p className="text-primary font-bold">Transparent</p>
                             </div>
                             <div 
                                 className="absolute inset-0 z-10 pointer-events-none translate-y-80" 
@@ -111,8 +111,8 @@ const FeatureSection = () => {
                     {/* Right side: Features Section */}
                     <div>
                         <div className="flex flex-row py-5">
-                            <Wheat className="text-[#00C261] h-10 w-10 mr-2"/>
-                            <h2 className="text-4xl  text-[#00C261] font-bold">Features of AgriCTRL+</h2>
+                            <Wheat className="text-primary h-10 w-10 mr-2"/>
+                            <h2 className="text-4xl  text-primary font-bold">Features of AgriCTRL+</h2>
                         </div>
 
                         <div className="flex flex-col pb-5">

@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from 'primereact/button';
-import { AuthClient } from "@dfinity/auth-client";
 import { useNavigate } from 'react-router-dom';
 import { Stepper, Step, StepLabel } from '@mui/material';
 import { CircleUserRound, Contact, SlidersVertical, CircleCheckBig } from 'lucide-react';
@@ -23,14 +22,12 @@ const steps = [
 const CustomStepLabel = ({ icon, isActive }) => {
   return (
     <div 
-      className={`
-        flex items-center justify-center -translate-x-3
-        w-12 h-12 rounded-full transition-all
-        ${isActive 
-          ? 'bg-white text-secondary scale-110' 
-          : 'bg-transparent text-white border-2 border-white'
-        }
-      `}
+      className={`flex items-center justify-center -translate-x-3
+                  w-12 h-12 rounded-full transition-all
+                  ${isActive 
+                    ? 'bg-white text-secondary scale-110' 
+                    : 'bg-transparent text-white border-2 border-white'
+                  }`}
     >
       {React.cloneElement(icon, { 
         size: isActive ? 28 : 24,
@@ -42,25 +39,14 @@ const CustomStepLabel = ({ icon, isActive }) => {
 
 const RegistrationPageContent = ({ onRegisterSuccess }) => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
-  const [principal, setPrincipal] = useState('');
   const [activeStep, setActiveStep] = useState(0);
   const navigate = useNavigate();
-  const { registrationData, updateRegistrationData } = useRegistration();
+  const { registrationData } = useRegistration();
   const toast = useRef(null);
-
-  useEffect(() => {
-    const fetchPrincipal = async () => {
-      const authClient = await AuthClient.create();
-      const identity = authClient.getIdentity();
-      const principal = identity.getPrincipal().toText();
-      setPrincipal(principal);
-    };
-    fetchPrincipal();
-  }, []);
 
   const handleRegister1 = (e) => {
     e.preventDefault();
-    toast.current.show({severity: 'success', summary: 'Success', detail: 'Registration Successful!', life: 3000});
+    toast.current.show({ severity: 'success', summary: 'Success', detail: 'Registration Successful!', life: 3000 });
     console.log('Registration Data:', registrationData);
     navigate('/admin');
     localStorage.removeItem('registrationData');
@@ -68,13 +54,12 @@ const RegistrationPageContent = ({ onRegisterSuccess }) => {
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    
+
     try {
       const res = await fetch(`${apiUrl}/nfapersonnels`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          principal,
           ...registrationData.personalInfo,
           ...registrationData.accountDetails,
           ...registrationData.officeAddress,
@@ -89,9 +74,15 @@ const RegistrationPageContent = ({ onRegisterSuccess }) => {
       localStorage.removeItem('registrationData');
     } catch (error) {
       console.log(error.message);
-      toast.current.show({severity: 'error', summary: 'Error', detail: 'Registration failed. Please try again.', life: 3000});
+      toast.current.show({ severity: 'error', summary: 'Error', detail: 'Registration failed. Please try again.', life: 3000 });
     }
   };
+
+  const LoginButton = (e) => {  
+    localStorage.removeItem('registrationData'); 
+    e.preventDefault();
+    navigate('/login');
+  }
 
   const handleNext = () => {
     setActiveStep((prev) => Math.min(prev + 1, steps.length - 1));
@@ -163,8 +154,9 @@ const RegistrationPageContent = ({ onRegisterSuccess }) => {
           />
         </div>
 
-        <div className="absolute bottom-4 left-0 right-0 flex justify-center p-4">
-          <p className="text-center">Login Here</p>
+        <div className="mt-6 text-center">
+          <span className="text-sm text-gray-600">Already have an account? </span>
+          <a href="#" onClick={LoginButton} className="text-sm text-primary hover:underline">Login here</a>
         </div>
       </div>
     </div>

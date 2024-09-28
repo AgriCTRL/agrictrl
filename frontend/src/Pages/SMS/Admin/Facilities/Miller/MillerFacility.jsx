@@ -84,18 +84,18 @@ function MillerFacility() {
     const header = (
         <div className="px-3 flex items-center">
             <span className="p-input-icon-left ">
-                <Search className="ml-3 -translate-y-1 text-[#00C261]"/>
+                <Search className="ml-3 -translate-y-1 text-primary"/>
                 <InputText 
                     type="search"
                     value={globalFilterValue} 
                     onChange={(e) => setGlobalFilterValue(e.target.value)} 
                     placeholder="Search" 
-                    className="w-full pl-10 pr-4 py-2 rounded-lg placeholder-[#00C261] text-[#00C261] border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className="w-full pl-10 pr-4 py-2 rounded-lg placeholder-primary text-primary border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
             </span>
             <div className="flex-grow"></div>
                 <div className="justify-end items-center">
-                    <Button label="+ Add New" onClick={showDialog} className="p-button-success text-white bg-gradient-to-r from-[#005155] to-[#00C261] p-2" />
+                    <Button label="+ Add New" onClick={showDialog} className="p-button-success text-white bg-gradient-to-r from-secondary to-primary p-2" />
                 </div>
         </div>
     );

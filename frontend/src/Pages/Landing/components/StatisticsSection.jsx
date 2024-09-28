@@ -3,7 +3,7 @@ import { Wheat, Coins, Users, UtensilsCrossed} from 'lucide-react';
 
 const StatisticsSection = () => {
     return (
-        <section className="bg-gradient-to-r from-[#005155] to-[#00C261] 
+        <section className="bg-gradient-to-r from-secondary to-primary 
                             rounded-lg h-44 mx-28 z-30 px-10 flex flex-row items-center 
                             justify-between align-middle text-white -translate-y-20">
             {/* Rice Tracked */}

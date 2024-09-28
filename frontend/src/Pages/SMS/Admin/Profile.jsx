@@ -80,7 +80,7 @@ function Profile() {
     return (
         <UserLayout activePage="Profile">
             <form onSubmit={handleSave} className='bg-white p-6 rounded mb-5 min-h-[calc(100vh-160px)]'>
-                <div className='bg-gradient-to-r from-[#00C261] to-[#005155] text-white p-4 py-10 mb-6 rounded'>
+                <div className='bg-gradient-to-r from-primary to-secondary text-white p-4 py-10 mb-6 rounded'>
                     <h1 className='text-4xl font-bold break-words'>Welcome {firstName} {lastName}!</h1>
                 </div>
 
@@ -152,7 +152,7 @@ function Profile() {
                             label="Edit"
                             type="button"
                             onClick={handleEdit}
-                            className='p-button-success border h-14 w-24 text-white font-bold bg-gradient-to-r from-[#00C261] to-[#005155]'
+                            className='p-button-success border h-14 w-24 text-white font-bold bg-gradient-to-r from-primary to-secondary'
                         />
                     )}
                     
@@ -161,7 +161,7 @@ function Profile() {
                             label="Save"
                             disabled={isSubmitting}
                             type="submit"
-                            className='p-button-success border h-14 w-24 text-white font-bold bg-gradient-to-r from-[#00C261] to-[#005155]'
+                            className='p-button-success border h-14 w-24 text-white font-bold bg-gradient-to-r from-primary to-secondary'
                         />
                     )}
                 </div>

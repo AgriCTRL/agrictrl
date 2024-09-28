@@ -9,8 +9,12 @@ const HeroSection = () => {
     const identityUrl = import.meta.env.VITE_INTERNET_IDENTITY_URL;
     const navigate = useNavigate();
 
-    const handleHistoryClick = () => {
+    const handleTnTClick = () => {
         navigate('/TnT');
+    }
+
+    const loginButton1 = async () => {   
+        navigate('/login');
     }
 
     const loginButton = async () => {   
@@ -60,13 +64,13 @@ const HeroSection = () => {
                             blockchain-powered traceability.
                         </p>
                         <div className='flex flex-row'>
-                            <button className="bg-[#00C261] px-10 text-white font-bold rounded-lg flex justify-items-center items-center"
-                                    onClick={loginButton}>
+                            <button className="bg-primary px-10 text-white font-bold rounded-lg flex justify-items-center items-center"
+                                    onClick={loginButton1}>
                                 Get Started
                                 <Wheat className="h-5 w-5 mx-3"/>
                             </button>
                             <button className="border border-white ml-3 px-16 py-3 text-white font-bold rounded-lg flex justify-items-center items-center"
-                                    onClick={handleHistoryClick}>
+                                    onClick={handleTnTClick}>
                                 Start Tracking!
                             </button>
                         </div>
