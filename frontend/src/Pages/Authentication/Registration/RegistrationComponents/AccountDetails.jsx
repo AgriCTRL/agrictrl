@@ -10,7 +10,8 @@ const AccountDetails = () => {
 
   const userTypeOptions = [
     { label: 'NFA Branch Staff', value: 'nfaBranchStaff' },
-    { label: 'Other', value: 'other' }
+    { label: 'Private Miller', value: 'privateMiller' },
+    { label: 'Rice Recipient', value: 'riceRecipient' }
   ];
 
   const regionOptions = [
@@ -40,79 +41,95 @@ const AccountDetails = () => {
     reader.readAsDataURL(file);
   };
 
+  // Hide region and branchOffice if userType is privateMiller or riceRecipient
+  const hideRegionAndBranchOffice = userType === 'privateMiller' || userType === 'riceRecipient';
+
+  if (hideRegionAndBranchOffice) {
+    // Clear values when hidden
+    if (region || branchOffice) {
+      handleInputChange('region', '');
+      handleInputChange('branchOffice', '');
+    }
+  }
+
   return (
     <form className="h-full w-full px-16">
       <h2 className="text-4xl font-medium mb-2 text-secondary">Account Details</h2>
-      <p className="mb-2 font-medium text-black">To set up your account, please select your user type first, then fill up the form, and upload a valid ID of your organization.</p>
+      <p className="mb-2 font-medium text-black">
+        To set up your account, please select your user type first, then fill up the form, and upload a valid ID of your organization.
+      </p>
 
       <div className="mb-2">
         <label htmlFor="userType" className="block mb-2 text-sm font-medium text-gray-700">User Type</label>
-        <Dropdown 
-          id="userType" 
-          value={userType} 
-          options={userTypeOptions} 
+        <Dropdown
+          id="userType"
+          value={userType}
+          options={userTypeOptions}
           onChange={(e) => handleInputChange('userType', e.value)}
-          placeholder="Select User Type" 
-          className="ring-0 w-full p-inputtext-sm font-medium rounded-md border border-gray-300 "  
-        />
-      </div>
-
-      <div className="mb-2">
-        <label htmlFor="organizationName" className="block mb-2 text-sm font-medium text-gray-700">Organisation Name</label>
-        <InputText 
-          id="organizationName" 
-          value={organizationName} 
-          onChange={(e) => handleInputChange('organizationName', e.value)} 
-          placeholder="organization name" 
-          className="ring-0 w-full p-inputtext-sm p-1 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-normal"           
-        />
-      </div>
-
-      <div className="mb-2">
-        <label htmlFor="jobTitle" className="block mb-2 text-sm font-medium text-gray-700">Job Title / Position</label>
-        <InputText 
-          id="jobTitle" 
-          value={jobTitle} 
-          onChange={(e) => handleInputChange('jobTitle', e.value)} 
-          placeholder="job title" 
-          className="ring-0 w-full p-inputtext-sm p-1 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-normal"           
+          placeholder="Select User Type"
+          className="ring-0 w-full p-inputtext-sm font-medium rounded-md border border-gray-300"
         />
       </div>
 
       <div className="grid grid-cols-2 gap-4 mb-2">
-        <div>
-          <label htmlFor="region" className="block mb-2 text-sm font-medium text-gray-700">Region</label>
-          <Dropdown 
-            id="region" 
-            value={region} 
-            options={regionOptions} 
-            onChange={(e) => handleInputChange('region', e.value)}
-            placeholder="Select Region" 
-            className="ring-0 w-full p-inputtext-sm rounded-md border border-gray-300"
+        <div className="mb-2">
+          <label htmlFor="organizationName" className="block mb-2 text-sm font-medium text-gray-700">Organisation Name</label>
+          <InputText
+            id="organizationName"
+            value={organizationName}
+            onChange={(e) => handleInputChange('organizationName', e.target.value)}
+            placeholder="organization name"
+            className="ring-0 w-full p-inputtext-sm p-1 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-normal"
           />
         </div>
-        <div>
-          <label htmlFor="branchOffice" className="block mb-2 text-sm font-medium text-gray-700">Branch Office</label>
-          <Dropdown 
-            id="branchOffice" 
-            value={branchOffice} 
-            options={branchOfficeOptions} 
-            onChange={(e) => handleInputChange('branchOffice', e.value)}
-            placeholder="Select Branch" 
-            className="ring-0 w-full p-inputtext-sm rounded-md border border-gray-300"
+        <div className="mb-2">
+          <label htmlFor="jobTitle" className="block mb-2 text-sm font-medium text-gray-700">Job Title / Position</label>
+          <InputText
+            id="jobTitle"
+            value={jobTitle}
+            onChange={(e) => handleInputChange('jobTitle', e.target.value)}
+            placeholder="job title"
+            className="ring-0 w-full p-inputtext-sm p-1 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-normal"
           />
         </div>
       </div>
 
+      {!hideRegionAndBranchOffice && (
+        <div className="grid grid-cols-2 gap-4 mb-2">
+          <div>
+            <label htmlFor="region" className="block mb-2 text-sm font-medium text-gray-700">Region</label>
+            <Dropdown
+              id="region"
+              value={region}
+              options={regionOptions}
+              onChange={(e) => handleInputChange('region', e.value)}
+              placeholder="Select Region"
+              className="ring-0 w-full p-inputtext-sm rounded-md border border-gray-300"
+            />
+          </div>
+          <div>
+            <label htmlFor="branchOffice" className="block mb-2 text-sm font-medium text-gray-700">Branch Office</label>
+            <Dropdown
+              id="branchOffice"
+              value={branchOffice}
+              options={branchOfficeOptions}
+              onChange={(e) => handleInputChange('branchOffice', e.value)}
+              placeholder="Select Branch"
+              className="ring-0 w-full p-inputtext-sm rounded-md border border-gray-300"
+            />
+          </div>
+        </div>
+      )}
+
       <div className="mb-2">
         <label htmlFor="validId" className="block mb-2 text-sm font-medium text-gray-700">Valid ID</label>
-        <FileUpload 
-          mode="basic" 
-          name="validId" 
-          accept="image/*" 
-          maxFileSize={1000000} 
-          chooseLabel={validIdName || "Select Image"}  // Show file name or default label
-          className="w-full h-24 ring-0 flex justify-center items-center border border-gray-300 rounded-md"
+        <FileUpload
+          mode="basic"
+          name="validId"
+          accept="image/*"
+          maxFileSize={1000000}
+          chooseLabel={validIdName || "Select Image"} // Show file name or default label
+          className="w-full h-44 ring-0 flex justify-center items-center border border-gray-300 rounded-md"
           chooseOptions={{
             className: 'bg-transparent text-primary flex flex-col items-center ring-0'
           }}
