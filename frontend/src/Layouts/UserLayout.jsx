@@ -39,9 +39,9 @@ const sidebarItems = [
         link: '/admin/facilities' 
     },
     { 
-        icon: <User size={20} />, 
-        text: 'Profile', 
-        link: '/admin/profile' 
+        icon: <User size={20} />,
+        text: 'Profile',
+        link: '/admin/profile'
     },
 ];
  
