@@ -1,6 +1,6 @@
 import { React } from 'react';
 import { Carousel } from 'primereact/carousel';
-import { Bean, Link, ShoppingBasket, ShieldPlus, HandCoins, Wheat, Search, Sprout, Microwave, Package } from 'lucide-react';
+import { Bean, Link, ShoppingBasket, ShieldPlus, HandCoins, Wheat, Search } from 'lucide-react';
 
 const features = [
     {
@@ -45,7 +45,7 @@ const FeatureSection = () => {
     );
 
     return (
-        <section id="featureSection" className="relative bg-white h-screen pt-5 z-0">
+        <section id="featureSection" className="relative h-screen pt-5 z-0">
             <div className="container mx-auto">
                 <div className="grid grid-cols-2 grid-rows-1 gap-8 justify-center">
                     {/* Left side: Search Buttons */}

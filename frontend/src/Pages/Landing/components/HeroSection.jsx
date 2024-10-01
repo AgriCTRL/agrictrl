@@ -1,9 +1,7 @@
 import { React } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthClient } from "@dfinity/auth-client";
-import { Button } from 'primereact/button';
 import { Wheat, Search, Coins, Truck } from 'lucide-react';
-
 
 const HeroSection = () => {
     const identityUrl = import.meta.env.VITE_INTERNET_IDENTITY_URL;
@@ -22,9 +20,9 @@ const HeroSection = () => {
             const authClient = await AuthClient.create();
 
             const width = 500;
-        const height = 500;
-        const left = (window.screen.width / 2) - (width / 2);
-        const top = (window.screen.height / 2) - (height / 2) - 25;
+            const height = 500;
+            const left = (window.screen.width / 2) - (width / 2);
+            const top = (window.screen.height / 2) - (height / 2) - 25;
 
             await new Promise((resolve, reject) => {
                 authClient.login({
@@ -44,73 +42,76 @@ const HeroSection = () => {
 
     return (
         <section 
-            className="relative h-screen flex items-center bg-cover bg-center overflow-hidden" 
-                    style={{ 
-                        backgroundImage: 'url("/Landing-HeroBg.jpg")', 
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center',
-                        backgroundRepeat: 'no-repeat'
-                    }}>
-             <div className="absolute inset-0 bg-black opacity-20"></div> {/* Dark overlay */}
-                <div className="container mx-auto flex flex-col lg:flex-row items-center relative">
-                    {/* Text Section */}
-                    <div className="text-center ml-20 lg:text-left lg:w-1/2 mt-[-8rem] relative z-50">
-                        <p className="mb-2 text-primary font-bold tracking-widest">REVOLUTIONIZING</p>
-                        <h1 className="text-6xl text-white font-bold mb-4">Rice Supply Chain</h1>
-                        <h1 className="text-6xl text-white font-bold mb-4">Transparency</h1>
-                        <p className="mb-8 text-[16px] font-normal leading-[30px] text-left text-white">
-                            Empowering farmers, ensuring fair prices, and providing <br />
-                            consumers with peace of mind through <br />
-                            blockchain-powered traceability.
-                        </p>
-                        <div className='flex flex-row'>
-                            <button className="bg-primary px-10 text-white font-bold rounded-lg flex justify-items-center items-center"
-                                    onClick={loginButton1}>
-                                Get Started
-                                <Wheat className="h-5 w-5 mx-3"/>
-                            </button>
-                            <button className="border border-white ml-3 px-16 py-3 text-white font-bold rounded-lg flex justify-items-center items-center"
-                                    onClick={handleTnTClick}>
-                                Start Tracking!
-                            </button>
-                        </div>
+            className="relative w-screen h-screen flex items-start bg-cover bg-center" 
+            style={{ 
+                backgroundImage: 'url("/Landing-HeroBg.jpg")', 
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat'
+            }}>
+            <div className="absolute inset-0 bg-black opacity-40"></div> {/* Dark overlay */}
+            
+            {/* Flexbox layout instead of container */}
+            <div className="w-full h-full flex flex-row items-start mt-[10vh] justify-between px-[5vw]">
+                {/* Text Section */}
+                <div className="z-50">
+                    <p className="mb-2 text-primary font-bold tracking-widest text-[2vw]">REVOLUTIONIZING</p>
+                    <h1 className="text-[4vw] md:text-[6xl] text-white font-bold mb-4">Rice Supply Chain</h1>
+                    <h1 className="text-[4vw] md:text-[6xl] text-white font-bold mb-4">Transparency</h1>
+                    <p className="mb-8 text-[2vw] md:text-[16px] font-normal leading-[1.5] text-left text-white">
+                        Empowering farmers, ensuring fair prices, and providing <br />
+                        consumers with peace of mind through <br />
+                        blockchain-powered traceability.
+                    </p>
+                    <div className='flex flex-row justify-center'>
+                        <button className="bg-primary px-[4vw] py-[2vh] text-white font-bold rounded-lg flex justify-items-center items-center"
+                                onClick={loginButton1}>
+                            Get Started
+                            <Wheat className="h-5 w-5 mx-3"/>
+                        </button>
+                        <button className="border border-white ml-3 px-[4vw] py-[2vh] text-white font-bold rounded-lg flex justify-items-center items-center"
+                                onClick={handleTnTClick}>
+                            Start Tracking!
+                        </button>
                     </div>
+                </div>
 
-                    {/* Buttons Section */}
-                    <div className="mt-8 lg:mt-0 lg:w-1/2 flex flex-col items-center lg:items-start space-y-5 relative z-30">
-                    
-                    {/* Buy button */}
-                    <div className="relative w-full lg:w-auto translate-x-72 translate-y-24">
-                        <div className="absolute inset-0 bg-white/30 backdrop-blur-sm rounded-lg transform translate-x-10 translate-y-7"></div>
-                        <div className="relative flex flex-col bg-white/30 backdrop-blur-sm rounded-lg px-16 py-10">
-                            <Coins className="text-white m-1"/>
-                            <Button className="p-button-text w-full lg:w-auto text-white" label="Buy"/>
-                        </div>
-                    </div>
-
-                    {/* Find button */}
-                        <div className="relative w-full lg:w-auto -translate-x-5 translate-y-20 z-30">
-                            <div className="absolute inset-0 bg-white/30 backdrop-blur-sm rounded-lg transform -translate-x-10 translate-y-7"></div>
-                            <div className="relative flex flex-col bg-white/30 backdrop-blur-sm rounded-lg px-16 py-10">
-                                <Search className="text-white m-1"/>
-                                <Button className="p-button-text w-full lg:w-auto text-white" label="Find"/>
+                {/* Buttons Section */}
+                <div className="flex flex-col space-y-[15vh] mr-28">
+                    <div className="flex flex-row space-x-[5vw]">
+                         {/* Buy button */}
+                        <div className="relative w-full lg:w-auto translate-y-14">
+                            <div className="absolute inset-0 bg-white/30 backdrop-blur-sm rounded-lg transform translate-x-10 translate-y-7"></div>
+                            <div className="relative flex flex-col bg-white/30 backdrop-blur-sm rounded-lg px-[4vw] py-[2vh]">
+                                <Coins className="text-white m-1"/>
+                                <h1 className="font-semibold mb-2 text-white text-[2vw]">Buy</h1>
                             </div>
                         </div>
 
-                    {/* Trace your rice section */}
-                    <div className="backdrop-blur-sm ml-40 mr-40 px-10 py-3 pb-20 bg-white/30 rounded-lg w-full lg:w-auto -translate-x-8 relative z-10">
-                        <div className="flex felx-col">
-                            <Truck className="text-white mr-2"/>
-                            <h3 className="font-semibold mb-2 text-white">Trace your rice</h3>
+                        {/* Find button */}
+                        <div className="relative w-full lg:w-auto translate-y-4">
+                            <div className="absolute inset-0 bg-white/30 backdrop-blur-sm rounded-lg transform translate-x-10 translate-y-7"></div>
+                            <div className="relative flex flex-col bg-white/30 backdrop-blur-sm rounded-lg px-[4vw] py-[2vh]">
+                                <Search className="text-white m-1"/>
+                                <h1 className="font-semibold mb-2 text-white text-[2vw]">Find</h1>
+                            </div>
                         </div>
-                            
-                        <p className="text-sm text-white">
-                            Trace the history of your rice. Discover its journey from farm to your plate. 
-                            Appreciate the people who work to serve you with your food.
-                        </p>
+                    </div>
+
+                    {/* Trace your rice section */}
+                    <div className="backdrop-blur-sm w-full px-[5vw] py-3 bg-white/30 rounded-lg relative pb-20 translate-x-20">
+                        <div className="flex flex-col">
+                            <Truck className="text-white mr-2"/>
+                            <h3 className="font-semibold mb-2 text-white text-[2vw]">Trace your rice</h3>
+                        </div>
+                        
+                        <p className="text-sm text-white">Trace the history of your rice.</p>
+                        <p className="text-sm text-white">Discover its journey from farm to your plate.</p>
+                        <p className="text-sm text-white">Appreciate the people who work to serve you with your food.</p>
                     </div>
                 </div>
             </div>
+            
             <img
                 src="/Landing-HeroSection.png"
                 alt="Decorative"

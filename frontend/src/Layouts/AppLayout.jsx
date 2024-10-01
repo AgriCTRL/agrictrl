@@ -45,21 +45,22 @@ function UserLayout({ children }) {
         <div >
             <div> 
                 {/* Header */}
-                <header className="fixed backdrop-blur-md font-poppins text-white p-3 left-0 w-full z-50">
-                    <div className="container mx-auto flex justify-between items-center">
+                <header className="fixed backdrop-blur-md font-poppins text-white w-screen p-3 z-50">
+                    <div className="flex justify-between mx-10 items-center">
+                        {/* Logo & title */}
                         <div className="flex items-center gap-2">
-                            <img src="favicon.ico" alt="AgriCTRL+ Logo" className="h-12 ml-10" />
+                            <img src="favicon.ico" alt="AgriCTRL+ Logo" className="h-12" />
                             <div className="text-2xl font-bold hover:text-primary letter-spacing-4 ml-2 tracking-wider">AgriCTRL+</div>
                         </div>
+
                         <nav className="flex items-center">
-                            {/* <a href="#" className="text-primary underline underline-offset-4 font-bold mx-6">Home</a> */}
                             <ScrollLink to="featureSection" smooth={true} duration={500} className="tracking-wider mx-6 cursor-pointer hover:text-primary hover:underline hover:underline-offset-4 hover:font-bold">Services</ScrollLink>
                             <ScrollLink to="offerSection" smooth={true} duration={500} className="tracking-wider mx-6 cursor-pointer hover:text-primary hover:underline hover:underline-offset-4 hover:font-bold">About Us</ScrollLink>
                             <button onClick={handleTnTClick}>
                                 <Search className="h-6 w-6 mx-6 hover:text-primary hover:underline hover:underline-offset-4 hover:font-bold"/>
                             </button>
                             
-                            <button onClick={ loginButton1 } className="bg-gradient-to-r from-secondary to-primary px-20 py-3 rounded-lg ml-2 mr-20">Login</button>
+                            <button onClick={ loginButton1 } className="bg-gradient-to-r from-secondary to-primary px-20 py-3 rounded-lg">Login</button>
                         </nav>
                     </div>
                 </header>

@@ -73,7 +73,12 @@ const OfferSection = () => {
                     </div>
                 </div>
             </div>
-            <img src="Landing-OfferSection.png" alt="process-section" className="w-full object-cover -translate-y-20" />
+
+            <img
+                src="Landing-OfferSection.png"
+                alt="Decorative"
+                className="absolute bottom-0 -mb-1 left-0 w-full h-auto z-30"
+            />
         </section>
     );
 };
