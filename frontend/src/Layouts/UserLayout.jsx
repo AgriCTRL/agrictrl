@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Button } from "primereact/button";
 import {
     House,
     LayoutDashboard,
@@ -46,15 +45,11 @@ const sidebarItems = [
 ];
  
 function UserLayout({ children, activePage }) {
-
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const [name, setName] = useState(() => {
-        // Try to get the name from localStorage on initial render
-        return localStorage.getItem('userName') || '';
-    });
+    const [name, setName] = useState(() => localStorage.getItem('userName') || '');
 
     useEffect(() => {
-        const fetchUser = async() => {
+        const fetchUser = async () => {
             try {
                 const authClient = await AuthClient.create();
                 const identity = authClient.getIdentity();
@@ -70,9 +65,8 @@ function UserLayout({ children, activePage }) {
                 setName(data.firstName);
 
                 localStorage.setItem('userName', data.firstName);
-            }
-            catch (error) {
-                console.log(error.message)
+            } catch (error) {
+                console.log(error.message);
             }
         };
         fetchUser();
@@ -89,10 +83,9 @@ function UserLayout({ children, activePage }) {
     }, []);
 
     const [expanded, setExpanded] = useState(() => {
-        // Set default expanded state if not present in localStorage
         const storedState = localStorage.getItem('sidebarExpanded');
         if (storedState === null) {
-            localStorage.setItem('sidebarExpanded', 'true');
+            localStorage.setItem('sidebarExpanded', 'false');
             return true;
         }
         return storedState === 'true';
@@ -108,9 +101,11 @@ function UserLayout({ children, activePage }) {
 
     const isItemActive = (text) => {
         return activePage?.toLowerCase() == text.toLowerCase();
-    }
+    };
+
     return (
-        <div className='flex font-poppins bg-background w-full'>
+        <div className="flex h-screen w-screen bg-[#F1F5F9] pr-5">
+            {/* Sidebar */}
             <SidebarComponent expanded={expanded}>
                 {sidebarItems.map((item, index) => (
                     <SidebarItem
@@ -120,8 +115,11 @@ function UserLayout({ children, activePage }) {
                     />
                 ))}
             </SidebarComponent>
-            <div className='h-screen w-full pr-10'>
-                <UserNavbarComponent 
+
+            {/* Main content */}
+            <div className="flex flex-col w-full h-full overflow-hidden">
+                {/* Header */}
+                <UserNavbarComponent
                     items={{
                         user: name,
                         avatar: '/profileAvatar.png',
@@ -131,7 +129,9 @@ function UserLayout({ children, activePage }) {
                     expanded={expanded}
                     onToggleExpanded={handleToggleExpanded}
                 />
-                <main>
+
+                {/* Content with remaining space */}
+                <main className="flex-1 overflow-auto">
                     {children}
                 </main>
             </div>
