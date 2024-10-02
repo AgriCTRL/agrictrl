@@ -9,7 +9,7 @@ import { Search, CircleAlert, Settings2, FileX } from 'lucide-react';
 
 import UserLayout from '@/Layouts/UserLayout';
 
-function Inventory() {
+function Inventory() { 
     // const apiUrl = import.meta.env.VITE_API_BASE_URL;
     // const [displayPalayRegister, setDisplayPalayRegister] = useState(false);
     // const [displayPalayUpdate, setDisplayPalayUpdate] = useState(false);
@@ -88,7 +88,6 @@ function Inventory() {
         { id: 8, trackingId: '003', dateBought: '2024-03-03', quantity: 2000, qualityType: 'Premium', status: 'Palay', moistureContent: 13, purity: 99, damage: 1, pricePerKg: 21, farmer: 'Maria Santos', originFarm: 'San Pedro', currentLocation: '003 Warehouse' },
         { id: 9, trackingId: '004', dateBought: '2024-03-04', quantity: 1800, qualityType: 'Standard', status: 'Rice', moistureContent: 12, purity: 97, damage: 3, pricePerKg: 17, farmer: 'Pedro Reyes', originFarm: 'Biñan', currentLocation: 'Mill 01' },
         { id: 10, trackingId: '005', dateBought: '2024-03-05', quantity: 2200, qualityType: 'Premium', status: 'Palay', moistureContent: 13, purity: 99, damage: 1, pricePerKg: 22, farmer: 'Ana Lim', originFarm: 'Cabuyao', currentLocation: '001 Warehouse' },
-        
     ]);
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [filters, setFilters] = useState({
@@ -103,7 +102,7 @@ function Inventory() {
             default: return 'secondary';
         }
     };
-
+    
     const statusBodyTemplate = (rowData) => (
         <Tag 
             value={rowData.status} 
@@ -113,7 +112,6 @@ function Inventory() {
         />
     );
     
-
     const actionBodyTemplate = (rowData) => (
         <CircleAlert 
             className="text-red-500 mr-10"
@@ -166,7 +164,7 @@ function Inventory() {
                             globalFilterFields={['trackingId', 'qualityType', 'status', 'farmer', 'originFarm']}
                             emptyMessage="No inventory found."
                             paginator
-                            rows={10}
+                            rows={30}
                             tableStyle={{ minWidth: '2500px' }}
                         >
                             <Column field="trackingId" header="Tracking ID" className="w-80 pl-16" headerClassName="p-4 pl-10" />

@@ -33,48 +33,58 @@ function Category() {
 
     return (
         <UserLayout activePage="Facilities">
-            <div className='bg-white p-3 rounded'>
-                <section className='flex flex-col gap-4'>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        <Card
-                            className={`shadow-none rounded-md text-primary cursor-pointer 
-                                ${selectedCard === 'warehouse' ? 'bg-gradient-to-r from-secondary to-primary text-white' : 'hover:bg-primary hover:text-white text-primary'}`}
-                            onClick={() => handleCardClick('warehouse')}
-                        >
-                            <div className="flex flex-col items-center ">
-                                <Warehouse size={40} />
-                                <span className='font-bold'>Warehouses</span>
-                            </div>
-                        </Card>
-                        <Card
-                            className={`shadow-none rounded-md text-primary cursor-pointer 
-                                ${selectedCard === 'dryer' ? 'bg-gradient-to-r from-secondary to-primary text-white' : 'hover:bg-primary hover:text-white text-primary'}`}
-                            onClick={() => handleCardClick('dryer')}
-                        >
-                            <div className="flex flex-col items-center">
-                                <ThermometerSun size={40} />
-                                <span className='font-bold'>Dryers</span>
-                            </div>
-                        </Card>
-                        <Card
-                            className={`shadow-none rounded-md text-primary cursor-pointer 
-                                ${selectedCard === 'miller' ? 'bg-gradient-to-r from-secondary to-primary text-white' : 'hover:bg-primary hover:text-white text-primary'}`}
-                            onClick={() => handleCardClick('miller')}
-                        >
-                            <div className="flex flex-col items-center">
-                                <Factory size={40} />
-                                <span className='font-bold'>Millers</span>
-                            </div>
-                        </Card>
+            <div className='flex flex-col h-full w-full px-4 py-2'>
+
+                {/* top navigation */}
+                <div className='flex items-center w-full justify-between'>
+                    {/* warehouse */}
+                    <div
+                        className={`shadow-none flex justify-center w-full mx-2 rounded-md text-primary cursor-pointer
+                            ${selectedCard === 'warehouse' ? 'bg-primary border border-transparent  text-white' : 'hover:border border-primary text-primary'}`}
+                        onClick={() => handleCardClick('warehouse')}
+                    >
+                        <div className="flex flex-row items-center justify-center m-2">
+                            <Warehouse size={20} className="m-2" />
+                            <span className='font-bold'>Warehouses</span>
+                        </div>
                     </div>
-                </section>
+
+                    {/* Dryers */}
+                    <div
+                        className={`shadow-none flex justify-center w-full mx-2 rounded-md text-primary cursor-pointer 
+                            ${selectedCard === 'dryer' ? 'bg-primary border border-transparent text-white' : 'hover:border border-primary text-primary'}`}
+                        onClick={() => handleCardClick('dryer')}
+                    >
+                        <div className="flex flex-row items-center justify-center m-2">
+                            <ThermometerSun size={20} className="m-2" />
+                            <span className='font-bold'>Dryers</span>
+                        </div>
+                    </div>
+
+                    {/* Millers */}
+                    <div
+                        className={`shadow-none flex justify-center w-full mx-2 rounded-md text-primary cursor-pointer 
+                            ${selectedCard === 'miller' ? 'bg-primary border border-transparent text-white' : 'hover:border border-primary text-primary'}`}
+                        onClick={() => handleCardClick('miller')}
+                    >
+                        <div className="flex flex-row items-center m-2">
+                            <Factory size={20} className="m-2"/>
+                            <span className='font-bold'>Millers</span>
+                        </div>
+                    </div>
+                
+                </div>
 
                 {selectedCard && (
-                    <section className="mt-4">
+                    <section className="mt-3 h-full overflow-y-auto">
                         {renderSelectedComponent()}
                     </section>
                 )}
             </div>
+            
+
+                
+            
         </UserLayout>
     );
 }
