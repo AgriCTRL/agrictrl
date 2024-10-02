@@ -5,7 +5,7 @@ import { Tag } from 'primereact/tag';
 import { FilterMatchMode } from 'primereact/api';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
-import { Search, Filter, Download, CircleAlert } from 'lucide-react';
+import { Search, CircleAlert, Settings2, FileX } from 'lucide-react';
 
 import UserLayout from '@/Layouts/UserLayout';
 
@@ -78,16 +78,17 @@ function Inventory() {
     // };
 
     const [inventoryData, setInventoryData] = useState([
-        { id: 1, trackingId: '001', dateBought: '2024-03-01', quantity: 1000, qualityType: 'Premium', status: 'Ready', moistureContent: 13, purity: 99, damage: 1, pricePerKg: 20, farmer: 'Pablo Garcia', originFarm: 'Sta. Rosa', currentLocation: '001 Warehouse' },
-        { id: 2, trackingId: '002', dateBought: '2024-03-02', quantity: 1500, qualityType: 'Standard', status: 'Drying', moistureContent: 14, purity: 98, damage: 2, pricePerKg: 18, farmer: 'Juan Dela Cruz', originFarm: 'Sta. Rosa', currentLocation: '002 Dryer' },
-        { id: 3, trackingId: '003', dateBought: '2024-03-03', quantity: 2000, qualityType: 'Premium', status: 'Ready', moistureContent: 13, purity: 99, damage: 1, pricePerKg: 21, farmer: 'Maria Santos', originFarm: 'San Pedro', currentLocation: '003 Warehouse' },
-        { id: 4, trackingId: '004', dateBought: '2024-03-04', quantity: 1800, qualityType: 'Standard', status: 'Milling', moistureContent: 12, purity: 97, damage: 3, pricePerKg: 17, farmer: 'Pedro Reyes', originFarm: 'Biñan', currentLocation: 'Mill 01' },
-        { id: 5, trackingId: '005', dateBought: '2024-03-05', quantity: 2200, qualityType: 'Premium', status: 'Ready', moistureContent: 13, purity: 99, damage: 1, pricePerKg: 22, farmer: 'Ana Lim', originFarm: 'Cabuyao', currentLocation: '001 Warehouse' },
-        { id: 6, trackingId: '001', dateBought: '2024-03-01', quantity: 1000, qualityType: 'Premium', status: 'Ready', moistureContent: 13, purity: 99, damage: 1, pricePerKg: 20, farmer: 'Pablo Garcia', originFarm: 'Sta. Rosa', currentLocation: '001 Warehouse' },
-        { id: 7, trackingId: '002', dateBought: '2024-03-02', quantity: 1500, qualityType: 'Standard', status: 'Drying', moistureContent: 14, purity: 98, damage: 2, pricePerKg: 18, farmer: 'Juan Dela Cruz', originFarm: 'Sta. Rosa', currentLocation: '002 Dryer' },
-        { id: 8, trackingId: '003', dateBought: '2024-03-03', quantity: 2000, qualityType: 'Premium', status: 'Ready', moistureContent: 13, purity: 99, damage: 1, pricePerKg: 21, farmer: 'Maria Santos', originFarm: 'San Pedro', currentLocation: '003 Warehouse' },
-        { id: 9, trackingId: '004', dateBought: '2024-03-04', quantity: 1800, qualityType: 'Standard', status: 'Milling', moistureContent: 12, purity: 97, damage: 3, pricePerKg: 17, farmer: 'Pedro Reyes', originFarm: 'Biñan', currentLocation: 'Mill 01' },
-        { id: 10, trackingId: '005', dateBought: '2024-03-05', quantity: 2200, qualityType: 'Premium', status: 'Ready', moistureContent: 13, purity: 99, damage: 1, pricePerKg: 22, farmer: 'Ana Lim', originFarm: 'Cabuyao', currentLocation: '001 Warehouse' },
+        { id: 1, trackingId: '001', dateBought: '2024-03-01', quantity: 1000, qualityType: 'Premium', status: 'Palay', moistureContent: 13, purity: 99, damage: 1, pricePerKg: 20, farmer: 'Pablo Garcia', originFarm: 'Sta. Rosa', currentLocation: '001 Warehouse' },
+        { id: 2, trackingId: '002', dateBought: '2024-03-02', quantity: 1500, qualityType: 'Standard', status: 'Processing', moistureContent: 14, purity: 98, damage: 2, pricePerKg: 18, farmer: 'Juan Dela Cruz', originFarm: 'Sta. Rosa', currentLocation: '002 Dryer' },
+        { id: 3, trackingId: '003', dateBought: '2024-03-03', quantity: 2000, qualityType: 'Premium', status: 'Palay', moistureContent: 13, purity: 99, damage: 1, pricePerKg: 21, farmer: 'Maria Santos', originFarm: 'San Pedro', currentLocation: '003 Warehouse' },
+        { id: 4, trackingId: '004', dateBought: '2024-03-04', quantity: 1800, qualityType: 'Standard', status: 'Rice', moistureContent: 12, purity: 97, damage: 3, pricePerKg: 17, farmer: 'Pedro Reyes', originFarm: 'Biñan', currentLocation: 'Mill 01' },
+        { id: 5, trackingId: '005', dateBought: '2024-03-05', quantity: 2200, qualityType: 'Premium', status: 'Processing', moistureContent: 13, purity: 99, damage: 1, pricePerKg: 22, farmer: 'Ana Lim', originFarm: 'Cabuyao', currentLocation: '001 Warehouse' },
+        { id: 6, trackingId: '001', dateBought: '2024-03-01', quantity: 1000, qualityType: 'Premium', status: 'Palay', moistureContent: 13, purity: 99, damage: 1, pricePerKg: 20, farmer: 'Pablo Garcia', originFarm: 'Sta. Rosa', currentLocation: '001 Warehouse' },
+        { id: 7, trackingId: '002', dateBought: '2024-03-02', quantity: 1500, qualityType: 'Standard', status: 'Processing', moistureContent: 14, purity: 98, damage: 2, pricePerKg: 18, farmer: 'Juan Dela Cruz', originFarm: 'Sta. Rosa', currentLocation: '002 Dryer' },
+        { id: 8, trackingId: '003', dateBought: '2024-03-03', quantity: 2000, qualityType: 'Premium', status: 'Palay', moistureContent: 13, purity: 99, damage: 1, pricePerKg: 21, farmer: 'Maria Santos', originFarm: 'San Pedro', currentLocation: '003 Warehouse' },
+        { id: 9, trackingId: '004', dateBought: '2024-03-04', quantity: 1800, qualityType: 'Standard', status: 'Rice', moistureContent: 12, purity: 97, damage: 3, pricePerKg: 17, farmer: 'Pedro Reyes', originFarm: 'Biñan', currentLocation: 'Mill 01' },
+        { id: 10, trackingId: '005', dateBought: '2024-03-05', quantity: 2200, qualityType: 'Premium', status: 'Palay', moistureContent: 13, purity: 99, damage: 1, pricePerKg: 22, farmer: 'Ana Lim', originFarm: 'Cabuyao', currentLocation: '001 Warehouse' },
+        
     ]);
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [filters, setFilters] = useState({
@@ -96,16 +97,22 @@ function Inventory() {
 
     const getSeverity = (status) => {
         switch (status.toLowerCase()) {
-            case 'ready': return 'success';
-            case 'drying': return 'info';
-            case 'milling': return 'warning';
+            case 'palay': return 'success';
+            case 'processing': return 'info';
+            case 'rice': return 'warning';
             default: return 'secondary';
         }
     };
 
     const statusBodyTemplate = (rowData) => (
-        <Tag value={rowData.status} severity={getSeverity(rowData.status)} />
+        <Tag 
+            value={rowData.status} 
+            severity={getSeverity(rowData.status)} 
+            style={{ minWidth: '80px', textAlign: 'center' }}
+            className="text-sm px-2 rounded-md"
+        />
     );
+    
 
     const actionBodyTemplate = (rowData) => (
         <CircleAlert 
@@ -120,30 +127,41 @@ function Inventory() {
                 {/* Header */}
                 <div className="mb-4">
                     <div className="flex items-center justify-between">
-                        <span className="p-input-icon-left flex-grow mr-4">
-                            <Search className="text-gray-500"/>
+                        <span className="p-input-icon-left w-1/2 mr-4">
+                            <Search className="text-primary ml-2 -translate-y-1"/>
                             <InputText 
                                 type="search"
                                 value={globalFilterValue} 
                                 onChange={(e) => setGlobalFilterValue(e.target.value)} 
-                                placeholder="Search" 
-                                className="w-full pl-10 pr-4 py-2 rounded-lg placeholder-gray-500 text-gray-900 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+                                placeholder="Tap to Search" 
+                                className="w-full pl-10 pr-4 py-2 rounded-lg placeholder-gray-500 text-primary border border-gray-300 ring-0 placeholder:text-primary"
                             />
                         </span>
-                        <Button icon={<Filter className="mr-2" />} label="Filters" className="p-button-outlined mr-2" />
-                        <Button icon={<Download className="mr-2" />} label="Export" className="p-button-outlined" />
+
+                        <div className="flex flex-row w-1/2 justify-between">
+                            <Button 
+                                icon={<Settings2 className="mr-2 text-primary" />}
+                                label="Filters" 
+                                className="p-button-success text-primary border border-gray-300 rounded-md bg-white p-2 w-1/16" />
+
+                            <Button 
+                                icon={<FileX className="mr-2" />} 
+                                label="Export" 
+                                className="p-button-success text-primary border border-primary rounded-md bg-transparent p-2 w-1/16" />
+                        </div>
+
                     </div>
                 </div>
 
                 {/* DataTable Container */}
                 <div className="flex-grow flex flex-col overflow-hidden rounded-lg shadow">
-                    <div className="flex-grow overflow-auto">
+                    <div className="flex-grow overflow-auto bg-white">
                         <DataTable 
                             value={inventoryData}
                             scrollable
                             scrollHeight="flex"
                             scrollDirection="both"
-                            className="p-datatable-sm"
+                            className="p-datatable-sm pt-5"
                             filters={filters}
                             globalFilterFields={['trackingId', 'qualityType', 'status', 'farmer', 'originFarm']}
                             emptyMessage="No inventory found."
@@ -151,20 +169,20 @@ function Inventory() {
                             rows={10}
                             tableStyle={{ minWidth: '2500px' }}
                         >
-                            <Column field="trackingId" header="Tracking ID" className="w-80 p-4 pl-10" />
-                            <Column field="id" header="Batch ID" className="w-80 p4 pl-8" />
-                            <Column field="dateBought" header="Date Bought" className="w-96 p4 pl-4" />
-                            <Column field="quantity" header="Quantity" className="w-80 p4 pl-5" />
-                            <Column field="qualityType" header="Quality Type" className="w-96 p4 pl-5" />
-                            <Column field="moistureContent" header="Moisture Content" className="w-80 p4 pl-16" />
-                            <Column field="purity" header="Purity" className="w-80 p4 pl-5" />
-                            <Column field="damage" header="Damage" className="w-80 p4 pl-8" />
-                            <Column field="pricePerKg" header="Price/Kg" className="w-80 p4 pl-7" />
-                            <Column field="farmer" header="Farmer" className="w-80 p4" />
-                            <Column field="originFarm" header="Origin Farm" className="w-80 p4 pl-5" />
-                            <Column field="currentLocation" header="Current Location" className="w-80 p4" />
-                            <Column field="status" header="Status" body={statusBodyTemplate} className="w-40 p4" frozen alignFrozen="right"/>
-                            <Column body={actionBodyTemplate} exportable={false} className="w-20 p4" frozen alignFrozen="right"/>
+                            <Column field="trackingId" header="Tracking ID" className="w-80 pl-16" headerClassName="p-4 pl-10" />
+                            <Column field="id" header="Batch ID" className="w-80 pl-14" headerClassName="p-4 pl-8" />
+                            <Column field="dateBought" header="Date Bought" className="w-96 p-4 pl-4" headerClassName="p-4 pl-4" />
+                            <Column field="quantity" header="Quantity" className="w-80 pl-5" headerClassName="p-4 pl-2" />
+                            <Column field="qualityType" header="Quality Type" className="w-72  pl-5" headerClassName="p-4 pl-2" />
+                            <Column field="moistureContent" header="Moisture Content" className="w-96  pl-16" headerClassName="p-4 pl-4" />
+                            <Column field="purity" header="Purity" className="w-80  pl-5" headerClassName="p-4 pl-2" />
+                            <Column field="damage" header="Damage" className="w-80  pl-8" headerClassName="p-4 pl-2" />
+                            <Column field="pricePerKg" header="Price/Kg" className="w-80  pl-7" headerClassName="p-4 pl-2" />
+                            <Column field="farmer" header="Farmer" className="w-80 " headerClassName="p-4 pl-5" />
+                            <Column field="originFarm" header="Origin Farm" className="w-80  pl-5" headerClassName="p-4 pl-2" />
+                            <Column field="currentLocation" header="Current Location" className="w-80 pl-5" headerClassName="p-4" />
+                            <Column field="status" header="Status" body={statusBodyTemplate} className="w-40 " headerClassName="p-4" frozen alignFrozen="right" />
+                            <Column body={actionBodyTemplate} exportable={false} className="w-20 " headerClassName="p-4" frozen alignFrozen="right" />
                         </DataTable>
                     </div>
                 </div>
