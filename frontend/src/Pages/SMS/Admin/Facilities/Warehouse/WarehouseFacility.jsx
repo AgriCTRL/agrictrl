@@ -12,16 +12,16 @@ import WarehouseUpdate from './WarehouseUpdate';
 
 function Warehouse() {
     const [warehouseData, setWarehouseData] = useState([
-        { id: 1, facilityName: 'Warehouse A', location: 'San Pedro', capacity: 1000, currentStock: 750, status: 'Active' },
-        { id: 2, facilityName: 'Warehouse B', location: 'Biñan', capacity: 1500, currentStock: 1200, status: 'Active' },
-        { id: 3, facilityName: 'Warehouse C', location: 'Sta. Rosa', capacity: 2000, currentStock: 1800, status: 'Inactive' },
-        { id: 4, facilityName: 'Warehouse D', location: 'Cabuyao', capacity: 1800, currentStock: 900, status: 'Active' },
-        { id: 5, facilityName: 'Warehouse E', location: 'Calamba', capacity: 2200, currentStock: 1100, status: 'Inactive' },
-        { id: 1, facilityName: 'Warehouse A', location: 'San Pedro', capacity: 1000, currentStock: 750, status: 'Active' },
-        { id: 2, facilityName: 'Warehouse B', location: 'Biñan', capacity: 1500, currentStock: 1200, status: 'Active' },
-        { id: 3, facilityName: 'Warehouse C', location: 'Sta. Rosa', capacity: 2000, currentStock: 1800, status: 'Inactive' },
-        { id: 4, facilityName: 'Warehouse D', location: 'Cabuyao', capacity: 1800, currentStock: 900, status: 'Active' },
-        { id: 5, facilityName: 'Warehouse E', location: 'Calamba', capacity: 2200, currentStock: 1100, status: 'Inactive' },
+        { id: 1, warehouseName: 'Warehouse A', location: 'San Pedro', capacity: 1000, currentStock: 750, status: 'Active' },
+        { id: 2, warehouseName: 'Warehouse B', location: 'Biñan', capacity: 1500, currentStock: 1200, status: 'Active' },
+        { id: 3, warehouseName: 'Warehouse C', location: 'Sta. Rosa', capacity: 2000, currentStock: 1800, status: 'Inactive' },
+        { id: 4, warehouseName: 'Warehouse D', location: 'Cabuyao', capacity: 1800, currentStock: 900, status: 'Active' },
+        { id: 5, warehouseName: 'Warehouse E', location: 'Calamba', capacity: 2200, currentStock: 1100, status: 'Inactive' },
+        { id: 1, warehouseName: 'Warehouse A', location: 'San Pedro', capacity: 1000, currentStock: 750, status: 'Active' },
+        { id: 2, warehouseName: 'Warehouse B', location: 'Biñan', capacity: 1500, currentStock: 1200, status: 'Active' },
+        { id: 3, warehouseName: 'Warehouse C', location: 'Sta. Rosa', capacity: 2000, currentStock: 1800, status: 'Inactive' },
+        { id: 4, warehouseName: 'Warehouse D', location: 'Cabuyao', capacity: 1800, currentStock: 900, status: 'Active' },
+        { id: 5, warehouseName: 'Warehouse E', location: 'Calamba', capacity: 2200, currentStock: 1100, status: 'Inactive' },
     ]);
 
     // const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -157,13 +157,13 @@ function Warehouse() {
                             scrollDirection="both"
                             className="p-datatable-sm px-5 pt-5"
                             filters={filters}
-                            globalFilterFields={['id', 'facilityName', 'location', 'status']}
+                            globalFilterFields={['id', 'warehouseName', 'location', 'status']}
                             emptyMessage="No inventory found."
                             paginator
                             rows={30}
                         >
                             <Column field="id" header="ID"/>
-                            <Column field="facilityName" header="Warehouse Name" className="pl-6"/>
+                            <Column field="warehouseName" header="Warehouse Name" className="pl-6"/>
                             <Column field="location" header="Location" className="pl-2"/>
                             <Column field="capacity" header="Capacity (mt)" className="pl-10"/>
                             <Column field="currentStock" header="Current Stock (mt)" className="pl-14"/>

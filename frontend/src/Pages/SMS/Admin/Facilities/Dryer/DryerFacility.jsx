@@ -12,16 +12,16 @@ import DryerUpdate from './DryerUpdate';
 
 function DryerFacility() {
     const [dryerData, setDryerData] = useState([
-        { id: 1, facilityName: 'Dryer A', location: 'San Pedro', capacity: 1000, processing: 750, type:'In house', status: 'Active' },
-        { id: 2, facilityName: 'Dryer B', location: 'Biñan', capacity: 1500, processing: 1200, type:'Private', status: 'Active' },
-        { id: 3, facilityName: 'Dryer C', location: 'Sta. Rosa', capacity: 2000, processing: 1800, type:'Private', status: 'Inactive' },
-        { id: 4, facilityName: 'Dryer D', location: 'Cabuyao', capacity: 1800, processing: 900, type:'In house', status: 'Active' },
-        { id: 5, facilityName: 'Dryer E', location: 'Calamba', capacity: 2200, processing: 1100, type:'In house', status: 'Inactive' },
-        { id: 1, facilityName: 'Dryer A', location: 'San Pedro', capacity: 1000, processing: 750, type:'In house', status: 'Active' },
-        { id: 2, facilityName: 'Dryer B', location: 'Biñan', capacity: 1500, processing: 1200, type:'In house', status: 'Active' },
-        { id: 3, facilityName: 'Dryer C', location: 'Sta. Rosa', capacity: 2000, processing: 1800, type:'Private', status: 'Inactive' },
-        { id: 4, facilityName: 'Dryer D', location: 'Cabuyao', capacity: 1800, processing: 900, type:'In house', status: 'Active' },
-        { id: 5, facilityName: 'Dryer E', location: 'Calamba', capacity: 2200, processing: 1100, type:'In house', status: 'Inactive' },
+        { id: 1, dryerName: 'Dryer A', location: 'San Pedro', capacity: 1000, processing: 750, type:'In house', status: 'Active' },
+        { id: 2, dryerName: 'Dryer B', location: 'Biñan', capacity: 1500, processing: 1200, type:'Private', status: 'Active' },
+        { id: 3, dryerName: 'Dryer C', location: 'Sta. Rosa', capacity: 2000, processing: 1800, type:'Private', status: 'Inactive' },
+        { id: 4, dryerName: 'Dryer D', location: 'Cabuyao', capacity: 1800, processing: 900, type:'In house', status: 'Active' },
+        { id: 5, dryerName: 'Dryer E', location: 'Calamba', capacity: 2200, processing: 1100, type:'In house', status: 'Inactive' },
+        { id: 1, dryerName: 'Dryer A', location: 'San Pedro', capacity: 1000, processing: 750, type:'In house', status: 'Active' },
+        { id: 2, dryerName: 'Dryer B', location: 'Biñan', capacity: 1500, processing: 1200, type:'In house', status: 'Active' },
+        { id: 3, dryerName: 'Dryer C', location: 'Sta. Rosa', capacity: 2000, processing: 1800, type:'Private', status: 'Inactive' },
+        { id: 4, dryerName: 'Dryer D', location: 'Cabuyao', capacity: 1800, processing: 900, type:'In house', status: 'Active' },
+        { id: 5, dryerName: 'Dryer E', location: 'Calamba', capacity: 2200, processing: 1100, type:'In house', status: 'Inactive' },
     ]);
 
     // const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -163,7 +163,7 @@ function DryerFacility() {
                             rows={30}
                         >
                             <Column field="id" header="ID"/>
-                            <Column field="facilityName" header="Warehouse Name" className="pl-6"/>
+                            <Column field="dryerName" header="Warehouse Name" className="pl-6"/>
                             <Column field="location" header="Location" className="pl-2"/>
                             <Column field="capacity" header="Capacity (mt/hrs)" className="pl-14"/>
                             <Column field="processing" header="Processing" className="pl-7"/>

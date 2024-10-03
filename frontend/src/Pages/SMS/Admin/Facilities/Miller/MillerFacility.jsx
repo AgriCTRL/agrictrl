@@ -12,16 +12,16 @@ import MillerUpdate from './MillerUpdate';
 
 function MillerFacility() {
     const [millerData, setMillerData] = useState([
-        { id: 1, facilityName: 'Miller A', location: 'San Pedro', capacity: 1000, processing: 750, type:'In house', status: 'Active' },
-        { id: 2, facilityName: 'Miller B', location: 'Biñan', capacity: 1500, processing: 1200, type:'Private', status: 'Active' },
-        { id: 3, facilityName: 'Miller C', location: 'Sta. Rosa', capacity: 2000, processing: 1800, type:'In house', status: 'Inactive' },
-        { id: 4, facilityName: 'Miller D', location: 'Cabuyao', capacity: 1800, processing: 900, type:'In house', status: 'Active' },
-        { id: 5, facilityName: 'Miller E', location: 'Calamba', capacity: 2200, processing: 1100, type:'Private', status: 'Inactive' },
-        { id: 1, facilityName: 'Miller A', location: 'San Pedro', capacity: 1000, processing: 750, type:'Private', status: 'Active' },
-        { id: 2, facilityName: 'Miller B', location: 'Biñan', capacity: 1500, processing: 1200, type:'In house', status: 'Active' },
-        { id: 3, facilityName: 'Miller C', location: 'Sta. Rosa', capacity: 2000, processing: 1800, type:'In house', status: 'Inactive' },
-        { id: 4, facilityName: 'Miller D', location: 'Cabuyao', capacity: 1800, processing: 900, type:'Private', status: 'Active' },
-        { id: 5, facilityName: 'Miller E', location: 'Calamba', capacity: 2200, processing: 1100, type:'Private', status: 'Inactive' },
+        { id: 1, millerName: 'Miller A', location: 'San Pedro', capacity: 1000, processing: 750, type:'In house', status: 'Active' },
+        { id: 2, millerName: 'Miller B', location: 'Biñan', capacity: 1500, processing: 1200, type:'Private', status: 'Active' },
+        { id: 3, millerName: 'Miller C', location: 'Sta. Rosa', capacity: 2000, processing: 1800, type:'In house', status: 'Inactive' },
+        { id: 4, millerName: 'Miller D', location: 'Cabuyao', capacity: 1800, processing: 900, type:'In house', status: 'Active' },
+        { id: 5, millerName: 'Miller E', location: 'Calamba', capacity: 2200, processing: 1100, type:'Private', status: 'Inactive' },
+        { id: 1, millerName: 'Miller A', location: 'San Pedro', capacity: 1000, processing: 750, type:'Private', status: 'Active' },
+        { id: 2, millerName: 'Miller B', location: 'Biñan', capacity: 1500, processing: 1200, type:'In house', status: 'Active' },
+        { id: 3, millerName: 'Miller C', location: 'Sta. Rosa', capacity: 2000, processing: 1800, type:'In house', status: 'Inactive' },
+        { id: 4, millerName: 'Miller D', location: 'Cabuyao', capacity: 1800, processing: 900, type:'Private', status: 'Active' },
+        { id: 5, millerName: 'Miller E', location: 'Calamba', capacity: 2200, processing: 1100, type:'Private', status: 'Inactive' },
     ]);
 
     // const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -157,13 +157,13 @@ function MillerFacility() {
                             scrollDirection="both"
                             className="p-datatable-sm px-5 pt-5"
                             filters={filters}
-                            globalFilterFields={['id', 'facilityName', 'location', 'status']}
+                            globalFilterFields={['id', 'millerName', 'location', 'status']}
                             emptyMessage="No inventory found."
                             paginator
                             rows={30}
                         >
                             <Column field="id" header="ID"/>
-                            <Column field="facilityName" header="Warehouse Name" className="pl-6"/>
+                            <Column field="millerName" header="Warehouse Name" className="pl-6"/>
                             <Column field="location" header="Location" className="pl-2"/>
                             <Column field="capacity" header="Capacity (mt)" className="pl-10"/>
                             <Column field="processing" header="Processing" className="pl-7"/>
