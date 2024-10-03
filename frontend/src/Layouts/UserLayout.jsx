@@ -5,6 +5,7 @@ import {
     MapPin,
     Layers,
     Building2,
+    Users,
     User
 } from "lucide-react";
 import { SidebarComponent, SidebarItem } from "@/Components/SidebarComponent";
@@ -36,6 +37,11 @@ const sidebarItems = [
         icon: <Building2 size={20} />, 
         text: 'Facilities', 
         link: '/admin/facilities' 
+    },
+    { 
+        icon: <Users size={20} />, 
+        text: 'Users', 
+        link: '/admin/users' 
     },
     { 
         icon: <User size={20} />, 
@@ -106,7 +112,7 @@ function UserLayout({ children, activePage }) {
     return (
         <div className="flex h-screen w-screen bg-[#F1F5F9] pr-5">
             {/* Sidebar */}
-            <SidebarComponent expanded={expanded}>
+            <SidebarComponent expanded={expanded}> {/* Ensure full height */}
                 {sidebarItems.map((item, index) => (
                     <SidebarItem
                         key={index}
@@ -117,7 +123,7 @@ function UserLayout({ children, activePage }) {
             </SidebarComponent>
 
             {/* Main content */}
-            <div className="flex flex-col w-full h-full overflow-hidden">
+            <div className="flex flex-col w-full h-screen overflow-hidden"> {/* Ensure full height */}
                 {/* Header */}
                 <UserNavbarComponent
                     items={{

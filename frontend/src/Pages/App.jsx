@@ -18,6 +18,7 @@ import AdminDashboard from "./SMS/Admin/Dashboard";
 import AdminTracking from "./SMS/Admin/Tracking";
 import AdminInventory from "./SMS/Admin/Inventory/Inventory";
 import AdminFacilities from "./SMS/Admin/Facilities/Category";
+import AdminUsers from "./SMS/Admin/Users/Users";
 import AdminProfile from "./SMS/Admin/Profile";
 
 function App() {
@@ -52,6 +53,7 @@ function AdminRoutes() {
             <Route path="tracking" element={<AdminTracking />} />
             <Route path="inventory" element={<AdminInventory />} />
             <Route path="facilities" element={<AdminFacilities />} />
+            <Route path="users" element={<AdminUsers />} />
             <Route path="profile" element={<AdminProfile />} />
         </Routes>
     );
