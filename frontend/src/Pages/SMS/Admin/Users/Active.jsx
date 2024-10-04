@@ -28,7 +28,7 @@ function Active() {
                 rounded 
                 text 
                 severity="info" 
-                className="text-green-500"
+                className="text-green-500 -translate-x-10"
                 onClick={() => {
                   setSelectedUser(rowData);
                   setUserDetailsVisible(true);
@@ -66,7 +66,7 @@ function Active() {
                     />
                 </span>
 
-                <div className="flex justify-end w-1/2 ml-2">
+                <div className="flex justify-between w-1/2 ml-2">
                     <Button 
                         icon={<Settings2 className="mr-2 text-primary" />}
                         label="Filters" 
@@ -86,17 +86,18 @@ function Active() {
                         value={activeUsers}
                         scrollable
                         scrollHeight="flex"
-                        className="p-datatable-sm px-3 pt-3"
+                        className="p-datatable-sm px-5 pt-5"
                         emptyMessage="No active users found."
                         paginator
+                        paginatorClassName="border-t-2 border-gray-300"
                         rows={10}
                     >
-                        <Column field="userId" header="User ID"/>
-                        <Column field="name" header="Name"/>
+                        <Column field="userId" header="User ID" headerClassName="pl-6"/>
+                        <Column field="name" header="Name" headerClassName="pl-6"/>
                         <Column field="organization" header="Organization"/>
-                        <Column field="position" header="Position"/>
+                        <Column field="position" header="Position" headerClassName="pl-6"/>
                         <Column field="userType" header="User Type"/>
-                        <Column header="Status" body={statusAndActionTemplate} />
+                        <Column header="Status" body={statusAndActionTemplate} headerClassName="pl-4"/>
                     </DataTable>
                 </div>
             </div>
@@ -105,7 +106,6 @@ function Active() {
                 userType="active"
                 visible={userDetailsVisible}
                 onHide={() => setUserDetailsVisible(false)}
-                userData={selectedUser}
             />
         </div>
     );

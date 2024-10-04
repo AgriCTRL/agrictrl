@@ -160,6 +160,7 @@ function DryerFacility() {
                             globalFilterFields={['id', 'facilityName', 'location', 'status']}
                             emptyMessage="No inventory found."
                             paginator
+                            paginatorClassName="border-t-2 border-gray-300"
                             rows={30}
                         >
                             <Column field="id" header="ID"/>

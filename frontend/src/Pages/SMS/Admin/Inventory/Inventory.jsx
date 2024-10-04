@@ -153,7 +153,7 @@ function Inventory() {
 
                 {/* DataTable Container */}
                 <div className="flex-grow flex flex-col overflow-hidden rounded-lg shadow">
-                    <div className="flex-grow overflow-auto bg-white">
+                    <div className="flex-grow overflow-hidden bg-white">
                         <DataTable 
                             value={inventoryData}
                             scrollable
@@ -165,7 +165,7 @@ function Inventory() {
                             emptyMessage="No inventory found."
                             paginator
                             rows={30}
-                            tableStyle={{ minWidth: '2500px' }}
+                            tableStyle={{ minWidth: '2510px' }}
                         >
                             <Column field="trackingId" header="Tracking ID" className="w-80 pl-16" headerClassName="p-4 pl-10" />
                             <Column field="id" header="Batch ID" className="w-80 pl-14" headerClassName="p-4 pl-8" />
