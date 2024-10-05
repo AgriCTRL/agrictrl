@@ -7,7 +7,6 @@ import {
 } from 'typeorm';
 
 import { getQualitySpec, QualitySpec } from '../qualityspecs/db';
-import { getPalayDelivery, PalayDelivery } from '../palaydeliveries/db';
 
 @Entity()
 export class PalayBatch extends BaseEntity {
@@ -15,11 +14,11 @@ export class PalayBatch extends BaseEntity {
     id: number;
 
     @Column()
-    dateReceived: Date;
+    dateBought: Date;
 
     @Column()
-    quantity: number;
-
+    quantityKg: number;
+    
     @Column()
     qualityType: string;
 
@@ -33,26 +32,17 @@ export class PalayBatch extends BaseEntity {
     price: number;
 
     @Column()
-    supplierId: number;
+    palaySupplierId: number;
 
     @Column()
-    nfaPersonnelId: number;
-
-    @Column()
-    palayDeliveryId: number;
-
-    @ManyToOne(() => PalayDelivery)
-    palayDelivery: PalayDelivery;
-
-    @Column()
-    warehouseId: number;
+    userId: number;
 
     @Column()
     status: string;
 }
 
-export type PalayBatchCreate = Pick<PalayBatch, 'dateReceived' | 'quantity' | 'qualityType' | 'price' | 'supplierId' | 'nfaPersonnelId' | 'warehouseId' | 'status'> &
-{ qualitySpecId: QualitySpec['id'], palayDeliveryId: PalayDelivery['id'] }
+export type PalayBatchCreate = Pick<PalayBatch, 'dateBought' | 'quantityKg' | 'qualityType' | 'qualitySpecId' | 'price' | 'palaySupplierId' | 'userId' | 'status'> &
+{ qualitySpecId: QualitySpec['id'] };
 export type PalayBatchUpdate = Pick<PalayBatch, 'id'> & Partial<PalayBatchCreate>;
 
 export async function getPalayBatches(limit: number, offset: number): Promise<PalayBatch[]> {
@@ -60,8 +50,7 @@ export async function getPalayBatches(limit: number, offset: number): Promise<Pa
         take: limit,
         skip: offset,
         relations: {
-            qualitySpec: true,
-            palayDelivery: true
+            qualitySpec: true
         }
     });
 }
@@ -72,8 +61,7 @@ export async function getPalayBatch(id: number): Promise<PalayBatch | null> {
             id
         },
         relations: {
-            qualitySpec: true,
-            palayDelivery: true
+            qualitySpec: true
         }
     });
 }
@@ -85,14 +73,9 @@ export async function countPalayBatches(): Promise<number> {
 export async function createPalayBatch(palayBatchCreate: PalayBatchCreate): Promise<PalayBatch> {
     let palayBatch = new PalayBatch();
 
-    palayBatch.dateReceived = palayBatchCreate.dateReceived;
-    palayBatch.quantity = palayBatchCreate.quantity;
+    palayBatch.dateBought = palayBatchCreate.dateBought;
+    palayBatch.quantityKg = palayBatchCreate.quantityKg;
     palayBatch.qualityType = palayBatchCreate.qualityType;
-    palayBatch.price = palayBatchCreate.price;
-    palayBatch.supplierId = palayBatchCreate.supplierId;
-    palayBatch.nfaPersonnelId = palayBatchCreate.nfaPersonnelId;
-    palayBatch.warehouseId = palayBatchCreate.warehouseId;
-    palayBatch.status = palayBatchCreate.status; 
 
     // qualitySpec
 
@@ -103,34 +86,25 @@ export async function createPalayBatch(palayBatchCreate: PalayBatchCreate): Prom
     }
 
     palayBatch.qualitySpecId = qualitySpec.id;
-    palayBatch.qualitySpec = qualitySpec;
 
-    // palayDelivery
-
-    const palayDelivery = await getPalayDelivery(palayBatchCreate.palayDeliveryId);
-
-    if (palayDelivery === null) {
-        throw new Error(``);
-    }
-
-    palayBatch.palayDeliveryId = palayDelivery.id;
-    palayBatch.palayDelivery = palayDelivery;
+    palayBatch.price = palayBatchCreate.price;
+    palayBatch.palaySupplierId = palayBatchCreate.palaySupplierId;
+    palayBatch.userId = palayBatchCreate.userId;
+    palayBatch.status = palayBatchCreate.status;
 
     return await palayBatch.save();
 }
 
 export async function updatePalayBatch(palayBatchUpdate: PalayBatchUpdate): Promise<PalayBatch> {
-    console.log('palayBatchUpdate', palayBatchUpdate);
-
     await PalayBatch.update(palayBatchUpdate.id, {
-        dateReceived: palayBatchUpdate.dateReceived,
-        quantity: palayBatchUpdate.quantity,
+        dateBought: palayBatchUpdate.dateBought,
+        quantityKg: palayBatchUpdate.quantityKg,
         qualityType: palayBatchUpdate.qualityType,
+        qualitySpecId: palayBatchUpdate.qualitySpecId,
         price: palayBatchUpdate.price,
-        supplierId: palayBatchUpdate.supplierId,
-        nfaPersonnelId: palayBatchUpdate.nfaPersonnelId,
-        warehouseId: palayBatchUpdate.warehouseId,
-        status: palayBatchUpdate.status  
+        palaySupplierId: palayBatchUpdate.palaySupplierId,
+        userId: palayBatchUpdate.userId,
+        status: palayBatchUpdate.status
     });
 
     const palayBatch = await getPalayBatch(palayBatchUpdate.id);
@@ -140,14 +114,4 @@ export async function updatePalayBatch(palayBatchUpdate: PalayBatchUpdate): Prom
     }
 
     return palayBatch;
-}
-
-export async function deletePalayBatch(id: number): Promise<number> {
-    const deleteResult = await PalayBatch.delete(id);
-
-    if (deleteResult.affected === 0) {
-        throw new Error(`deletePalayBatch: could not delete palayBatch with id ${id}`);
-    }
-
-    return id;
 }

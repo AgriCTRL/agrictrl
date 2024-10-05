@@ -6,22 +6,31 @@ export class Miller extends BaseEntity {
     id: number;
 
     @Column()
-    name: string;
+    millerName: string;
 
     @Column()
-    capacity: number;
+    userId: number;
+
+    @Column()
+    category: string;
 
     @Column()
     location: string;
 
     @Column()
-    contactInfo: string;
+    capacity: number;
+
+    @Column()
+    contactNumber: string;
+
+    @Column()
+    email: string;
 
     @Column()
     status: string;
 }
 
-export type MillerCreate = Pick<Miller, 'name' | 'capacity' | 'location' | 'contactInfo' | 'status'>;
+export type MillerCreate = Pick<Miller, 'millerName' | 'userId' | 'category' | 'location' | 'capacity' | 'contactNumber' | 'email' | 'status'>;
 export type MillerUpdate = Pick<Miller, 'id'> & Partial<MillerCreate>;
 
 export async function getMillers(limit: number, offset: number): Promise<Miller[]> {
@@ -46,10 +55,13 @@ export async function countMillers(): Promise<number> {
 export async function createMiller(millerCreate: MillerCreate): Promise<Miller> {
     let miller = new Miller();
 
-    miller.name = millerCreate.name;
-    miller.capacity = millerCreate.capacity;
+    miller.millerName = millerCreate.millerName;
+    miller.userId = millerCreate.userId;
+    miller.category = millerCreate.category;
     miller.location = millerCreate.location;
-    miller.contactInfo = millerCreate.contactInfo;
+    miller.capacity = millerCreate.capacity;
+    miller.contactNumber = millerCreate.contactNumber;
+    miller.email = millerCreate.email;
     miller.status = millerCreate.status;
 
     return await miller.save();
@@ -57,10 +69,13 @@ export async function createMiller(millerCreate: MillerCreate): Promise<Miller> 
 
 export async function updateMiller(millerUpdate: MillerUpdate): Promise<Miller> {
     await Miller.update(millerUpdate.id, {
-        name: millerUpdate.name,
-        capacity: millerUpdate.capacity,
+        millerName: millerUpdate.millerName,
+        userId: millerUpdate.userId,
+        category: millerUpdate.category,
         location: millerUpdate.location,
-        contactInfo: millerUpdate.contactInfo,
+        capacity: millerUpdate.capacity,
+        contactNumber: millerUpdate.contactNumber,
+        email: millerUpdate.email,
         status: millerUpdate.status
     });
 
@@ -71,14 +86,4 @@ export async function updateMiller(millerUpdate: MillerUpdate): Promise<Miller> 
     }
 
     return miller;
-}
-
-export async function deleteMiller(id: number): Promise<number> {
-    const deleteResult = await Miller.delete(id);
-
-    if (deleteResult.affected === 0) {
-        throw new Error(`deleteMiller: could not delete miller with id ${id}`);
-    }
-
-    return id;
 }

@@ -1,12 +1,9 @@
 import express, { Request, Response, Router } from 'express';
-// import { v4 } from 'uuid';
 
 import { createQualitySpec } from '../qualityspecs/db';
-import { createPalayDelivery } from '../palaydeliveries/db';
 import {
     countPalayBatches,
     createPalayBatch,
-    deletePalayBatch,
     getPalayBatch,
     getPalayBatches,
     updatePalayBatch
@@ -39,25 +36,34 @@ export function getRouter(): Router {
 
         const palayBatch = await getPalayBatch(Number(id));
 
-        console.log('palayBatch', palayBatch);
-
         res.json(palayBatch);
     });
 
     router.post(
         '/',
         async (
-            req: Request<any, any, { dateReceived: Date; quantity: number; qualityType: string; price: number; status: string;
-                moistureContent: number; purity: number; damaged: number;
-                driverName: string, typeOfTranspo: string, plateNumber: string,
-                supplierId: number; nfaPersonnelId: number; warehouseId: number
-             }>,
+            req: Request<any, any, { dateBought: Date;
+                quantityKg: number;
+                qualityType: string;
+                moistureContent: number;
+                purity: number;
+                damaged: number;
+                price: number
+                palaySupplierId: number;
+                userId: number;
+                status: string }>,
             res
         ) => {
-            const { dateReceived, quantity, qualityType, price, status,
-                moistureContent, purity, damaged,
-                driverName, typeOfTranspo, plateNumber,
-                supplierId, nfaPersonnelId, warehouseId } = req.body;
+            const { dateBought,
+                quantityKg,
+                qualityType,
+                moistureContent,
+                purity,
+                damaged,
+                price,
+                palaySupplierId,
+                userId,
+                status } = req.body;
 
             const qualitySpec = await createQualitySpec({
                 moistureContent: moistureContent,
@@ -65,93 +71,54 @@ export function getRouter(): Router {
                 damaged: damaged
             });
 
-            const palayDelivery = await createPalayDelivery({
-                driverName: driverName,
-                typeOfTranspo: typeOfTranspo,
-                plateNumber: plateNumber
-            });
-
             const palayBatch = await createPalayBatch({
-                dateReceived,
-                quantity,
+                dateBought,
+                quantityKg,
                 qualityType,
                 qualitySpecId: qualitySpec.id,
                 price,
-                supplierId,
-                nfaPersonnelId,
-                palayDeliveryId: palayDelivery.id,
-                warehouseId,
-                status,
+                palaySupplierId,
+                userId,
+                status
             });
 
             res.json(palayBatch);
         }
     );
 
-    // router.post('/batch/:num', async (req, res) => {
-    //     const num = Number(req.params.num);
-
-    //     for (let i = 0; i < Number(req.params.num); i++) {
-    //         const user = await createUser({
-    //             username: `lastmjs${v4()}`,
-    //             age: i
-    //         });
-
-    //         await createPalayBatch({
-    //             user_id: user.id,
-    //             title: `PalayBatch ${v4()}`,
-    //             body: `${v4()}${v4()}${v4()}${v4()}`
-    //         });
-    //     }
-
-    //     res.send({
-    //         Success: `${num} palayBatches created`
-    //     });
-    // });
-
     router.post('/update', updateHandler);
-
-    router.patch('/', updateHandler);
-
-    router.delete('/', async (req: Request<any, any, { id: number }>, res) => {
-        const { id } = req.body;
-
-        const deletedId = await deletePalayBatch(id);
-
-        res.json(deletedId);
-    });
 
     return router;
 }
 
 async function updateHandler(
-    req: Request<
-        any,
-        any,
-        { id: number; dateReceived?: Date; quantity?: number; qualityType?: string; price?: number; status?: string;
-            supplierId?: number; nfaPersonnelId?: number; warehouseId?: number }
-    >,
+    req: Request<any, any, { id: number;
+        dateBought: Date;
+        quantityKg: number;
+        qualityType: string;
+        price: number
+        palaySupplierId: number;
+        userId: number;
+        status: string }>,
     res: Response
 ): Promise<void> {
     const { id,
-        dateReceived,
-        quantity,
+        dateBought,
+        quantityKg,
         qualityType,
         price,
-        supplierId,
-        nfaPersonnelId,
-        warehouseId,
+        palaySupplierId,
+        userId,
         status } = req.body;
 
     const palayBatch = await updatePalayBatch({
         id,
-        dateReceived,
-        quantity,
+        dateBought,
+        quantityKg,
         qualityType,
         price,
-        supplierId,
-        nfaPersonnelId,
-        warehouseId,
+        palaySupplierId,
+        userId,
         status
     });
 

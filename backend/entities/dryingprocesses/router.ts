@@ -1,10 +1,8 @@
 import express, { Request, Response, Router } from 'express';
-// import { v4 } from 'uuid';
 
 import {
     countDryingProcesses,
     createDryingProcess,
-    deleteDryingProcess,
     getDryingProcess,
     getDryingProcesses,
     updateDryingProcess
@@ -45,60 +43,28 @@ export function getRouter(): Router {
     router.post(
         '/',
         async (
-            req: Request<any, any, { palayBatchId: number; type: string; dryerId: number; dateSent: Date; dateReturned: Date;
-                palayQuantitySent: number; palayQuantityReturned: number; warehouseId: number;}>,
+            req: Request<any, any, { transactionId: number; dryingMethod: string; dryerType: string; dryerId: number; dateSent: Date; dateReturned: Date;
+                palayQuantitySentKg: number; palayQuantityReturnedKg: number }>,
             res
         ) => {
-            const { palayBatchId, type, dryerId, dateSent, dateReturned,
-                palayQuantitySent, palayQuantityReturned, warehouseId } = req.body;
+            const { transactionId, dryingMethod, dryerType, dryerId, dateSent, dateReturned, palayQuantitySentKg, palayQuantityReturnedKg } = req.body;
 
             const dryingProcess = await createDryingProcess({
-                palayBatchId,
-                type,
+                transactionId,
+                dryingMethod,
+                dryerType,
                 dryerId,
                 dateSent,
                 dateReturned,
-                palayQuantitySent,
-                palayQuantityReturned,
-                warehouseId
+                palayQuantitySentKg,
+                palayQuantityReturnedKg
             });
 
             res.json(dryingProcess);
         }
     );
 
-    // router.post('/batch/:num', async (req, res) => {
-    //     const num = Number(req.params.num);
-
-    //     for (let i = 0; i < Number(req.params.num); i++) {
-    //         const user = await createUser({
-    //             username: `lastmjs${v4()}`,
-    //             age: i
-    //         });
-
-    //         await createDryingProcess({
-    //             user_id: user.id,
-    //             title: `DryingProcess ${v4()}`,
-    //             body: `${v4()}${v4()}${v4()}${v4()}`
-    //         });
-    //     }
-
-    //     res.send({
-    //         Success: `${num} dryingProcesses created`
-    //     });
-    // });
-
     router.post('/update', updateHandler);
-
-    router.patch('/', updateHandler);
-
-    router.delete('/', async (req: Request<any, any, { id: number }>, res) => {
-        const { id } = req.body;
-
-        const deletedId = await deleteDryingProcess(id);
-
-        res.json(deletedId);
-    });
 
     return router;
 }
@@ -107,31 +73,23 @@ async function updateHandler(
     req: Request<
         any,
         any,
-        { id: number; palayBatchId?: number; type?: string; dryerId?: number; dateSent?: Date; dateReturned?: Date;
-            palayQuantitySent?: number; palayQuantityReturned?: number; warehouseId?: number }
+        { id: number; transactionId?: number; dryingMethod?: string; dryerType?: string; dryerId?: number; dateSent?: Date; dateReturned?: Date;
+            palayQuantitySentKg?: number; palayQuantityReturnedKg?: number }
     >,
     res: Response
 ): Promise<void> {
-    const { id,
-        palayBatchId,
-        type,
-        dryerId,
-        dateSent,
-        dateReturned,
-        palayQuantitySent,
-        palayQuantityReturned,
-        warehouseId } = req.body;
+    const { id, transactionId, dryingMethod, dryerType, dryerId, dateSent, dateReturned, palayQuantitySentKg, palayQuantityReturnedKg } = req.body;
 
     const dryingProcess = await updateDryingProcess({
         id,
-        palayBatchId,
-        type,
+        transactionId,
+        dryingMethod,
+        dryerType,
         dryerId,
         dateSent,
         dateReturned,
-        palayQuantitySent,
-        palayQuantityReturned,
-        warehouseId
+        palayQuantitySentKg,
+        palayQuantityReturnedKg
     });
 
     res.json(dryingProcess);
