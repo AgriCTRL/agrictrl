@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog } from 'primereact/dialog';
-import { Button } from 'primereact/button';
+import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
-import InputComponent from '@/Components/Form/InputComponent';
+import { Button } from 'primereact/button';
 import { Factory } from 'lucide-react';
 
 function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const [name, setName] = useState('');
+    const [millerName, setMillerName] = useState('');
+    const [category, setCategory] = useState('');
     const [capacity, setCapacity] = useState('');
     const [location, setLocation] = useState('');
-    const [contactInfo, setContactInfo] = useState('');
+    const [contactNumber, setContactNumber] = useState('');
+    const [email, setEmail] = useState('');
     const [status, setStatus] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -19,12 +20,20 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
         { label: 'Inactive', value: 'Inactive' }
     ];
 
+    const categoryOptions = [
+        { label: 'Small', value: 'small' },
+        { label: 'Medium', value: 'medium' },
+        { label: 'Large', value: 'large' }
+    ];
+
     useEffect(() => {
         if (selectedMiller) {
-            setName(selectedMiller.name);
+            setMillerName(selectedMiller.millerName);
+            setCategory(selectedMiller.category);
             setCapacity(selectedMiller.capacity);
             setLocation(selectedMiller.location);
-            setContactInfo(selectedMiller.contactInfo);
+            setContactNumber(selectedMiller.contactNumber);
+            setEmail(selectedMiller.email);
             setStatus(selectedMiller.status);
         }
     }, [selectedMiller]);
@@ -32,15 +41,15 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
     const handleUpdate = async (e) => {
         e.preventDefault();
 
-        
-
         setIsSubmitting(true);
         const updatedMiller = {
             ...selectedMiller,
-            name,
+            millerName,
+            category,
             capacity,
             location,
-            contactInfo,
+            contactNumber,
+            email,
             status
         };
 
@@ -51,7 +60,7 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
                 body: JSON.stringify(updatedMiller)
             });
             if (!res.ok) {
-                throw new Error('Error adding data');
+                throw new Error('Error updating data');
             }
         } catch (error) {
             console.log(error.message);
@@ -59,66 +68,130 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
 
         onUpdateMiller(updatedMiller);
 
-        setName('');
+        // Reset form
+        setMillerName('');
+        setCategory(null);
         setCapacity('');
         setLocation('');
-        setContactInfo('');
+        setContactNumber('');
+        setEmail('');
         setStatus(null);
 
         setIsSubmitting(false);
         onHide();
     };
 
-    const renderInputField = (label, name, type, value, placeholder, onChange) => (
-        <div className="sm:col-span-3 mb-3">
-            <label htmlFor={name} className="block text-sm font-medium leading-6 text-gray-900">{label}</label>
-            <div className="mt-2">
-                <InputComponent
-                    inputIcon={<Factory size={20} />}
-                    onChange={onChange}
-                    value={value}
-                    name={name}
-                    type={type}
-                    placeholder={placeholder}
-                    aria-label={name}
-                />
-            </div>
-        </div>
-    );
-
-    const renderDropdownField = (label, name, value, options, placeholder, onChange) => (
-        <div className="sm:col-span-3 mb-3">
-            <label htmlFor={name} className="block text-sm font-medium leading-6 text-gray-900">{label}</label>
-            <div className="mt-2">
-                <Dropdown
-                    id={name}
-                    name={name}
-                    value={value || null}
-                    options={options}
-                    onChange={onChange}
-                    placeholder={placeholder}
-                    className="w-full"
-                />
-            </div>
-        </div>
-    );
+    if (!visible) {
+        return null; // Don't render if not visible
+    }
 
     return (
-        <Dialog visible={visible} onHide={onHide} header="Update Miller" modal style={{ width: '40vw' }}>
-            <div className="p-grid p-nogutter">
-                <form onSubmit={handleUpdate} className="p-col-12 p-2">
-                    {renderInputField('Miller Name', 'name', 'text', name, 'Enter miller name', (e) => setName(e.target.value))}
-                    {renderInputField('Capacity', 'capacity', 'number', capacity, 'Enter capacity', (e) => setCapacity(e.target.value))}
-                    {renderInputField('Location', 'location', 'text', location, 'Enter location', (e) => setLocation(e.target.value))}
-                    {renderInputField('Contact Info', 'contactInfo', 'text', contactInfo, 'Enter contact info', (e) => setContactInfo(e.target.value))}
-                    {renderDropdownField('Status', 'status', status, statusOptions, 'Select status', (e) => setStatus(e.value))}
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white rounded-lg p-5 w-1/3 shadow-lg relative">
+                {/* Close button */}
+                <button onClick={onHide} className="absolute top-5 right-5 text-gray-600 hover:text-gray-800">
+                    ✕
+                </button>
 
-                    <div className="flex justify-center mt-4">
-                        <Button label="Update" disabled={isSubmitting} className="p-button-success border p-2 px-5 text-white font-bold bg-gradient-to-r from-primary to-secondary" />
+                {/* Header */}
+                <div className="flex items-center mb-4">
+                    <Factory className="w-6 h-6 mr-2 text-black" />
+                    <span className="text-md font-semibold">Update Miller</span>
+                </div>
+
+                {/* Form Content */}
+                <form onSubmit={handleUpdate}>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label htmlFor="millerName" className="block text-sm font-medium text-gray-700">Miller Name</label>
+                            <InputText
+                                id="millerName"
+                                value={millerName}
+                                onChange={(e) => setMillerName(e.target.value)}
+                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                            />
+                        </div>
+
+                        <div>
+                            <label htmlFor="category" className="block text-sm font-medium text-gray-700">Category</label>
+                            <Dropdown
+                                id="category"
+                                value={category}
+                                options={categoryOptions}
+                                onChange={(e) => setCategory(e.value)}
+                                className="w-full rounded-md border border-gray-300"
+                            />
+                        </div>
+
+                        <div>
+                            <label htmlFor="capacity" className="block text-sm font-medium text-gray-700">Capacity</label>
+                            <InputText
+                                id="capacity"
+                                value={capacity}
+                                onChange={(e) => setCapacity(e.target.value)}
+                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                            />
+                        </div>
+
+                        <div>
+                            <label htmlFor="location" className="block text-sm font-medium text-gray-700">Location</label>
+                            <InputText
+                                id="location"
+                                value={location}
+                                onChange={(e) => setLocation(e.target.value)}
+                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                            />
+                        </div>
+
+                        <div>
+                            <label htmlFor="contactNumber" className="block text-sm font-medium text-gray-700">Contact Number</label>
+                            <InputText
+                                id="contactNumber"
+                                value={contactNumber}
+                                onChange={(e) => setContactNumber(e.target.value)}
+                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                            />
+                        </div>
+
+                        <div>
+                            <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
+                            <InputText
+                                id="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                            />
+                        </div>
+
+                        <div>
+                            <label htmlFor="status" className="block text-sm font-medium text-gray-700">Status</label>
+                            <Dropdown
+                                id="status"
+                                value={status}
+                                options={statusOptions}
+                                onChange={(e) => setStatus(e.value)}
+                                placeholder="Select Status"
+                                className="w-full rounded-md border border-gray-300"
+                            />
+                        </div>
+
+                        {/* Cancel Button */}
+                        <Button
+                            label="Cancel"
+                            onClick={onHide}
+                            className="col-start-1 row-start-7 bg-transparent border border-primary text-primary py-2 rounded-md"
+                        />
+
+                        {/* Update Button */}
+                        <Button
+                            label="Update"
+                            disabled={isSubmitting}
+                            className="col-start-2 row-start-7 bg-primary text-white py-2 rounded-md"
+                        />
                     </div>
                 </form>
             </div>
-        </Dialog>
+        </div>
     );
 }
 
