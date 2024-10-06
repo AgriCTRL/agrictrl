@@ -1,10 +1,8 @@
 import express, { Request, Response, Router } from 'express';
-// import { v4 } from 'uuid';
 
 import {
     countDryers,
     createDryer,
-    deleteDryer,
     getDryer,
     getDryers,
     updateDryer
@@ -43,16 +41,18 @@ export function getRouter(): Router {
     router.post(
         '/',
         async (
-            req: Request<any, any, { name: string; capacity: number; location: string;  contactInfo: string; status: string }>,
+            req: Request<any, any, { dryerName: string; userId: number; location: string;  capacity: number; contactNumber: string; email: string; status: string }>,
             res
         ) => {
-            const { name, capacity, location, contactInfo, status } = req.body;
+            const { dryerName, userId, location, capacity, contactNumber, email, status } = req.body;
 
             const dryer = await createDryer({
-                name,
-                capacity, 
-                location, 
-                contactInfo,
+                dryerName,
+                userId,
+                location,
+                capacity,
+                contactNumber,
+                email,
                 status
             });
 
@@ -60,48 +60,25 @@ export function getRouter(): Router {
         }
     );
 
-    // router.post('/batch/:num', async (req, res) => {
-    //     const num = Number(req.params.num);
-
-    //     for (let i = 0; i < Number(req.params.num); i++) {
-    //         await createDryer({
-    //             name: `lastmjs${v4()}`,
-    //             age: i
-    //         });
-    //     }
-
-    //     res.json({
-    //         Success: `${num} dryers created`
-    //     });
-    // });
-
     router.post('/update', updateHandler);
-
-    router.patch('/', updateHandler);
-
-    router.delete('/', async (req: Request<any, any, { id: number }>, res) => {
-        const { id } = req.body;
-
-        const deletedId = await deleteDryer(id);
-
-        res.json(deletedId);
-    });
 
     return router;
 }
 
 async function updateHandler(
-    req: Request<any, any, { id: number; name?: string; capacity?: number; location?: string; contactInfo?: string; status?: string }>,
+    req: Request<any, any, { id: number; dryerName?: string; userId?: number; location?: string;  capacity?: number; contactNumber?: string; email?: string; status?: string }>,
     res: Response
 ): Promise<void> {
-    const { id, name, capacity, location, contactInfo, status } = req.body;
+    const { id, dryerName, userId, location, capacity, contactNumber, email, status } = req.body;
 
     const dryer = await updateDryer({
         id,
-        name,
-        capacity,
+        dryerName,
+        userId,
         location,
-        contactInfo,
+        capacity,
+        contactNumber,
+        email,
         status
     });
 

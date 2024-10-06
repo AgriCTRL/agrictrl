@@ -1,9 +1,4 @@
-import {
-    BaseEntity,
-    Column,
-    Entity,
-    PrimaryGeneratedColumn
-} from 'typeorm';
+import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class DryingProcess extends BaseEntity {
@@ -11,10 +6,13 @@ export class DryingProcess extends BaseEntity {
     id: number;
 
     @Column()
-    palayBatchId: number;
+    transactionId: number;
 
     @Column()
-    type: string;
+    dryingMethod: string;
+
+    @Column()
+    dryerType: string;
 
     @Column()
     dryerId: number;
@@ -26,16 +24,13 @@ export class DryingProcess extends BaseEntity {
     dateReturned: Date;
 
     @Column()
-    palayQuantitySent: number;
+    palayQuantitySentKg: number;
     
     @Column()
-    palayQuantityReturned: number;
-
-    @Column()
-    warehouseId: number;
+    palayQuantityReturnedKg: number;
 }
 
-export type DryingProcessCreate = Pick<DryingProcess, 'palayBatchId' | 'type' | 'dryerId' | 'dateSent' | 'dateReturned' | 'palayQuantitySent' | 'palayQuantityReturned' | 'warehouseId' >
+export type DryingProcessCreate = Pick<DryingProcess, 'transactionId' | 'dryingMethod' | 'dryerType' | 'dryerId' | 'dateSent' | 'dateReturned' | 'palayQuantitySentKg' | 'palayQuantityReturnedKg' >;
 export type DryingProcessUpdate = Pick<DryingProcess, 'id'> & Partial<DryingProcessCreate>;
 
 export async function getDryingProcesses(limit: number, offset: number): Promise<DryingProcess[]> {
@@ -60,14 +55,14 @@ export async function countDryingProcesses(): Promise<number> {
 export async function createDryingProcess(dryingProcessCreate: DryingProcessCreate): Promise<DryingProcess> {
     let dryingProcess = new DryingProcess();
 
-    dryingProcess.palayBatchId = dryingProcessCreate.palayBatchId;
-    dryingProcess.type = dryingProcessCreate.type;
+    dryingProcess.transactionId = dryingProcessCreate.transactionId;
+    dryingProcess.dryingMethod = dryingProcessCreate.dryingMethod;
+    dryingProcess.dryerType = dryingProcessCreate.dryerType;
     dryingProcess.dryerId = dryingProcessCreate.dryerId;
     dryingProcess.dateSent = dryingProcessCreate.dateSent;
     dryingProcess.dateReturned = dryingProcessCreate.dateReturned;
-    dryingProcess.palayQuantitySent = dryingProcessCreate.palayQuantitySent;
-    dryingProcess.palayQuantityReturned = dryingProcessCreate.palayQuantityReturned;
-    dryingProcess.warehouseId = dryingProcessCreate.warehouseId;
+    dryingProcess.palayQuantitySentKg = dryingProcessCreate.palayQuantitySentKg;
+    dryingProcess.palayQuantityReturnedKg = dryingProcessCreate.palayQuantityReturnedKg;
 
     return await dryingProcess.save();
 }
@@ -76,14 +71,14 @@ export async function updateDryingProcess(dryingProcessUpdate: DryingProcessUpda
     console.log('dryingProcessUpdate', dryingProcessUpdate);
 
     await DryingProcess.update(dryingProcessUpdate.id, {
-        palayBatchId: dryingProcessUpdate.palayBatchId,
-        type: dryingProcessUpdate.type,
+        transactionId: dryingProcessUpdate.transactionId,
+        dryingMethod: dryingProcessUpdate.dryingMethod,
+        dryerType: dryingProcessUpdate.dryerType,
         dryerId: dryingProcessUpdate.dryerId,
         dateSent: dryingProcessUpdate.dateSent,
         dateReturned: dryingProcessUpdate.dateReturned,
-        palayQuantitySent: dryingProcessUpdate.palayQuantitySent,
-        palayQuantityReturned: dryingProcessUpdate.palayQuantityReturned,
-        warehouseId: dryingProcessUpdate.warehouseId  
+        palayQuantitySentKg: dryingProcessUpdate.palayQuantitySentKg,
+        palayQuantityReturnedKg: dryingProcessUpdate.palayQuantityReturnedKg
     });
 
     const dryingProcess = await getDryingProcess(dryingProcessUpdate.id);
@@ -93,14 +88,4 @@ export async function updateDryingProcess(dryingProcessUpdate: DryingProcessUpda
     }
 
     return dryingProcess;
-}
-
-export async function deleteDryingProcess(id: number): Promise<number> {
-    const deleteResult = await DryingProcess.delete(id);
-
-    if (deleteResult.affected === 0) {
-        throw new Error(`deleteDryingProcess: could not delete dryingProcess with id ${id}`);
-    }
-
-    return id;
 }

@@ -1,24 +1,89 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+    BaseEntity,
+    Column,
+    CreateDateColumn,
+    Entity,
+    ManyToOne,
+    PrimaryGeneratedColumn
+} from 'typeorm';
+
+import { getOfficeAddress, OfficeAddress } from '../officeaddresses/db';
 
 @Entity()
 export class User extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ unique: true })
-    username: string;
+    @Column({ unique: true})
+    principal: string;
 
     @Column()
-    age: number;
+    firstName: string;
+
+    @Column()
+    lastName: string;
+
+    @Column()
+    gender: string;
+
+    @Column()
+    birthDate: Date;
+
+    @Column()
+    contactNumber: string;
+
+    @Column()
+    userType: string;
+
+    @Column()
+    organizationName: string;
+
+    @Column()
+    jobTitlePosition: string;
+
+    @Column()
+    branchRegion: string;
+
+    @Column()
+    branchOffice: string;
+
+    // TODO: change into blob
+    @Column()
+    validId: string;
+
+    @Column()
+    officeAddressId: number;
+
+    @ManyToOne(() => OfficeAddress)
+    officeAddress: OfficeAddress;
+
+    @Column()
+    email: string;
+
+    @Column()
+    password: string;
+
+    @Column()
+    status: string;
+
+    @Column()
+    isVerified: boolean;
+
+    @CreateDateColumn()
+    dateCreated: Date;
 }
 
-export type UserCreate = Pick<User, 'username' | 'age'>;
+export type UserCreate = Pick<User, 'principal' | 'firstName' | 'lastName' | 'gender' | 'birthDate' | 'contactNumber' | 'userType' | 'organizationName' | 'jobTitlePosition' | 'branchRegion' | 'branchOffice' | 'validId' | 'officeAddressId' | 'email' | 'password' | 'status' | 'isVerified' > &
+{ officeAddressId: OfficeAddress['id'] };
 export type UserUpdate = Pick<User, 'id'> & Partial<UserCreate>;
 
 export async function getUsers(limit: number, offset: number): Promise<User[]> {
     return await User.find({
         take: limit,
-        skip: offset
+        skip: offset,
+        relations: {
+            officeAddress: true
+        }
     });
 }
 
@@ -26,6 +91,9 @@ export async function getUser(id: number): Promise<User | null> {
     return await User.findOne({
         where: {
             id
+        },
+        relations: {
+            officeAddress: true
         }
     });
 }
@@ -37,16 +105,55 @@ export async function countUsers(): Promise<number> {
 export async function createUser(userCreate: UserCreate): Promise<User> {
     let user = new User();
 
-    user.username = userCreate.username;
-    user.age = userCreate.age;
+    user.principal = userCreate.principal;
+    user.firstName = userCreate.firstName;
+    user.lastName = userCreate.lastName;
+    user.gender = userCreate.gender;
+    user.birthDate = userCreate.birthDate;
+    user.contactNumber = userCreate.contactNumber;
+    user.userType = userCreate.userType;
+    user.organizationName = userCreate.organizationName;
+    user.jobTitlePosition = userCreate.jobTitlePosition;
+    user.branchRegion = userCreate.branchRegion;
+    user.branchOffice = userCreate.branchOffice;
+    user.validId = userCreate.validId;
+
+    // officeAddress
+
+    const officeAddress = await getOfficeAddress(userCreate.officeAddressId);
+
+    if (officeAddress === null) {
+        throw new Error(``);
+    }
+
+    user.officeAddressId = officeAddress.id;
+
+    user.email = userCreate.email;
+    user.password = userCreate.password;
+    user.status = userCreate.status;
+    user.isVerified = userCreate.isVerified;
 
     return await user.save();
 }
 
 export async function updateUser(userUpdate: UserUpdate): Promise<User> {
     await User.update(userUpdate.id, {
-        username: userUpdate.username,
-        age: userUpdate.age
+        principal: userUpdate.principal,
+        firstName: userUpdate.firstName,
+        lastName: userUpdate.lastName,
+        gender: userUpdate.gender,
+        birthDate: userUpdate.birthDate,
+        contactNumber: userUpdate.contactNumber,
+        userType: userUpdate.userType,
+        organizationName: userUpdate.organizationName,
+        jobTitlePosition: userUpdate.jobTitlePosition,
+        branchRegion: userUpdate.branchRegion,
+        branchOffice: userUpdate.branchOffice,
+        validId: userUpdate.validId,
+        email: userUpdate.email,
+        password: userUpdate.password,
+        status: userUpdate.status,
+        isVerified: userUpdate.isVerified
     });
 
     const user = await getUser(userUpdate.id);
@@ -56,14 +163,4 @@ export async function updateUser(userUpdate: UserUpdate): Promise<User> {
     }
 
     return user;
-}
-
-export async function deleteUser(id: number): Promise<number> {
-    const deleteResult = await User.delete(id);
-
-    if (deleteResult.affected === 0) {
-        throw new Error(`deleteUser: could not delete user with id ${id}`);
-    }
-
-    return id;
 }
