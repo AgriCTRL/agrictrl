@@ -21,6 +21,12 @@ import AdminFacilities from "./SMS/Admin/Facilities/Category";
 import AdminUsers from "./SMS/Admin/Users/Users";
 import AdminProfile from "./SMS/Admin/Profile";
 
+import StaffHome from "./SMS/Staff/Home";
+import StaffBuyPalay from "./SMS/Staff/BuyPalay";
+import StaffOrders from "./SMS/Staff/Orders";
+import StaffProcessing from "./SMS/Staff/Processing";
+import StaffWarehouse from "./SMS/Staff/Warehouse";
+
 function App() {
     return (
         <div className="flex h-screen transition-transform duration-300">
@@ -31,6 +37,7 @@ function App() {
                 <Route path="/forgotpassword" element={<ForgotPassword />} />
                 <Route path="/TnT" element={<TracknTrace />} />
                 <Route path="/admin/*" element={<AdminRoutes />} />
+                <Route path="/staff/*" element={<StaffRoutes />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
         </div>
@@ -55,6 +62,18 @@ function AdminRoutes() {
             <Route path="facilities" element={<AdminFacilities />} />
             <Route path="users" element={<AdminUsers />} />
             <Route path="profile" element={<AdminProfile />} />
+        </Routes>
+    );
+}
+
+function StaffRoutes() {
+    return (
+        <Routes>
+            <Route index element={<StaffHome />} />
+            <Route path="buy" element={<StaffBuyPalay />} />
+            <Route path="orders" element={<StaffOrders />} />
+            <Route path="processing" element={<StaffProcessing />} />
+            <Route path="warehouse" element={<StaffWarehouse />} />
         </Routes>
     );
 }

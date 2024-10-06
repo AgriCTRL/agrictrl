@@ -8,8 +8,8 @@ import {
     Users,
     User
 } from "lucide-react";
-import { SidebarComponent, SidebarItem } from "@/Components/SidebarComponent";
-import UserNavbarComponent from '@/Components/UserNavbarComponent';
+import { AdminSidebarComponent, SidebarItem } from "@/Components/AdminSidebarComponent";
+import AdminNavbarComponent from '@/Components/AdminNavbarComponent';
 import { AuthClient } from "@dfinity/auth-client";
 
 const sidebarItems = [
@@ -112,7 +112,7 @@ function AdminLayout({ children, activePage }) {
     return (
         <div className="flex h-screen w-screen bg-[#F1F5F9] pr-5">
             {/* Sidebar */}
-            <SidebarComponent expanded={expanded}> {/* Ensure full height */}
+            <AdminSidebarComponent expanded={expanded}> {/* Ensure full height */}
                 {sidebarItems.map((item, index) => (
                     <SidebarItem
                         key={index}
@@ -120,12 +120,12 @@ function AdminLayout({ children, activePage }) {
                         active={isItemActive(item.text)}
                     />
                 ))}
-            </SidebarComponent>
+            </AdminSidebarComponent>
 
             {/* Main content */}
             <div className="flex flex-col w-full h-screen overflow-hidden"> {/* Ensure full height */}
                 {/* Header */}
-                <UserNavbarComponent
+                <AdminNavbarComponent
                     items={{
                         user: name,
                         avatar: '/profileAvatar.png',

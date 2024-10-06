@@ -7,7 +7,7 @@ import { LogOut } from 'lucide-react';
 import { AuthClient } from "@dfinity/auth-client";
         
 const SidebarContext = createContext()
-function SidebarComponent({ children, expanded }) {
+function AdminSidebarComponent({ children, expanded }) {
     const navigate = useNavigate();
     const logoutButton = async () => {
         try {
@@ -109,4 +109,4 @@ function SidebarItem({ icon, text, active, link }) {
     );
 }
 
-export { SidebarItem, SidebarComponent };
+export { SidebarItem, AdminSidebarComponent };

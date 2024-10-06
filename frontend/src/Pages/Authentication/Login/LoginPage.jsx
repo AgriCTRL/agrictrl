@@ -17,7 +17,7 @@ const LoginPage = () => {
   ];
 
   const loginButton = () => {   
-    navigate('/admin/');
+    navigate('/staff/');
   }
 
 	const RegisterButton = (e) => {   
