@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import UserLayout from '@/Layouts/UserLayout';
+import AdminLayout from '@/Layouts/AdminLayout';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { Calendar } from 'primereact/calendar';
@@ -341,7 +341,7 @@ function Profile() {
     ];
 
     return (
-        <UserLayout activePage="Profile">
+        <AdminLayout activePage="Profile">
             <div className='flex flex-row h-full w-full px-4 py-2 bg-white rounded-xl'>
                 <div className='flex flex-col items-center justify-start h-full w-1/4 p-5'>
                     <img src="/profileAvatar.png" alt="Profile" className="w-20 h-20 rounded-full mr-4" />
@@ -396,7 +396,7 @@ function Profile() {
                     </form>
                 </div>
             </div>
-        </UserLayout>
+        </AdminLayout>
     );
 }
 

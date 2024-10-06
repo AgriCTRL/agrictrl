@@ -8,7 +8,7 @@ import {
     Building2,
     Wheat,
 } from "lucide-react";
-import UserLayout from '@/Layouts/UserLayout';
+import AdminLayout from '@/Layouts/AdminLayout';
 import CardComponent from '@/Components/CardComponent';
 
 function Home() {
@@ -50,7 +50,7 @@ function Home() {
     };
 
     return (
-        <UserLayout activePage="Home">
+        <AdminLayout activePage="Home">
             <div className='flex flex-col gap-10'>
                 <section>
                     <Carousel 
@@ -105,7 +105,7 @@ function Home() {
                     </div>
                 </section>
             </div>
-        </UserLayout>
+        </AdminLayout>
     );
 }
 

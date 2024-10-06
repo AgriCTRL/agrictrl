@@ -7,7 +7,7 @@ import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { Search, CircleAlert, Settings2, FileX } from 'lucide-react';
 
-import UserLayout from '@/Layouts/UserLayout';
+import AdminLayout from '@/Layouts/AdminLayout';
 
 function Inventory() { 
     // const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -120,7 +120,7 @@ function Inventory() {
     );
 
     return (
-        <UserLayout activePage="Inventory">
+        <AdminLayout activePage="Inventory">
             <div className="flex flex-col h-full px-4 py-2">
                 {/* Header */}
                 <div className="mb-4">
@@ -185,7 +185,7 @@ function Inventory() {
                     </div>
                 </div>
             </div>
-        </UserLayout>
+        </AdminLayout>
     );
 }
 

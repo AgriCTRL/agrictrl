@@ -50,7 +50,7 @@ const sidebarItems = [
     },
 ];
  
-function UserLayout({ children, activePage }) {
+function AdminLayout({ children, activePage }) {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const [name, setName] = useState(() => localStorage.getItem('userName') || '');
 
@@ -145,4 +145,4 @@ function UserLayout({ children, activePage }) {
     );
 }
 
-export default UserLayout;
+export default AdminLayout;
