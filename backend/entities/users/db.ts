@@ -1,6 +1,7 @@
 import {
     BaseEntity,
     Column,
+    CreateDateColumn,
     Entity,
     ManyToOne,
     PrimaryGeneratedColumn
@@ -68,10 +69,11 @@ export class User extends BaseEntity {
     @Column()
     isVerified: boolean;
 
-    // TODO: date created column
+    @CreateDateColumn()
+    dateCreated: Date;
 }
 
-export type UserCreate = Pick<User, 'principal' | 'firstName' | 'lastName' | 'gender' | 'birthDate' | 'contactNumber' | 'userType' | 'organizationName' | 'jobTitlePosition' | 'branchRegion' | 'branchOffice' | 'validId' | 'officeAddressId' | 'email' | 'password' | 'status' | 'isVerified'> &
+export type UserCreate = Pick<User, 'principal' | 'firstName' | 'lastName' | 'gender' | 'birthDate' | 'contactNumber' | 'userType' | 'organizationName' | 'jobTitlePosition' | 'branchRegion' | 'branchOffice' | 'validId' | 'officeAddressId' | 'email' | 'password' | 'status' | 'isVerified' > &
 { officeAddressId: OfficeAddress['id'] };
 export type UserUpdate = Pick<User, 'id'> & Partial<UserCreate>;
 

@@ -15,6 +15,9 @@ import { PalaySupplier } from '../entities/palaysuppliers/db';
 import { RiceOrder } from '../entities/riceorders/db';
 import { BuyingStation } from '../entities/buyingstations/db';
 import { Transaction } from '../entities/transactions/db';
+import { Farm } from '../entities/farms/db';
+import { HouseOfficeAddress } from '../entities/houseofficeaddresses/db';
+
 
 // TODO figure out migrations
 export async function initDb(
@@ -23,7 +26,7 @@ export async function initDb(
     const AppDataSource = new DataSource({
         type: 'sqljs',
         synchronize: true, // TODO we should figure out real migrations for people
-        entities: [ User, QualitySpec, Warehouse, Dryer, Miller, PalayBatch, RiceBatch, DryingProcess, MillingProcess, OfficeAddress, PalaySupplier, RiceOrder, BuyingStation, Transaction ],
+        entities: [ User, QualitySpec, Warehouse, Dryer, Miller, PalayBatch, RiceBatch, DryingProcess, MillingProcess, OfficeAddress, PalaySupplier, RiceOrder, BuyingStation, Transaction, Farm, HouseOfficeAddress ],
         driver: await initSqlJs({}),
         database: bytes
     });

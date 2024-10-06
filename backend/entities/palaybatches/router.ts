@@ -1,6 +1,8 @@
 import express, { Request, Response, Router } from 'express';
 
 import { createQualitySpec } from '../qualityspecs/db';
+import { createPalaySupplier } from '../palaysuppliers/db';
+import { createFarm } from '../farms/db';
 import {
     countPalayBatches,
     createPalayBatch,
@@ -8,6 +10,7 @@ import {
     getPalayBatches,
     updatePalayBatch
 } from './db';
+import { createHouseOfficeAddress } from '../houseofficeaddresses/db';
 
 export function getRouter(): Router {
     const router = express.Router();
@@ -42,26 +45,68 @@ export function getRouter(): Router {
     router.post(
         '/',
         async (
-            req: Request<any, any, { dateBought: Date;
+            req: Request<any, any, { palayVariety: string;
+                dateBought: Date;
                 quantityKg: number;
                 qualityType: string;
                 moistureContent: number;
                 purity: number;
                 damaged: number;
-                price: number
-                palaySupplierId: number;
+                price: number;
+                farmerName: string;
+                palaySupplierRegion: string;
+                palaySupplierProvince: string;
+                palaySupplierCityTown: string;
+                palaySupplierBarangay: string;
+                palaySupplierStreet: string;
+                category: string;
+                numOfFarmer: number;
+                contactNumber: string;
+                email: string;
+                birthDate: Date;
+                gender: string;
+                farmSize: number;
+                farmRegion: string;
+                farmProvince: string;
+                farmCityTown: string;
+                farmBarangay: string;
+                farmStreet: string;
+                plantedDate: Date;
+                harvestedDate: Date;
+                estimatedCapital: number;
                 userId: number;
                 status: string }>,
             res
         ) => {
-            const { dateBought,
+            const { palayVariety,
+                dateBought,
                 quantityKg,
                 qualityType,
                 moistureContent,
                 purity,
                 damaged,
                 price,
-                palaySupplierId,
+                farmerName,
+                palaySupplierRegion,
+                palaySupplierProvince,
+                palaySupplierCityTown,
+                palaySupplierBarangay,
+                palaySupplierStreet,
+                category,
+                numOfFarmer,
+                contactNumber,
+                email,
+                birthDate,
+                gender,
+                farmSize,
+                farmRegion,
+                farmProvince,
+                farmCityTown,
+                farmBarangay,
+                farmStreet,
+                plantedDate,
+                harvestedDate,
+                estimatedCapital,
                 userId,
                 status } = req.body;
 
@@ -71,13 +116,47 @@ export function getRouter(): Router {
                 damaged: damaged
             });
 
+            const houseOfficeAddress = await createHouseOfficeAddress({
+                region: palaySupplierRegion,
+                province: palaySupplierProvince,
+                cityTown: palaySupplierCityTown,
+                barangay: palaySupplierBarangay,
+                street: palaySupplierStreet
+            })
+
+            const palaySupplier = await createPalaySupplier({
+                farmerName: farmerName,
+                houseOfficeAddressId: houseOfficeAddress.id,
+                category: category,
+                numOfFarmer: numOfFarmer,
+                contactNumber: contactNumber,
+                email: email,
+                birthDate: birthDate,
+                gender: gender
+            })
+
+            const farm = await createFarm({
+                palaySupplierId: palaySupplier.id,
+                farmSize: farmSize,
+                region: farmRegion,
+                province: farmProvince,
+                cityTown: farmCityTown,
+                barangay: farmBarangay,
+                street: farmStreet
+            })
+
             const palayBatch = await createPalayBatch({
+                palayVariety,
                 dateBought,
                 quantityKg,
                 qualityType,
                 qualitySpecId: qualitySpec.id,
                 price,
-                palaySupplierId,
+                palaySupplierId: palaySupplier.id,
+                farmId: farm.id,
+                plantedDate,
+                harvestedDate,
+                estimatedCapital,
                 userId,
                 status
             });
@@ -93,31 +172,40 @@ export function getRouter(): Router {
 
 async function updateHandler(
     req: Request<any, any, { id: number;
+        palayVariety: string
         dateBought: Date;
         quantityKg: number;
         qualityType: string;
         price: number
-        palaySupplierId: number;
+        plantedDate: Date;
+        harvestedDate: Date;
+        estimatedCapital: number;
         userId: number;
         status: string }>,
     res: Response
 ): Promise<void> {
     const { id,
+        palayVariety,
         dateBought,
         quantityKg,
         qualityType,
         price,
-        palaySupplierId,
+        plantedDate,
+        harvestedDate,
+        estimatedCapital,
         userId,
         status } = req.body;
 
     const palayBatch = await updatePalayBatch({
         id,
+        palayVariety,
         dateBought,
         quantityKg,
         qualityType,
         price,
-        palaySupplierId,
+        plantedDate,
+        harvestedDate,
+        estimatedCapital,
         userId,
         status
     });

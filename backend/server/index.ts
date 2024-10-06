@@ -15,6 +15,9 @@ import { getRouter as getRouterPalaySupplier} from '../entities/palaysuppliers/r
 import { getRouter as getRouterRiceOrder} from '../entities/riceorders/router';
 import { getRouter as getRouterBuyingStation} from '../entities/buyingstations/router';
 import { getRouter as getRouterTransaction} from '../entities/transactions/router';
+import { getRouter as getRouterFarm } from '../entities/farms/router';
+import { getRouter as getRouterHouseOfficeAddress } from '../entities/houseofficeaddresses/router';
+
 
 // TODO make this function's return type explicit https://github.com/demergent-labs/azle/issues/1860
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
@@ -38,6 +41,9 @@ export function initServer() {
     app.use('/riceorders', getRouterRiceOrder());
     app.use('/buyingstations', getRouterBuyingStation());
     app.use('/transactions', getRouterTransaction());
+    app.use('/farms', getRouterFarm());
+    app.use('/houseofficeaddresses', getRouterHouseOfficeAddress());
+
 
     app.get('/init-called', (_req, res) => {
         res.json(globalThis._azleInitCalled);

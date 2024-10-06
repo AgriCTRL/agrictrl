@@ -7,11 +7,16 @@ import {
 } from 'typeorm';
 
 import { getQualitySpec, QualitySpec } from '../qualityspecs/db';
+import { getPalaySupplier, PalaySupplier } from '../palaysuppliers/db';
+import { getFarm, Farm } from '../farms/db';
 
 @Entity()
 export class PalayBatch extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number;
+
+    @Column()
+    palayVariety: string;
 
     @Column()
     dateBought: Date;
@@ -34,6 +39,24 @@ export class PalayBatch extends BaseEntity {
     @Column()
     palaySupplierId: number;
 
+    @ManyToOne(() => PalaySupplier)
+    palaySupplier: PalaySupplier;
+
+    @Column()
+    farmId: number;
+
+    @ManyToOne(() => Farm)
+    farm: Farm;
+
+    @Column()
+    plantedDate: Date;
+
+    @Column()
+    harvestedDate: Date;
+
+    @Column()
+    estimatedCapital: number;
+
     @Column()
     userId: number;
 
@@ -41,7 +64,7 @@ export class PalayBatch extends BaseEntity {
     status: string;
 }
 
-export type PalayBatchCreate = Pick<PalayBatch, 'dateBought' | 'quantityKg' | 'qualityType' | 'qualitySpecId' | 'price' | 'palaySupplierId' | 'userId' | 'status'> &
+export type PalayBatchCreate = Pick<PalayBatch, 'palayVariety' | 'dateBought' | 'quantityKg' | 'qualityType' | 'qualitySpecId' | 'price' | 'palaySupplierId' | 'farmId' | 'plantedDate' | 'harvestedDate' | 'estimatedCapital' | 'userId' | 'status'> &
 { qualitySpecId: QualitySpec['id'] };
 export type PalayBatchUpdate = Pick<PalayBatch, 'id'> & Partial<PalayBatchCreate>;
 
@@ -50,7 +73,9 @@ export async function getPalayBatches(limit: number, offset: number): Promise<Pa
         take: limit,
         skip: offset,
         relations: {
-            qualitySpec: true
+            qualitySpec: true,
+            palaySupplier: true,
+            farm: true
         }
     });
 }
@@ -61,7 +86,9 @@ export async function getPalayBatch(id: number): Promise<PalayBatch | null> {
             id
         },
         relations: {
-            qualitySpec: true
+            qualitySpec: true,
+            palaySupplier: true,
+            farm: true
         }
     });
 }
@@ -73,6 +100,7 @@ export async function countPalayBatches(): Promise<number> {
 export async function createPalayBatch(palayBatchCreate: PalayBatchCreate): Promise<PalayBatch> {
     let palayBatch = new PalayBatch();
 
+    palayBatch.palayVariety = palayBatchCreate.palayVariety;
     palayBatch.dateBought = palayBatchCreate.dateBought;
     palayBatch.quantityKg = palayBatchCreate.quantityKg;
     palayBatch.qualityType = palayBatchCreate.qualityType;
@@ -88,7 +116,30 @@ export async function createPalayBatch(palayBatchCreate: PalayBatchCreate): Prom
     palayBatch.qualitySpecId = qualitySpec.id;
 
     palayBatch.price = palayBatchCreate.price;
-    palayBatch.palaySupplierId = palayBatchCreate.palaySupplierId;
+
+    // palaySupplier
+
+    const palaySupplier = await getPalaySupplier(palayBatchCreate.palaySupplierId);
+
+    if (palaySupplier === null) {
+        throw new Error(``);
+    }
+
+    palayBatch.palaySupplierId = palaySupplier.id;
+
+    // farm
+
+    const farm = await getFarm(palayBatchCreate.farmId);
+
+    if (farm === null) {
+        throw new Error(``);
+    }
+
+    palayBatch.farmId = farm.id;
+
+    palayBatch.plantedDate = palayBatchCreate.plantedDate;
+    palayBatch.harvestedDate = palayBatchCreate.harvestedDate;
+    palayBatch.estimatedCapital = palayBatchCreate.estimatedCapital;
     palayBatch.userId = palayBatchCreate.userId;
     palayBatch.status = palayBatchCreate.status;
 
@@ -97,12 +148,14 @@ export async function createPalayBatch(palayBatchCreate: PalayBatchCreate): Prom
 
 export async function updatePalayBatch(palayBatchUpdate: PalayBatchUpdate): Promise<PalayBatch> {
     await PalayBatch.update(palayBatchUpdate.id, {
+        palayVariety: palayBatchUpdate.palayVariety,
         dateBought: palayBatchUpdate.dateBought,
         quantityKg: palayBatchUpdate.quantityKg,
         qualityType: palayBatchUpdate.qualityType,
-        qualitySpecId: palayBatchUpdate.qualitySpecId,
         price: palayBatchUpdate.price,
-        palaySupplierId: palayBatchUpdate.palaySupplierId,
+        plantedDate: palayBatchUpdate.plantedDate,
+        harvestedDate: palayBatchUpdate.harvestedDate,
+        estimatedCapital: palayBatchUpdate.estimatedCapital,
         userId: palayBatchUpdate.userId,
         status: palayBatchUpdate.status
     });

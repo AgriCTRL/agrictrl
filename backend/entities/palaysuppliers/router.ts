@@ -1,5 +1,6 @@
 import express, { Request, Response, Router } from 'express';
 
+import { createHouseOfficeAddress } from '../houseofficeaddresses/db';
 import {
     countPalaySuppliers,
     createPalaySupplier,
@@ -41,17 +42,50 @@ export function getRouter(): Router {
     router.post(
         '/',
         async (
-            req: Request<any, any, { farmerName: string; farmAddress: string; category: string; contactNumber: string; email: string }>,
+            req: Request<any, any, { farmerName: string;
+                region: string;
+                province: string;
+                cityTown: string;
+                barangay: string;
+                street: string;
+                category: string;
+                numOfFarmer: number;
+                contactNumber: string;
+                email: string;
+                birthDate: Date;
+                gender: string }>,
             res
         ) => {
-            const { farmerName, farmAddress, category, contactNumber, email } = req.body;
+            const { farmerName,
+                region,
+                province,
+                cityTown,
+                barangay,
+                street,
+                category,
+                numOfFarmer,
+                contactNumber,
+                email,
+                birthDate,
+                gender } = req.body;
+
+            const houseOfficeAddress = await createHouseOfficeAddress({
+                region: region,
+                province: province,
+                cityTown: cityTown,
+                barangay: barangay,
+                street: street
+            });
 
             const palaySupplier = await createPalaySupplier({
                 farmerName,
-                farmAddress,
+                houseOfficeAddressId: houseOfficeAddress.id,
                 category,
+                numOfFarmer,
                 contactNumber,
-                email
+                email,
+                birthDate,
+                gender
             });
 
             res.json(palaySupplier);
@@ -64,18 +98,34 @@ export function getRouter(): Router {
 }
 
 async function updateHandler(
-    req: Request<any, any, { id: number; farmerName?: string; farmAddress?: string; category?: string; contactNumber?: string; email?: string; }>,
+    req: Request<any, any, { id: number;
+        farmerName?: string;
+        category?: string;
+        numOfFarmer?: number;
+        contactNumber?: string;
+        email?: string;
+        birthDate?: Date;
+        gender?: string  }>,
     res: Response
 ): Promise<void> {
-    const { id, farmerName, farmAddress, category, contactNumber, email } = req.body;
+    const { id,
+        farmerName,
+        category,
+        numOfFarmer,
+        contactNumber,
+        email,
+        birthDate,
+        gender } = req.body;
 
     const palaySupplier = await updatePalaySupplier({
         id,
         farmerName,
-        farmAddress,
         category,
+        numOfFarmer,
         contactNumber,
-        email
+        email,
+        birthDate,
+        gender
     });
 
     res.json(palaySupplier);
