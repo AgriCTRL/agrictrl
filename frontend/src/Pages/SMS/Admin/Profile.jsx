@@ -174,7 +174,7 @@ function Profile() {
                     value={userData.personalInfo.birthDate}
                     onChange={(e) => setUserData(prev => ({...prev, personalInfo: {...prev.personalInfo, birthDate: e.value}}))}
                     disabled={!editing}
-                    className="w-full border border-gray-300 rounded-md p-2"
+                    className="w-full rounded-md"
                 />
             </div>
             <div>
