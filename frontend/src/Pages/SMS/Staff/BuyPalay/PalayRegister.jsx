@@ -146,7 +146,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                     options={[{ label: 'Individual Farmer', value: 'individual' }, { label: 'Cooperative', value: 'coop' }]}
                     onChange={handleInputChange}
                     placeholder="select category"
-                    className="mb-4 ring-0 w-full p-inputtext-md font-normal rounded-md border border-gray-300 placeholder:text-gray-400"
+                    className="mb-2 ring-0 w-full placeholder:text-gray-400"
                 />
             </div>
 
@@ -170,7 +170,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                             value={formData.birthdate}
                             onChange={handleInputChange}
                             placeholder="Select birthdate"
-                            className="ring-0 w-full p-inputtext-sm p-2 rounded-md border border-gray-300 placeholder:text-gray-400 placeholder:font-light"
+                            className="ring-0 w-full p-inputtext-sm rounded-md border-gray-300 placeholder:text-gray-400 placeholder:font-light"
                         />
                     </div>
 
@@ -183,13 +183,13 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                             options={[{ label: 'Male', value: 'male' }, { label: 'Female', value: 'female' }, { label: 'Others', value: 'others' }]}
                             onChange={handleInputChange}
                             placeholder="gender"
-                            className="mb-4 ring-0 w-full p-inputtext-md font-normal rounded-md border border-gray-300"
+                            className="w-full"
                         />
                     </div>
                 </div>
             </div>
             
-            <div className="flex flex-row w-full space-x-2">
+            <div className="flex flex-row w-full space-x-2 mb-1">
                 <InputField
                     label="Email"
                     id="email"
@@ -325,7 +325,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                         value={formData.datePlanted}
                         onChange={handleInputChange}
                         placeholder="select date"
-                        className="ring-0 w-full p-inputtext-sm p-2 rounded-md border border-gray-300 placeholder:text-gray-400 placeholder:font-light"
+                        className="ring-0 w-full p-inputtext-sm rounded-md placeholder:text-gray-400 placeholder:font-light"
                     />
                 </div>
 
@@ -337,7 +337,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                         value={formData.dateHarvested}
                         onChange={handleInputChange}
                         placeholder="select date"
-                        className="ring-0 w-full p-inputtext-sm p-2 rounded-md border border-gray-300 placeholder:text-gray-400 placeholder:font-light"
+                        className="ring-0 w-full p-inputtext-sm rounded-md placeholder:text-gray-400 placeholder:font-light"
                     />
                 </div>
 

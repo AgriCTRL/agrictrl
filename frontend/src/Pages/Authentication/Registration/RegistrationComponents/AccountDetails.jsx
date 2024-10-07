@@ -71,7 +71,7 @@ const AccountDetails = () => {
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4 mb-2">
+      <div className="grid grid-cols-2 gap-4">
         <div className="mb-2">
           <label htmlFor="organizationName" className="block mb-2 text-sm font-medium text-gray-700">Organisation Name</label>
           <InputText
@@ -79,7 +79,7 @@ const AccountDetails = () => {
             value={organizationName}
             onChange={(e) => handleInputChange('organizationName', e.target.value)}
             placeholder="organization name"
-            className="ring-0 w-full p-inputtext-sm p-1 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-normal"
+            className="ring-0 w-full p-inputtext-sm p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-normal"
           />
         </div>
         <div className="mb-2">
@@ -89,7 +89,7 @@ const AccountDetails = () => {
             value={jobTitle}
             onChange={(e) => handleInputChange('jobTitle', e.target.value)}
             placeholder="job title"
-            className="ring-0 w-full p-inputtext-sm p-1 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-normal"
+            className="ring-0 w-full p-inputtext-sm p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-normal"
           />
         </div>
       </div>
@@ -129,7 +129,7 @@ const AccountDetails = () => {
           accept="image/*"
           maxFileSize={1000000}
           chooseLabel={validIdName || "Select Image"} // Show file name or default label
-          className="w-full h-44 ring-0 flex justify-center items-center border border-gray-300 rounded-md"
+          className="w-full ring-0 flex justify-center items-center border-gray-300"
           chooseOptions={{
             className: 'bg-transparent text-primary flex flex-col items-center ring-0'
           }}

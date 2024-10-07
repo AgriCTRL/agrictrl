@@ -49,7 +49,7 @@ const OfficeAddress = () => {
             options={regionOptions} 
             onChange={(e) => handleInputChange('region', e.target.value)}
             placeholder="Select a province" 
-            className="ring-0 w-full p-inputtext-md p-2 font-medium rounded-md border border-gray-300" />
+            className="ring-0 w-full p-inputtext-md font-medium rounded-md border border-gray-300" />
         </div>
 
       </div>
@@ -63,7 +63,7 @@ const OfficeAddress = () => {
             options={provinceOptions} 
             onChange={(e) => handleInputChange('province', e.target.value)}
             placeholder="Select a province" 
-            className="ring-0 w-full p-inputtext-md p-2 font-medium rounded-md border border-gray-300"/>
+            className="ring-0 w-full p-inputtext-md font-medium rounded-md border border-gray-300"/>
         </div>
         
         <div>
@@ -74,7 +74,7 @@ const OfficeAddress = () => {
             options={cityOptions} 
             onChange={(e) => handleInputChange('cityTown', e.target.value)}
             placeholder="Select a city" 
-            className="ring-0 w-full p-inputtext-md p-2 font-medium rounded-md border border-gray-300"/>
+            className="ring-0 w-full p-inputtext-md font-medium rounded-md border border-gray-300"/>
         </div>
       </div>
 
@@ -87,7 +87,7 @@ const OfficeAddress = () => {
             options={barangayOptions} 
             onChange={(e) => handleInputChange('barangay', e.target.value)} 
             placeholder="Select a barangay" 
-            className="ring-0 w-full p-inputtext-md p-2 font-medium rounded-md border border-gray-300"/>
+            className="ring-0 w-full p-inputtext-md font-medium rounded-md border border-gray-300"/>
         </div>
 
         <div className="mb-4">
@@ -96,7 +96,7 @@ const OfficeAddress = () => {
             id="street" 
             value={street} 
             onChange={(e) => handleInputChange('street', e.target.value)} 
-            className="ring-0 w-full p-inputtext-sm p-4 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium" 
+            className="ring-0 w-full p-inputtext-sm p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium" 
             placeholder="#123 Sample Street" />
         </div>
       </div>

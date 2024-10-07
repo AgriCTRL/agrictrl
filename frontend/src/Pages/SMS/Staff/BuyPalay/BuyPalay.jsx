@@ -63,9 +63,7 @@ function BuyPalay() {
     };
 
     const handlePalayRegistered = (newPalay) => {
-        // Handle the newly registered palay data
         console.log('New Palay registered:', newPalay);
-        // You might want to add this to your inventoryData or send it to a server
         setShowRegisterPalay(false);
     };
     
@@ -121,7 +119,7 @@ function BuyPalay() {
                             emptyMessage="No inventory found."
                             paginator
                             rows={30}
-                            tableStyle={{ minWidth: '2510px' }}
+                            tableStyle={{ minWidth: '2400px' }}
                         >
                             <Column field="trackingId" header="Tracking ID" className="w-80 pl-16" headerClassName="p-4 pl-10" />
                             <Column field="id" header="Batch ID" className="w-80 pl-14" headerClassName="p-4 pl-8" />

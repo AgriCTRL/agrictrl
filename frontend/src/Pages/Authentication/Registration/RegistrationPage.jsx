@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from 'primereact/button';
 import { useNavigate } from 'react-router-dom';
-// import { Stepper, Step, StepLabel } from '@mui/material';
+import { Stepper, Step, StepLabel } from '@mui/material';
 import { CircleUserRound, Contact, SlidersVertical, CircleCheckBig } from 'lucide-react';
 import { Toast } from 'primereact/toast';
 
@@ -70,7 +70,7 @@ const RegistrationPageContent = ({ onRegisterSuccess }) => {
         throw new Error('Error registering user');
       }
       onRegisterSuccess();
-      navigate('/admin');
+      navigate('/staff');
       localStorage.removeItem('registrationData');
     } catch (error) {
       console.log(error.message);
@@ -148,11 +148,11 @@ const RegistrationPageContent = ({ onRegisterSuccess }) => {
 
         <div className="absolute bottom-16 left-32 right-24 flex justify-between m-2 p-2">
           <Button 
-            className='border-2 border-secondary py-1 px-16 text-secondary transition duration-200 hover:bg-secondary hover:text-white ring-0' 
+            className='border-2 border-secondary bg-transparent py-1 px-16 text-secondary transition duration-200 hover:bg-secondary hover:text-white ring-0' 
             label="Previous" 
             onClick={handleBack} disabled={activeStep === 0} />
           <Button
-            className='border-2 border-secondary py-1 px-16 text-secondary transition duration-200 hover:bg-secondary hover:text-white ring-0'
+            className='border-2 border-secondary bg-transparent py-1 px-16 text-secondary transition duration-200 hover:bg-secondary hover:text-white ring-0'
             label={activeStep === steps.length - 1 ? "Submit" : "Next"}
             onClick={activeStep === steps.length - 1 ? handleRegister1 : handleNext}
           />

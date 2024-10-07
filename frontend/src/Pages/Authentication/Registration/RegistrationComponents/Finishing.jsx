@@ -24,7 +24,7 @@ const Finishing = () => {
           value={email} 
           onChange={(e) => handleInputChange('email', e.target.value)}  
           placeholder="Enter your email" 
-          className="ring-0 w-full p-inputtext-sm p-4 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+          className="ring-0 w-full p-inputtext-sm p-3 rounded-md border border-gray-300 placeholder:text-gray-400 placeholder:font-normal"
         />
       </div>
 
@@ -35,7 +35,7 @@ const Finishing = () => {
           value={password} 
           onChange={(e) => handleInputChange('password', e.target.value)} 
           placeholder="Enter your password" 
-          className="ring-0 w-full p-inputtext-sm p-4 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+          className="ring-0 w-full p-inputtext-sm p-3 rounded-md border border-gray-300 placeholder:text-gray-400 placeholder:font-normal"
         />
       </div>
 
@@ -46,7 +46,7 @@ const Finishing = () => {
           value={confirmPassword} 
           onChange={(e) => handleInputChange('confirmPassword', e.target.value)}  
           placeholder="Confirm your password" 
-          className="ring-0 w-full p-inputtext-sm p-4 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+          className="ring-0 w-full p-inputtext-sm p-3 rounded-md border border-gray-300 placeholder:text-gray-400 placeholder:font-normal"
         />
       </div>
     </form>
