@@ -58,15 +58,15 @@ const AppNavbar = () => {
     }, []);
 
     return (
-        <nav className={`flex-between fixed z-50 w-full px-6 py-4 lg:px-16 transition-all duration-500 ${isScrolled ? 'bg-[#000000]/40 backdrop-blur-sm shadow-lg' : ''}`}>
-            <ScrollLink href='/' className='flex items-center gap-2'>
+        <nav className={`flex-between fixed z-50 w-screen px-6 sm:px-12 lg:px-24 py-4 transition-all duration-500 ${isScrolled ? 'bg-[#000000]/40 backdrop-blur-sm shadow-lg' : ''}`}>
+            <ScrollLink href='/' className='flex items-center gap-4'>
                 <Image 
                     src='favicon.ico' 
                     alt='AgriCTRL+ Logo' 
                     width={50} 
                     height={50}>
                 </Image>       
-                <p className='text-[32px] hidden sm:block text-white'>AgriCTRL+</p>
+                <p className='text-[32px] hidden md:block text-white'>AgriCTRL+</p>
             </ScrollLink>
             <div className="flex-between gap-4">
                 <ScrollLink 

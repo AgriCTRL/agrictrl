@@ -76,5 +76,32 @@
             }
         }
     }
+
+    .p-timeline {
+        &.p-timeline-horizontal {
+            .p-timeline-event {
+                .p-timeline-event-content {
+                    width: fit-content;
+                }
+            }
+        }
+        
+
+        &.p-timeline-vertical {
+            .p-timeline-event {
+                height: 10rem;
+
+                .p-timeline-event-content {
+                    width: 5rem;
+                }
+            }
+        }
+    }
+
+    .p-carousel-horizontal {
+        .p-carousel-indicators {
+            display: none;
+        }
+    }
 }
 
