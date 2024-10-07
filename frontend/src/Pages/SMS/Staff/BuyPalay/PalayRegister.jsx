@@ -8,6 +8,7 @@ import { Calendar } from 'primereact/calendar';
 import { Wheat, UserIcon, CheckIcon, TruckIcon } from 'lucide-react';
 
 import { Stepper, Step, StepLabel } from '@mui/material';
+import { InputText } from 'primereact/inputtext';
 
 // Reusable Input Component
 const InputField = ({ label, id, value, onChange, placeholder, type = "text" }) => (
@@ -136,8 +137,8 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
     };
 
     const renderFarmerInfo = () => (
-        <div className="flex flex-col h-full px-16">
-            <div className="w-1/2">
+        <div className="flex flex-col gap-4 h-full">
+            <div className="w-full">
                 <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">Category</label>
                 <Dropdown
                     id="category"
@@ -146,23 +147,25 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                     options={[{ label: 'Individual Farmer', value: 'individual' }, { label: 'Cooperative', value: 'coop' }]}
                     onChange={handleInputChange}
                     placeholder="select category"
-                    className="mb-2 ring-0 w-full placeholder:text-gray-400"
+                    className="ring-0 w-full placeholder:text-gray-400"
                 />
             </div>
 
-            <div className="flex flex-row w-full space-x-2">
+            <div className="flex flex-row w-full gap-4">
                 <div className="w-1/2">
-                    <InputField
+                    <label htmlFor="birthdate" className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                    <InputText
                         label="Name"
-                        id="name"
+                        id="name" 
                         value={formData.name}
                         onChange={handleInputChange}
-                        placeholder="Enter your name"
+                        placeholder="Enter your name" 
+                        className='w-full'
                     />
                 </div>
 
-                <div className="flex flex-row w-1/2 space-x-2">
-                    <div className="w-[60%]">
+                <div className="flex flex-row w-1/2 gap-4">
+                    <div className="w-3/5">
                         <label htmlFor="birthdate" className="block text-sm font-medium text-gray-700 mb-1">Birthdate</label>
                         <Calendar
                             id="birthdate"
@@ -170,11 +173,11 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                             value={formData.birthdate}
                             onChange={handleInputChange}
                             placeholder="Select birthdate"
-                            className="ring-0 w-full p-inputtext-sm rounded-md border-gray-300 placeholder:text-gray-400 placeholder:font-light"
+                            className="ring-0 w-full rounded-md border-gray-300 placeholder:text-gray-400 placeholder:font-light"
                         />
                     </div>
 
-                    <div className="w-[40%]">
+                    <div className="w-2/5">
                         <label htmlFor="gender" className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
                         <Dropdown
                             id="gender"
@@ -189,34 +192,42 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                 </div>
             </div>
             
-            <div className="flex flex-row w-full space-x-2 mb-1">
-                <InputField
-                    label="Email"
-                    id="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    placeholder="Enter your email here"
-                />
+            <div className="flex flex-row w-full gap-4">
+                <div className="w-1/2">
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <InputText
+                        label="Email"
+                        id="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        placeholder="Enter your email here"
+                        className='w-full'
+                    />
+                </div>
 
-                <InputField
-                    label="Phone Number"
-                    id="phoneNumber"
-                    value={formData.phoneNumber}
-                    onChange={handleInputChange}
-                    placeholder="Enter your phone number"
-                />
+                <div className="w-1/2">
+                    <label htmlFor="number" className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                    <InputText
+                        label="Phone Number"
+                        id="phoneNumber"
+                        value={formData.phoneNumber}
+                        onChange={handleInputChange}
+                        placeholder="Enter your phone number"
+                        className='w-full'
+                    />
+                </div>
             </div>
-            
             <div className="w-full">
                 <label htmlFor="houseAddress" className="block text-sm mb-1 font-medium text-gray-700">House Address</label>
-                <div className="flex flex-row space-x-2">
+                <div className="flex gap-4 w-full flex-wrap">
                     {['region', 'province', 'city', 'barangay', 'street'].map((field) => (
-                        <InputField
+                        <InputText
                             key={field}
                             id={field}
                             value={formData.houseAddress[field]}
                             onChange={(e) => handleAddressChange('houseAddress', e)}
                             placeholder={field}
+                            className='flex-1'
                         />
                     ))}
                 </div>

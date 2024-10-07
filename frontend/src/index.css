@@ -102,10 +102,4 @@
             display: none;
         }
     }
-
-    .p-carousel.custom-carousel {
-        .p-carousel-indicators {
-            display: none;
-        }
-    }
 }
