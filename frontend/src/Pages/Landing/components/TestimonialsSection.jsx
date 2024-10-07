@@ -1,85 +1,108 @@
-import { React, useState, useRef } from 'react';
-import { Carousel } from 'primereact/carousel';
-import { Wheat, MoveRight, MoveLeft } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Wheat, MoveRight, MoveLeft, Quote } from 'lucide-react';
 
 import SocialsSection from './SocialsSection'
+
+import { Button } from 'primereact/button';
+import { Carousel } from 'primereact/carousel';
+import { Tag } from 'primereact/tag';
+import { Avatar } from 'primereact/avatar';
 
 const TestimonialsSection = () => {
 
     const [testimonials] = useState([
-    {
-        name: 'Aling Maria',
-        role: 'Karinderya Owner',
-        image: 'https://i.pravatar.cc/301',
-        quote: 'Gamit ang AgriCTRL+ mas madali namin makita kung saan galing ang mga bigas na ginagamit namin dito sa negosyo.',
-        date: '4/4/18'
-    },
-    {
-        name: 'Tomas Dela Cruz',
-        role: 'Rice Farmer',
-        image: 'https://i.pravatar.cc/302',
-        quote: 'Salamat sa AgriCTRL+ mas madali namin naibebenta ang aming ani sa makataong presyo.',
-        date: '4/4/18'
-    },
-    {
-        name: 'Jennie Villanueva',
-        role: 'Supermarket Manager',
-        image: 'https://i.pravatar.cc/303',
-        quote: 'Using this application we can assure our customer with fairness for rice products we sell.',
-        date: '4/4/18'
-    },
-    {
-        name: 'Ronnie Salazar',
-        role: 'NFA Procurement Officer',
-        image: 'https://i.pravatar.cc/304',
-        quote: 'Sa pamamagitan ng AgriCTRL+, napadali and supply chain management ng aming ahensya.',
-        date: '4/4/18'
-    },
+        {
+            name: 'Aling Maria',
+            role: 'Karinderya Owner',
+            image: 'https://i.pravatar.cc/301',
+            quote: 'Gamit ang AgriCTRL+ mas madali namin makita kung saan galing ang mga bigas na ginagamit namin dito sa negosyo.',
+            date: '4/4/18'
+        },
+        {
+            name: 'Tomas Dela Cruz',
+            role: 'Rice Farmer',
+            image: 'https://i.pravatar.cc/302',
+            quote: 'Salamat sa AgriCTRL+ mas madali namin naibebenta ang aming ani sa makataong presyo.',
+            date: '4/4/18'
+        },
+        {
+            name: 'Jennie Villanueva',
+            role: 'Supermarket Manager',
+            image: 'https://i.pravatar.cc/303',
+            quote: 'Using this application we can assure our customer with fairness for rice products we sell.',
+            date: '4/4/18'
+        },
+        {
+            name: 'Ronnie Salazar',
+            role: 'NFA Procurement Officer',
+            image: 'https://i.pravatar.cc/304',
+            quote: 'Sa pamamagitan ng AgriCTRL+, napadali and supply chain management ng aming ahensya.',
+            date: '4/4/18'
+        },
     ]);
 
-    const carouselRef = useRef(null);
+    const responsiveOptions = [
+        {
+            breakpoint: '1400px',
+            numVisible: 3,
+            numScroll: 1
+        },
+        {
+            breakpoint: '1199px',
+            numVisible: 2,
+            numScroll: 1
+        },
+        {
+            breakpoint: '767px',
+            numVisible: 1,
+            numScroll: 1
+        },
+    ];
+
+    const testimonialTemplate = (testimonial) => {
+        return (
+            <div className="flex flex-col gap-6 p-6 rounded-lg border-1 border-tag-grey mx-4">
+                <div className="user-details flex justify-between">
+                    <div className="flex sm:flex-row flex-col sm:gap-6 gap-2">
+                        <Avatar image={ testimonial.image } shape="circle" size='xlarge' className='border-2 border-primary'/>
+                        <div className="details flex flex-col gap-2 justify-center">
+                            <p className='text-primary font-semibold'>{ testimonial.name }</p>
+                            <Tag value={ testimonial.role } className='bg-tag-grey text-black'></Tag>
+                        </div>
+                    </div>
+                    <Quote className="text-primary" size={32} />
+                </div>
+                <div className="testimonial">
+                    <p>"{ testimonial.quote }"</p>
+                </div>
+                <div className="date text-primary">{ testimonial.date }</div>
+            </div>
+        );
+    };
 
     return (
-        <section className="bg-white pt-16">
-            <div className="container mx-auto px-4">
-                <div className="flex flex-col justify-center items-center">
-                    <div className="flex items-center mb-8">
-                        <Wheat className="text-primary h-5 w-5" />
-                        <span className="text-primary font-semibold ml-2">Testimonials</span>
-                    </div>
-                    <h2 className="text-4xl text-[#444444] font-bold mb-12">What They Say to AgriCTRL+</h2>
-                </div>
-
-                <div className="relative">
-                    <Carousel
-                        value={testimonials}
-                        numVisible={1}
-                        numScroll={1}
-                        circular
-                        showNavigators={true}
-                        showIndicators={true}
-                        className="z-50"
-                        ref={carouselRef}
-                        prevIcon={<MoveLeft className="h-6 w-6 text-primary" />}
-                        nextIcon={<MoveRight className="h-6 w-6 text-primary" />}
-                        itemTemplate={(item) => (
-                            <div className="bg-white rounded-lg shadow-lg p-8 my-5 mx-28">
-                                <div className="flex items-center mb-4">
-                                    <img src={item.image} alt={item.name} className="w-12 h-12 rounded-full mr-4" />
-                                    <div>
-                                        <h3 className="font-bold text-lg">{item.name}</h3>
-                                        <p className="text-gray-600">{item.role}</p>
-                                    </div>
-                                </div>
-                                <p className="text-gray-800 mb-4">"{item.quote}"</p>
-                                <p className="text-gray-500 text-sm">{item.date}</p>
-                            </div>
-                        )}
-                    />
-                </div>
+        <section id="testimonialSection" 
+            className="relative h-auto w-screen flex flex-col gap-6 overflow-hidden 
+            px-6 sm:px-12 lg:px-24 
+            pt-6 sm:pt-12 lg:pt-24 
+            pb-20 lg:pb-44 
+            justify-center"
+        >
+            <div className="title font-semibold text-primary flex items-center justify-center gap-4 text-center">
+                <Wheat />
+                <p>Testimonials</p>
             </div>
-
-            <SocialsSection />        
+            <h1 className="text-black text-2xl sm:text-4xl font-bold text-center">What They Say to AgriCTRL+</h1>
+            <Carousel 
+                value={testimonials} 
+                numVisible={3} 
+                numScroll={3} 
+                responsiveOptions={responsiveOptions} 
+                className="custom-carousel pt-4" 
+                circular
+                autoplayInterval={3000} 
+                itemTemplate={testimonialTemplate} 
+            />
         </section>
     );
 };

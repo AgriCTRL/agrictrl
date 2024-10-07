@@ -62,13 +62,3 @@ export async function updateQualitySpec(qualitySpecUpdate: QualitySpecUpdate): P
 
     return qualitySpec;
 }
-
-export async function deleteQualitySpec(id: number): Promise<number> {
-    const deleteResult = await QualitySpec.delete(id);
-
-    if (deleteResult.affected === 0) {
-        throw new Error(`deleteQualitySpec: could not delete qualitySpec with id ${id}`);
-    }
-
-    return id;
-}

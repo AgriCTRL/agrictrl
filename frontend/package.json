@@ -18,7 +18,9 @@
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
     "@mui/material": "^6.1.2",
+    "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+    "framer-motion": "^11.9.0",
     "frontend": "file:",
     "lucide-react": "^0.411.0",
     "primeicons": "^7.0.0",
@@ -28,7 +30,9 @@
     "react-router-dom": "^6.25.0",
     "react-scroll": "^1.9.0",
     "react-step-builder": "^3.0.6",
-    "react-transition-group": "^4.4.5"
+    "react-transition-group": "^4.4.5",
+    "simple-parallax-js": "^6.0.1",
+    "tailwind-merge": "^2.5.2"
   },
   "devDependencies": {
     "@types/react": "^18.3.3",

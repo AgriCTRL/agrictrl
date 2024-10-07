@@ -1,10 +1,8 @@
 import express, { Request, Response, Router } from 'express';
-// import { v4 } from 'uuid';
 
 import {
     countQualitySpecs,
     createQualitySpec,
-    deleteQualitySpec,
     getQualitySpec,
     getQualitySpecs,
     updateQualitySpec
@@ -58,32 +56,7 @@ export function getRouter(): Router {
         }
     );
 
-    // router.post('/batch/:num', async (req, res) => {
-    //     const num = Number(req.params.num);
-
-    //     for (let i = 0; i < Number(req.params.num); i++) {
-    //         await createQualitySpec({
-    //             qualitySpecname: `lastmjs${v4()}`,
-    //             age: i
-    //         });
-    //     }
-
-    //     res.json({
-    //         Success: `${num} qualitySpecs created`
-    //     });
-    // });
-
     router.post('/update', updateHandler);
-
-    router.patch('/', updateHandler);
-
-    router.delete('/', async (req: Request<any, any, { id: number }>, res) => {
-        const { id } = req.body;
-
-        const deletedId = await deleteQualitySpec(id);
-
-        res.json(deletedId);
-    });
 
     return router;
 }

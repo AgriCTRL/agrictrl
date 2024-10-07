@@ -1,16 +1,16 @@
 import express, { Request, Response, Router } from 'express';
-// import { v4 } from 'uuid';
 
 import { createQualitySpec } from '../qualityspecs/db';
-import { createPalayDelivery } from '../palaydeliveries/db';
+import { createPalaySupplier } from '../palaysuppliers/db';
+import { createFarm } from '../farms/db';
 import {
     countPalayBatches,
     createPalayBatch,
-    deletePalayBatch,
     getPalayBatch,
     getPalayBatches,
     updatePalayBatch
 } from './db';
+import { createHouseOfficeAddress } from '../houseofficeaddresses/db';
 
 export function getRouter(): Router {
     const router = express.Router();
@@ -39,25 +39,76 @@ export function getRouter(): Router {
 
         const palayBatch = await getPalayBatch(Number(id));
 
-        console.log('palayBatch', palayBatch);
-
         res.json(palayBatch);
     });
 
     router.post(
         '/',
         async (
-            req: Request<any, any, { dateReceived: Date; quantity: number; qualityType: string; price: number; status: string;
-                moistureContent: number; purity: number; damaged: number;
-                driverName: string, typeOfTranspo: string, plateNumber: string,
-                supplierId: number; nfaPersonnelId: number; warehouseId: number
-             }>,
+            req: Request<any, any, { palayVariety: string;
+                dateBought: Date;
+                quantityKg: number;
+                qualityType: string;
+                moistureContent: number;
+                purity: number;
+                damaged: number;
+                price: number;
+                farmerName: string;
+                palaySupplierRegion: string;
+                palaySupplierProvince: string;
+                palaySupplierCityTown: string;
+                palaySupplierBarangay: string;
+                palaySupplierStreet: string;
+                category: string;
+                numOfFarmer: number;
+                contactNumber: string;
+                email: string;
+                birthDate: Date;
+                gender: string;
+                farmSize: number;
+                farmRegion: string;
+                farmProvince: string;
+                farmCityTown: string;
+                farmBarangay: string;
+                farmStreet: string;
+                plantedDate: Date;
+                harvestedDate: Date;
+                estimatedCapital: number;
+                userId: number;
+                status: string }>,
             res
         ) => {
-            const { dateReceived, quantity, qualityType, price, status,
-                moistureContent, purity, damaged,
-                driverName, typeOfTranspo, plateNumber,
-                supplierId, nfaPersonnelId, warehouseId } = req.body;
+            const { palayVariety,
+                dateBought,
+                quantityKg,
+                qualityType,
+                moistureContent,
+                purity,
+                damaged,
+                price,
+                farmerName,
+                palaySupplierRegion,
+                palaySupplierProvince,
+                palaySupplierCityTown,
+                palaySupplierBarangay,
+                palaySupplierStreet,
+                category,
+                numOfFarmer,
+                contactNumber,
+                email,
+                birthDate,
+                gender,
+                farmSize,
+                farmRegion,
+                farmProvince,
+                farmCityTown,
+                farmBarangay,
+                farmStreet,
+                plantedDate,
+                harvestedDate,
+                estimatedCapital,
+                userId,
+                status } = req.body;
 
             const qualitySpec = await createQualitySpec({
                 moistureContent: moistureContent,
@@ -65,93 +116,97 @@ export function getRouter(): Router {
                 damaged: damaged
             });
 
-            const palayDelivery = await createPalayDelivery({
-                driverName: driverName,
-                typeOfTranspo: typeOfTranspo,
-                plateNumber: plateNumber
-            });
+            const houseOfficeAddress = await createHouseOfficeAddress({
+                region: palaySupplierRegion,
+                province: palaySupplierProvince,
+                cityTown: palaySupplierCityTown,
+                barangay: palaySupplierBarangay,
+                street: palaySupplierStreet
+            })
+
+            const palaySupplier = await createPalaySupplier({
+                farmerName: farmerName,
+                houseOfficeAddressId: houseOfficeAddress.id,
+                category: category,
+                numOfFarmer: numOfFarmer,
+                contactNumber: contactNumber,
+                email: email,
+                birthDate: birthDate,
+                gender: gender
+            })
+
+            const farm = await createFarm({
+                palaySupplierId: palaySupplier.id,
+                farmSize: farmSize,
+                region: farmRegion,
+                province: farmProvince,
+                cityTown: farmCityTown,
+                barangay: farmBarangay,
+                street: farmStreet
+            })
 
             const palayBatch = await createPalayBatch({
-                dateReceived,
-                quantity,
+                palayVariety,
+                dateBought,
+                quantityKg,
                 qualityType,
                 qualitySpecId: qualitySpec.id,
                 price,
-                supplierId,
-                nfaPersonnelId,
-                palayDeliveryId: palayDelivery.id,
-                warehouseId,
-                status,
+                palaySupplierId: palaySupplier.id,
+                farmId: farm.id,
+                plantedDate,
+                harvestedDate,
+                estimatedCapital,
+                userId,
+                status
             });
 
             res.json(palayBatch);
         }
     );
 
-    // router.post('/batch/:num', async (req, res) => {
-    //     const num = Number(req.params.num);
-
-    //     for (let i = 0; i < Number(req.params.num); i++) {
-    //         const user = await createUser({
-    //             username: `lastmjs${v4()}`,
-    //             age: i
-    //         });
-
-    //         await createPalayBatch({
-    //             user_id: user.id,
-    //             title: `PalayBatch ${v4()}`,
-    //             body: `${v4()}${v4()}${v4()}${v4()}`
-    //         });
-    //     }
-
-    //     res.send({
-    //         Success: `${num} palayBatches created`
-    //     });
-    // });
-
     router.post('/update', updateHandler);
-
-    router.patch('/', updateHandler);
-
-    router.delete('/', async (req: Request<any, any, { id: number }>, res) => {
-        const { id } = req.body;
-
-        const deletedId = await deletePalayBatch(id);
-
-        res.json(deletedId);
-    });
 
     return router;
 }
 
 async function updateHandler(
-    req: Request<
-        any,
-        any,
-        { id: number; dateReceived?: Date; quantity?: number; qualityType?: string; price?: number; status?: string;
-            supplierId?: number; nfaPersonnelId?: number; warehouseId?: number }
-    >,
+    req: Request<any, any, { id: number;
+        palayVariety: string
+        dateBought: Date;
+        quantityKg: number;
+        qualityType: string;
+        price: number
+        plantedDate: Date;
+        harvestedDate: Date;
+        estimatedCapital: number;
+        userId: number;
+        status: string }>,
     res: Response
 ): Promise<void> {
     const { id,
-        dateReceived,
-        quantity,
+        palayVariety,
+        dateBought,
+        quantityKg,
         qualityType,
         price,
-        supplierId,
-        nfaPersonnelId,
-        warehouseId,
+        plantedDate,
+        harvestedDate,
+        estimatedCapital,
+        userId,
         status } = req.body;
 
     const palayBatch = await updatePalayBatch({
         id,
-        dateReceived,
-        quantity,
+        palayVariety,
+        dateBought,
+        quantityKg,
         qualityType,
         price,
-        supplierId,
-        nfaPersonnelId,
-        warehouseId,
+        plantedDate,
+        harvestedDate,
+        estimatedCapital,
+        userId,
         status
     });
 

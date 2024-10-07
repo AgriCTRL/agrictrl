@@ -1,299 +1,82 @@
 import { React, useState } from 'react';
+import {  
+    HandCoins,
+    Link,
+    ShieldPlus,
+    ShoppingCart,
+    Wheat 
+} from 'lucide-react';
+
+import { Timeline } from 'primereact/timeline';
+import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
-import {  ScanSearch , Link, ShoppingBasket, ShieldPlus, HandCoins } from 'lucide-react';
 
 const WorkingProcessSection = () => {
-    const [selectedButton, setSelectedButton] = useState('Farmers');
+    const events = [
+        { 
+            code: 1,
+            title: <p>AgriCTRL+<br/>TnT</p>, 
+            date: '3RD QUARTER 2024', 
+            icon: <HandCoins />,
+        },
+        { 
+            code: 2,
+            title: <p>AgriCTRL+<br/>SMS</p>,
+            date: '3RD QUARTER 2024', 
+            icon: <Link />,
+        },
+        { 
+            code: 3,
+            title: <p>AgriCTRL+<br/>eCommerce</p>, 
+            date: '4TH QUARTER 2024', 
+            icon: <ShoppingCart />, 
+        },
+        { 
+            code: 4,
+            title: <p>AgriCTRL+<br/>MIC</p>, 
+            date: '1ST QUARTER 2025', 
+            icon: <ShieldPlus />,
+        },
+        { 
+            code: 5,
+            title: <p>AgriCTRL+<br/>Finance</p>, 
+            date: '2ND QUARTER 2025', 
+            icon: <HandCoins />,
+        }
+    ];
 
-    return (
-        <section className="bg-white h-screen py-16">
-            <div className="container mx-auto px-4">
-                <div className="flex flex-col justify-center items-center">
-                    <div className="flex items-center mb-4"></div>  
-                    <h2 className="text-4xl text-[#444444] font-bold mb-8">Project Roadmap</h2>
-                            
-                    {/* Stakeholder Selector */}
-                    {/* <div className="flex bg-[#F5F5F5] p-3 mb-8 rounded-lg z-50">
-                        {['Farmers', 'Cooperatives', 'Consumers'].map((label) => (
-                            <Button 
-                            key={label}
-                            label={label} 
-                            className={`mr-2 ${
-                                selectedButton === label
-                                ? 'px-8 py-3 tracking-widest bg-gradient-to-r from-secondary to-primary text-white rounded-lg'
-                                : 'px-14 py-3 tracking-widest'
-                            }`}
-                            onClick={() => setSelectedButton(label)}
-                            />
-                        ))}
-                    </div> */}
-                </div>
+    const customizedMarker = (item) => {
+        return (
+            <div className='size-12 p-2 bg-lightest-grey rounded-full'>
+                <span className="w-full h-full p-2 text-white bg-gradient-to-tr from-secondary to-primary rounded-full flex items-center justify-center">
+                    {item.icon}
+                </span>
+            </div>
+        );
+    };
 
-                <div className="flex">
-                    {/* Image */}
-                    <div className="w-5/3 h-[800px] -translate-y-32 z-10">
-                        <img src="Landing-Process-farmer.png" alt="Farmer with conical hat" className="z-0 h-full w-full object-cover" />
-                    </div>
-
-                    {/* Stats */}
-                    <div className="w-2/3 pl-20 z-30">
-                        <div className="flex flex-col items-start h-full bg-cover bg-center" 
-                            style={{ 
-                                backgroundImage: 'url("/Landing-RoadmapBG.png")', 
-                                backgroundSize: 'cover',
-                                backgroundPosition: 'center',
-                                backgroundRepeat: 'no-repeat'
-                        }}>
-                            <div className='flex flex-row'>
-                                {/* Feature 1 */}
-                                <div className='z-30 flex flex-col items-center'>
-                                    <div className="relative mb-2 z-50">
-                                        <ScanSearch  className="text-primary h-9 w-9" />
-                                    </div>  
-                                    <div className="h-36 w-36 flex flex-col items-center justify-center p-2 shadow-2xl bg-white border rounded-lg z-40">
-                                        <div className="flex items-center">
-                                            <div className="mr-2">
-                                                <div className="text-primary text-2xl ml-2 font-bold">1</div>
-                                                <div className="bg-primary w-6 h-[2px]"></div>
-                                            </div>
-                                            <div className='flex flex-col'>
-                                                <h3 className="text-primary text-lg tracking-wider font-semibold">Agrictrl+</h3>
-                                                <h3 className="text-primary text-lg tracking-wider font-semibold">TnT</h3>
-                                            </div>
-                                        </div>
-                                        <div className="mb-5 flex flex-col items-center pt-2">
-                                            <p className="text-md">3rd Quarter</p>
-                                            <p className="text-md">2024</p>
-                                        </div>
-                                    </div>
-                                    <div className="h-16 w-16 z-0 bg-primary rounded-lg -translate-x-14 -translate-y-10"></div>
-                                </div>
-
-                                {/* Feature 2 */}
-                                <div className='z-30 flex flex-col items-center translate-x-16 translate-y-10'>
-                                    <div className="relative mb-2 z-50">
-                                        <Link className="text-primary h-9 w-9" />
-                                    </div>  
-                                    <div className="h-36 w-36 flex flex-col items-center justify-center p-2 shadow-2xl bg-white border rounded-lg z-40">
-                                        <div className="flex items-center">
-                                            <div className="mr-2">
-                                                <div className="text-primary text-2xl ml-1 font-bold">2</div>
-                                                <div className="bg-primary w-6 h-[2px]"></div>
-                                            </div>
-                                            <div className='flex flex-col'>
-                                                <h3 className="text-primary text-lg tracking-wider font-semibold">Agrictrl+</h3>
-                                                <h3 className="text-primary text-lg tracking-wider font-semibold">SMS</h3>
-                                            </div>
-                                        </div>
-                                        <div className="mb-5 flex flex-col items-center pt-2">
-                                            <p className="text-md">3rd Quarter</p>
-                                            <p className="text-md">2024</p>
-                                        </div>
-                                    </div>
-                                    <div className="h-16 w-16 z-0 bg-primary rounded-lg -translate-x-14 -translate-y-10"></div>
-                                </div>
-
-                                {/* Feature 3 */}
-                                <div className='z-30 flex flex-col items-center translate-x-28 translate-y-20'>
-                                    <div className="relative mb-2 z-50">
-                                        <ShoppingBasket className="text-primary h-9 w-9" />
-                                    </div>  
-                                    <div className="h-36 w-36 flex flex-col items-center justify-center p-2 shadow-2xl bg-white border rounded-lg z-40">
-                                        <div className="flex items-center">
-                                            <div className="mr-2">
-                                                <div className="text-primary text-2xl ml-1 font-bold">3</div>
-                                                <div className="bg-primary w-6 h-[2px]"></div>
-                                            </div>
-                                            <div className='flex flex-col'>
-                                                <h3 className="text-primary text-lg tracking-wider font-semibold">Agrictrl+</h3>
-                                                <h3 className="text-primary text-sm tracking-wider font-semibold">eCommerce</h3>
-                                            </div>
-                                        </div>
-                                        <div className="mb-5 flex flex-col items-center pt-2">
-                                            <p className="text-md">4th Quarter</p>
-                                            <p className="text-md">2024</p>
-                                        </div>
-                                    </div>
-                                    <div className="h-16 w-16 z-0 bg-primary rounded-lg -translate-x-14 -translate-y-10"></div>
-                                </div>
-                            </div>
-
-                            <div className='flex flex-row'>
-                                {/* Feature 5 */}
-                                <div className='z-30 flex flex-col items-center translate-x-10 translate-y-14'>
-                                    <div className="relative mb-2 z-50">
-                                        <HandCoins className="text-primary h-9 w-9" />
-                                    </div>  
-                                    <div className="h-36 w-36 flex flex-col items-center justify-center p-2 shadow-2xl bg-white border rounded-lg z-40">
-                                        <div className="flex items-center">
-                                            <div className="mr-2">
-                                                <div className="text-primary text-2xl ml-1 font-bold">5</div>
-                                                <div className="bg-primary w-6 h-[2px]"></div>
-                                            </div>
-                                            <div className='flex flex-col'>
-                                                <h3 className="text-primary text-lg tracking-wider font-semibold">Agrictrl+</h3>
-                                                <h3 className="text-primary text-lg tracking-wider font-semibold">Finance</h3>
-                                            </div>
-                                        </div>
-                                        <div className="mb-5 flex flex-col items-center pt-2">
-                                            <p className="text-md">2nd Quarter</p>
-                                            <p className="text-md">2025</p>
-                                        </div>
-                                    </div>
-                                    <div className="h-16 w-16 z-0 bg-primary rounded-lg -translate-x-14 -translate-y-10"></div>
-                                </div>
-
-                                {/* Feature 4 */}
-                                <div className='z-30 flex flex-col items-center translate-x-24'>
-                                    <div className="relative mb-2 z-50">
-                                        <ShieldPlus className="text-primary h-9 w-9" />
-                                    </div>  
-                                    <div className="h-36 w-36 flex flex-col items-center justify-center p-2 shadow-2xl bg-white border rounded-lg z-40">
-                                        <div className="flex items-center">
-                                            <div className="mr-2">
-                                                <div className="text-primary text-2xl ml-1 font-bold">4</div>
-                                                <div className="bg-primary w-6 h-[2px]"></div>
-                                            </div>
-                                            <div className='flex flex-col'>
-                                                <h3 className="text-primary text-lg tracking-wider font-semibold">Agrictrl+</h3>
-                                                <h3 className="text-primary text-lg tracking-wider font-semibold">MIC</h3>
-                                            </div>
-                                        </div>
-                                        <div className="mb-5 flex flex-col items-center pt-2">
-                                            <p className="text-md">1st Quarter</p>
-                                            <p className="text-md">2025</p>
-                                        </div>
-                                    </div>
-                                    <div className="h-16 w-16 z-0 bg-primary rounded-lg -translate-x-14 -translate-y-10"></div>
-                                </div>
-
-                                
-                            </div>
-                            {/* stat 1 */}
-                            {/* <div className="flex-1 bg-black">
-                                <div className="rounded-lg flex flex-col justify-center items-center mb-4">
-                                    <div className="relative mb-2 z-50">
-                                        <Sprout className="absolute text-primary h-10 w-10" />
-                                    </div>  
-                                    <div className="shadow-2xl bg-white rounded-lg pl-5 pr-10 pt-3 pb-7 z-40">
-                                        <div className="flex items-center">
-                                            <div className="">
-                                                <div className="text-primary text-4xl font-bold">1</div>
-                                                <div className="bg-primary w-6 h-[2px]"></div>
-                                            </div>
-                                            <h3 className="text-primary tracking-wider font-semibold">Track 'n Trace</h3>
-                                        </div>
-                                        <div className="mb-5">
-                                            <p className="text-md">3rd Quarter</p>
-                                            <p className="text-md">2024</p>
-                                        </div>
-                                    </div>
-                                    <div className="h-20 w-20 z-0 bg-primary rounded-lg -translate-x-16 -translate-y-14"></div>
-                                </div>
-                            </div> */}
-
-                            {/* stat 2 */}
-                            {/* <div className="flex-1 mr-4">
-                                <div className="rounded-lg flex flex-col justify-center items-center p-4 mb-4 translate-y-14 -translate-x-2">
-                                    <div className="relative mb-2 z-50">
-                                        <Database className="absolute text-primary h-10 w-10" />
-                                        <MoveRight className="text-primary h-10 w-10 translate-x-28 translate-y-24"/>
-                                    </div> 
-                                    <div className="shadow-2xl bg-white rounded-lg pl-5 pr-8 pt-3 pb-5 z-50">
-                                        <div className="flex items-center">
-                                            <div className="">
-                                                <div className="text-primary text-4xl font-bold">2</div>
-                                                <div className="bg-primary w-6 h-[2px]"></div>
-                                            </div>
-                                            <div className="text-primary text-sm tracking-wide font-semibold">E-commerce</div>
-                                        </div>
-                                        <div className="mb-5">
-                                            <p className="text-sm">Integrating</p>
-                                            <p className="text-sm">the e-commerce </p>
-                                            <p className="text-sm">platform for farmers.</p>
-                                        </div>
-                                    </div>
-                                    <div className="h-20 w-20 z-0 bg-primary rounded-lg -translate-x-16 -translate-y-14"></div>
-                                </div>
-                            </div> */}
-
-                            {/* stat 3 */}
-                            {/* <div className="flex-1 mr-4">
-                                <div className="rounded-lg flex flex-col justify-center items-center p-4 mb-4 translate-y-24 -translate-x-4">
-                                    <Coins className="text-primary h-10 w-10 mb-2" />
-                                    <div className="shadow-2xl bg-white rounded-lg pl-5 pr-10 pt-3 pb-5 z-50">
-                                        <div className="flex items-center">
-                                            <div className="">
-                                                <div className="text-primary text-4xl font-bold">3</div>
-                                                <div className="bg-primary w-6 h-[2px]"></div>
-                                            </div>
-                                            <h3 className="text-primary tracking-wider font-semibold">Insurance</h3>
-                                        </div>
-                                        <div className="mb-5">
-                                            <p className="text-sm">Develop smart</p>
-                                            <p className="text-sm"> contract-based</p>
-                                            <p className="text-sm">insurance.</p>
-                                        </div>
-                                    </div>
-                                    <div className="h-20 w-20 z-0 bg-primary rounded-lg -translate-x-16 -translate-y-14"></div>
-                                </div>
-                            </div> */}
-
-                            {/* stat 4 */}
-                            {/* <div className="flex-1 mr-4">
-                                <div className="rounded-lg flex flex-col justify-center items-center p-4 mb-4">
-                                    <div className="relative mb-2 z-50">
-                                        <Sprout className="absolute text-primary h-10 w-10" />
-                                        <MoveRight className="text-primary h-10 w-10  translate-x-28 translate-y-28"/>
-                                    </div>  
-                                    <div className="shadow-2xl bg-white rounded-lg pl-5 pr-10 pt-3 pb-7 z-40">
-                                        <div className="flex items-center">
-                                            <div className="">
-                                                <div className="text-primary text-4xl font-bold">1</div>
-                                                <div className="bg-primary w-6 h-[2px]"></div>
-                                            </div>
-                                            <h3 className="text-primary tracking-wider font-semibold">Track 'n Trace</h3>
-                                        </div>
-                                        <div className="mb-5">
-                                            <p className="text-sm">Building of</p>
-                                            <p className="text-sm">tracing platform</p>
-                                            <p className="text-sm">for consumers.</p>
-                                        </div>
-                                    </div>
-                                    <div className="h-20 w-20 z-0 bg-primary rounded-lg -translate-x-16 -translate-y-14"></div>
-                                </div>
-                            </div> */}
-
-                            {/* stat 5 */}
-                            {/* <div className="flex-1 mr-4">
-                                <div className="rounded-lg flex flex-col justify-center items-center p-4 mb-4">
-                                    <div className="relative mb-2 z-50">
-                                        <Sprout className="absolute text-primary h-10 w-10" />
-                                        <MoveRight className="text-primary h-10 w-10  translate-x-28 translate-y-28"/>
-                                    </div>  
-                                    <div className="shadow-2xl bg-white rounded-lg pl-5 pr-10 pt-3 pb-7 z-40">
-                                        <div className="flex items-center">
-                                            <div className="">
-                                                <div className="text-primary text-4xl font-bold">1</div>
-                                                <div className="bg-primary w-6 h-[2px]"></div>
-                                            </div>
-                                            <h3 className="text-primary tracking-wider font-semibold">Track 'n Trace</h3>
-                                        </div>
-                                        <div className="mb-5">
-                                            <p className="text-sm">Building of</p>
-                                            <p className="text-sm">tracing platform</p>
-                                            <p className="text-sm">for consumers.</p>
-                                        </div>
-                                    </div>
-                                    <div className="h-20 w-20 z-0 bg-primary rounded-lg -translate-x-16 -translate-y-14"></div>
-                                </div>
-                            </div> */}
-
-                        </div>
-                    </div>
+    const customizedContent = (item) => {
+        return (
+            <div className="size-45 flex flex-col sm:flex-row p-4 hover:bg-lightest-grey transition-all rounded-lg gap-4 justify-center text-left">
+                <p className='text-2xl text-primary font-semibold'>{item.code}</p>
+                <div className="flex flex-col text-start justify-start">
+                    <div className="text-primary font-semibold">{item.title}</div>
+                    <div>{item.date}</div>
                 </div>
             </div>
-        </section>  
+        );
+    };
+
+    return (
+        <section className="relative h-fit w-screen flex flex-col gap-6 overflow-hidden px-6 sm:px-12 lg:px-24 pb-6 sm:pb-12 lg:pb-24 pt-2 sm:pt-6 items-center">
+            <div className="title font-semibold text-primary flex items-center gap-4">
+                <Wheat />
+                <p>Project Roadmap</p>
+            </div>
+            <h1 className="text-black text-2xl sm:text-4xl font-bold text-center">Where Our Palay Journey Begins</h1>
+            <Timeline value={events} align="alternate" layout='horizontal' className="pt-6 hidden lg:flex customized-timeline w-full" marker={customizedMarker} content={customizedContent} />
+            <Timeline value={events} align="alternate" className="pt-4 flex lg:hidden customized-timeline w-full" marker={customizedMarker} content={customizedContent} />
+        </section>
     );
 };
 

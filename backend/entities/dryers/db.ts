@@ -6,22 +6,28 @@ export class Dryer extends BaseEntity {
     id: number;
 
     @Column()
-    name: string;
+    dryerName: string;
 
     @Column()
-    capacity: number;
+    userId: number;
 
     @Column()
     location: string;
 
     @Column()
-    contactInfo: string;
+    capacity: number;
+
+    @Column()
+    contactNumber: string;
+
+    @Column()
+    email: string;
 
     @Column()
     status: string;
 }
 
-export type DryerCreate = Pick<Dryer, 'name' | 'capacity' | 'location' | 'contactInfo' | 'status'>;
+export type DryerCreate = Pick<Dryer, 'dryerName' | 'userId' | 'location' | 'capacity' | 'contactNumber' | 'email' | 'status'>;
 export type DryerUpdate = Pick<Dryer, 'id'> & Partial<DryerCreate>;
 
 export async function getDryers(limit: number, offset: number): Promise<Dryer[]> {
@@ -46,10 +52,12 @@ export async function countDryers(): Promise<number> {
 export async function createDryer(dryerCreate: DryerCreate): Promise<Dryer> {
     let dryer = new Dryer();
 
-    dryer.name = dryerCreate.name;
-    dryer.capacity = dryerCreate.capacity;
+    dryer.dryerName = dryerCreate.dryerName;
+    dryer.userId = dryerCreate.userId;
     dryer.location = dryerCreate.location;
-    dryer.contactInfo = dryerCreate.contactInfo;
+    dryer.capacity = dryerCreate.capacity;
+    dryer.contactNumber = dryerCreate.contactNumber;
+    dryer.email = dryerCreate.email;
     dryer.status = dryerCreate.status;
 
     return await dryer.save();
@@ -57,10 +65,12 @@ export async function createDryer(dryerCreate: DryerCreate): Promise<Dryer> {
 
 export async function updateDryer(dryerUpdate: DryerUpdate): Promise<Dryer> {
     await Dryer.update(dryerUpdate.id, {
-        name: dryerUpdate.name,
-        capacity: dryerUpdate.capacity,
+        dryerName: dryerUpdate.dryerName,
+        userId: dryerUpdate.userId,
         location: dryerUpdate.location,
-        contactInfo: dryerUpdate.contactInfo,
+        capacity: dryerUpdate.capacity,
+        contactNumber: dryerUpdate.contactNumber,
+        email: dryerUpdate.email,
         status: dryerUpdate.status
     });
 
@@ -71,14 +81,4 @@ export async function updateDryer(dryerUpdate: DryerUpdate): Promise<Dryer> {
     }
 
     return dryer;
-}
-
-export async function deleteDryer(id: number): Promise<number> {
-    const deleteResult = await Dryer.delete(id);
-
-    if (deleteResult.affected === 0) {
-        throw new Error(`deleteDryer: could not delete dryer with id ${id}`);
-    }
-
-    return id;
 }

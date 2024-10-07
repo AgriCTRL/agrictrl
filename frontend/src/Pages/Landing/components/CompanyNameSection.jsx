@@ -1,27 +1,46 @@
-import { React } from 'react';
+import React, { useEffect, useState } from "react";
+import { InfiniteMovingCardsHorizontal } from './ui/infinite-moving-cards-horizontal';
+
+const testimonials = [
+    {
+        name: "ICP",
+        logo: "landingpage/icp-logo.png",
+    },
+    {
+        name: "DA",
+        logo: "landingpage/da-logo.png",
+    },
+    {
+        name: "DAR",
+        logo: "landingpage/dar-logo.svg",
+    },
+    {
+        name: "DOST",
+        logo: "landingpage/dost-logo.png",
+    },
+    {
+        name: "DOH",
+        logo: "landingpage/doh-logo.png",
+    },
+    {
+        name: "DSWD",
+        logo: "landingpage/dswd-logo.png",
+    },
+    {
+        name: "NFA",
+        logo: "landingpage/nfa-logo.svg",
+    },
+];
 
 const CompanyNameSection = () => {
     return (
-        <section className="bg-[#2A2A2A] text-white py-4 z-30 relative overflow-hidden">
-            <div className="container mx-auto items-center relative">
-                {/* Left gradient */}
-                <div className="absolute left-0 top-0 bottom-0 w-[50%] bg-gradient-to-r from-[#2A2A2A] to-transparent z-20"></div>
-                        
-                {/* Right gradient */}
-                <div className="absolute right-0 top-0 bottom-0 w-[50%] bg-gradient-to-l from-[#2A2A2A] to-transparent z-20"></div>
-                        
-                {/* Items */}
-                <div className="flex justify-between items-center relative z-10">
-                <span className="p-10 text-4xl">AgriCTRL+</span>
-                <div className="bg-white w-[2px] h-[90px]"></div>
-                <span className="p-10 text-4xl">AgriCTRL+</span>
-                <div className="bg-white w-[2px] h-[90px]"></div>
-                <span className="p-10 text-4xl">AgriCTRL+</span>
-                <div className="bg-white w-[2px] h-[90px]"></div>
-                <span className="p-10 text-4xl">AgriCTRL+</span>
-                </div>
-            </div>
-        </section>
+        <div className="w-screen flex flex-col antialiased bg-[#2A2A2A] items-center justify-center relative overflow-hidden">
+            <InfiniteMovingCardsHorizontal
+                items={testimonials}
+                direction="right"
+                speed="slow"
+            />
+        </div>
     );
 };
 

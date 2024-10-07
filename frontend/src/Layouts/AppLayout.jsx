@@ -1,115 +1,96 @@
-import { React, useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Search } from 'lucide-react';
-import { AuthClient } from "@dfinity/auth-client";
+import { React } from 'react';
 import { Link as ScrollLink } from 'react-scroll';
+
+import { InputText } from 'primereact/inputtext';
+import { Button } from 'primereact/button';
+import { Image } from 'primereact/image';
+
+import SimpleParallax from "simple-parallax-js";
+import AppNavbar from '../Components/AppNavbar';
+import SocialsSection from '../Pages/Landing/components/SocialsSection';
 
 function UserLayout({ children }) {
     const identityUrl = import.meta.env.VITE_INTERNET_IDENTITY_URL;
-    const navigate = useNavigate();
-
-    const handleTnTClick = () => {
-        navigate('/TnT');
-    }
-
-    const loginButton1 = () => {
-        navigate('/login');
-    }
-
-    const loginButton = async () => {   
-        try {
-            const authClient = await AuthClient.create();
-
-            const width = 500;
-        const height = 500;
-        const left = (window.screen.width / 2) - (width / 2);
-        const top = (window.screen.height / 2) - (height / 2) - 25;
-
-            await new Promise((resolve, reject) => {
-                authClient.login({
-                    identityProvider: `${identityUrl}/`,
-                    onSuccess: resolve,
-                    onError: reject,
-                    windowOpenerFeatures: `width=${width},height=${height},left=${left},top=${top}`
-                });
-            });
-            window.location.reload();
-        }
-        catch (error) {
-            console.log(error.message);
-        }
-        return false;
-    }
 
     return (
-        <div >
+        <div>
             <div> 
                 {/* Header */}
-                <header className="fixed backdrop-blur-md font-poppins text-white w-screen p-3 z-50">
-                    <div className="flex justify-between mx-10 items-center">
-                        {/* Logo & title */}
-                        <div className="flex items-center gap-2">
-                            <img src="favicon.ico" alt="AgriCTRL+ Logo" className="h-12" />
-                            <div className="text-2xl font-bold hover:text-primary letter-spacing-4 ml-2 tracking-wider">AgriCTRL+</div>
-                        </div>
-
-                        <nav className="flex items-center">
-                            <ScrollLink to="featureSection" smooth={true} duration={500} className="tracking-wider mx-6 cursor-pointer hover:text-primary hover:underline hover:underline-offset-4 hover:font-bold">Services</ScrollLink>
-                            <ScrollLink to="offerSection" smooth={true} duration={500} className="tracking-wider mx-6 cursor-pointer hover:text-primary hover:underline hover:underline-offset-4 hover:font-bold">About Us</ScrollLink>
-                            <button onClick={handleTnTClick}>
-                                <Search className="h-6 w-6 mx-6 hover:text-primary hover:underline hover:underline-offset-4 hover:font-bold"/>
-                            </button>
-                            
-                            <button onClick={ loginButton1 } className="bg-gradient-to-r from-secondary to-primary px-20 py-3 rounded-lg">Login</button>
-                        </nav>
-                    </div>
-                </header>
+                <AppNavbar />
 
                 <main className="main-content min-h-screen">
                     {children}
                 </main>
 
                 {/* Footer */}
-                <footer className="bg-gray-900 text-white pt-20 pb-10">
+                <footer id="footer"
+                    className="relative h-fit w-screen 
+                    px-6 sm:px-12 lg:px-24 
+                    pt-28 lg:pt-40"
+                >
+                    <SocialsSection />
 
-                    {/* <div className="flex flex-row justify-between mx-24 px-4">
-                            <div className="">
-                                <div className="flex items-center mb-4">
-                                    <img src="AgriCTRLLogo.png" alt="AgriCTRL+ Logo" className="h-12 mr-2" />
-                                    <h3 className="text-xl font-bold">AgriCTRL+</h3>
-                                </div>
-                                <p className="text-sm text-gray-400">Propose mes services de plombier et petits travaux</p>
-                            </div>
-                            <div className="px-10">
-                                <h3 className="text-xl font-bold mb-4">Company</h3>
-                                <ul className="space-y-2 text-sm text-gray-400">
-                                    <li>Item</li>
-                                    <li>Item</li>
-                                    <li>Item</li>
-                                    <li>Item</li>
-                                </ul>
-                            </div>
-                            <div className="px-10">
-                                <h3 className="text-xl font-bold mb-4">Quick Links</h3>
-                                <ul className="space-y-2 text-sm text-gray-400">
-                                    <li>Item</li>
-                                    <li>Item</li>
-                                    <li>Item</li>
-                                </ul>
-                            </div>
-                            <div className="flex flex-col justify-start">
-                                <h3 className="text-xl font-bold mb-4">Newsletter</h3>
-                                <p className="text-sm text-gray-400 mb-4">Subscribe to our newsletter</p>
-                                <div className="flex flex-col justify-start">
-                                    <InputText placeholder="Enter your email" className="w-44 text-black" />
-                                    <Button label="SUBSCRIBE NOW" className="" />
-                                </div>
-                            </div> 
-                    </div> */}
+                    <img src={"/Landing-HeroBg.jpg"} alt={"image"} className="absolute inset-0 object-cover h-full w-full" />
 
-                    {/* Copyright  */}
-                    <div className="bg-gray-900 text-gray-400 text-center pb-4 text-sm">
-                        <p>Copyright @ 2024 All Rights Reserved</p>
+                    <div className="absolute inset-0 bg-[#000000]/80"> </div>
+
+                    <div className='flex flex-col sm:flex-row justify-between gap-10 relative text-white mb-24'>
+                        <div className="flex flex-col gap-6 items-center sm:items-start">
+                            <div className="flex items-center gap-4">
+                                <Image 
+                                    src='favicon.ico' 
+                                    alt='AgriCTRL+ Logo' 
+                                    width={50} 
+                                    height={50}>
+                                </Image>       
+                                <p className='text-[32px] text-white'>AgriCTRL+</p>
+                            </div>
+                            <p className='text-center sm:text-start'>Improving transparency in rice supply chain through blockchain technology.</p>
+                        </div>
+                        
+                        <div className="flex flex-col gap-6 text-center sm:text-start">
+                            <h3 className="text-lg font-semibold">Partner Organizations</h3>
+                            <ul>
+                                <li>National Food Authority</li>
+                                <li>Department of Agriculture</li>
+                                <li>Polytechnic University of the Philippines</li>
+                                <li>Internet Computer Protocol Hub PH</li>
+                            </ul>
+                        </div>
+
+                        <div className="flex flex-col gap-6 text-center sm:text-start">
+                            <h3 className="text-lg font-semibold">Quick Links</h3>
+                            <div className="links">
+                                <ScrollLink 
+                                    to="offerSection" 
+                                    smooth={true}
+                                    duration={500}
+                                    className="hover:text-primary cursor-pointer"
+                                >
+                                    <p>About Us</p>
+                                </ScrollLink>
+                                <ScrollLink 
+                                    to="featureSection" 
+                                    smooth={true}
+                                    duration={500}
+                                    className="hover:text-primary cursor-pointer"
+                                >
+                                    <p>Services</p>
+                                </ScrollLink>
+                                <ScrollLink 
+                                    to="footer" 
+                                    smooth={true}
+                                    duration={500}
+                                    className="hover:text-primary cursor-pointer"
+                                >
+                                    <p>Contact Us</p>
+                                </ScrollLink>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="relative w-full border-t border-white py-8">
+                        <p className="text-center text-white">Copyright © 2022 AgriCTRL+. All Rights Reserved.</p>
                     </div>
                 </footer>
             </div>

@@ -1,45 +1,52 @@
 import { React } from 'react';
-import { Wheat, Coins, Users, UtensilsCrossed} from 'lucide-react';
+import { Wheat, Coins, Users, UtensilsCrossed, CookingPot} from 'lucide-react';
 
 const StatisticsSection = () => {
     return (
-        <section className="bg-gradient-to-r from-secondary to-primary 
-                            rounded-lg h-44 mx-28 z-30 px-10 flex flex-row items-center 
-                            justify-between align-middle text-white -translate-y-20">
-            {/* Rice Tracked */}
-            <div className="flex flex-row items-center rounded-lg p-10 relative">
-                <div className="absolute inset-0 bg-white opacity-20 rounded-lg"></div>
-                <div className="relative z-10 flex flex-row items-center">
-                    <Wheat className="text-white h-14 w-14 mx-2"/>
+        <section className="absolute top-0 left-0 right-0 w-screen z-30 px-6 sm:px-12 lg:px-24
+                            -translate-y-2/4 overflow-hidden">
+            <div className="container bg-gradient-to-r from-secondary to-primary
+                            flex gap-4 items-center rounded-lg shadow-2xl p-4 min-w-full
+                            justify-between align-middle text-white">
+                <div className="flex py-4 md:py-10 px-4 hover:bg-white/20 transition-all rounded-lg gap-4 justify-center">
+                    <Wheat size={32} className='hidden md:flex' />
+                    <Wheat className='flex md:hidden' />
                     <div className="flex flex-col justify-start">
-                        <div className="text-2xl font-bold">17,000+</div>
-                        <div className="text-sm">Rice</div>
-                        <div className="text-sm">Tracked</div>
+                        <div className="text-2xl md:text-4xl font-bold">0</div>
+                        <div>Rice Tracked</div>
                     </div>
                 </div>
-            </div>
-            {/* Farmers */}
-            <div className="flex flex-row items-center p-10">
-                <UtensilsCrossed className="text-white h-14 w-14 mx-2"/>
-                <div className="flex flex-col justify-start">
-                    <div className="text-2xl font-bold">777</div>
-                    <div className="text-sm">Farmers</div>
+                <div className="flex py-4 md:py-10 px-4 hover:bg-white/20 transition-all rounded-lg gap-4 justify-center">
+                    <UtensilsCrossed size={32} className='hidden md:flex' />
+                    <UtensilsCrossed className='flex md:hidden' />
+                    <div className="flex flex-col justify-start">
+                        <div className="text-2xl md:text-4xl font-bold">0</div>
+                        <div>Partner Farmers</div>
+                    </div>
                 </div>
-            </div>
-            {/* Customers */}
-            <div className="flex flex-row items-center p-10">
-                <Coins className="text-white h-14 w-14 mx-2"/>
-                <div className="flex flex-col justify-start">
-                    <div className="text-2xl font-bold">548</div>
-                    <div className="text-sm">User</div>
+                <div className="flex py-4 md:py-10 px-4 hover:bg-white/20 transition-all rounded-lg gap-4 justify-center">
+                    <Wheat size={32} className='hidden md:flex' />
+                    <Wheat className='flex md:hidden' />
+                    <div className="flex flex-col justify-start">
+                        <div className="text-2xl md:text-4xl font-bold">0</div>
+                        <div>Total Rice</div>
+                    </div>
                 </div>
-            </div>
-            {/* Customers */}
-            <div className="flex flex-row items-center p-10">
-                <Users className="text-white h-14 w-14 mx-2"/>
-                <div className="flex flex-col justify-start">
-                    <div className="text-2xl font-bold">1,700+</div>
-                    <div className="text-sm">Customers</div>
+                <div className="flex py-4 md:py-10 px-4 hover:bg-white/20 transition-all rounded-lg gap-4 justify-center">
+                    <Coins size={32} className='hidden md:flex' />
+                    <Coins className='flex md:hidden' />
+                    <div className="flex flex-col justify-start">
+                        <div className="text-2xl md:text-4xl font-bold">0</div>
+                        <div>Rice Sold</div>
+                    </div>
+                </div>
+                <div className="flex py-4 md:py-10 px-4 hover:bg-white/20 transition-all rounded-lg gap-4 justify-center">
+                    <Users size={32} className='hidden md:flex' />
+                    <Users className='flex md:hidden' />
+                    <div className="flex flex-col justify-start">
+                        <div className="text-2xl md:text-4xl font-bold">0</div>
+                        <div>Rice Clients</div>
+                    </div>
                 </div>
             </div>
         </section>

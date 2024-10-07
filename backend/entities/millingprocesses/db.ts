@@ -1,9 +1,4 @@
-import {
-    BaseEntity,
-    Column,
-    Entity,
-    PrimaryGeneratedColumn
-} from 'typeorm';
+import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class MillingProcess extends BaseEntity {
@@ -11,13 +6,13 @@ export class MillingProcess extends BaseEntity {
     id: number;
 
     @Column()
-    palayBatchId: number;
-
-    @Column()
-    type: string;
+    transactionId: number;
 
     @Column()
     millerId: number;
+
+    @Column()
+    millerType: string;
 
     @Column()
     dateSent: Date;
@@ -26,19 +21,16 @@ export class MillingProcess extends BaseEntity {
     dateReturned: Date;
 
     @Column()
-    palayQuantitySent: number;
+    palayQuantitySentKg: number;
     
     @Column()
-    palayQuantityReturned: number;
+    riceQuantityReturnedKg: number;
 
     @Column()
-    efficiency: number;
-
-    @Column()
-    warehouseId: number;
+    millingEfficiency: number;
 }
 
-export type MillingProcessCreate = Pick<MillingProcess, 'palayBatchId' | 'type' | 'millerId' | 'dateSent' | 'dateReturned' | 'palayQuantitySent' | 'palayQuantityReturned' | 'efficiency' | 'warehouseId' >
+export type MillingProcessCreate = Pick<MillingProcess, 'transactionId' | 'millerId' | 'millerType' | 'dateSent' | 'dateReturned' | 'palayQuantitySentKg' | 'riceQuantityReturnedKg' | 'millingEfficiency' >;
 export type MillingProcessUpdate = Pick<MillingProcess, 'id'> & Partial<MillingProcessCreate>;
 
 export async function getMillingProcesses(limit: number, offset: number): Promise<MillingProcess[]> {
@@ -63,15 +55,14 @@ export async function countMillingProcesses(): Promise<number> {
 export async function createMillingProcess(millingProcessCreate: MillingProcessCreate): Promise<MillingProcess> {
     let millingProcess = new MillingProcess();
 
-    millingProcess.palayBatchId = millingProcessCreate.palayBatchId;
-    millingProcess.type = millingProcessCreate.type;
+    millingProcess.transactionId = millingProcessCreate.transactionId;
     millingProcess.millerId = millingProcessCreate.millerId;
+    millingProcess.millerType = millingProcessCreate.millerType;
     millingProcess.dateSent = millingProcessCreate.dateSent;
     millingProcess.dateReturned = millingProcessCreate.dateReturned;
-    millingProcess.palayQuantitySent = millingProcessCreate.palayQuantitySent;
-    millingProcess.palayQuantityReturned = millingProcessCreate.palayQuantityReturned;
-    millingProcess.efficiency = millingProcessCreate.efficiency;
-    millingProcess.warehouseId = millingProcessCreate.warehouseId;
+    millingProcess.palayQuantitySentKg = millingProcessCreate.palayQuantitySentKg;
+    millingProcess.riceQuantityReturnedKg = millingProcessCreate.riceQuantityReturnedKg;
+    millingProcess.millingEfficiency = millingProcessCreate.millingEfficiency;
 
     return await millingProcess.save();
 }
@@ -80,15 +71,14 @@ export async function updateMillingProcess(millingProcessUpdate: MillingProcessU
     console.log('millingProcessUpdate', millingProcessUpdate);
 
     await MillingProcess.update(millingProcessUpdate.id, {
-        palayBatchId: millingProcessUpdate.palayBatchId,
-        type: millingProcessUpdate.type,
+        transactionId: millingProcessUpdate.transactionId,
         millerId: millingProcessUpdate.millerId,
+        millerType: millingProcessUpdate.millerType,
         dateSent: millingProcessUpdate.dateSent,
         dateReturned: millingProcessUpdate.dateReturned,
-        palayQuantitySent: millingProcessUpdate.palayQuantitySent,
-        palayQuantityReturned: millingProcessUpdate.palayQuantityReturned,
-        efficiency: millingProcessUpdate.efficiency,
-        warehouseId: millingProcessUpdate.warehouseId
+        palayQuantitySentKg: millingProcessUpdate.palayQuantitySentKg,
+        riceQuantityReturnedKg: millingProcessUpdate.riceQuantityReturnedKg,
+        millingEfficiency: millingProcessUpdate.millingEfficiency
     });
 
     const millingProcess = await getMillingProcess(millingProcessUpdate.id);
@@ -98,14 +88,4 @@ export async function updateMillingProcess(millingProcessUpdate: MillingProcessU
     }
 
     return millingProcess;
-}
-
-export async function deleteMillingProcess(id: number): Promise<number> {
-    const deleteResult = await MillingProcess.delete(id);
-
-    if (deleteResult.affected === 0) {
-        throw new Error(`deleteMillingProcess: could not delete millingProcess with id ${id}`);
-    }
-
-    return id;
 }

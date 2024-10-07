@@ -1,10 +1,9 @@
 import express, { Request, Response, Router } from 'express';
-import { v4 } from 'uuid';
 
+import { createOfficeAddress } from '../officeaddresses/db';
 import {
     countUsers,
     createUser,
-    deleteUser,
     getUser,
     getUsers,
     updateUser
@@ -43,60 +42,144 @@ export function getRouter(): Router {
     router.post(
         '/',
         async (
-            req: Request<any, any, { username: string; age: number }>,
+            req: Request<any, any, { principal: string;
+                firstName: string;
+                lastName: string;
+                gender: string;
+                birthDate: Date;
+                contactNumber: string;
+                userType: string
+                organizationName: string;
+                jobTitlePosition: string;
+                branchRegion: string;
+                branchOffice: string;
+                validId: string;
+                region: string;
+                province: string;
+                cityTown: string;
+                barangay: string;
+                street: string;
+                email: string;
+                password: string;
+                status: string;
+                isVerified: boolean }>,
             res
         ) => {
-            const { username, age } = req.body;
+            const { principal,
+                firstName,
+                lastName,
+                gender,
+                birthDate,
+                contactNumber,
+                userType,
+                organizationName,
+                jobTitlePosition,
+                branchRegion,
+                branchOffice,
+                validId,
+                region,
+                province,
+                cityTown,
+                barangay,
+                street,
+                email,
+                password,
+                status,
+                isVerified } = req.body;
+
+            const officeAddress = await createOfficeAddress({
+                region: region,
+                province: province,
+                cityTown: cityTown,
+                barangay: barangay,
+                street: street
+            });
 
             const user = await createUser({
-                username,
-                age
+                principal,
+                firstName,
+                lastName,
+                gender,
+                birthDate,
+                contactNumber,
+                userType,
+                organizationName,
+                jobTitlePosition,
+                branchRegion,
+                branchOffice,
+                validId,
+                officeAddressId: officeAddress.id,
+                email,
+                password,
+                status,
+                isVerified
             });
 
             res.json(user);
         }
     );
 
-    router.post('/batch/:num', async (req, res) => {
-        const num = Number(req.params.num);
-
-        for (let i = 0; i < Number(req.params.num); i++) {
-            await createUser({
-                username: `lastmjs${v4()}`,
-                age: i
-            });
-        }
-
-        res.json({
-            Success: `${num} users created`
-        });
-    });
-
-    router.put('/', updateHandler);
-
-    router.patch('/', updateHandler);
-
-    router.delete('/', async (req: Request<any, any, { id: number }>, res) => {
-        const { id } = req.body;
-
-        const deletedId = await deleteUser(id);
-
-        res.json(deletedId);
-    });
+    router.post('/update', updateHandler);
 
     return router;
 }
 
 async function updateHandler(
-    req: Request<any, any, { id: number; username?: string; age?: number }>,
+    req: Request<any, any, { id: number;
+        principal?: string;
+        firstName?: string;
+        lastName?: string;
+        gender?: string;
+        birthDate?: Date;
+        contactNumber?: string;
+        userType?: string;
+        organizationName?: string;
+        jobTitlePosition?: string;
+        branchRegion?: string;
+        branchOffice?: string;
+        validId?: string;
+        email?: string;
+        password?: string;
+        status?: string;
+        isVerified?: boolean  }>,
     res: Response
 ): Promise<void> {
-    const { id, username, age } = req.body;
+    const { id,
+        principal,
+        firstName,
+        lastName,
+        gender,
+        birthDate,
+        contactNumber,
+        userType,
+        organizationName,
+        jobTitlePosition,
+        branchRegion,
+        branchOffice,
+        validId,
+        email,
+        password,
+        status,
+        isVerified } = req.body;
 
     const user = await updateUser({
         id,
-        username,
-        age
+        principal,
+        firstName,
+        lastName,
+        gender,
+        birthDate,
+        contactNumber,
+        userType,
+        organizationName,
+        jobTitlePosition,
+        branchRegion,
+        branchOffice,
+        validId,
+        email,
+        password,
+        status,
+        isVerified
     });
 
     res.json(user);

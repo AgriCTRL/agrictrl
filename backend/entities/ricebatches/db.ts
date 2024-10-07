@@ -1,12 +1,4 @@
-import {
-    BaseEntity,
-    Column,
-    Entity,
-    ManyToOne,
-    PrimaryGeneratedColumn
-} from 'typeorm';
-
-import { getRiceDelivery, RiceDelivery } from '../ricedeliveries/db';
+import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class RiceBatch extends BaseEntity {
@@ -14,41 +6,28 @@ export class RiceBatch extends BaseEntity {
     id: number;
 
     @Column()
-    palayBatchId: number;
+    transactionId: number;
 
     @Column()
     dateReceived: Date;
 
     @Column()
-    quantity: number;
+    quantityKg: number;
 
     @Column()
-    qualityType: string;
-
-    @Column()
-    riceDeliveryId: number;
-
-    @ManyToOne(() => RiceDelivery)
-    riceDelivery: RiceDelivery;
+    riceType: string;
 
     @Column()
     warehouseId: number;
-
-    @Column()
-    recipientId: number;
 }
 
-export type RiceBatchCreate = Pick<RiceBatch, 'palayBatchId' | 'dateReceived' | 'quantity' | 'qualityType' | 'warehouseId' | 'recipientId'> &
-{ riceDeliveryId: RiceDelivery['id'] }
+export type RiceBatchCreate = Pick<RiceBatch, 'transactionId' | 'dateReceived' | 'quantityKg' | 'riceType' | 'warehouseId'>;
 export type RiceBatchUpdate = Pick<RiceBatch, 'id'> & Partial<RiceBatchCreate>;
 
 export async function getRiceBatches(limit: number, offset: number): Promise<RiceBatch[]> {
     return await RiceBatch.find({
         take: limit,
-        skip: offset,
-        relations: {
-            riceDelivery: true
-        }
+        skip: offset
     });
 }
 
@@ -56,9 +35,6 @@ export async function getRiceBatch(id: number): Promise<RiceBatch | null> {
     return await RiceBatch.findOne({
         where: {
             id
-        },
-        relations: {
-            riceDelivery: true
         }
     });
 }
@@ -70,37 +46,22 @@ export async function countRiceBatches(): Promise<number> {
 export async function createRiceBatch(riceBatchCreate: RiceBatchCreate): Promise<RiceBatch> {
     let riceBatch = new RiceBatch();
 
-    riceBatch.palayBatchId = riceBatchCreate.palayBatchId;
+    riceBatch.transactionId = riceBatchCreate.transactionId;
     riceBatch.dateReceived = riceBatchCreate.dateReceived;
-    riceBatch.quantity = riceBatchCreate.quantity;
-    riceBatch.qualityType = riceBatchCreate.qualityType;
+    riceBatch.quantityKg = riceBatchCreate.quantityKg;
+    riceBatch.riceType = riceBatchCreate.riceType;
     riceBatch.warehouseId = riceBatchCreate.warehouseId;
-    riceBatch.recipientId = riceBatchCreate.recipientId;
-
-    // riceDelivery
-
-    const riceDelivery = await getRiceDelivery(riceBatchCreate.riceDeliveryId);
-
-    if (riceDelivery === null) {
-        throw new Error(``);
-    }
-
-    riceBatch.riceDeliveryId = riceDelivery.id;
-    riceBatch.riceDelivery = riceDelivery;
 
     return await riceBatch.save();
 }
 
 export async function updateRiceBatch(riceBatchUpdate: RiceBatchUpdate): Promise<RiceBatch> {
-    console.log('riceBatchUpdate', riceBatchUpdate);
-
     await RiceBatch.update(riceBatchUpdate.id, {
-        palayBatchId: riceBatchUpdate.palayBatchId,
+        transactionId: riceBatchUpdate.transactionId,
         dateReceived: riceBatchUpdate.dateReceived,
-        quantity: riceBatchUpdate.quantity,
-        qualityType: riceBatchUpdate.qualityType,
+        quantityKg: riceBatchUpdate.quantityKg,
+        riceType: riceBatchUpdate.riceType,
         warehouseId: riceBatchUpdate.warehouseId,
-        recipientId: riceBatchUpdate.recipientId, 
     });
 
     const riceBatch = await getRiceBatch(riceBatchUpdate.id);
@@ -110,14 +71,4 @@ export async function updateRiceBatch(riceBatchUpdate: RiceBatchUpdate): Promise
     }
 
     return riceBatch;
-}
-
-export async function deleteRiceBatch(id: number): Promise<number> {
-    const deleteResult = await RiceBatch.delete(id);
-
-    if (deleteResult.affected === 0) {
-        throw new Error(`deleteRiceBatch: could not delete riceBatch with id ${id}`);
-    }
-
-    return id;
 }
