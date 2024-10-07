@@ -10,11 +10,15 @@ import { FilterMatchMode } from 'primereact/api';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 
+import PalayRegister from './PalayRegister';
+
 function BuyPalay() {
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [filters, setFilters] = useState({
         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     });
+
+    const [showRegisterPalay, setShowRegisterPalay] = useState(false);
 
     const [inventoryData, setInventoryData] = useState([
         { id: 1, trackingId: '001', dateBought: '2024-03-01', quantity: 1000, qualityType: 'Premium', status: 'Palay', moistureContent: 13, purity: 99, damage: 1, pricePerKg: 20, farmer: 'Pablo Garcia', originFarm: 'Sta. Rosa', currentLocation: '001 Warehouse' },
@@ -54,28 +58,24 @@ function BuyPalay() {
         />
     );
 
+    const handleAddPalay = () => {
+        setShowRegisterPalay(true);
+    };
+
+    const handlePalayRegistered = (newPalay) => {
+        // Handle the newly registered palay data
+        console.log('New Palay registered:', newPalay);
+        // You might want to add this to your inventoryData or send it to a server
+        setShowRegisterPalay(false);
+    };
+    
+
     return (
         <StaffLayout activePage="Buy Palay">
             <div className="flex flex-col px-4 py-2 h-full bg-[#F1F5F9]">
                 <div className="flex justify-center rounded-lg bg-gradient-to-r from-primary to-secondary mb-2">
                     <h1 className="text-3xl text-white p-4 font-bold">Palay Procurement</h1>
                 </div>
-
-                {/* <div className="flex flex-row justify-between rounded-lg p-2 space-x-4 mb-2">
-                    <div className="flex flex-row space-x-2 items-center w-[50%] drop-shadow-md">
-                        <h1 className="p-2 rounded-lg text-md font-medium bg-white">All</h1>
-                        <h1 className="w-full p-2 rounded-full text-xl font-bold bg-white">Search</h1>
-                    </div>
-                    
-                    <div className="flex flex-row justify-between items-center w-[50%]">
-                        <div className="flex flex-row items-center p-2 rounded-full space-x-2 text-2xl font-bold bg-white">
-                            <Settings2 className="text-primary"/>
-                            <h1 className="text-primary text-base font-normal">Filters</h1>
-                        </div>
-                        
-                        <h1 className="p-2 rounded-lg text-md text-white font-medium bg-gradient-to-r from-primary to-secondary">add palay +</h1>
-                    </div>
-                </div> */}
 
                 {/* Buttons & Search bar */}
                 <div className="flex items-center space-x-2 justify-between mb-2">
@@ -102,7 +102,8 @@ function BuyPalay() {
 
                         <Button 
                             label="Add Palay +" 
-                            className="w-1/16 p-2 rounded-md p-button-success text-white bg-gradient-to-r from-primary to-secondary ring-0" />
+                            className="w-1/16 p-2 rounded-md p-button-success text-white bg-gradient-to-r from-primary to-secondary ring-0"
+                            onClick={handleAddPalay} />
                     </div>
                 </div>
 
@@ -140,6 +141,12 @@ function BuyPalay() {
                     </div>
                 </div>
             </div>
+
+            <PalayRegister
+                    visible={showRegisterPalay}
+                    onHide={() => setShowRegisterPalay(false)}
+                    onPalayRegistered={handlePalayRegistered}
+                />
         </StaffLayout> 
     );
 }

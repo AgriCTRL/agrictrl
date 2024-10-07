@@ -22,7 +22,7 @@ import AdminUsers from "./SMS/Admin/Users/Users";
 import AdminProfile from "./SMS/Admin/Profile";
 
 import StaffHome from "./SMS/Staff/Home";
-import StaffBuyPalay from "./SMS/Staff/BuyPalay";
+import StaffBuyPalay from "./SMS/Staff/BuyPalay/BuyPalay";
 import StaffOrders from "./SMS/Staff/Orders";
 import StaffProcessing from "./SMS/Staff/Processing";
 import StaffWarehouse from "./SMS/Staff/Warehouse";

@@ -17,7 +17,7 @@
     "@dfinity/principal": "^1.4.0",
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
-    "@mui/material": "^6.1.1",
+    "@mui/material": "^6.1.2",
     "date-fns": "^4.1.0",
     "frontend": "file:",
     "lucide-react": "^0.411.0",
