@@ -114,7 +114,7 @@ function StaffLayout({ children, activePage }) {
                 {/* Right sidebar */}
                 <div 
                     className={`bg-black shadow-lg transition-all duration-300 overflow-hidden ${
-                        isRightSidebarOpen ? 'w-1/4' : 'w-0'
+                        isRightSidebarOpen ? 'w-[20%]' : 'w-0'
                     }`}
                 >
                     <div className="p-4">
