@@ -75,7 +75,20 @@
                 border-top: 1px solid #D9D9D9 !important;
             }
         }
+
+        .p-paginator-page {
+            color: white !important;
+            &.p-highlight {
+                @apply bg-primary !important
+            }
+        }
+
+        .p-paginator-page:not(.p-highlight) {
+            color: #6b7280 !important;
+        }
+    
     }
+
     .p-timeline {
         &.p-timeline-horizontal {
             .p-timeline-event {
@@ -85,7 +98,6 @@
             }
         }
         
-
         &.p-timeline-vertical {
             .p-timeline-event {
                 height: 10rem;
@@ -99,13 +111,7 @@
 
     .p-carousel-horizontal {
         .p-carousel-indicators {
-            display: none;
-        }
-    }
-
-    .p-carousel.custom-carousel {
-        .p-carousel-indicators {
-            display: none;
+            display: none !important;
         }
     }
 }
