@@ -1,10 +1,8 @@
 import express, { Request, Response, Router } from 'express';
-// import { v4 } from 'uuid';
 
 import {
     countMillers,
     createMiller,
-    deleteMiller,
     getMiller,
     getMillers,
     updateMiller
@@ -43,16 +41,19 @@ export function getRouter(): Router {
     router.post(
         '/',
         async (
-            req: Request<any, any, { name: string; capacity: number; location: string;  contactInfo: string; status: string }>,
+            req: Request<any, any, { millerName: string; userId: number; category: string; location: string;  capacity: number; contactNumber: string; email: string; status: string }>,
             res
         ) => {
-            const { name, capacity, location, contactInfo, status } = req.body;
+            const { millerName, userId, category, location, capacity, contactNumber, email, status } = req.body;
 
             const miller = await createMiller({
-                name,
-                capacity, 
-                location, 
-                contactInfo,
+                millerName,
+                userId,
+                category,
+                location,
+                capacity,
+                contactNumber,
+                email,
                 status
             });
 
@@ -60,48 +61,26 @@ export function getRouter(): Router {
         }
     );
 
-    // router.post('/batch/:num', async (req, res) => {
-    //     const num = Number(req.params.num);
-
-    //     for (let i = 0; i < Number(req.params.num); i++) {
-    //         await createMiller({
-    //             name: `lastmjs${v4()}`,
-    //             age: i
-    //         });
-    //     }
-
-    //     res.json({
-    //         Success: `${num} millers created`
-    //     });
-    // });
-
     router.post('/update', updateHandler);
-
-    router.patch('/', updateHandler);
-
-    router.delete('/', async (req: Request<any, any, { id: number }>, res) => {
-        const { id } = req.body;
-
-        const deletedId = await deleteMiller(id);
-
-        res.json(deletedId);
-    });
 
     return router;
 }
 
 async function updateHandler(
-    req: Request<any, any, { id: number; name?: string; capacity?: number; location?: string; contactInfo?: string; status?: string }>,
+    req: Request<any, any, { id: number; millerName?: string; userId?: number; category?: string; location?: string;  capacity?: number; contactNumber?: string; email?: string; status?: string }>,
     res: Response
 ): Promise<void> {
-    const { id, name, capacity, location, contactInfo, status } = req.body;
+    const { id, millerName, userId, category, location, capacity, contactNumber, email, status } = req.body;
 
     const miller = await updateMiller({
         id,
-        name,
-        capacity,
+        millerName,
+        userId,
+        category,
         location,
-        contactInfo,
+        capacity,
+        contactNumber,
+        email,
         status
     });
 

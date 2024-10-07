@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog } from 'primereact/dialog';
-import { Button } from 'primereact/button';
+import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
-import InputComponent from '@/Components/Form/InputComponent';
+import { Button } from 'primereact/button';
 import { ThermometerSun } from 'lucide-react';
 
 function DryerUpdate({ visible, onHide, selectedDryer, onUpdateDryer }) {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const [name, setName] = useState('');
+
+    const [dryerName, setDryerName] = useState('');
     const [capacity, setCapacity] = useState('');
     const [location, setLocation] = useState('');
-    const [contactInfo, setContactInfo] = useState('');
+    const [contactNumber, setContactNumber] = useState('');
+    const [email, setEmail] = useState('');
     const [status, setStatus] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -21,10 +22,11 @@ function DryerUpdate({ visible, onHide, selectedDryer, onUpdateDryer }) {
 
     useEffect(() => {
         if (selectedDryer) {
-            setName(selectedDryer.name);
+            setDryerName(selectedDryer.dryerName);
             setCapacity(selectedDryer.capacity);
             setLocation(selectedDryer.location);
-            setContactInfo(selectedDryer.contactInfo);
+            setContactNumber(selectedDryer.contactNumber);
+            setEmail(selectedDryer.email);
             setStatus(selectedDryer.status);
         }
     }, [selectedDryer]);
@@ -32,8 +34,7 @@ function DryerUpdate({ visible, onHide, selectedDryer, onUpdateDryer }) {
     const handleUpdate = async (e) => {
         e.preventDefault();
 
-        // Input validation
-        if (!name || !capacity || !location || !contactInfo) {
+        if (!dryerName || !capacity || !location || !contactNumber || !email || !status) {
             alert('All fields are required.');
             return;
         }
@@ -41,10 +42,11 @@ function DryerUpdate({ visible, onHide, selectedDryer, onUpdateDryer }) {
         setIsSubmitting(true);
         const updatedDryer = {
             ...selectedDryer,
-            name,
+            dryerName,
             capacity,
             location,
-            contactInfo,
+            contactNumber,
+            email,
             status
         };
 
@@ -63,68 +65,125 @@ function DryerUpdate({ visible, onHide, selectedDryer, onUpdateDryer }) {
 
         onUpdateDryer(updatedDryer);
 
-        setName('');
+        // Clear input fields
+        setDryerName('');
         setCapacity('');
         setLocation('');
-        setContactInfo('');
+        setContactNumber('');
+        setEmail('');
         setStatus(null);
 
         setIsSubmitting(false);
         onHide();
     };
 
-    const renderInputField = (label, name, type, value, placeholder, onChange) => (
-        <div className="sm:col-span-3 mb-3">
-            <label htmlFor={name} className="block text-sm font-medium leading-6 text-gray-900">{label}</label>
-            <div className="mt-2">
-                <InputComponent
-                    inputIcon={<ThermometerSun size={20} />}
-                    onChange={onChange}
-                    value={value}
-                    name={name}
-                    type={type}
-                    placeholder={placeholder}
-                    aria-label={name}
-                    required
-                />
-            </div>
-        </div>
-    );
-
-    const renderDropdownField = (label, name, value, options, placeholder, onChange) => (
-        <div className="sm:col-span-3 mb-3">
-            <label htmlFor={name} className="block text-sm font-medium leading-6 text-gray-900">{label}</label>
-            <div className="mt-2">
-                <Dropdown
-                    id={name}
-                    name={name}
-                    value={value || null}
-                    options={options}
-                    onChange={onChange}
-                    placeholder={placeholder}
-                    className="w-full"
-                    required
-                />
-            </div>
-        </div>
-    );
+    if (!visible) {
+        return null;
+    }
 
     return (
-        <Dialog visible={visible} onHide={onHide} header="Update Dryer" modal style={{ width: '40vw' }}>
-            <div className="p-grid p-nogutter">
-                <form onSubmit={handleUpdate} className="p-col-12 p-2">
-                    {renderInputField('Dryer Name', 'name', 'text', name, 'Enter dryer name', (e) => setName(e.target.value))}
-                    {renderInputField('Capacity', 'capacity', 'number', capacity, 'Enter capacity', (e) => setCapacity(e.target.value))}
-                    {renderInputField('Location', 'location', 'text', location, 'Enter location', (e) => setLocation(e.target.value))}
-                    {renderInputField('Contact Info', 'contactInfo', 'text', contactInfo, 'Enter contact info', (e) => setContactInfo(e.target.value))}
-                    {renderDropdownField('Status', 'status', status, statusOptions, 'Select status', (e) => setStatus(e.value))}
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white rounded-lg p-5 w-1/3 shadow-lg relative">
+                {/* Close button */}
+                <button onClick={onHide} className="absolute top-5 right-5 text-gray-600 hover:text-gray-800">
+                    ✕
+                </button>
 
-                    <div className="flex justify-center mt-4">
-                        <Button label="Update" disabled={isSubmitting} className="p-button-success border p-2 px-5 text-white font-bold bg-gradient-to-r from-primary to-secondary" />
+                {/* Header */}
+                <div className="flex items-center mb-4">
+                    <ThermometerSun className="w-6 h-6 mr-2 text-black" />
+                    <span className="text-md font-semibold">Update Dryer</span>
+                </div>
+
+                {/* Form Content */}
+                <form onSubmit={handleUpdate}>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label htmlFor="dryerName" className="block text-sm font-medium text-gray-700">Dryer Name</label>
+                            <InputText
+                                id="dryerName"
+                                value={dryerName}
+                                onChange={(e) => setDryerName(e.target.value)}
+                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                            />
+                        </div>
+
+                        <div>
+                            <label htmlFor="capacity" className="block text-sm font-medium text-gray-700">Capacity</label>
+                            <InputText
+                                id="capacity"
+                                value={capacity}
+                                onChange={(e) => setCapacity(e.target.value)}
+                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                            />
+                        </div>
+
+                        <div>
+                            <label htmlFor="location" className="block text-sm font-medium text-gray-700">Location</label>
+                            <InputText
+                                id="location"
+                                value={location}
+                                onChange={(e) => setLocation(e.target.value)}
+                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                            />
+                        </div>
+
+                        <div>
+                            <label htmlFor="contactNumber" className="block text-sm font-medium text-gray-700">Contact Number</label>
+                            <InputText
+                                id="contactNumber"
+                                value={contactNumber}
+                                onChange={(e) => setContactNumber(e.target.value)}
+                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                            />
+                        </div>
+
+                        <div>
+                            <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
+                            <InputText
+                                id="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                            />
+                        </div>
+
+                        <div>
+                            <label htmlFor="status" className="block text-sm font-medium text-gray-700">Status</label>
+                            <Dropdown
+                                id="status"
+                                value={status}
+                                options={statusOptions}
+                                onChange={(e) => setStatus(e.value)}
+                                placeholder="Select Status"
+                                className="w-full rounded-md border border-gray-300"
+                            />
+                        </div>
+
+                        {/* Cancel Button */}
+                        <Button
+                            label="Cancel"
+                            onClick={onHide}
+                            className="col-start-1 row-start-7 bg-transparent border border-primary text-primary py-2 rounded-md"
+                        />
+
+                        {/* Cancel Button */}
+                        <Button
+                            label="Cancel"
+                            onClick={onHide}
+                            className="col-start-1 row-start-7 bg-transparent border border-primary text-primary py-2 rounded-md"
+                        />
+
+                        {/* Update Button */}
+                        <Button
+                            label="Update"
+                            disabled={isSubmitting}
+                            className="col-start-2 row-start-7 bg-primary text-white py-2 rounded-md"
+                        />
                     </div>
                 </form>
             </div>
-        </Dialog>
+        </div>
     );
 }
 

@@ -1,10 +1,8 @@
 import express, { Request, Response, Router } from 'express';
-// import { v4 } from 'uuid';
 
 import {
     countWarehouses,
     createWarehouse,
-    deleteWarehouse,
     getWarehouse,
     getWarehouses,
     updateWarehouse
@@ -43,16 +41,19 @@ export function getRouter(): Router {
     router.post(
         '/',
         async (
-            req: Request<any, any, { facilityName: string; capacity: number; location: string;  contactInfo: string; status: string }>,
+            req: Request<any, any, { facilityName: string; nfaBranch: string, location: string, totalCapacity: number, currentStock: number, contactNumber: string, email: string, status: string }>,
             res
         ) => {
-            const { facilityName, capacity, location, contactInfo, status } = req.body;
+            const { facilityName, nfaBranch, location, totalCapacity, currentStock, contactNumber, email, status } = req.body;
 
             const warehouse = await createWarehouse({
                 facilityName,
-                capacity, 
-                location, 
-                contactInfo,
+                nfaBranch,
+                location,
+                totalCapacity,
+                currentStock,
+                contactNumber,
+                email,
                 status
             });
 
@@ -60,48 +61,26 @@ export function getRouter(): Router {
         }
     );
 
-    // router.post('/batch/:num', async (req, res) => {
-    //     const num = Number(req.params.num);
-
-    //     for (let i = 0; i < Number(req.params.num); i++) {
-    //         await createWarehouse({
-    //             facilityName: `lastmjs${v4()}`,
-    //             age: i
-    //         });
-    //     }
-
-    //     res.json({
-    //         Success: `${num} warehouses created`
-    //     });
-    // });
-
     router.post('/update', updateHandler);
-
-    router.patch('/', updateHandler);
-
-    router.delete('/', async (req: Request<any, any, { id: number }>, res) => {
-        const { id } = req.body;
-
-        const deletedId = await deleteWarehouse(id);
-
-        res.json(deletedId);
-    });
 
     return router;
 }
 
 async function updateHandler(
-    req: Request<any, any, { id: number; facilityName?: string; capacity?: number; location?: string; contactInfo?: string; status?: string }>,
+    req: Request<any, any, { id: number; facilityName?: string; nfaBranch?: string, location?: string, totalCapacity?: number, currentStock?: number, contactNumber?: string, email?: string, status?: string }>,
     res: Response
 ): Promise<void> {
-    const { id, facilityName, capacity, location, contactInfo, status } = req.body;
+    const { id, facilityName, nfaBranch, location, totalCapacity, currentStock, contactNumber, email, status } = req.body;
 
     const warehouse = await updateWarehouse({
         id,
         facilityName,
-        capacity,
+        nfaBranch,
         location,
-        contactInfo,
+        totalCapacity,
+        currentStock,
+        contactNumber,
+        email,
         status
     });
 

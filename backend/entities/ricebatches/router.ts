@@ -1,11 +1,8 @@
 import express, { Request, Response, Router } from 'express';
-// import { v4 } from 'uuid';
 
-import { createRiceDelivery } from '../ricedeliveries/db';
 import {
     countRiceBatches,
     createRiceBatch,
-    deleteRiceBatch,
     getRiceBatch,
     getRiceBatches,
     updateRiceBatch
@@ -38,102 +35,47 @@ export function getRouter(): Router {
 
         const riceBatch = await getRiceBatch(Number(id));
 
-        console.log('riceBatch', riceBatch);
-
         res.json(riceBatch);
     });
 
     router.post(
         '/',
         async (
-            req: Request<any, any, { palayBatchId: number; dateReceived: Date; quantity: number; qualityType: string; warehouseId: number; recipientId: number;
-                driverName: string, typeOfTranspo: string, plateNumber: string
-             }>,
+            req: Request<any, any, { transactionId: number; dateReceived: Date; quantityKg: number; riceType: string; warehouseId: number }>,
             res
         ) => {
-            const { palayBatchId, dateReceived, quantity, qualityType, warehouseId, recipientId,
-                driverName, typeOfTranspo, plateNumber } = req.body;
-
-            const riceDelivery = await createRiceDelivery({
-                driverName: driverName,
-                typeOfTranspo: typeOfTranspo,
-                plateNumber: plateNumber
-            });
+            const { transactionId, dateReceived, quantityKg, riceType, warehouseId } = req.body;
 
             const riceBatch = await createRiceBatch({
-                palayBatchId,
+                transactionId,
                 dateReceived,
-                quantity,
-                qualityType,
-                warehouseId,
-                recipientId,
-                riceDeliveryId: riceDelivery.id
+                quantityKg,
+                riceType,
+                warehouseId
             });
 
             res.json(riceBatch);
         }
     );
 
-    // router.post('/batch/:num', async (req, res) => {
-    //     const num = Number(req.params.num);
-
-    //     for (let i = 0; i < Number(req.params.num); i++) {
-    //         const user = await createUser({
-    //             username: `lastmjs${v4()}`,
-    //             age: i
-    //         });
-
-    //         await createRiceBatch({
-    //             user_id: user.id,
-    //             title: `RiceBatch ${v4()}`,
-    //             body: `${v4()}${v4()}${v4()}${v4()}`
-    //         });
-    //     }
-
-    //     res.send({
-    //         Success: `${num} riceBatches created`
-    //     });
-    // });
-
     router.post('/update', updateHandler);
-
-    router.patch('/', updateHandler);
-
-    router.delete('/', async (req: Request<any, any, { id: number }>, res) => {
-        const { id } = req.body;
-
-        const deletedId = await deleteRiceBatch(id);
-
-        res.json(deletedId);
-    });
 
     return router;
 }
 
 async function updateHandler(
-    req: Request<
-        any,
-        any,
-        { id: number; palayBatchId?: number; dateReceived?: Date; quantity?: number; qualityType?: string; warehouseId?: number; recipientId?: number }
-    >,
+    req: Request<any, any, { id: number; transactionId?: number; dateReceived?: Date; quantityKg?: number; riceType?: string; warehouseId?: number }>,
     res: Response
 ): Promise<void> {
-    const { id,
-        palayBatchId,
-        dateReceived,
-        quantity,
-        qualityType,
-        warehouseId,
-        recipientId } = req.body;
+    const { id, transactionId, dateReceived, quantityKg, riceType, warehouseId } = req.body;
 
     const riceBatch = await updateRiceBatch({
         id,
-        palayBatchId,
+        transactionId,
         dateReceived,
-        quantity,
-        qualityType,
-        warehouseId,
-        recipientId
+        quantityKg,
+        riceType,
+        warehouseId
     });
 
     res.json(riceBatch);

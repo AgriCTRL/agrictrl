@@ -1,10 +1,8 @@
 import express, { Request, Response, Router } from 'express';
-// import { v4 } from 'uuid';
 
 import {
     countMillingProcesses,
     createMillingProcess,
-    deleteMillingProcess,
     getMillingProcess,
     getMillingProcesses,
     updateMillingProcess
@@ -45,61 +43,27 @@ export function getRouter(): Router {
     router.post(
         '/',
         async (
-            req: Request<any, any, { palayBatchId: number; type: string; millerId: number; dateSent: Date; dateReturned: Date;
-                palayQuantitySent: number; palayQuantityReturned: number; efficiency: number; warehouseId: number;}>,
+            req: Request<any, any, { transactionId: number; millerId: number; millerType: string; dateSent: Date; dateReturned: Date; palayQuantitySentKg: number; riceQuantityReturnedKg: number; millingEfficiency: number }>,
             res
         ) => {
-            const { palayBatchId, type, millerId, dateSent, dateReturned,
-                palayQuantitySent, palayQuantityReturned, efficiency, warehouseId } = req.body;
+            const { transactionId, millerId, millerType, dateSent, dateReturned, palayQuantitySentKg, riceQuantityReturnedKg, millingEfficiency } = req.body;
 
             const millingProcess = await createMillingProcess({
-                palayBatchId,
-                type,
+                transactionId,
                 millerId,
+                millerType,
                 dateSent,
                 dateReturned,
-                palayQuantitySent,
-                palayQuantityReturned,
-                efficiency,
-                warehouseId
+                palayQuantitySentKg,
+                riceQuantityReturnedKg,
+                millingEfficiency
             });
 
             res.json(millingProcess);
         }
     );
 
-    // router.post('/batch/:num', async (req, res) => {
-    //     const num = Number(req.params.num);
-
-    //     for (let i = 0; i < Number(req.params.num); i++) {
-    //         const user = await createUser({
-    //             username: `lastmjs${v4()}`,
-    //             age: i
-    //         });
-
-    //         await createMillingProcess({
-    //             user_id: user.id,
-    //             title: `MillingProcess ${v4()}`,
-    //             body: `${v4()}${v4()}${v4()}${v4()}`
-    //         });
-    //     }
-
-    //     res.send({
-    //         Success: `${num} millingProcesses created`
-    //     });
-    // });
-
     router.post('/update', updateHandler);
-
-    router.patch('/', updateHandler);
-
-    router.delete('/', async (req: Request<any, any, { id: number }>, res) => {
-        const { id } = req.body;
-
-        const deletedId = await deleteMillingProcess(id);
-
-        res.json(deletedId);
-    });
 
     return router;
 }
@@ -108,33 +72,22 @@ async function updateHandler(
     req: Request<
         any,
         any,
-        { id: number; palayBatchId?: number; type?: string; millerId?: number; dateSent?: Date; dateReturned?: Date;
-            palayQuantitySent?: number; palayQuantityReturned?: number; efficiency?: number; warehouseId?: number }
+        { id: number; transactionId?: number; millerId?: number; millerType?: string; dateSent?: Date; dateReturned?: Date; palayQuantitySentKg?: number; riceQuantityReturnedKg?: number; millingEfficiency?: number }
     >,
     res: Response
 ): Promise<void> {
-    const { id,
-        palayBatchId,
-        type,
-        millerId,
-        dateSent,
-        dateReturned,
-        palayQuantitySent,
-        palayQuantityReturned,
-        efficiency,
-        warehouseId } = req.body;
+    const { id, transactionId, millerId, millerType, dateSent, dateReturned, palayQuantitySentKg, riceQuantityReturnedKg, millingEfficiency } = req.body;
 
     const millingProcess = await updateMillingProcess({
         id,
-        palayBatchId,
-        type,
+        transactionId,
         millerId,
+        millerType,
         dateSent,
         dateReturned,
-        palayQuantitySent,
-        palayQuantityReturned,
-        efficiency,
-        warehouseId
+        palayQuantitySentKg,
+        riceQuantityReturnedKg,
+        millingEfficiency
     });
 
     res.json(millingProcess);

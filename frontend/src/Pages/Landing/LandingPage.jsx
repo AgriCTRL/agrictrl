@@ -39,7 +39,7 @@ const LandingPage = () => {
 
     return (
         <AppLayout>
-            <div className="font-poppins">
+            <div className="font-poppins w-screen">
                 <HeroSection />
                 <FeatureSection />
                 <OfferSection />

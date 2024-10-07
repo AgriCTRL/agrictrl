@@ -21,7 +21,7 @@ function SidebarComponent({ children, expanded }) {
     }
 
     return (
-        <aside className="h-screen">
+        <aside className="h-full">
             <nav className={`h-full flex flex-col items-center py-5 ${
                 expanded ? 'px-10' : 'pl-4 pr-10'
             }`}>

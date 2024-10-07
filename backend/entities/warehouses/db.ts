@@ -9,19 +9,28 @@ export class Warehouse extends BaseEntity {
     facilityName: string;
 
     @Column()
-    capacity: number;
+    nfaBranch: string;
 
     @Column()
     location: string;
 
     @Column()
-    contactInfo: string;
+    totalCapacity: number;
+
+    @Column()
+    currentStock: number;
+
+    @Column()
+    contactNumber: string;
+
+    @Column()
+    email: string;
 
     @Column()
     status: string;
 }
 
-export type WarehouseCreate = Pick<Warehouse, 'facilityName' | 'capacity' | 'location' | 'contactInfo' | 'status'>;
+export type WarehouseCreate = Pick<Warehouse, 'facilityName' | 'nfaBranch' | 'location' | 'totalCapacity' | 'currentStock' | 'contactNumber' | 'email' | 'status'>;
 export type WarehouseUpdate = Pick<Warehouse, 'id'> & Partial<WarehouseCreate>;
 
 export async function getWarehouses(limit: number, offset: number): Promise<Warehouse[]> {
@@ -47,9 +56,12 @@ export async function createWarehouse(warehouseCreate: WarehouseCreate): Promise
     let warehouse = new Warehouse();
 
     warehouse.facilityName = warehouseCreate.facilityName;
-    warehouse.capacity = warehouseCreate.capacity;
+    warehouse.nfaBranch = warehouseCreate.nfaBranch;
     warehouse.location = warehouseCreate.location;
-    warehouse.contactInfo = warehouseCreate.contactInfo;
+    warehouse.totalCapacity = warehouseCreate.totalCapacity;
+    warehouse.currentStock = warehouseCreate.currentStock;
+    warehouse.contactNumber = warehouseCreate.contactNumber;
+    warehouse.email = warehouseCreate.email;
     warehouse.status = warehouseCreate.status;
 
     return await warehouse.save();
@@ -58,9 +70,12 @@ export async function createWarehouse(warehouseCreate: WarehouseCreate): Promise
 export async function updateWarehouse(warehouseUpdate: WarehouseUpdate): Promise<Warehouse> {
     await Warehouse.update(warehouseUpdate.id, {
         facilityName: warehouseUpdate.facilityName,
-        capacity: warehouseUpdate.capacity,
+        nfaBranch: warehouseUpdate.nfaBranch,
         location: warehouseUpdate.location,
-        contactInfo: warehouseUpdate.contactInfo,
+        totalCapacity: warehouseUpdate.totalCapacity,
+        currentStock: warehouseUpdate.currentStock,
+        contactNumber: warehouseUpdate.contactNumber,
+        email: warehouseUpdate.email,
         status: warehouseUpdate.status
     });
 
@@ -71,14 +86,4 @@ export async function updateWarehouse(warehouseUpdate: WarehouseUpdate): Promise
     }
 
     return warehouse;
-}
-
-export async function deleteWarehouse(id: number): Promise<number> {
-    const deleteResult = await Warehouse.delete(id);
-
-    if (deleteResult.affected === 0) {
-        throw new Error(`deleteWarehouse: could not delete warehouse with id ${id}`);
-    }
-
-    return id;
 }

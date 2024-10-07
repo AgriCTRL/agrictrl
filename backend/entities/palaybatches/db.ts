@@ -7,7 +7,8 @@ import {
 } from 'typeorm';
 
 import { getQualitySpec, QualitySpec } from '../qualityspecs/db';
-import { getPalayDelivery, PalayDelivery } from '../palaydeliveries/db';
+import { getPalaySupplier, PalaySupplier } from '../palaysuppliers/db';
+import { getFarm, Farm } from '../farms/db';
 
 @Entity()
 export class PalayBatch extends BaseEntity {
@@ -15,11 +16,14 @@ export class PalayBatch extends BaseEntity {
     id: number;
 
     @Column()
-    dateReceived: Date;
+    palayVariety: string;
 
     @Column()
-    quantity: number;
+    dateBought: Date;
 
+    @Column()
+    quantityKg: number;
+    
     @Column()
     qualityType: string;
 
@@ -33,26 +37,35 @@ export class PalayBatch extends BaseEntity {
     price: number;
 
     @Column()
-    supplierId: number;
+    palaySupplierId: number;
+
+    @ManyToOne(() => PalaySupplier)
+    palaySupplier: PalaySupplier;
 
     @Column()
-    nfaPersonnelId: number;
+    farmId: number;
+
+    @ManyToOne(() => Farm)
+    farm: Farm;
 
     @Column()
-    palayDeliveryId: number;
-
-    @ManyToOne(() => PalayDelivery)
-    palayDelivery: PalayDelivery;
+    plantedDate: Date;
 
     @Column()
-    warehouseId: number;
+    harvestedDate: Date;
+
+    @Column()
+    estimatedCapital: number;
+
+    @Column()
+    userId: number;
 
     @Column()
     status: string;
 }
 
-export type PalayBatchCreate = Pick<PalayBatch, 'dateReceived' | 'quantity' | 'qualityType' | 'price' | 'supplierId' | 'nfaPersonnelId' | 'warehouseId' | 'status'> &
-{ qualitySpecId: QualitySpec['id'], palayDeliveryId: PalayDelivery['id'] }
+export type PalayBatchCreate = Pick<PalayBatch, 'palayVariety' | 'dateBought' | 'quantityKg' | 'qualityType' | 'qualitySpecId' | 'price' | 'palaySupplierId' | 'farmId' | 'plantedDate' | 'harvestedDate' | 'estimatedCapital' | 'userId' | 'status'> &
+{ qualitySpecId: QualitySpec['id'] };
 export type PalayBatchUpdate = Pick<PalayBatch, 'id'> & Partial<PalayBatchCreate>;
 
 export async function getPalayBatches(limit: number, offset: number): Promise<PalayBatch[]> {
@@ -61,7 +74,8 @@ export async function getPalayBatches(limit: number, offset: number): Promise<Pa
         skip: offset,
         relations: {
             qualitySpec: true,
-            palayDelivery: true
+            palaySupplier: true,
+            farm: true
         }
     });
 }
@@ -73,7 +87,8 @@ export async function getPalayBatch(id: number): Promise<PalayBatch | null> {
         },
         relations: {
             qualitySpec: true,
-            palayDelivery: true
+            palaySupplier: true,
+            farm: true
         }
     });
 }
@@ -85,14 +100,10 @@ export async function countPalayBatches(): Promise<number> {
 export async function createPalayBatch(palayBatchCreate: PalayBatchCreate): Promise<PalayBatch> {
     let palayBatch = new PalayBatch();
 
-    palayBatch.dateReceived = palayBatchCreate.dateReceived;
-    palayBatch.quantity = palayBatchCreate.quantity;
+    palayBatch.palayVariety = palayBatchCreate.palayVariety;
+    palayBatch.dateBought = palayBatchCreate.dateBought;
+    palayBatch.quantityKg = palayBatchCreate.quantityKg;
     palayBatch.qualityType = palayBatchCreate.qualityType;
-    palayBatch.price = palayBatchCreate.price;
-    palayBatch.supplierId = palayBatchCreate.supplierId;
-    palayBatch.nfaPersonnelId = palayBatchCreate.nfaPersonnelId;
-    palayBatch.warehouseId = palayBatchCreate.warehouseId;
-    palayBatch.status = palayBatchCreate.status; 
 
     // qualitySpec
 
@@ -103,34 +114,50 @@ export async function createPalayBatch(palayBatchCreate: PalayBatchCreate): Prom
     }
 
     palayBatch.qualitySpecId = qualitySpec.id;
-    palayBatch.qualitySpec = qualitySpec;
 
-    // palayDelivery
+    palayBatch.price = palayBatchCreate.price;
 
-    const palayDelivery = await getPalayDelivery(palayBatchCreate.palayDeliveryId);
+    // palaySupplier
 
-    if (palayDelivery === null) {
+    const palaySupplier = await getPalaySupplier(palayBatchCreate.palaySupplierId);
+
+    if (palaySupplier === null) {
         throw new Error(``);
     }
 
-    palayBatch.palayDeliveryId = palayDelivery.id;
-    palayBatch.palayDelivery = palayDelivery;
+    palayBatch.palaySupplierId = palaySupplier.id;
+
+    // farm
+
+    const farm = await getFarm(palayBatchCreate.farmId);
+
+    if (farm === null) {
+        throw new Error(``);
+    }
+
+    palayBatch.farmId = farm.id;
+
+    palayBatch.plantedDate = palayBatchCreate.plantedDate;
+    palayBatch.harvestedDate = palayBatchCreate.harvestedDate;
+    palayBatch.estimatedCapital = palayBatchCreate.estimatedCapital;
+    palayBatch.userId = palayBatchCreate.userId;
+    palayBatch.status = palayBatchCreate.status;
 
     return await palayBatch.save();
 }
 
 export async function updatePalayBatch(palayBatchUpdate: PalayBatchUpdate): Promise<PalayBatch> {
-    console.log('palayBatchUpdate', palayBatchUpdate);
-
     await PalayBatch.update(palayBatchUpdate.id, {
-        dateReceived: palayBatchUpdate.dateReceived,
-        quantity: palayBatchUpdate.quantity,
+        palayVariety: palayBatchUpdate.palayVariety,
+        dateBought: palayBatchUpdate.dateBought,
+        quantityKg: palayBatchUpdate.quantityKg,
         qualityType: palayBatchUpdate.qualityType,
         price: palayBatchUpdate.price,
-        supplierId: palayBatchUpdate.supplierId,
-        nfaPersonnelId: palayBatchUpdate.nfaPersonnelId,
-        warehouseId: palayBatchUpdate.warehouseId,
-        status: palayBatchUpdate.status  
+        plantedDate: palayBatchUpdate.plantedDate,
+        harvestedDate: palayBatchUpdate.harvestedDate,
+        estimatedCapital: palayBatchUpdate.estimatedCapital,
+        userId: palayBatchUpdate.userId,
+        status: palayBatchUpdate.status
     });
 
     const palayBatch = await getPalayBatch(palayBatchUpdate.id);
@@ -140,14 +167,4 @@ export async function updatePalayBatch(palayBatchUpdate: PalayBatchUpdate): Prom
     }
 
     return palayBatch;
-}
-
-export async function deletePalayBatch(id: number): Promise<number> {
-    const deleteResult = await PalayBatch.delete(id);
-
-    if (deleteResult.affected === 0) {
-        throw new Error(`deletePalayBatch: could not delete palayBatch with id ${id}`);
-    }
-
-    return id;
 }

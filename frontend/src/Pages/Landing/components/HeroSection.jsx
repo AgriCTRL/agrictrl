@@ -1,9 +1,9 @@
 import { React, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthClient } from "@dfinity/auth-client";
-import { Button } from 'primereact/button';
 import { Wheat, Search, Coins, Truck } from 'lucide-react';
 import SimpleParallax from "simple-parallax-js";
+import { Button } from 'primereact/button';
 
 const HeroSection = () => {
     const identityUrl = import.meta.env.VITE_INTERNET_IDENTITY_URL;
@@ -24,9 +24,9 @@ const HeroSection = () => {
             const authClient = await AuthClient.create();
 
             const width = 500;
-        const height = 500;
-        const left = (window.screen.width / 2) - (width / 2);
-        const top = (window.screen.height / 2) - (height / 2) - 25;
+            const height = 500;
+            const left = (window.screen.width / 2) - (width / 2);
+            const top = (window.screen.height / 2) - (height / 2) - 25;
 
             await new Promise((resolve, reject) => {
                 authClient.login({
@@ -121,6 +121,7 @@ const HeroSection = () => {
                     </div>
                 </section>
             </div>
+            
             
             <img
                 src="/Landing-HeroSection.png"
