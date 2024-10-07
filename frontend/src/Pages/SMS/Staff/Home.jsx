@@ -32,8 +32,8 @@ function Home({ isRightSidebarOpen }) {
 
     const personalStats = [
         { icon: Loader2, title: "Palay Bought", value: 9 },
-        { icon: Undo2, title: "Processed", value: 9 },
-        { icon: CheckCircle2, title: "Distributed", value: 9 },
+        { icon: Undo2, title: "Processed", value: 4 },
+        { icon: CheckCircle2, title: "Distributed", value: 2 },
     ];
 
     return (
@@ -77,7 +77,7 @@ function Home({ isRightSidebarOpen }) {
 
                 {/* Main Content */}
                 <div className={`flex flex-col ${
-                    window.innerWidth <= 1366 ? 'w-[75%]' : 'w-[90%]'
+                    window.innerWidth <= 1366 ? 'w-[80%]' : 'w-[85%]'
                 } h-full`}>
                     <div className="flex flex-row justify-between items-center">
                         <div className="flex flex-col items-center">
