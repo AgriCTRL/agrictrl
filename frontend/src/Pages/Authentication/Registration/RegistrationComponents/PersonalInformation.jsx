@@ -37,8 +37,8 @@ const PersonalInformation = () => {
             id="firstName" 
             value={firstName} 
             onChange={(e) => handleInputChange('firstName', e.target.value)} 
-            className="ring-0 w-full p-inputtext-sm p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium" 
-            placeholder="first name" />
+            className="w-full focus:ring-0" 
+            placeholder="First name" />
         </div>
         
         <div className="w-1/2">
@@ -47,8 +47,8 @@ const PersonalInformation = () => {
             id="lastName" 
             value={lastName} 
             onChange={(e) => handleInputChange('lastName', e.target.value)} 
-            className="ring-0 w-full p-inputtext-sm p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium" 
-            placeholder="last name" />
+            className="w-full focus:ring-0" 
+            placeholder="Last name" />
         </div>
       </div>
 
@@ -61,7 +61,7 @@ const PersonalInformation = () => {
             options={genderOptions} 
             onChange={(e) => handleInputChange('gender', e.value)}
             placeholder="Select Gender"
-            className="ring-0 w-full p-inputtext-md font-medium rounded-md border border-gray-300" 
+            className="ring-0 w-full placeholder:text-gray-400" 
           />
         </div>
         <div className="w-1/2">
@@ -71,7 +71,7 @@ const PersonalInformation = () => {
             value={birthDate} 
             onChange={(e) => handleInputChange('birthDate', e.value)}
             placeholder="MM/DD/YYYY" 
-            className="ring-0 w-full p-inputtext-sm rounded-md bg-white border-gray-300 placeholder:text-gray-500 placeholder:font-medium" 
+            className="rig-0 w-full placeholder:text-gray-400 focus:shadow-none custom-calendar" 
             showIcon/>
         </div>
       </div>
@@ -82,7 +82,7 @@ const PersonalInformation = () => {
           id="contactNumber" 
           value={contactNumber} 
           onChange={handleContactNumberChange} 
-          className="ring-0 w-1/2 p-inputtext-sm p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium" 
+          className="w-1/2 focus:ring-0" 
           placeholder="+63 9" 
           type="tel"/>
       </div>

@@ -52,23 +52,23 @@ const ForgotPassword = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email here"
-              className="ring-0 w-full p-inputtext-sm p-4 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+              className="w-full focus:ring-0"
             />
           </div>
         );
       case 2:
         return (
-          <div className="mb-10 w-full">
+          <div className="flex flex-col items-center mb-6 w-full justify-center">
             <label className="block text-sm font-medium text-gray-700 mb-1">Verification Code</label>
-            <div className="flex justify-center">
+            <div className="flex">
               {verificationCode.map((digit, index) => (
 								<InputText
 									key={index}
 									id={`code-${index}`}
 									value={digit}
 									onChange={(e) => handleVerificationCodeChange(index, e.target.value, e)}
-									onKeyDown={(e) => handleVerificationCodeChange(index, e.target.value, e)} // Pass the event to detect backspace
-									className="w-16 text-center p-inputtext-sm p-4 rounded-md border mx-1 border-gray-300"
+									onKeyDown={(e) => handleVerificationCodeChange(index, e.target.value, e)}
+									className="flex text-center w-16 h-16 focus:ring-0 mx-1"
 									maxLength={1}
 								/>
               ))}
@@ -85,7 +85,7 @@ const ForgotPassword = () => {
                 value={password} 
                 onChange={(e) => setPassword(e.target.value)} 
                 placeholder="Enter your password" 
-                className="ring-0 w-full p-inputtext-sm p-4 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                className="focus:border-[#14b8a6] hover:border-[#14b8a6] w-full p-inputtext-sm p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
               />
             </div>
             <div className="mb-4 w-full">
@@ -95,7 +95,7 @@ const ForgotPassword = () => {
                 value={confirmPassword} 
                 onChange={(e) => setConfirmPassword(e.target.value)}  
                 placeholder="Confirm your password" 
-                className="ring-0 w-full p-inputtext-sm p-4 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                className="focus:border-[#14b8a6] hover:border-[#14b8a6] w-full p-inputtext-sm p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
               />
             </div>
           </>

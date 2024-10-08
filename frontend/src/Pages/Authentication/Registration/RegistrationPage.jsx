@@ -117,21 +117,24 @@ const RegistrationPageContent = ({ onRegisterSuccess }) => {
           <div className="absolute inset-0 bg-gradient-to-t from-secondary via-[#00c26170] to-transparent"></div>
         </div>
 
-        <div className="relative w-full z-10 p-8 text-white">
-          <h2 className="text-3xl font-bold mb-6 flex justify-center items-center drop-shadow-lg">Registration</h2>
+        <div className="flex flex-col justify-between w-full z-10 p-8 text-white">
+          <div>
+            <h2 className="text-3xl font-bold mb-6 flex justify-center items-center drop-shadow-lg">Registration</h2>
+            
+            <Stepper orientation="vertical" activeStep={activeStep} className="mb-8 mt-12 ml-8">
+              {steps.map(({ label, icon }, index) => (
+                <Step key={label}>
+                  <StepLabel StepIconComponent={() => <CustomStepLabel icon={icon} isActive={index === activeStep} />}>
+                    <div className={`text-white transition-all ${index === activeStep ? 'text-lg font-semibold' : 'text-base'}`}>
+                      <span>Step {index + 1}</span><br />
+                      {label}
+                    </div>
+                  </StepLabel>
+                </Step>
+              ))}
+            </Stepper>
+          </div>
           
-          <Stepper orientation="vertical" activeStep={activeStep} className="mb-8 mt-12 ml-8">
-            {steps.map(({ label, icon }, index) => (
-              <Step key={label}>
-                <StepLabel StepIconComponent={() => <CustomStepLabel icon={icon} isActive={index === activeStep} />}>
-                  <div className={`text-white transition-all ${index === activeStep ? 'text-lg font-semibold' : 'text-base'}`}>
-                    <span>Step {index + 1}</span><br />
-                    {label}
-                  </div>
-                </StepLabel>
-              </Step>
-            ))}
-          </Stepper>
 
           <div className="flex justify-center items-center pt-24">
             <img src="favicon.ico" alt="AgriCTRL+ Logo" className="h-16 mr-2" />

@@ -45,7 +45,7 @@ function AdminSidebarComponent({ children, expanded }) {
                         className: 'bg-primary h-px',
                     } 
                 }} />
-                    <Button onClick={logoutButton} className={`relative rounded-md flex text-primary items-center py-4 group ${
+                    <Button onClick={logoutButton} className={`relative rounded-md flex text-primary bg-transparent border-none  items-center py-4 group ${
                         expanded ? 'w-full px-10 gap-10' : 'px-4 w-fit gap-0'
                     }`} 
                         aria-label="Logout"

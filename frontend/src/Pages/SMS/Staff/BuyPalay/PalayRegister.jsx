@@ -146,21 +146,21 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                     value={formData.category}
                     options={[{ label: 'Individual Farmer', value: 'individual' }, { label: 'Cooperative', value: 'coop' }]}
                     onChange={handleInputChange}
-                    placeholder="select category"
+                    placeholder="Select category"
                     className="ring-0 w-full placeholder:text-gray-400"
                 />
             </div>
 
             <div className="flex flex-row w-full gap-4">
                 <div className="w-1/2">
-                    <label htmlFor="birthdate" className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Name</label>
                     <InputText
                         label="Name"
                         id="name" 
                         value={formData.name}
                         onChange={handleInputChange}
                         placeholder="Enter your name" 
-                        className='w-full'
+                        className='w-full focus:ring-0'
                     />
                 </div>
 
@@ -173,7 +173,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                             value={formData.birthdate}
                             onChange={handleInputChange}
                             placeholder="Select birthdate"
-                            className="ring-0 w-full rounded-md border-gray-300 placeholder:text-gray-400 placeholder:font-light"
+                            className="rig-0 w-full placeholder:text-gray-400 focus:shadow-none custom-calendar"
                         />
                     </div>
 
@@ -186,7 +186,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                             options={[{ label: 'Male', value: 'male' }, { label: 'Female', value: 'female' }, { label: 'Others', value: 'others' }]}
                             onChange={handleInputChange}
                             placeholder="gender"
-                            className="w-full"
+                            className="ring-0 w-full placeholder:text-gray-400"
                         />
                     </div>
                 </div>
@@ -200,8 +200,8 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                         id="email"
                         value={formData.email}
                         onChange={handleInputChange}
-                        placeholder="Enter your email here"
-                        className='w-full'
+                        placeholder="Enter your email"
+                        className='w-full focus:ring-0'
                     />
                 </div>
 
@@ -213,21 +213,22 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                         value={formData.phoneNumber}
                         onChange={handleInputChange}
                         placeholder="Enter your phone number"
-                        className='w-full'
+                        className='w-full focus:ring-0'
                     />
                 </div>
             </div>
+
             <div className="w-full">
                 <label htmlFor="houseAddress" className="block text-sm mb-1 font-medium text-gray-700">House Address</label>
                 <div className="flex gap-4 w-full flex-wrap">
-                    {['region', 'province', 'city', 'barangay', 'street'].map((field) => (
+                    {['Region', 'Province', 'City', 'Barangay', 'Street'].map((field) => (
                         <InputText
                             key={field}
                             id={field}
                             value={formData.houseAddress[field]}
                             onChange={(e) => handleAddressChange('houseAddress', e)}
                             placeholder={field}
-                            className='flex-1'
+                            className='flex-1 w-full focus:ring-0'
                         />
                     ))}
                 </div>
@@ -236,31 +237,43 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
     );
 
     const renderPalayInfo = () => (
-        <div className="flex flex-col h-full px-16">
-            <div className="w-full flex flex-row mb-1 space-x-2">
-                <InputField
-                    label="Variety"
-                    id="variety"
-                    value={formData.variety}
-                    onChange={handleInputChange}
-                    placeholder="enter variety"
-                />
+        <div className="flex flex-col h-full">
+            <div className="w-full flex mb-1 space-x-2">
+                <div className="w-full">
+                    <label htmlFor="variety" className="block text-sm font-medium text-gray-700 mb-1">Variety</label>
+                    <InputText
+                        label="Variety"
+                        id="variety"
+                        value={formData.variety}
+                        onChange={handleInputChange}
+                        placeholder="Enter variety"
+                        className='w-full focus:ring-0'
+                    />
+                </div>
 
-                <InputField
-                    label="Total Weight (kg)"
-                    id="totalWeight"
-                    value={formData.totalWeight}
-                    onChange={handleInputChange}
-                    placeholder="enter weight in KG"
-                />
+                <div className="w-full">
+                    <label htmlFor="totalWeight" className="block text-sm font-medium text-gray-700 mb-1">Total Weight (kg)</label>
+                    <InputText
+                        label="Total Weight"
+                        id="totalWeight"
+                        value={formData.totalWeight}
+                        onChange={handleInputChange}
+                        placeholder="Enter total weight"
+                        className='w-full focus:ring-0'
+                    />
+                </div>
 
-                <InputField
-                    label="Price / kg"
-                    id="pricePerKg"
-                    value={formData.pricePerKg}
-                    onChange={handleInputChange}
-                    placeholder="enter price"
-                />
+                <div className="w-full">
+                    <label htmlFor="pricePerKg" className="block text-sm font-medium text-gray-700 mb-1">Price / kg</label>
+                    <InputText
+                        label="Price per KG"
+                        id="pricePerKg"
+                        value={formData.pricePerKg}
+                        onChange={handleInputChange}
+                        placeholder="Enter price"
+                        className='w-full focus:ring-0'
+                    />
+                </div>
             </div>
 
             <div className="w-full">
@@ -272,61 +285,78 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                     options={[{ label: 'Grade A', value: 'gradeA' }, { label: 'Grade B', value: 'gradeB' }, { label: 'Grade C', value: 'gradeC' }]}
                     onChange={handleInputChange}
                     placeholder="select quality type"
-                    className="mb-1 ring-0 w-full p-inputtext-md font-normal rounded-md border border-gray-300 placeholder:text-gray-400"
+                    className="ring-0 w-full placeholder:text-gray-400"
                 />
             </div>
             
-            <div className="w-full flex flex-row space-x-2 mb-1">
-                <InputField
-                    label="Moisture Content"
-                    id="moistureContent"
-                    value={formData.moistureContent}
-                    onChange={handleInputChange}
-                    placeholder="enter moisture content"
-                />
+            <div className="w-full flex space-x-2 mb-1">
+                <div className="w-1/2">
+                    <label htmlFor="moistureContent" className="block text-sm font-medium text-gray-700 mb-1">Moisture Content</label>
+                    <InputText
+                        label="Moisture Content"
+                        id="moistureContent"
+                        value={formData.moistureContent}
+                        onChange={handleInputChange}
+                        placeholder="Enter moisture"
+                        className='w-full focus:ring-0'
+                    />
+                </div>
 
                 <div className="flex flex-row w-1/2 space-x-2">
-                    <InputField
-                        label="Purity"
-                        id="purity"
-                        value={formData.purity}
-                        onChange={handleInputChange}
-                        placeholder="enter purity"
-                    />
+                    <div className="w-full">
+                        <label htmlFor="purity" className="block text-sm font-medium text-gray-700 mb-1">Purity</label>
+                        <InputText
+                            label="Purity"
+                            id="purity"
+                            value={formData.purity}
+                            onChange={handleInputChange}
+                            placeholder="Enter price"
+                            className='w-full focus:ring-0'
+                        />
+                    </div>
 
-                    <InputField
-                        label="Damaged"
-                        id="damaged"
-                        value={formData.damaged}
-                        onChange={handleInputChange}
-                        placeholder="enter damaged"
-                    />
+                    <div className="w-full">
+                        <label htmlFor="damaged" className="block text-sm font-medium text-gray-700 mb-1">Damaged</label>
+                        <InputText
+                            label="Damaged"
+                            id="damaged"
+                            value={formData.damaged}
+                            onChange={handleInputChange}
+                            placeholder="Enter price"
+                            className='w-full focus:ring-0'
+                        />
+                    </div>
                 </div>
             </div>
             
             <div className="mb-1 w-full">
                 <label htmlFor="farmOrigin" className="block text-sm mb-1 font-medium text-gray-700">Farm Origin</label>
                 <div className="flex flex-row space-x-2">
-                    {['region', 'province', 'city', 'barangay', 'street'].map((field) => (
-                        <InputField
-                            key={field}
-                            id={field}
-                            value={formData.farmOrigin[field]}
-                            onChange={(e) => handleAddressChange('farmOrigin', e)}
-                            placeholder={field}
-                        />
+                    {['Region', 'Province', 'City', 'Barangay', 'Street'].map((field) => (
+                        <InputText
+                        key={field}
+                        id={field}
+                        value={formData.farmOrigin[field]}
+                        onChange={(e) => handleAddressChange('farmOrigin', e)}
+                        placeholder={field}
+                        className='flex-1 w-full focus:ring-0'
+                    />
                     ))}
                 </div>
             </div>
 
             <div className="w-full flex flex-row space-x-2 mb-1">
-                <InputField
-                    label="Farm Size"
-                    id="farmSize"
-                    value={formData.farmSize}
-                    onChange={handleInputChange}
-                    placeholder="enter farm size"
-                />
+                <div className="w-full">
+                    <label htmlFor="farmSize" className="block text-sm font-medium text-gray-700 mb-1">Farm Size</label>
+                    <InputText
+                        label="Farm Size"
+                        id="farmSize"
+                        value={formData.farmSize}
+                        onChange={handleInputChange}
+                        placeholder="Enter price"
+                        className='w-full focus:ring-0'
+                    />
+                </div>
 
                 <div className="w-full">
                     <label htmlFor="datePlanted" className="block text-sm font-medium text-gray-700 mb-1">Date Planted</label>
@@ -335,8 +365,8 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                         name="datePlanted"
                         value={formData.datePlanted}
                         onChange={handleInputChange}
-                        placeholder="select date"
-                        className="ring-0 w-full p-inputtext-sm rounded-md placeholder:text-gray-400 placeholder:font-light"
+                        placeholder="Select date"
+                        className="rig-0 w-full placeholder:text-gray-400 focus:shadow-none custom-calendar"
                     />
                 </div>
 
@@ -347,18 +377,22 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                         name="dateHarvested"
                         value={formData.dateHarvested}
                         onChange={handleInputChange}
-                        placeholder="select date"
-                        className="ring-0 w-full p-inputtext-sm rounded-md placeholder:text-gray-400 placeholder:font-light"
+                        placeholder="Select date"
+                        className="rig-0 w-full placeholder:text-gray-400 focus:shadow-none custom-calendar"
                     />
                 </div>
 
-                <InputField
-                    label="Estimated Capital"
-                    id="estimatedCapital"
-                    value={formData.estimatedCapital}
-                    onChange={handleInputChange}
-                    placeholder="enter capital"
-                />
+                <div className="w-full">
+                    <label htmlFor="estimatedCapital" className="block text-sm font-medium text-gray-700 mb-1">Estimated Capital</label>
+                    <InputText
+                        label="Estimated Capital"
+                        id="estimatedCapital"
+                        value={formData.estimatedCapital}
+                        onChange={handleInputChange}
+                        placeholder="Enter Capital"
+                        className='w-full focus:ring-0'
+                    />
+                </div>
             </div>
         </div>
     );
@@ -373,18 +407,22 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                     value={formData.boughtAt}
                     options={[{ label: 'Station A', value: 'stationA' }, { label: 'Station B', value: 'stationB' }, { label: 'Station C', value: 'stationC' }]}
                     onChange={handleInputChange}
-                    placeholder="select buying station"
-                    className="mb-1 ring-0 w-full p-inputtext-md font-normal rounded-md border border-gray-300 placeholder:text-gray-400"
+                    placeholder="Select buying station"
+                    className="ring-0 w-full placeholder:text-gray-400"
                 />
             </div>
             
-            <InputField
-                label="Transported by"
-                id="transportedBy"
-                value={formData.transportedBy}
-                onChange={handleInputChange}
-                placeholder="enter transport"
-            />
+            <div className="w-full">
+                <label htmlFor="transportedBy" className="block text-sm font-medium text-gray-700 mb-1">Transported by</label>
+                <InputText
+                    label="Transported by"
+                    id="transportedBy"
+                    value={formData.transportedBy}
+                    onChange={handleInputChange}
+                    placeholder="Enter transport"
+                    className='w-full focus:ring-0'
+                />
+            </div>
 
             <div className="w-full">
                 <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">Description</label>
@@ -393,8 +431,8 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                     name="description"
                     value={formData.description}
                     onChange={handleInputChange}
-                    placeholder="enter description"
-                    className="ring-0 w-full p-inputtext-sm p-2 rounded-md border border-gray-300 placeholder:text-gray-400 placeholder:font-normal"
+                    placeholder="Enter description"
+                    className="w-full"
                 />
             </div>
 
@@ -408,8 +446,8 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                         value={formData.sendToWarehouse}
                         options={[{ label: 'Warehouse', value: 'warehouse' }, { label: 'Dryer', value: 'dryer' }, { label: 'Miller', value: 'miller' }]}
                         onChange={handleInputChange}
-                        placeholder="select location"
-                        className="mb-1 ring-0 w-[35%] p-inputtext-md font-normal rounded-md border border-gray-300 placeholder:text-gray-400"
+                        placeholder="Select location"
+                        className="ring-0 w-full placeholder:text-gray-400"
                     />
 
                     <Dropdown
@@ -418,8 +456,8 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                         value={formData.facility}
                         options={[{ label: 'Facility A', value: 'facilityA' }, { label: 'Facility B', value: 'facilityB' }, { label: 'Facility C', value: 'facilityC' }]}
                         onChange={handleInputChange}
-                        placeholder="select facility"
-                        className="mb-1 ring-0 w-full p-inputtext-md font-normal rounded-md border border-gray-300 placeholder:text-gray-400"
+                        placeholder="Select facility"
+                        className="ring-0 w-full placeholder:text-gray-400"
                     />
                 </div>
             </div>

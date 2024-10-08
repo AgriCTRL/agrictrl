@@ -114,4 +114,18 @@
             display: none !important;
         }
     }
+
+    .p-calendar:not(.p-calendar-disabled).p-focus > .p-inputtext{
+        box-shadow: none !important;
+    }
+
+    .p-dropdown-panel .p-dropdown-items .p-dropdown-item.p-highlight {
+        color: none !important;
+        background: #f3f4f6 !important;
+    }
+
+    .p-dropdown-panel .p-dropdown-items .p-dropdown-item.p-highlight.p-focus {
+        background: #f3f4f6 !important;
+    }
+    
 }

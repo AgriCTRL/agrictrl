@@ -67,7 +67,7 @@ const AccountDetails = () => {
           options={userTypeOptions}
           onChange={(e) => handleInputChange('userType', e.value)}
           placeholder="Select User Type"
-          className="ring-0 w-full p-inputtext-sm font-medium rounded-md border border-gray-300"
+          className="ring-0 w-full placeholder:text-gray-400"
         />
       </div>
 
@@ -79,7 +79,7 @@ const AccountDetails = () => {
             value={organizationName}
             onChange={(e) => handleInputChange('organizationName', e.target.value)}
             placeholder="organization name"
-            className="ring-0 w-full p-inputtext-sm p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-normal"
+            className="w-full focus:ring-0"
           />
         </div>
         <div className="mb-2">
@@ -89,7 +89,7 @@ const AccountDetails = () => {
             value={jobTitle}
             onChange={(e) => handleInputChange('jobTitle', e.target.value)}
             placeholder="job title"
-            className="ring-0 w-full p-inputtext-sm p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-normal"
+            className="w-full focus:ring-0"
           />
         </div>
       </div>
@@ -104,7 +104,7 @@ const AccountDetails = () => {
               options={regionOptions}
               onChange={(e) => handleInputChange('region', e.value)}
               placeholder="Select Region"
-              className="ring-0 w-full p-inputtext-sm rounded-md border border-gray-300"
+              className="ring-0 w-full placeholder:text-gray-400"
             />
           </div>
           <div>
@@ -115,7 +115,7 @@ const AccountDetails = () => {
               options={branchOfficeOptions}
               onChange={(e) => handleInputChange('branchOffice', e.value)}
               placeholder="Select Branch"
-              className="ring-0 w-full p-inputtext-sm rounded-md border border-gray-300"
+              className="ring-0 w-full placeholder:text-gray-400"
             />
           </div>
         </div>
