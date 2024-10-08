@@ -12,13 +12,20 @@ const LoginPage = () => {
   const [userType, setUserType] = useState(null);
 	const navigate = useNavigate();
 
-  const userTypes = [
-    { label: 'NFA Branch Staff', value: 'nfa' },
-  ];
+	const userTypes = [
+		{ label: 'NFA Branch Staff', value: 'staff' },
+		{ label: 'Admin', value: 'admin' }
+		];
 
-  const loginButton = () => {   
-    navigate('/admin/');
-  }
+  const loginButton = () => {
+    if (userType === 'admin') {
+      navigate('/admin');
+    } else if (userType === 'staff') {
+      navigate('/staff');
+    } else {
+      alert('Please select a valid user type');
+    }
+  };
 
 	const RegisterButton = (e) => {   
     e.preventDefault();
@@ -39,12 +46,13 @@ const LoginPage = () => {
         <p className="text-md font-medium text-black mb-6">Login by providing your user type and user credentials</p>
 
 				<div className="h-full w-full flex flex-col justify-start my-10">
+					<label htmlFor="userType" className="block text-sm font-medium text-gray-700 mb-1">User Type</label>
 					<Dropdown
 						value={userType}
 						options={userTypes}
 						onChange={(e) => setUserType(e.value)}
 						placeholder="Select User Type"
-						className="mb-4 ring-0 w-full p-inputtext-md p-2 font-medium rounded-md border border-gray-300 text-secondary"
+						className="ring-0 w-full placeholder:text-gray-400 mb-4"
 						valueTemplate={(option) => (
 							<div className="flex items-center">
 								<Wheat className="mr-2 text-secondary" />
@@ -66,7 +74,7 @@ const LoginPage = () => {
 							value={email}
 							onChange={(e) => setEmail(e.target.value)}
 							placeholder="Enter your email here"
-							className="ring-0 w-full p-inputtext-sm p-4 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+							className="w-full focus:ring-0 p-3"
 						/>
 					</div>
 
@@ -77,7 +85,7 @@ const LoginPage = () => {
 							value={password} 
 							onChange={(e) => setPassword(e.target.value)} 
 							placeholder="Enter your password" 
-							className="ring-0 w-full p-inputtext-sm p-4 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+							className="focus:border-[#14b8a6] hover:border-[#14b8a6] w-full p-inputtext-sm p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
 						/>
 					</div>
 
@@ -156,15 +164,15 @@ const LoginPage = () => {
 				<div className="relative z-20 w-full flex flex-col items-center">
 					<h3 className="text-xl font-semibold mb-4">Connect with us</h3>
 					<div className="w-full flex justify-between items-center">
-						<Button className="ring-0">
+						<Button className="ring-0 bg-transparent border-none">
 							<Facebook size={24} />
 						</Button>
 
-						<Button className="ring-0">
+						<Button className="ring-0 bg-transparent border-none">
 							<Mail size={24} />
 						</Button>
 								
-						<Button className="ring-0">
+						<Button className="ring-0 bg-transparent border-none">
 							<Linkedin size={24} />
 						</Button>
 					</div>

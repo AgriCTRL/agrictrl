@@ -143,68 +143,60 @@ const OfficeAddress = () => {
       <div className="grid grid-cols-1 gap-4 mb-4">
         <div>
           <label htmlFor="region" className="block mb-2 text-sm font-medium text-gray-700">Region</label>
-          <Dropdown
-            id="region"
-            value={region}
-            options={regionOptions}
+          <Dropdown 
+            id="region" 
+            value={region} 
+            options={regionOptions} 
             onChange={(e) => handleInputChange('region', e.value)}
-            placeholder="Select a region"
-            className="ring-0 w-full p-inputtext-md p-2 font-medium rounded-md border border-gray-300"
-          />
+            placeholder="Select a province" 
+            className="ring-0 w-full placeholder:text-gray-400" />
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4 mb-4">
-        {/* Only show province dropdown if the selected region is not NCR */}
-        {region !== '130000000' && (
-          <div>
-            <label htmlFor="province" className="block mb-2 text-sm font-medium text-gray-700">Province</label>
-            <Dropdown
-              id="province"
-              value={province}
-              options={provinceOptions}
-              onChange={(e) => handleInputChange('province', e.value)}
-              placeholder="Select a province"
-              className="ring-0 w-full p-inputtext-md p-2 font-medium rounded-md border border-gray-300"
-            />
-          </div>
-        )}
-
+        <div>
+          <label htmlFor="province" className="block mb-2 text-sm font-medium text-gray-700">Province</label>
+          <Dropdown 
+            id="province" 
+            value={province} 
+            options={provinceOptions} 
+            onChange={(e) => handleInputChange('province', e.value)}
+            placeholder="Select a province" 
+            className="ring-0 w-full placeholder:text-gray-400"/>
+        </div>
+        
         <div>
           <label htmlFor="cityTown" className="block mb-2 text-sm font-medium text-gray-700">City / Town</label>
-          <Dropdown
-            id="cityTown"
-            value={cityTown}
-            options={cityTownOptions}
+          <Dropdown 
+            id="cityTown" 
+            value={cityTown} 
+            options={cityOptions} 
             onChange={(e) => handleInputChange('cityTown', e.value)}
-            placeholder="Select a city"
-            className="ring-0 w-full p-inputtext-md p-2 font-medium rounded-md border border-gray-300"
-          />
+            placeholder="Select a city" 
+            className="ring-0 w-full placeholder:text-gray-400"/>
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div>
           <label htmlFor="barangay" className="block mb-2 text-sm font-medium text-gray-700">Barangay</label>
-          <Dropdown
-            id="barangay"
-            value={barangay}
-            options={barangayOptions}
-            onChange={(e) => handleInputChange('barangay', e.value)}
-            placeholder="Select a barangay"
-            className="ring-0 w-full p-inputtext-md p-2 font-medium rounded-md border border-gray-300"
-          />
+          <Dropdown 
+            id="barangay" 
+            value={barangay} 
+            options={barangayOptions} 
+            onChange={(e) => handleInputChange('barangay', e.value)} 
+            placeholder="Select a barangay" 
+            className="ring-0 w-full placeholder:text-gray-400"/>
         </div>
 
         <div className="mb-4">
           <label htmlFor="street" className="block mb-2 text-sm font-medium text-gray-700">Street</label>
-          <InputText
-            id="street"
-            value={street}
-            onChange={(e) => handleInputChange('street', e.target.value)}
-            className="ring-0 w-full p-inputtext-sm p-4 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
-            placeholder="#123 Sample Street"
-          />
+          <InputText 
+            id="street" 
+            value={street} 
+            onChange={(e) => handleInputChange('street', e.target.value)} 
+            className="w-full focus:ring-0" 
+            placeholder="#123 Sample Street" />
         </div>
       </div>
     </form>

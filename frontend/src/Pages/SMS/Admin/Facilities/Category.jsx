@@ -5,7 +5,7 @@ import {
     Warehouse,
     Factory,
 } from "lucide-react";
-import UserLayout from '../../../../Layouts/UserLayout'
+import AdminLayout from '../../../../Layouts/AdminLayout'
 
 import WarehouseComponent from './Warehouse/WarehouseFacility';
 import DryerComponent from './Dryer/DryerFacility';
@@ -32,7 +32,7 @@ function Category() {
     };
 
     return (
-        <UserLayout activePage="Facilities">
+        <AdminLayout activePage="Facilities">
             <div className='flex flex-col h-full w-full px-4 py-2'>
 
                 {/* top navigation */}
@@ -85,7 +85,7 @@ function Category() {
 
                 
             
-        </UserLayout>
+        </AdminLayout>
     );
 }
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import UserLayout from '@/Layouts/UserLayout';
+import AdminLayout from '@/Layouts/AdminLayout';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { Calendar } from 'primereact/calendar';
@@ -146,7 +146,7 @@ function Profile() {
                     value={userData.personalInfo.firstName}
                     onChange={(e) => setUserData(prev => ({...prev, personalInfo: {...prev.personalInfo, firstName: e.target.value}}))}
                     disabled={!editing}
-                    className="w-full p-2 border rounded-md border-gray-300"
+                    className="w-full focus:ring-0"
                 />
             </div>
             <div>
@@ -155,7 +155,7 @@ function Profile() {
                     value={userData.personalInfo.lastName}
                     onChange={(e) => setUserData(prev => ({...prev, personalInfo: {...prev.personalInfo, lastName: e.target.value}}))}
                     disabled={!editing}
-                    className="w-full p-2 border rounded-md border-gray-300"
+                    className="w-full focus:ring-0"
                 />
             </div>
             <div>
@@ -165,7 +165,7 @@ function Profile() {
                     options={genderOptions}
                     onChange={(e) => setUserData(prev => ({...prev, personalInfo: {...prev.personalInfo, gender: e.target.value}}))}
                     disabled={!editing}
-                    className="w-full border rounded-md border-gray-300"
+                    className="ring-0 w-full placeholder:text-gray-400"
                 />
             </div>
             <div>
@@ -174,16 +174,16 @@ function Profile() {
                     value={userData.personalInfo.birthDate}
                     onChange={(e) => setUserData(prev => ({...prev, personalInfo: {...prev.personalInfo, birthDate: e.value}}))}
                     disabled={!editing}
-                    className="w-full border border-gray-300 rounded-md p-2"
+                    className="w-full rounded-md"
                 />
             </div>
             <div>
                 <label className="block mb-2 text-sm font-medium text-gray-700">Contact Number</label>
                 <InputText
                     value={userData.personalInfo.contactNumber}
-                    onChange={(e) => setUserData(prev => ({...prev, personalInfo: {...prev.personalInfo, contactNumber: e.target.value}}))}
+                    onChange={(e) => setUserData(prev => ({...prev, personalInfo: {...prev.personalInfo, lastName: e.target.value}}))}
                     disabled={!editing}
-                    className="w-full p-2 border rounded-md border-gray-300"
+                    className="w-full focus:ring-0"
                 />
             </div>
         </div>
@@ -204,19 +204,19 @@ function Profile() {
             <div>
                 <label className="block mb-2 text-sm font-medium text-gray-700">Organization Name</label>
                 <InputText
-                    value={userData.accountDetails.organizationName}
-                    onChange={(e) => setUserData(prev => ({...prev, accountDetails: {...prev.accountDetails, organizationName: e.target.value}}))}
+                    value={userData.personalInfo.organizationName}
+                    onChange={(e) => setUserData(prev => ({...prev, personalInfo: {...prev.personalInfo, lastName: e.target.value}}))}
                     disabled={!editing}
-                    className="w-full p-2 border rounded-md border-gray-300"
+                    className="w-full focus:ring-0"
                 />
             </div>
             <div>
                 <label className="block mb-2 text-sm font-medium text-gray-700">Job Title/Position</label>
                 <InputText
-                    value={userData.accountDetails.jobTitle}
-                    onChange={(e) => setUserData(prev => ({...prev, accountDetails: {...prev.accountDetails, jobTitle: e.target.value}}))}
+                    value={userData.personalInfo.organizationName}
+                    onChange={(e) => setUserData(prev => ({...prev, personalInfo: {...prev.personalInfo, lastName: e.target.value}}))}
                     disabled={!editing}
-                    className="w-full p-2 border rounded-md border-gray-300"
+                    className="w-full focus:ring-0"
                 />
             </div>
             <div>
@@ -226,7 +226,7 @@ function Profile() {
                     options={accountRegionOptions}
                     onChange={(e) => setUserData(prev => ({...prev, accountDetails: {...prev.accountDetails, region: e.target.value}}))}
                     disabled={!editing}
-                    className="w-full border rounded-md border-gray-300"
+                    className="ring-0 w-full placeholder:text-gray-400"
                 />
             </div>
             <div>
@@ -236,7 +236,7 @@ function Profile() {
                     options={branchOfficeOptions}
                     onChange={(e) => setUserData(prev => ({...prev, accountDetails: {...prev.accountDetails, branchOffice: e.target.value}}))}
                     disabled={!editing}
-                    className="w-full border rounded-md border-gray-300"
+                    className="ring-0 w-full placeholder:text-gray-400"
                 />
             </div>
         </div>
@@ -251,7 +251,7 @@ function Profile() {
                     options={officeRegionOptions}
                     onChange={(e) => setUserData(prev => ({...prev, officeAddress: {...prev.officeAddress, region: e.target.value}}))}
                     disabled={!editing}
-                    className="w-full border rounded-md border-gray-300"
+                    className="ring-0 w-full placeholder:text-gray-400"
                 />
             </div>
             <div>
@@ -261,7 +261,7 @@ function Profile() {
                     options={provinceOptions}
                     onChange={(e) => setUserData(prev => ({...prev, officeAddress: {...prev.officeAddress, province: e.target.value}}))}
                     disabled={!editing}
-                    className="w-full border rounded-md border-gray-300"
+                    className="ring-0 w-full placeholder:text-gray-400"
                 />
             </div>
             <div>
@@ -271,7 +271,7 @@ function Profile() {
                     options={cityOptions}
                     onChange={(e) => setUserData(prev => ({...prev, officeAddress: {...prev.officeAddress, cityTown: e.target.value}}))}
                     disabled={!editing}
-                    className="w-full border rounded-md border-gray-300"
+                    className="ring-0 w-full placeholder:text-gray-400"
                 />
             </div>
             <div>
@@ -281,7 +281,7 @@ function Profile() {
                     options={barangayOptions}
                     onChange={(e) => setUserData(prev => ({...prev, officeAddress: {...prev.officeAddress, barangay: e.target.value}}))}
                     disabled={!editing}
-                    className="w-full border rounded-md border-gray-300"
+                    className="ring-0 w-full placeholder:text-gray-400"
                 />
             </div>
             <div>
@@ -290,7 +290,7 @@ function Profile() {
                     value={userData.officeAddress.street}
                     onChange={(e) => setUserData(prev => ({...prev, officeAddress: {...prev.officeAddress, street: e.target.value}}))}
                     disabled={!editing}
-                    className="w-full p-2 border rounded-md border-gray-300"
+                    className="w-full focus:ring-0"
                 />
             </div>
         </div>
@@ -304,7 +304,7 @@ function Profile() {
                     value={userData.passwordInfo.email}
                     onChange={(e) => setUserData(prev => ({...prev, passwordInfo: {...prev.passwordInfo, email: e.target.value}}))}
                     disabled={!editing}
-                    className="w-full p-2 border rounded-md border-gray-300"
+                    className="w-full focus:ring-0"
                 />
             </div>
             <div>
@@ -313,7 +313,7 @@ function Profile() {
                     value={userData.passwordInfo.password}
                     onChange={(e) => setUserData(prev => ({...prev, passwordInfo: {...prev.passwordInfo, password: e.target.value}}))}
                     disabled={!editing}
-                    className="w-full p-2 border rounded-md border-gray-300"
+                    className="focus:border-[#14b8a6] hover:border-[#14b8a6] w-full p-2 border rounded-md border-gray-300"
                     toggleMask
                     feedback={false}
                 />
@@ -325,7 +325,7 @@ function Profile() {
                     value={userData.passwordInfo.confirmPassword}
                     onChange={(e) => setUserData(prev => ({...prev, passwordInfo: {...prev.passwordInfo, confirmPassword: e.target.value}}))}
                     disabled={!editing}
-                    className="w-full p-2 border rounded-md border-gray-300"
+                    className="focus:border-[#14b8a6] hover:border-[#14b8a6] w-full p-2 border rounded-md border-gray-300"
                     toggleMask
                     feedback={false}
                 />
@@ -341,7 +341,7 @@ function Profile() {
     ];
 
     return (
-        <UserLayout activePage="Profile">
+        <AdminLayout activePage="Profile">
             <div className='flex flex-row h-full w-full px-4 py-2 bg-white rounded-xl'>
                 <div className='flex flex-col items-center justify-start h-full w-1/4 p-5'>
                     <img src="/profileAvatar.png" alt="Profile" className="w-20 h-20 rounded-full mr-4" />
@@ -396,7 +396,7 @@ function Profile() {
                     </form>
                 </div>
             </div>
-        </UserLayout>
+        </AdminLayout>
     );
 }
 

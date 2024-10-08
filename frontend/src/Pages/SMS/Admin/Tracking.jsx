@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import UserLayout from '@/Layouts/UserLayout';
+import AdminLayout from '@/Layouts/AdminLayout';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Timeline } from 'primereact/timeline';
@@ -253,7 +253,7 @@ const Tracking = () => {
   );
 
   return (
-    <UserLayout activePage="Tracking">
+    <AdminLayout activePage="Tracking">
       <div className="px-4 w-full h-full bg-[#F1F5F9]">
         <div className="mb-4">
           <span className="p-input-icon-left w-full"> 
@@ -307,7 +307,7 @@ const Tracking = () => {
           </div>
         )}
       </div>
-    </UserLayout>
+    </AdminLayout>
   );
 };
 
