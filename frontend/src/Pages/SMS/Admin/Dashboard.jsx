@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import UserLayout from '@/Layouts/UserLayout';
+import AdminLayout from '@/Layouts/AdminLayout';
 import CardComponent from '@/Components/CardComponent';
 import { Divider } from 'primereact/divider';
 import { 
@@ -92,7 +92,7 @@ function Dashboard() {
     }, [])
 
     return (
-        <UserLayout activePage="Dashboard">
+        <AdminLayout activePage="Dashboard">
             <CardComponent>
                 <CardComponent className='flex-1 flex-col gap-4 justify-center'>
                     <div className='flex gap-4 text-black'>
@@ -126,7 +126,7 @@ function Dashboard() {
                     <h1 className='text-heading text-primary text-center font-bold'>{facilitiesCount}</h1>
                 </CardComponent>
             </CardComponent>
-        </UserLayout>
+        </AdminLayout>
     );
 }
 

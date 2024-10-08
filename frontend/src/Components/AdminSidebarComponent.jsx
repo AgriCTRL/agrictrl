@@ -7,7 +7,7 @@ import { LogOut } from 'lucide-react';
 import { AuthClient } from "@dfinity/auth-client";
         
 const SidebarContext = createContext()
-function SidebarComponent({ children, expanded }) {
+function AdminSidebarComponent({ children, expanded }) {
     const navigate = useNavigate();
     const logoutButton = async () => {
         try {
@@ -45,7 +45,7 @@ function SidebarComponent({ children, expanded }) {
                         className: 'bg-primary h-px',
                     } 
                 }} />
-                    <Button onClick={logoutButton} className={`relative rounded-md flex text-primary items-center py-4 group ${
+                    <Button onClick={logoutButton} className={`relative rounded-md flex text-primary bg-transparent border-none  items-center py-4 group ${
                         expanded ? 'w-full px-10 gap-10' : 'px-4 w-fit gap-0'
                     }`} 
                         aria-label="Logout"
@@ -109,4 +109,4 @@ function SidebarItem({ icon, text, active, link }) {
     );
 }
 
-export { SidebarItem, SidebarComponent };
+export { SidebarItem, AdminSidebarComponent };

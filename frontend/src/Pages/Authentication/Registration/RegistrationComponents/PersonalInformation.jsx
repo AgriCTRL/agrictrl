@@ -30,30 +30,30 @@ const PersonalInformation = () => {
       <h2 className="text-4xl font-medium mb-6 text-secondary">Personal Information</h2>
       <p className="mb-10 font-medium text-black">Please provide your basic details to get started.</p>
       
-      <div className="grid grid-cols-2 gap-4 mb-4">
-        <div>
+      <div className="flex flex-row space-x-2 mb-4">
+        <div className="w-1/2">
           <label htmlFor="firstName" className="block mb-2 text-sm font-medium text-gray-700">First Name</label>
           <InputText 
             id="firstName" 
             value={firstName} 
             onChange={(e) => handleInputChange('firstName', e.target.value)} 
-            className="ring-0 w-full p-inputtext-sm p-4 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium" 
-            placeholder="first name" />
+            className="w-full focus:ring-0" 
+            placeholder="First name" />
         </div>
         
-        <div>
+        <div className="w-1/2">
           <label htmlFor="lastName" className="block mb-2 text-sm font-medium text-gray-700">Last Name</label>
           <InputText 
             id="lastName" 
             value={lastName} 
             onChange={(e) => handleInputChange('lastName', e.target.value)} 
-            className="ring-0 w-full p-inputtext-sm p-4 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium" 
-            placeholder="last name" />
+            className="w-full focus:ring-0" 
+            placeholder="Last name" />
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 mb-4">
-        <div>
+      <div className="flex flex-row w-full space-x-2 mb-4">
+        <div className="w-1/2">
           <label htmlFor="gender" className="block mb-2 text-sm font-medium text-gray-700">Gender</label>
           <Dropdown 
             id="gender" 
@@ -61,28 +61,28 @@ const PersonalInformation = () => {
             options={genderOptions} 
             onChange={(e) => handleInputChange('gender', e.value)}
             placeholder="Select Gender"
-            className="ring-0 w-full p-inputtext-md p-2 font-medium rounded-md border border-gray-300" 
+            className="ring-0 w-full placeholder:text-gray-400" 
           />
         </div>
-        <div>
+        <div className="w-1/2">
           <label htmlFor="birthDate" className="block mb-2 text-sm font-medium text-gray-700">Birth Date</label>
           <Calendar 
             id="birthDate" 
             value={birthDate} 
             onChange={(e) => handleInputChange('birthDate', e.value)}
             placeholder="MM/DD/YYYY" 
-            className="ring-0 w-full h-[58px] p-inputtext-sm p-2 rounded-md border bg-white border-gray-300 placeholder:text-gray-500 placeholder:font-medium" 
+            className="rig-0 w-full placeholder:text-gray-400 focus:shadow-none custom-calendar" 
             showIcon/>
         </div>
       </div>
 
-      <div className="mb-4">
+      <div className="mb-4 w-full">
         <label htmlFor="contactNumber" className="block mb-2 text-sm font-medium text-gray-700">Contact Number</label>
         <InputText 
           id="contactNumber" 
           value={contactNumber} 
           onChange={handleContactNumberChange} 
-          className="ring-0 w-1/2 p-inputtext-sm p-4 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium" 
+          className="w-1/2 focus:ring-0" 
           placeholder="+63 9" 
           type="tel"/>
       </div>

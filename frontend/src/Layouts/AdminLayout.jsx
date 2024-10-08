@@ -8,8 +8,8 @@ import {
     Users,
     User
 } from "lucide-react";
-import { SidebarComponent, SidebarItem } from "@/Components/SidebarComponent";
-import UserNavbarComponent from '@/Components/UserNavbarComponent';
+import { AdminSidebarComponent, SidebarItem } from "@/Components/AdminSidebarComponent";
+import AdminNavbarComponent from '@/Components/AdminNavbarComponent';
 import { AuthClient } from "@dfinity/auth-client";
 
 const sidebarItems = [
@@ -50,7 +50,7 @@ const sidebarItems = [
     },
 ];
  
-function UserLayout({ children, activePage }) {
+function AdminLayout({ children, activePage }) {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const [name, setName] = useState(() => localStorage.getItem('userName') || '');
 
@@ -112,7 +112,7 @@ function UserLayout({ children, activePage }) {
     return (
         <div className="flex h-screen w-screen bg-[#F1F5F9] pr-5">
             {/* Sidebar */}
-            <SidebarComponent expanded={expanded}> {/* Ensure full height */}
+            <AdminSidebarComponent expanded={expanded}> {/* Ensure full height */}
                 {sidebarItems.map((item, index) => (
                     <SidebarItem
                         key={index}
@@ -120,12 +120,12 @@ function UserLayout({ children, activePage }) {
                         active={isItemActive(item.text)}
                     />
                 ))}
-            </SidebarComponent>
+            </AdminSidebarComponent>
 
             {/* Main content */}
             <div className="flex flex-col w-full h-screen overflow-hidden"> {/* Ensure full height */}
                 {/* Header */}
-                <UserNavbarComponent
+                <AdminNavbarComponent
                     items={{
                         user: name,
                         avatar: '/profileAvatar.png',
@@ -145,4 +145,4 @@ function UserLayout({ children, activePage }) {
     );
 }
 
-export default UserLayout;
+export default AdminLayout;

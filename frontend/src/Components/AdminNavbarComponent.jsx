@@ -7,7 +7,7 @@ import {
 import { Avatar } from 'primereact/avatar';
 import { ChevronFirst, ChevronLast } from 'lucide-react';
 
-function UserNavbarComponent({ items, expanded, onToggleExpanded }) {
+function AdminNavbarComponent({ items, expanded, onToggleExpanded }) {
     return (
         <header className="w-full py-8">
             <nav className="flex items-center justify-between">
@@ -44,4 +44,4 @@ function UserNavbarComponent({ items, expanded, onToggleExpanded }) {
     );
 }
 
-export default UserNavbarComponent;
+export default AdminNavbarComponent;

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ThermometerSun, Warehouse, Factory } from "lucide-react";
-import UserLayout from '../../../../Layouts/UserLayout';
+import AdminLayout from '../../../../Layouts/AdminLayout';
 import Pending from './Pending';
 import Active from './Active';
 import Inactive from './Inactive';
@@ -41,7 +41,7 @@ function Users() {
     );
 
     return (
-        <UserLayout activePage="Users">
+        <AdminLayout activePage="Users">
             <div className='flex flex-col h-full w-full px-4 py-2'>
                 <div className='flex items-center w-full justify-between mb-4'>
                     <CardButton id="pending" icon={Warehouse} label="Pending" />
@@ -53,7 +53,7 @@ function Users() {
                     {renderSelectedComponent()}
                 </section>
             </div>
-        </UserLayout>
+        </AdminLayout>
     );
 }
 
