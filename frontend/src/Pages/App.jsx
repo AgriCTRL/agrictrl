@@ -28,7 +28,7 @@ import StaffProcessing from "./SMS/Staff/Processing";
 import StaffWarehouse from "./SMS/Staff/Warehouse";
 
 import RecipientHome from "./SMS/Recipient/Home";
-import RecipientRiceOrder from "./SMS/Recipient/RiceOrder";
+import RecipientRiceOrder from "./SMS/Recipient/RiceOrder/RiceOrder";
 import RecipientRiceReceive from "./SMS/Recipient/RiceReceive";
 import RecipientHistory from "./SMS/Recipient/History";
 

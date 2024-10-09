@@ -28,7 +28,7 @@ function Active() {
                 rounded 
                 text 
                 severity="info" 
-                className="text-green-500 -translate-x-10"
+                className="text-green-500"
                 onClick={() => {
                   setSelectedUser(rowData);
                   setUserDetailsVisible(true);
@@ -43,13 +43,6 @@ function Active() {
             severity="success" 
             className="text-sm px-3 py-1 rounded-md"
         />
-    );
-
-    const statusAndActionTemplate = (rowData) => (
-        <div className="flex items-center justify-between">
-            {statusBodyTemplate(rowData)}
-            {actionBodyTemplate(rowData)}
-        </div>
     );
 
     return (
@@ -92,12 +85,13 @@ function Active() {
                         paginatorClassName="border-t-2 border-gray-300"
                         rows={10}
                     >
-                        <Column field="userId" header="User ID" headerClassName="pl-6"/>
-                        <Column field="name" header="Name" headerClassName="pl-6"/>
-                        <Column field="organization" header="Organization"/>
-                        <Column field="position" header="Position" headerClassName="pl-6"/>
-                        <Column field="userType" header="User Type"/>
-                        <Column header="Status" body={statusAndActionTemplate} headerClassName="pl-4"/>
+                        <Column field="userId" header="User ID" className="text-center" headerClassName="text-center"/>
+                        <Column field="name" header="Name" className="text-center" headerClassName="text-center"/>
+                        <Column field="organization" header="Organization" className="text-center" headerClassName="text-center"/>
+                        <Column field="position" header="Position" className="text-center" headerClassName="text-center"/>
+                        <Column field="userType" header="User Type" className="text-center" headerClassName="text-center"/>
+                        <Column field="status" header="Status" body={statusBodyTemplate} className="text-center" headerClassName="text-center"/>
+                        <Column header="" body={actionBodyTemplate} className="text-center" headerClassName="text-center"/>
                     </DataTable>
                 </div>
             </div>

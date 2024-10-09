@@ -56,6 +56,17 @@ function RecipientLayout({ children, activePage }) {
         setIsRightSidebarOpen(!isRightSidebarOpen);
     };
 
+    const logoutButton = async () => {
+        try {
+            const authClient = await AuthClient.create();
+            await authClient.logout();
+            navigate('/');
+        }
+        catch (error) {
+            console.log(error.message);
+        }
+    }
+
     return (
         <div className="flex flex-col h-screen w-screen bg-[#F1F5F9]">
             {/* Header */}
@@ -94,7 +105,7 @@ function RecipientLayout({ children, activePage }) {
                                 <p className="font-bold text-primary">
                                     Juan Valencio
                                 </p> 
-                                <p>
+                                <p onClick={logoutButton}>
                                     Recipient
                                 </p>
                             </div> 
