@@ -5,18 +5,17 @@ import { Avatar } from 'primereact/avatar';
 import { Divider } from 'primereact/divider';
 import { AuthClient } from "@dfinity/auth-client";
 
-function StaffLayout({ children, activePage }) {
+function RecipientLayout({ children, activePage }) {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const [name, setName] = useState(() => localStorage.getItem('userName') || '');
     const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
     const navigate = useNavigate();
 
     const navItems = [
-        { text: 'Home', link: '/staff' },
-        { text: 'Buy Palay', link: '/staff/buy' },
-        { text: 'Warehouse', link: '/staff/warehouse' },
-        { text: 'Processing', link: '/staff/processing' },
-        { text: 'Orders', link: '/staff/orders' },
+        { text: 'Home', link: '/recipient' },
+        { text: 'Rice Order', link: '/recipient/order' },
+        { text: 'Rice Receive', link: '/recipient/receive' },
+        { text: 'History', link: '/recipient/history' }
     ];
 
     useEffect(() => {
@@ -96,7 +95,7 @@ function StaffLayout({ children, activePage }) {
                                     Juan Valencio
                                 </p> 
                                 <p>
-                                    Staff | NFA Nueva Ecija
+                                    Recipient
                                 </p>
                             </div> 
                         </div>
@@ -127,4 +126,4 @@ function StaffLayout({ children, activePage }) {
     );
 }
 
-export default StaffLayout;
+export default RecipientLayout;
