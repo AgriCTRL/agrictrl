@@ -11,6 +11,7 @@ import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 
 import PalayRegister from './PalayRegister';
+import DeclinedDetails from './DeclineDetails';
 
 
 function RiceOrder() {
@@ -20,6 +21,9 @@ function RiceOrder() {
     });
 
     const [showRegisterPalay, setShowRegisterPalay] = useState(false);
+    const [showDeclinedDetails, setShowDeclinedDetails] = useState(false);
+    const [selectedDeclinedData, setSelectedDeclinedData] = useState(null);
+
 
     const [inventoryData, setInventoryData] = useState([
         { id: 1, trackingId: '001', dateBought: '2024-03-01', quantity: 1000, price: 100, riceType: 'Premium', status: 'UNPROCESSED'},
@@ -54,12 +58,17 @@ function RiceOrder() {
         />
     );
     
-    const actionBodyTemplate = (rowData) => (
-        <CircleAlert 
-            className="text-red-500"
-            onClick={() => console.log('Edit clicked for:', rowData)}
-        />
-    );
+    const actionBodyTemplate = (rowData) => {
+        if (rowData.status === 'DECLINED') {
+            return (
+                <CircleAlert 
+                    className="text-red-500 cursor-pointer"
+                    onClick={() => handleDeclinedClick(rowData)}  // Open the DeclinedDetails
+                />
+            );
+        }
+        return null;
+    };
 
     const handleAddPalay = () => {
         setShowRegisterPalay(true);
@@ -68,6 +77,14 @@ function RiceOrder() {
     const handlePalayRegistered = (newPalay) => {
         console.log('New Palay registered:', newPalay);
         setShowRegisterPalay(false);
+    };
+
+    const handleDeclinedClick = (rowData) => {
+        setSelectedDeclinedData({
+            ...rowData,
+            dateBought: new Date(rowData.dateBought)
+        });
+        setShowDeclinedDetails(true);
     };
 
     const filteredData = inventoryData.filter(item => 
@@ -153,6 +170,12 @@ function RiceOrder() {
                 visible={showRegisterPalay}
                 onHide={() => setShowRegisterPalay(false)}
                 onPalayRegistered={handlePalayRegistered}
+            />
+
+            <DeclinedDetails
+                visible={showDeclinedDetails}
+                onHide={() => setShowDeclinedDetails(false)}
+                data={selectedDeclinedData}
             />
         </RecipientLayout> 
     );
