@@ -87,6 +87,9 @@
             color: #6b7280 !important;
         }
     
+        .p-column-header-content {
+            display:block !important;
+        }
     }
 
     .p-timeline {

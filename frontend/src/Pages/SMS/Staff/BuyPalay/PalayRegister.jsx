@@ -10,22 +10,6 @@ import { Wheat, UserIcon, CheckIcon, TruckIcon } from 'lucide-react';
 import { Stepper, Step, StepLabel } from '@mui/material';
 import { InputText } from 'primereact/inputtext';
 
-// Reusable Input Component
-const InputField = ({ label, id, value, onChange, placeholder, type = "text" }) => (
-    <div className="w-full">
-        <label htmlFor={id} className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
-        <input
-            type={type}
-            id={id}
-            name={id}
-            value={value}
-            onChange={onChange}
-            placeholder={placeholder}
-            className="w-full p-inputtext-sm p-2 rounded-md border border-gray-300 placeholder:text-gray-400 placeholder:font-normal focus:outline-none focus:ring-0 focus:border-primary"
-        />
-    </div>
-);
-
 const initialFormData = {
     // Farmer Info
     category: '',
