@@ -61,13 +61,6 @@ function DeclinedDetails({ visible, onHide, data }) {
         }));
     };
 
-    const handleSubmit = () => {
-        console.log(formData);
-        onPalayRegistered(formData);
-        setFormData(initialFormData);
-        onHide();
-    };
-
     const handleClose = () => {
         setFormData(initialFormData);
         onHide();
@@ -97,7 +90,7 @@ function DeclinedDetails({ visible, onHide, data }) {
                 </div>
             }
         >
-            <div className="flex flex-col h-full">
+            <div className="flex flex-col h-full gap-4">
                 <div className="flex gap-4 w-full">
                     <div className="w-1/2">
                         <label htmlFor="riceType" className="block text-sm font-medium text-gray-700 mb-1">Rice Type</label>
@@ -123,43 +116,20 @@ function DeclinedDetails({ visible, onHide, data }) {
                         />
                     </div>
                 </div>
-                <div className="w-1/2">
-                    <label htmlFor="riceType" className="block text-sm font-medium text-gray-700 mb-1">Rice Type</label>
-                    <InputText
-                        id="riceType"
-                        name="riceType"
-                        value={formData.riceType}
-                        onChange={handleInputChange}
-                        disabled
-                        className='w-full focus:ring-0'
-                    />
-                </div>
 
-                <div className="w-full">
-                    <label htmlFor="quantity" className="block text-sm font-medium text-gray-700 mb-1">Quantity (in kilos)</label>
-                    <InputText
-                        id="quantity"
-                        name="quantity"
-                        value={formData.quantity}
-                        onChange={handleInputChange}
-                        disabled
-                        className='w-full focus:ring-0'
-                    />
-                </div>
+                <div className="flex flex-row w-full gap-4">
+                    <div className="w-1/2">
+                        <label htmlFor="quantity" className="block text-sm font-medium text-gray-700 mb-1">Quantity (kg)</label>
+                        <InputText
+                            id="quantity"
+                            name="quantity"
+                            value={formData.quantity}
+                            onChange={handleInputChange}
+                            disabled
+                            className='w-full focus:ring-0'
+                        />
+                    </div>
 
-                <div className="w-full">
-                    <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                    <InputTextarea
-                        id="description"
-                        name="description"
-                        value={formData.description}
-                        onChange={handleInputChange}
-                        disabled
-                        className="w-full"
-                    />
-                </div>
-
-                <div className="w-full flex mb-1 space-x-2">
                     <div className="w-1/2">
                         <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">Order Date</label>
                         <Calendar
@@ -172,17 +142,19 @@ function DeclinedDetails({ visible, onHide, data }) {
                             className="rig-0 w-full placeholder:text-gray-400 focus:shadow-none custom-calendar"
                         />
                     </div>
+                </div>
+                
 
-                    <div className="w-1/2">
-                        <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">Estimated Price</label>
-                        <InputText
-                            id="price"
-                            name="price"
-                            disabled
-                            value={formData.price}
-                            className='w-full focus:ring-0'
-                        />
-                    </div>
+                <div className="w-full">
+                    <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">Reason</label>
+                    <InputTextarea
+                        id="description"
+                        name="description"
+                        value={formData.description}
+                        onChange={handleInputChange}
+                        disabled
+                        className="w-full"
+                    />
                 </div>
             </div>
         </Dialog>

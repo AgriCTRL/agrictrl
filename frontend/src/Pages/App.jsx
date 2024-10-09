@@ -29,7 +29,7 @@ import StaffWarehouse from "./SMS/Staff/Warehouse";
 
 import RecipientHome from "./SMS/Recipient/Home";
 import RecipientRiceOrder from "./SMS/Recipient/RiceOrder/RiceOrder";
-import RecipientRiceReceive from "./SMS/Recipient/RiceReceive";
+import RecipientRiceReceive from "./SMS/Recipient/RiceReceive/RiceReceive";
 import RecipientHistory from "./SMS/Recipient/History";
 
 function App() {
