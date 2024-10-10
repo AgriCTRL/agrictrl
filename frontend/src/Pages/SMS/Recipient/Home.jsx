@@ -37,13 +37,11 @@ function Home({ isRightSidebarOpen }) {
                 
                 {/* Main Content */}
                 <div className="flex flex-col w-full px-10">
-                    <div className="flex flex-row justify-between items-center">
+                    <div className="flex justify-start">
                         <div className="flex flex-col items-center">
                             <h1 className="text-xl">Welcome Back,</h1>
                             <h1 className="text-2xl font-bold">Juan!</h1>
                         </div>
-
-                        <h1 className="text-md font-medium text-primary">Add new palay batch {'>'} </h1>
                     </div>
 
                     {/* Carousel for Image Section */}
@@ -53,7 +51,7 @@ function Home({ isRightSidebarOpen }) {
                         numScroll={1} 
                         className="custom-carousel" 
                         itemTemplate={(item) => (
-                            <div className="relative rounded-lg overflow-hidden mb-2 md:h-70 sm:h-64">
+                            <div className="relative rounded-lg overflow-hidden mb-2 md:h-70 sm:h-72">
                                 <div className='h-full'>
                                     <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
                                 </div>

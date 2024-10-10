@@ -32,6 +32,11 @@ import RecipientRiceOrder from "./SMS/Recipient/RiceOrder/RiceOrder";
 import RecipientRiceReceive from "./SMS/Recipient/RiceReceive/RiceReceive";
 import RecipientHistory from "./SMS/Recipient/History";
 
+import PrivateMillerHome from "./SMS/PrivateMiller/Home";
+import PrivateMillerMillingTransactions from "./SMS/PrivateMiller/MillingTransactions";
+import PrivateMillerManageMiller from "./SMS/PrivateMiller/ManageMiller";
+import PrivateMillerHistory from "./SMS/PrivateMiller/History";
+
 function App() {
     return (
         <div className="flex h-screen transition-transform duration-300">
@@ -44,6 +49,7 @@ function App() {
                 <Route path="/admin/*" element={<AdminRoutes />} />
                 <Route path="/staff/*" element={<StaffRoutes />} />
                 <Route path="/recipient/*" element={<RecipientRoutes />} />
+                <Route path="/miller/*" element={<PrivateMillerRoutes />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
         </div>
@@ -91,6 +97,17 @@ function RecipientRoutes() {
             <Route path="order" element={<RecipientRiceOrder />} />
             <Route path="receive" element={<RecipientRiceReceive />} />
             <Route path="history" element={<RecipientHistory />} />
+        </Routes>
+    );
+}
+
+function PrivateMillerRoutes() {
+    return (
+        <Routes>
+            <Route index element={<PrivateMillerHome />} />
+            <Route path="transactions" element={<PrivateMillerMillingTransactions />} />
+            <Route path="facility" element={<PrivateMillerManageMiller />} />
+            <Route path="history" element={<PrivateMillerHistory />} />
         </Routes>
     );
 }

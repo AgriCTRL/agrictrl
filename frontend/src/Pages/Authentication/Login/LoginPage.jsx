@@ -15,7 +15,8 @@ const LoginPage = () => {
 	const userTypes = [
 		{ label: 'Staff', value: 'staff' },
 		{ label: 'Admin', value: 'admin' },
-		{ label: 'Recipient', value: 'recipient' }
+		{ label: 'Recipient', value: 'recipient' },
+		{ label: 'Private Miller', value: 'privateMiller' }
 		];
 
   const loginButton = () => {
@@ -25,6 +26,8 @@ const LoginPage = () => {
       navigate('/staff');
 	} else if (userType === 'recipient') {
 		navigate('/recipient');
+	} else if (userType === 'privateMiller') {
+		navigate('/miller');
     } else {
       alert('Please select a valid user type');
     }

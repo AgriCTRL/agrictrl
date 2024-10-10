@@ -30,7 +30,7 @@ function ConfirmReceive({ visible, onHide, data }) {
                 price: data.price || '₱ 0'
             });
         }
-    }, [visible]);
+    }, [visible, data]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -73,9 +73,9 @@ function ConfirmReceive({ visible, onHide, data }) {
     };
 
     const confirmReceive = () => {
-        console.log(formData);
-        onPalayRegistered(formData);
-        handleClose();
+        setShowConfirmation(false);
+        setFormData(initialFormData);
+        onHide();
     };
 
     const customDialogHeader = (
