@@ -82,22 +82,22 @@ function History() {
     ];
 
     // Mock data with varied dates
-    const mockOrders = [
-        { id: 1, status: 'COMPLETED', date: new Date(2024, 9, 1), description: 'Order 1' },
-        { id: 2, status: 'DECLINED', date: new Date(2024, 9, 2), description: 'Order 2' },
-        { id: 3, status: 'COMPLETED', date: new Date(2024, 9, 5), description: 'Order 3' },
-        { id: 4, status: 'COMPLETED', date: new Date(2024, 9, 10), description: 'Order 4' },
-        { id: 5, status: 'DECLINED', date: new Date(2024, 9, 15), description: 'Order 5' },
-        { id: 6, status: 'COMPLETED', date: new Date(2024, 8, 25), description: 'Order 6' },
-        { id: 7, status: 'COMPLETED', date: new Date(2024, 8, 28), description: 'Order 7' },
-        { id: 8, status: 'DECLINED', date: new Date(2024, 7, 15), description: 'Order 8' },
-        { id: 9, status: 'COMPLETED', date: new Date(2024, 7, 20), description: 'Order 9' },
-        { id: 10, status: 'COMPLETED', date: new Date(2024, 6, 1), description: 'Order 10' },
-        { id: 11, status: 'DECLINED', date: new Date(2024, 5, 15), description: 'Order 11' },
-        { id: 12, status: 'COMPLETED', date: new Date(2024, 4, 1), description: 'Order 12' },
-        { id: 13, status: 'COMPLETED', date: new Date(2023, 11, 25), description: 'Order 13' },
-        { id: 14, status: 'DECLINED', date: new Date(2023, 10, 10), description: 'Order 14' },
-        { id: 15, status: 'COMPLETED', date: new Date(2023, 9, 5), description: 'Order 15' },
+    const mockRice = [
+        { id: 1, status: 'RECEIVED', date: new Date(2024, 9, 1), description: 'Rice 1' },
+        { id: 2, status: 'MILLED', date: new Date(2024, 9, 2), description: 'Rice 2' },
+        { id: 3, status: 'RETURNED', date: new Date(2024, 9, 5), description: 'Rice 3' },
+        { id: 4, status: 'RECEIVED', date: new Date(2024, 9, 10), description: 'Rice 4' },
+        { id: 5, status: 'RECEIVED', date: new Date(2024, 9, 15), description: 'Rice 5' },
+        { id: 6, status: 'MILLED', date: new Date(2024, 8, 25), description: 'Rice 6' },
+        { id: 7, status: 'RETURNED', date: new Date(2024, 8, 28), description: 'Rice 7' },
+        { id: 8, status: 'MILLED', date: new Date(2024, 7, 15), description: 'Rice 8' },
+        { id: 9, status: 'RECEIVED', date: new Date(2024, 7, 20), description: 'Rice 9' },
+        { id: 10, status: 'RETURNED', date: new Date(2024, 6, 1), description: 'Rice 10' },
+        { id: 11, status: 'RECEIVED', date: new Date(2024, 5, 15), description: 'Rice 11' },
+        { id: 12, status: 'MILLED', date: new Date(2024, 4, 1), description: 'Rice 12' },
+        { id: 13, status: 'RETURNED', date: new Date(2023, 11, 25), description: 'Rice 13' },
+        { id: 14, status: 'RECEIVED', date: new Date(2023, 10, 10), description: 'Rice 14' },
+        { id: 15, status: 'RETURNED', date: new Date(2023, 9, 5), description: 'Rice 15' },
     ];
 
     useEffect(() => {
@@ -105,7 +105,7 @@ function History() {
     }, [selectedFilter, currentDate, globalFilterValue, showAll]);
 
     const filterOrders = () => {
-        let filtered = [...mockOrders];
+        let filtered = [...mockRice];
 
         if (!showAll) {
             // Apply date range filter
@@ -185,9 +185,14 @@ function History() {
                                 <div className="flex items-center">
                                     <img src="/profileAvatar.png" alt="User" className="rounded-full mr-4 h-16 w-16" />
                                     <span>{order.description}</span>
-                                    <Tag 
-                                        value={order.status} 
-                                        severity={order.status === 'COMPLETED' ? 'success' : 'danger'}
+                                    <Tag
+                                        value={order.status}
+                                        severity={
+                                            order.status === 'RETURNED' ? 'success'
+                                            : order.status === 'MILLED' ? 'info'
+                                            : order.status === 'RECEIVED' ? 'warning'
+                                            : 'danger' // Default to danger for other statuses
+                                        }
                                         className="ml-4"
                                     />
                                 </div>
