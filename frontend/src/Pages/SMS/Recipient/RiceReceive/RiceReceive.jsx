@@ -88,7 +88,7 @@ function RiceReceive() {
         <RecipientLayout activePage="Rice Receive">
             <div className="flex flex-col px-10 py-2 h-full bg-[#F1F5F9]">
                 <div className="flex flex-col justify-center items-center p-10 h-1/4 rounded-lg bg-gradient-to-r from-primary to-secondary mb-2">
-                    <h1 className="text-5xl h-full text-white font-bold mb-2">Rice Order</h1>
+                    <h1 className="text-5xl h-full text-white font-bold mb-2">Rice Receive</h1>
                     <span className="p-input-icon-left w-1/2 mr-4">
                         <Search className="text-primary ml-2 -translate-y-1"/>
                         <InputText 
