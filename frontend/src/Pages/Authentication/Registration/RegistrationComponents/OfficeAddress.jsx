@@ -154,23 +154,26 @@ const OfficeAddress = () => {
       </div>
 
       <div className="grid grid-cols-2 gap-4 mb-4">
-        <div>
-          <label htmlFor="province" className="block mb-2 text-sm font-medium text-gray-700">Province</label>
-          <Dropdown 
-            id="province" 
-            value={province} 
-            options={provinceOptions} 
-            onChange={(e) => handleInputChange('province', e.value)}
-            placeholder="Select a province" 
-            className="ring-0 w-full placeholder:text-gray-400"/>
-        </div>
+      {region !== '130000000' && (
+          <div>
+            <label htmlFor="province" className="block mb-2 text-sm font-medium text-gray-700">Province</label>
+            <Dropdown
+              id="province"
+              value={province}
+              options={provinceOptions}
+              onChange={(e) => handleInputChange('province', e.value)}
+              placeholder="Select a province"
+              className="ring-0 w-full"
+            />
+          </div>
+        )}
         
         <div>
           <label htmlFor="cityTown" className="block mb-2 text-sm font-medium text-gray-700">City / Town</label>
           <Dropdown 
             id="cityTown" 
             value={cityTown} 
-            options={cityOptions} 
+            options={cityTownOptions} 
             onChange={(e) => handleInputChange('cityTown', e.value)}
             placeholder="Select a city" 
             className="ring-0 w-full placeholder:text-gray-400"/>

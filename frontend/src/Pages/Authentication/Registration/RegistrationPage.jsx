@@ -56,7 +56,7 @@ const RegistrationPageContent = ({ onRegisterSuccess }) => {
     e.preventDefault();
 
     try {
-      const res = await fetch(`${apiUrl}/nfapersonnels`, {
+      const res = await fetch(`${apiUrl}/users`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -157,7 +157,7 @@ const RegistrationPageContent = ({ onRegisterSuccess }) => {
           <Button
             className='border-2 border-secondary bg-transparent py-1 px-16 text-secondary transition duration-200 hover:bg-secondary hover:text-white ring-0'
             label={activeStep === steps.length - 1 ? "Submit" : "Next"}
-            onClick={activeStep === steps.length - 1 ? handleRegister1 : handleNext}
+            onClick={activeStep === steps.length - 1 ? handleRegister : handleNext}
           />
         </div>
 

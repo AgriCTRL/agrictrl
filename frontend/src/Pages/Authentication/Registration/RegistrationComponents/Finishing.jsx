@@ -5,7 +5,7 @@ import { useRegistration } from '../RegistrationContext';
 
 const Finishing = () => {
   const { registrationData, updateRegistrationData } = useRegistration();
-  const { email, password, confirmPassword } = registrationData.finishingDetails;
+  const { email, password } = registrationData.finishingDetails;
 
   const handleInputChange = (field, value) => {
     updateRegistrationData('finishingDetails', { [field]: value });
@@ -39,7 +39,7 @@ const Finishing = () => {
         />
       </div>
 
-      <div className="mb-4">
+      {/* <div className="mb-4">
         <label htmlFor="confirmPassword" className="block mb-2 text-sm font-medium text-gray-700">Confirm Password</label>
         <CustomPasswordInput 
           id="confirmPassword" 
@@ -48,7 +48,7 @@ const Finishing = () => {
           placeholder="Confirm your password" 
           className="focus:border-[#14b8a6] hover:border-[#14b8a6] w-full p-inputtext-sm p-3 rounded-md border border-gray-300 placeholder:text-gray-400 placeholder:font-normal"
         />
-      </div>
+      </div> */}
     </form>
   );
 };

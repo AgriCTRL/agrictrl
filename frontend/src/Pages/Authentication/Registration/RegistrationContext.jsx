@@ -9,7 +9,7 @@ export const RegistrationProvider = ({ children }) => {
     const savedData = localStorage.getItem('registrationData');
     return savedData ? JSON.parse(savedData) : {
       personalInfo: {},
-      accountDetails: { validId: null },
+      accountDetails: {},
       officeAddress: {},
       finishingDetails: {}
     };

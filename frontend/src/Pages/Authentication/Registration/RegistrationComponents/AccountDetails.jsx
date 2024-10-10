@@ -6,7 +6,7 @@ import { useRegistration } from '../RegistrationContext';
 
 const AccountDetails = () => {
   const { registrationData, updateRegistrationData } = useRegistration();
-  const { userType, organizationName, jobTitle, region, branchOffice, validId, validIdName } = registrationData.accountDetails;
+  const { userType, organizationName, jobTitlePosition, branchRegion, branchOffice, validId, validIdName } = registrationData.accountDetails;
 
   const userTypeOptions = [
     { label: 'NFA Branch Staff', value: 'nfaBranchStaff' },
@@ -14,10 +14,10 @@ const AccountDetails = () => {
     { label: 'Rice Recipient', value: 'riceRecipient' }
   ];
 
-  const regionOptions = [
-    { label: 'Region 1', value: 'region1' },
-    { label: 'Region 2', value: 'region2' },
-    { label: 'Region 3', value: 'region3' }
+  const branchRegionOptions = [
+    { label: 'Region 1', value: 'branchRegion1' },
+    { label: 'Region 2', value: 'branchRegion2' },
+    { label: 'Region 3', value: 'branchRegion3' }
   ];
 
   const branchOfficeOptions = [
@@ -41,13 +41,13 @@ const AccountDetails = () => {
     reader.readAsDataURL(file);
   };
 
-  // Hide region and branchOffice if userType is privateMiller or riceRecipient
+  // Hide branchRegion and branchOffice if userType is privateMiller or riceRecipient
   const hideRegionAndBranchOffice = userType === 'privateMiller' || userType === 'riceRecipient';
 
   if (hideRegionAndBranchOffice) {
     // Clear values when hidden
-    if (region || branchOffice) {
-      handleInputChange('region', '');
+    if (branchRegion || branchOffice) {
+      handleInputChange('branchRegion', '');
       handleInputChange('branchOffice', '');
     }
   }
@@ -83,11 +83,11 @@ const AccountDetails = () => {
           />
         </div>
         <div className="mb-2">
-          <label htmlFor="jobTitle" className="block mb-2 text-sm font-medium text-gray-700">Job Title / Position</label>
+          <label htmlFor="jobTitlePosition" className="block mb-2 text-sm font-medium text-gray-700">Job Title / Position</label>
           <InputText
-            id="jobTitle"
-            value={jobTitle}
-            onChange={(e) => handleInputChange('jobTitle', e.target.value)}
+            id="jobTitlePosition"
+            value={jobTitlePosition}
+            onChange={(e) => handleInputChange('jobTitlePosition', e.target.value)}
             placeholder="job title"
             className="w-full focus:ring-0"
           />
@@ -97,12 +97,12 @@ const AccountDetails = () => {
       {!hideRegionAndBranchOffice && (
         <div className="grid grid-cols-2 gap-4 mb-2">
           <div>
-            <label htmlFor="region" className="block mb-2 text-sm font-medium text-gray-700">Region</label>
+            <label htmlFor="branchRegion" className="block mb-2 text-sm font-medium text-gray-700">Region</label>
             <Dropdown
-              id="region"
-              value={region}
-              options={regionOptions}
-              onChange={(e) => handleInputChange('region', e.value)}
+              id="branchRegion"
+              value={branchRegion}
+              options={branchRegionOptions}
+              onChange={(e) => handleInputChange('branchRegion', e.value)}
               placeholder="Select Region"
               className="ring-0 w-full placeholder:text-gray-400"
             />

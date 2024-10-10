@@ -54,6 +54,7 @@ export function getRouter(): Router {
                 branchRegion: string;
                 branchOffice: string;
                 validId: string;
+                validIdName: string;
                 region: string;
                 province: string;
                 cityTown: string;
@@ -77,6 +78,7 @@ export function getRouter(): Router {
                 branchRegion,
                 branchOffice,
                 validId,
+                validIdName,
                 region,
                 province,
                 cityTown,
@@ -108,6 +110,7 @@ export function getRouter(): Router {
                 branchRegion,
                 branchOffice,
                 validId,
+                validIdName,
                 officeAddressId: officeAddress.id,
                 email,
                 password,
@@ -138,6 +141,7 @@ async function updateHandler(
         branchRegion?: string;
         branchOffice?: string;
         validId?: string;
+        validIdName?: string;
         email?: string;
         password?: string;
         status?: string;
@@ -157,6 +161,7 @@ async function updateHandler(
         branchRegion,
         branchOffice,
         validId,
+        validIdName,
         email,
         password,
         status,
@@ -176,6 +181,7 @@ async function updateHandler(
         branchRegion,
         branchOffice,
         validId,
+        validIdName,
         email,
         password,
         status,
