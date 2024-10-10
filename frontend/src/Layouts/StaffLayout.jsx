@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Bell } from 'lucide-react';
 import { Avatar } from 'primereact/avatar';
-import { Divider } from 'primereact/divider';
 import { AuthClient } from "@dfinity/auth-client";
 
 function StaffLayout({ children, activePage }) {

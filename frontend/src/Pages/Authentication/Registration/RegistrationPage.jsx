@@ -48,7 +48,7 @@ const RegistrationPageContent = ({ onRegisterSuccess }) => {
     e.preventDefault();
     toast.current.show({ severity: 'success', summary: 'Success', detail: 'Registration Successful!', life: 3000 });
     console.log('Registration Data:', registrationData);
-    navigate('/admin');
+    navigate('/login');
     localStorage.removeItem('registrationData');
   };
 

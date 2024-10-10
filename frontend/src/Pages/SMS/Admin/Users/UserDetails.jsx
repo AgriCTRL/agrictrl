@@ -50,27 +50,27 @@ const UserDetails = ({ userType, visible, onHide }) => {
     <div className="grid grid-cols-2 gap-4 h-full">
         <div>
           <label className="block mb-2 text-md font-medium text-gray-700">First Name</label>
-          <InputText value={userData.personalInfo.firstName} disabled className="w-full p-2 border rounded-md border-gray-300" />
+          <InputText value={userData.personalInfo.firstName} disabled className="w-full" />
         </div>
 
         <div>
           <label className="block mb-2 text-md font-medium text-gray-700">Last Name</label>
-          <InputText value={userData.personalInfo.lastName} disabled className="w-full p-2 border rounded-md border-gray-300" />
+          <InputText value={userData.personalInfo.lastName} disabled className="w-full" />
         </div>
 
         <div>
           <label className="block mb-2 text-md font-medium text-gray-700">Gender</label>
-          <InputText value={userData.personalInfo.gender} disabled className="w-full p-2 border rounded-md border-gray-300" />
+          <InputText value={userData.personalInfo.gender} disabled className="w-full" />
         </div>
 
         <div>
           <label className="block mb-2 text-md font-medium text-gray-700">Birth Date</label>
-          <Calendar value={userData.personalInfo.birthDate} disabled className="w-full p-2 border rounded-md border-gray-300" />
+          <Calendar value={userData.personalInfo.birthDate} disabled className="w-full" />
         </div>
 
         <div>
           <label className="block mb-2 text-md font-medium text-gray-700">Contact Number</label>
-          <InputText value={userData.personalInfo.contactNumber} disabled className="w-full p-2 border rounded-md border-gray-300" />
+          <InputText value={userData.personalInfo.contactNumber} disabled className="w-full" />
         </div>
     </div>
   );
@@ -79,23 +79,23 @@ const UserDetails = ({ userType, visible, onHide }) => {
     <div className="grid grid-cols-2 gap-4 h-full">
       <div>
         <label className="block mb-2 text-md font-medium text-gray-700">User Type</label>
-        <InputText value={userData.accountDetails.userType} disabled className="w-full p-2 border rounded-md border-gray-300" />
+        <InputText value={userData.accountDetails.userType} disabled className="w-full" />
       </div>
       <div>
         <label className="block mb-2 text-md font-medium text-gray-700">Organization Name</label>
-        <InputText value={userData.accountDetails.organizationName} disabled className="w-full p-2 border rounded-md border-gray-300" />
+        <InputText value={userData.accountDetails.organizationName} disabled className="w-full" />
       </div>
       <div>
         <label className="block mb-2 text-md font-medium text-gray-700">Job Title/Position</label>
-        <InputText value={userData.accountDetails.jobTitle} disabled className="w-full p-2 border rounded-md border-gray-300" />
+        <InputText value={userData.accountDetails.jobTitle} disabled className="w-full" />
       </div>
       <div>
         <label className="block mb-2 text-md font-medium text-gray-700">Region</label>
-        <InputText value={userData.accountDetails.region} disabled className="w-full p-2 border rounded-md border-gray-300" />
+        <InputText value={userData.accountDetails.region} disabled className="w-full" />
       </div>
       <div>
         <label className="block mb-2 text-md font-medium text-gray-700">Branch Office</label>
-        <InputText value={userData.accountDetails.branchOffice} disabled className="w-full p-2 border rounded-md border-gray-300" />
+        <InputText value={userData.accountDetails.branchOffice} disabled className="w-full" />
       </div>
     </div>
   );
@@ -104,23 +104,23 @@ const UserDetails = ({ userType, visible, onHide }) => {
     <div className="grid grid-cols-2 gap-4 h-full">
       <div>
         <label className="block mb-2 text-md font-medium text-gray-700">Region</label>
-        <InputText value={userData.officeAddress.region} disabled className="w-full p-2 border rounded-md border-gray-300" />
+        <InputText value={userData.officeAddress.region} disabled className="w-full" />
       </div>
       <div>
         <label className="block mb-2 text-md font-medium text-gray-700">Province</label>
-        <InputText value={userData.officeAddress.province} disabled className="w-full p-2 border rounded-md border-gray-300" />
+        <InputText value={userData.officeAddress.province} disabled className="w-full" />
       </div>
       <div>
         <label className="block mb-2 text-md font-medium text-gray-700">City/Town</label>
-        <InputText value={userData.officeAddress.cityTown} disabled className="w-full p-2 border rounded-md border-gray-300" />
+        <InputText value={userData.officeAddress.cityTown} disabled className="w-full" />
       </div>
       <div>
         <label className="block mb-2 text-md font-medium text-gray-700">Barangay</label>
-        <InputText value={userData.officeAddress.barangay} disabled className="w-full p-2 border rounded-md border-gray-300" />
+        <InputText value={userData.officeAddress.barangay} disabled className="w-full" />
       </div>
       <div>
         <label className="block mb-2 text-md font-medium text-gray-700">Street</label>
-        <InputText value={userData.officeAddress.street} disabled className="w-full p-2 border rounded-md border-gray-300" />
+        <InputText value={userData.officeAddress.street} disabled className="w-full" />
       </div>
     </div>
   );
@@ -186,11 +186,7 @@ const UserDetails = ({ userType, visible, onHide }) => {
             <TabPanel
               key={tab.key}
               header={tab.header}
-              headerClassName={`flex-1 text-center py-2 justify-center ${
-                activeIndex === index
-                  ? 'text-green-500 border-b-2 border-green-500'
-                  : 'text-gray-500 border-b-2 border-gray-300'
-              }`}
+              headerClassName={`flex-1 text-center justify-center`}
               contentClassName="flex-grow overflow-y-auto p-4"
             >
               <div className="h-full">
