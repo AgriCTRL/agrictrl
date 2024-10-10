@@ -130,7 +130,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                         value={formData.description}
                         onChange={handleInputChange}
                         placeholder="Enter description"
-                        className="w-full"
+                        className="w-full ring-0"
                     />
                 </div>
 
