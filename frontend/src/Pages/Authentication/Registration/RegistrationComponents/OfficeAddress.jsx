@@ -19,27 +19,34 @@ const OfficeAddress = () => {
   // Fetch provinces if a region is selected (excluding NCR)
   useEffect(() => {
     if (region) {
-      if (region === '130000000') { // Check for NCR
-        fetchCities(); // Fetch cities directly for NCR
-      } else {
-        fetchProvinces(region); // Fetch provinces for other regions
+      const selectedRegion = regionOptions.find(r => r.value === region);
+      if (selectedRegion && selectedRegion.code === '130000000') { // Check for NCR
+        fetchCities(selectedRegion.code); // Fetch cities directly for NCR
+      } else if (selectedRegion) {
+        fetchProvinces(selectedRegion.code); // Fetch provinces for other regions
       }
     }
-  }, [region]);
+  }, [region, regionOptions]);
 
   // Fetch cities/municipalities if a province is selected
   useEffect(() => {
     if (province) {
-      fetchCities(province);
+      const selectedProvince = provinceOptions.find(p => p.value === province);
+      if (selectedProvince) {
+        fetchCities(selectedProvince.code);
+      }
     }
-  }, [province]);
+  }, [province, provinceOptions]);
 
   // Fetch barangays if a city/municipality is selected
   useEffect(() => {
     if (cityTown) {
-      fetchBarangays(cityTown);
+      const selectedCity = cityTownOptions.find(c => c.value === cityTown);
+      if (selectedCity) {
+        fetchBarangays(selectedCity.code);
+      }
     }
-  }, [cityTown]);
+  }, [cityTown, cityTownOptions]);
 
   // Fetch regions
   const fetchRegions = async () => {
@@ -48,7 +55,8 @@ const OfficeAddress = () => {
       const data = await res.json();
       const regions = data.map(region => ({
         label: region.regionName,
-        value: region.code
+        value: region.regionName,
+        code: region.code
       }));
       setRegionOptions(regions);
     } catch (error) {
@@ -63,7 +71,8 @@ const OfficeAddress = () => {
       const data = await res.json();
       const provinces = data.map(province => ({
         label: province.name,
-        value: province.code
+        value: province.name,
+        code: province.code
       }));
       setProvinceOptions(provinces);
       // Reset cityTown and barangay options when a new region is selected
@@ -75,17 +84,15 @@ const OfficeAddress = () => {
   };
 
   // Fetch cities/municipalities for NCR or for a specific province
-  const fetchCities = async (provinceCode = '') => {
+  const fetchCities = async (code) => {
     try {
-      const endpoint = provinceCode
-        ? `https://psgc.gitlab.io/api/provinces/${provinceCode}/cities-municipalities/`
-        : `https://psgc.gitlab.io/api/regions/130000000/cities-municipalities/`; // Direct fetch for NCR
-
+      const endpoint = `https://psgc.gitlab.io/api/${code === '130000000' ? 'regions' : 'provinces'}/${code}/cities-municipalities/`;
       const res = await fetch(endpoint);
       const data = await res.json();
       const cities = data.map(city => ({
         label: city.name,
-        value: city.code
+        value: city.name,
+        code: city.code
       }));
       setCityTownOptions(cities);
       // Reset barangay options when new cities are fetched
@@ -102,7 +109,8 @@ const OfficeAddress = () => {
       const data = await res.json();
       const barangays = data.map(barangay => ({
         label: barangay.name,
-        value: barangay.code
+        value: barangay.name,
+        code: barangay.code
       }));
       setBarangayOptions(barangays);
     } catch (error) {
@@ -111,27 +119,57 @@ const OfficeAddress = () => {
   };
 
   const handleInputChange = (field, value) => {
-    updateRegistrationData('officeAddress', { [field]: value });
-
-    // Reset dependent fields when a higher-level field changes
     if (field === 'region') {
-      if (value === '130000000') { // Skip province for NCR
-        setProvinceOptions([]); // Clear provinces for NCR
-        fetchCities(); // Directly fetch cities for NCR
-      } else {
-        fetchProvinces(value); // Fetch provinces for other regions
-        setCityTownOptions([]); // Clear cities/towns
-        setBarangayOptions([]); // Clear barangays
+      const selectedRegion = regionOptions.find(r => r.value === value);
+      updateRegistrationData('officeAddress', { 
+        region: value,
+        province: '',
+        cityTown: '',
+        barangay: ''
+      });
+  
+      if (selectedRegion) {
+        if (selectedRegion.code === '130000000') { // NCR
+          setProvinceOptions([]); // Clear provinces for NCR
+          fetchCities(selectedRegion.code); // Directly fetch cities for NCR
+        } else {
+          fetchProvinces(selectedRegion.code); // Fetch provinces for other regions
+        }
       }
-    }
-    if (field === 'province') {
-      fetchCities(value);
       setCityTownOptions([]); // Clear cities/towns
       setBarangayOptions([]); // Clear barangays
-    }
-    if (field === 'cityTown') {
-      fetchBarangays(value);
+    } else if (field === 'province') {
+      const selectedProvince = provinceOptions.find(p => p.value === value);
+      updateRegistrationData('officeAddress', { 
+        ...registrationData.officeAddress,
+        province: value,
+        cityTown: '',
+        barangay: ''
+      });
+  
+      if (selectedProvince) {
+        fetchCities(selectedProvince.code);
+      }
+      setCityTownOptions([]); // Clear cities/towns
       setBarangayOptions([]); // Clear barangays
+    } else if (field === 'cityTown') {
+      const selectedCity = cityTownOptions.find(c => c.value === value);
+      updateRegistrationData('officeAddress', { 
+        ...registrationData.officeAddress,
+        cityTown: value,
+        barangay: ''
+      });
+  
+      if (selectedCity) {
+        fetchBarangays(selectedCity.code);
+      }
+      setBarangayOptions([]); // Clear barangays
+    } else {
+      // For other fields (like barangay and street)
+      updateRegistrationData('officeAddress', { 
+        ...registrationData.officeAddress,
+        [field]: value 
+      });
     }
   };
 
@@ -148,13 +186,13 @@ const OfficeAddress = () => {
             value={region} 
             options={regionOptions} 
             onChange={(e) => handleInputChange('region', e.value)}
-            placeholder="Select a province" 
+            placeholder="Select a region" 
             className="ring-0 w-full placeholder:text-gray-400" />
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4 mb-4">
-      {region !== '130000000' && (
+      {region !== 'National Capital Region' && (
           <div>
             <label htmlFor="province" className="block mb-2 text-sm font-medium text-gray-700">Province</label>
             <Dropdown
