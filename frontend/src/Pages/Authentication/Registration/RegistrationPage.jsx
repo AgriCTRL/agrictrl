@@ -43,6 +43,7 @@ const RegistrationPageContent = ({ onRegisterSuccess }) => {
   const navigate = useNavigate();
   const { registrationData } = useRegistration();
   const toast = useRef(null);
+  const [confirmPasswordValid, setConfirmPasswordValid] = useState(true);
 
   const handleRegister1 = (e) => {
     e.preventDefault();
@@ -54,6 +55,11 @@ const RegistrationPageContent = ({ onRegisterSuccess }) => {
 
   const handleRegister = async (e) => {
     e.preventDefault();
+
+    if (!confirmPasswordValid) {
+      toast.current.show({ severity: 'error', summary: 'Error', detail: 'Passwords do not match.', life: 3000 });
+      return;
+    }
 
     try {
       const res = await fetch(`${apiUrl}/users`, {
@@ -101,7 +107,7 @@ const RegistrationPageContent = ({ onRegisterSuccess }) => {
       case 2:
         return <OfficeAddress />;
       case 3:
-        return <Finishing />;
+        return <Finishing setConfirmPasswordValid={setConfirmPasswordValid}/>;
       default:
         return null;
     }
