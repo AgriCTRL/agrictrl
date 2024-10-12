@@ -9,11 +9,14 @@ const Finishing = ({setConfirmPasswordValid}) => {
 
   const handleInputChange = (field, value) => {
     updateRegistrationData('finishingDetails', { [field]: value });
+    if (field === 'password') {
+      setConfirmPasswordValid(value === confirmPassword);
+    }
   };
 
   const handleConfirmPasswordChange = (value) => {
     updateConfirmPassword(value);
-    setConfirmPasswordValid(value === password); // Check if passwords match
+    setConfirmPasswordValid(value === registrationData.finishingDetails.password); // Check if passwords match
   };
 
   return (
