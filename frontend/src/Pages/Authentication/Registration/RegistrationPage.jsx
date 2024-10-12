@@ -43,7 +43,7 @@ const RegistrationPageContent = ({ onRegisterSuccess }) => {
   const navigate = useNavigate();
   const { registrationData } = useRegistration();
   const toast = useRef(null);
-  const [confirmPasswordValid, setConfirmPasswordValid] = useState(true);
+  const [confirmPasswordValid, setConfirmPasswordValid] = useState(false);
 
   const handleRegister1 = (e) => {
     e.preventDefault();

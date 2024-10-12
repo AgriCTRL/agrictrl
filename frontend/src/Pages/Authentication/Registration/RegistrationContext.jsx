@@ -15,6 +15,8 @@ export const RegistrationProvider = ({ children }) => {
     };
   });
 
+  const [confirmPassword, setConfirmPassword] = useState('');
+
   useEffect(() => {
     localStorage.setItem('registrationData', JSON.stringify(registrationData));
   }, [registrationData]);
@@ -26,8 +28,25 @@ export const RegistrationProvider = ({ children }) => {
     }));
   };
 
+  const updateConfirmPassword = (value) => {
+    setConfirmPassword(value);
+  };
+
+  const getRegistrationDataForSubmission = () => {
+    // Create a copy of registrationData without confirmPassword
+    const { finishingDetails, ...rest } = registrationData;
+    const { confirmPassword, ...safeFinishingDetails } = finishingDetails;
+    return { ...rest, finishingDetails: safeFinishingDetails };
+  };
+
   return (
-    <RegistrationContext.Provider value={{ registrationData, updateRegistrationData }}>
+    <RegistrationContext.Provider value={{ 
+      registrationData, 
+      updateRegistrationData, 
+      confirmPassword, 
+      updateConfirmPassword,
+      getRegistrationDataForSubmission 
+    }}>
       {children}
     </RegistrationContext.Provider>
   );

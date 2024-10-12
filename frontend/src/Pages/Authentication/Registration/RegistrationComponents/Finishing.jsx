@@ -1,19 +1,18 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { InputText } from 'primereact/inputtext';
 import CustomPasswordInput from '../../../../Components/Form/PasswordComponent';
 import { useRegistration } from '../RegistrationContext';
 
 const Finishing = ({setConfirmPasswordValid}) => {
-  const { registrationData, updateRegistrationData } = useRegistration();
+  const { registrationData, updateRegistrationData, confirmPassword, updateConfirmPassword } = useRegistration();
   const { email, password } = registrationData.finishingDetails;
-  const [confirmPassword, setConfirmPassword] = useState('');
 
   const handleInputChange = (field, value) => {
     updateRegistrationData('finishingDetails', { [field]: value });
   };
 
   const handleConfirmPasswordChange = (value) => {
-    setConfirmPassword(value);
+    updateConfirmPassword(value);
     setConfirmPasswordValid(value === password); // Check if passwords match
   };
 
