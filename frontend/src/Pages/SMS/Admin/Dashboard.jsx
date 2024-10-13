@@ -10,11 +10,34 @@ import {
 } from "lucide-react";
 function Dashboard() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const [riceBatchesCount, setRiceBatchesCount] = useState(0);
-    const [tradersCount, setTradersCount] = useState(0);
     const [warehousesCount, setWarehousesCount] = useState(0);
     const [dryersCount, setDryersCount] = useState(0);
     const [millersCount, setMillersCount] = useState(0);
+    const [stats] = useState([
+        {
+            label: "Partner Farmers",
+            icon: <HeartHandshake size={20}/>,
+            count: 0,
+            className: "border-r border-lightest-grey",
+        },
+        {
+            label: "Total Palays",
+            icon: <Wheat size={20}/>,
+            count: 0,
+            className: "border-r border-lightest-grey",
+        },
+        {
+            label: "Total Rice",
+            icon: <Wheat size={20}/>,
+            count: 0,
+            className: "border-r border-lightest-grey",
+        },
+        {
+            label: "Rice Sold",
+            icon: <Building2 size={20}/>,
+            count: 0,
+        },
+    ])
 
     const facilitiesCount = warehousesCount + dryersCount + millersCount;
     
@@ -26,7 +49,7 @@ function Dashboard() {
                     headers: { 'Content-Type': 'application/json'}
                 });
                 const data = await res.json();
-                setRiceBatchesCount(data);
+                stats.find((item) => item.label === "Total Rice").count = data;
             }
             catch (error) {
                 console.log(error.message);
@@ -40,6 +63,7 @@ function Dashboard() {
                 });
                 const data = await res.json();
                 setTradersCount(data);
+                stats.find((item) => item.label === "Total Palay").count = data;
             }
             catch (error) {
                 console.log(error.message);
@@ -94,37 +118,18 @@ function Dashboard() {
     return (
         <AdminLayout activePage="Dashboard">
             <CardComponent>
-                <CardComponent className='flex-1 flex-col gap-4 justify-center'>
-                    <div className='flex gap-4 text-black'>
-                        <Wheat />
-                        <p className='font-bold'>Rice Tracked</p>
-                    </div>
-                    <h1 className='text-heading text-primary text-center font-bold'>{riceBatchesCount}</h1>
-                </CardComponent>
-                <Divider className='bg-lightest-grey w-px my-4' layout='vertical'/>
-                <CardComponent className='flex-1 flex-col gap-4 justify-center'>
-                    <div className='flex gap-4 text-black'>
-                        <HeartHandshake />
-                        <p className='font-bold'>Personnels</p>
-                    </div>
-                    <h1 className='text-heading text-primary text-center font-bold'>{tradersCount}</h1>
-                </CardComponent>
-                <Divider className='bg-lightest-grey w-px my-4' layout='vertical'/>
-                <CardComponent className='flex-1 flex-col gap-4 justify-center'>
-                    <div className='flex gap-4 text-black'>
-                        <Tractor />
-                        <p className='font-bold'>Farmers</p>
-                    </div>
-                    <h1 className='text-heading text-primary text-center font-bold'>0</h1>
-                </CardComponent>
-                <Divider className='bg-lightest-grey w-px my-4' layout='vertical'/>
-                <CardComponent className='flex-1 flex-col gap-4 justify-center'>
-                    <div className='flex gap-4 text-black'>
-                        <Building2 />
-                        <p className='font-bold'>Facilities</p>
-                    </div>
-                    <h1 className='text-heading text-primary text-center font-bold'>{facilitiesCount}</h1>
-                </CardComponent>
+                {stats.map((stat, index) => (
+                    <CardComponent 
+                        key={index} 
+                        className={`flex-1 flex-col gap-4 justify-center rounded-none ${index === (stats.length - 1) ? '' : stat.className}`}
+                    >
+                        <div className='flex gap-4 text-black'>
+                            {stat.icon}
+                            <p className='font-bold'>{stat.label}</p>
+                        </div>
+                        <h1 className='text-heading text-primary text-center font-bold'>{stat.count}</h1>
+                    </CardComponent>
+                ))}
             </CardComponent>
         </AdminLayout>
     );

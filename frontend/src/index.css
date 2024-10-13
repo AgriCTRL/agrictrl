@@ -71,8 +71,19 @@
                 @apply font-bold !important;
                 @apply text-black;
                 @apply bg-white !important;
+            }
+        }
+
+        &:not(.tracking) .p-datatable-thead {
+            th {
                 border-bottom: 1px solid #dee2e6 !important;
                 border-top: 1px solid #D9D9D9 !important;
+            }
+        }
+
+        &.tracking .p-datatable-thead {
+            th {
+                border-bottom: 1px solid #dee2e6 !important;
             }
         }
 
@@ -107,11 +118,38 @@
                 }
             }
         }
+
+        &.tracking {
+            gap: 1.25rem;
+            .p-timeline-event {
+                height: fit-content !important;
+            }
+        }
+    }
+
+    .p-carousel-horizontal:not(.with-indicators) {
+        .p-carousel-indicators {
+            display: none !important;
+        }
     }
 
     .p-carousel-horizontal {
         .p-carousel-indicators {
-            display: none !important;
+            width: 100%;
+            gap: 1rem;
+
+            .p-carousel-indicator {
+                margin: 0 !important;
+
+                &.p-highlight button {
+                    background: #00C261 !important;
+                }
+            }
+
+            button {
+                border-radius: 5rem !important;
+                width: 4rem !important;
+            }
         }
     }
 

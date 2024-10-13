@@ -7,6 +7,7 @@ import {
     Layers,
     Building2,
     Wheat,
+    Users,
 } from "lucide-react";
 import AdminLayout from '@/Layouts/AdminLayout';
 import CardComponent from '@/Components/CardComponent';
@@ -57,7 +58,7 @@ function Home() {
                         value={carouselItems} 
                         numVisible={1} 
                         numScroll={1} 
-                        className="custom-carousel" 
+                        className="custom-carousel with-indicators relative" 
                         itemTemplate={carouselTemplate}
                         showIndicators={true}
                         showNavigators={false}
@@ -75,32 +76,39 @@ function Home() {
                     <p className="font-bold text-black">Quick Links</p>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <CardComponent 
-                            className="text-primary cursor-pointer flex-col gap-4 py-6 items-center transition-transform duration-300 hover:bg-primary hover:text-white hover:scale-105"
+                            className="text-primary cursor-pointer flex-col gap-4 py-6 items-center transition-transform duration-300 hover:bg-primary hover:text-white"
                             onClick={() => navigate('/admin/dashboard')}
                         >
                             <LayoutDashboard size={40}/>
                             <span className='font-bold'>Dashboard</span>
                         </CardComponent>
                         <CardComponent 
-                            className="text-primary cursor-pointer flex-col gap-4 py-6 items-center transition-transform duration-300 hover:bg-primary hover:text-white hover:scale-105"
+                            className="text-primary cursor-pointer flex-col gap-4 py-6 items-center transition-transform duration-300 hover:bg-primary hover:text-white"
                             onClick={() => navigate('/admin/tracking')}
                         >
                             <MapPin size={40}/>
                             <span className='font-bold'>Tracking</span>
                         </CardComponent>
                         <CardComponent 
-                            className="text-primary cursor-pointer flex-col gap-4 py-6 items-center transition-transform duration-300 hover:bg-primary hover:text-white hover:scale-105"
+                            className="text-primary cursor-pointer flex-col gap-4 py-6 items-center transition-transform duration-300 hover:bg-primary hover:text-white"
                             onClick={() => navigate('/admin/inventory')}
                         >
                             <Layers size={40}/>
                             <span className='font-bold'>Inventory</span>
                         </CardComponent>
                         <CardComponent 
-                            className="text-primary cursor-pointer flex-col gap-4 py-6 items-center transition-transform duration-300 hover:bg-primary hover:text-white hover:scale-105"
+                            className="text-primary cursor-pointer flex-col gap-4 py-6 items-center transition-transform duration-300 hover:bg-primary hover:text-white"
                             onClick={() => navigate('/admin/facilities')}
                         >
                             <Building2 size={40}/>
                             <span className='font-bold'>Facilities</span>
+                        </CardComponent>
+                        <CardComponent 
+                            className="text-primary cursor-pointer flex-col gap-4 py-6 items-center transition-transform duration-300 hover:bg-primary hover:text-white"
+                            onClick={() => navigate('/admin/users')}
+                        >
+                            <Users size={40}/>
+                            <span className='font-bold'>Users</span>
                         </CardComponent>
                     </div>
                 </section>

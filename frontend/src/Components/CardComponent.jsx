@@ -1,7 +1,7 @@
 function CardComponent({ children, className, onClick }) {
     return (
         <div 
-            className={`bg-white flex rounded-md p-4 ${className}`}
+            className={`bg-white flex rounded-lg p-4 ${className}`}
             onClick={onClick}
         >
             {children}
