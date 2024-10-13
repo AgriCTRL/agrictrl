@@ -77,7 +77,7 @@ function Home({ isRightSidebarOpen }) {
                     />
 
                     <div className="flex flex-row justify-between items-center">
-                        <h1 className="text-xl font-medium">Rice Orders</h1>
+                        <h1 className="text-xl font-medium">Milling Orders</h1>
                         <h1 className="text-md font-medium text-primary">View all {'>'} </h1>
                     </div>
 

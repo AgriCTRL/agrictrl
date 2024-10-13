@@ -70,34 +70,33 @@ function BuyPalay() {
 
     return (
         <StaffLayout activePage="Buy Palay">
-            <div className="flex flex-col px-4 py-2 h-full bg-[#F1F5F9]">
-                <div className="flex flex-col justify-center items-center h-1/4 rounded-lg bg-gradient-to-r from-primary to-secondary mb-2">
-                    <h1 className="text-4xl text-center text-white font-bold">Palay Procurement</h1>
+            <div className="flex flex-col px-10 py-2 h-full bg-[#F1F5F9]">
+                <div className="flex flex-col justify-center items-center p-10 h-1/4 rounded-lg bg-gradient-to-r from-primary to-secondary mb-2">
+                    <h1 className="text-5xl text-white font-bold mb-2">Palay Procurement</h1>
+                    <span className="p-input-icon-left w-1/2 mr-4 mb-4">
+                        <Search className="text-white ml-2 -translate-y-1"/>
+                        <InputText 
+                            type="search"
+                            value={globalFilterValue} 
+                            onChange={(e) => setGlobalFilterValue(e.target.value)} 
+                            placeholder="Tap to Search" 
+                            className="w-full pl-10 pr-4 py-2 rounded-full text-white bg-transparent border border-white placeholder:text-white"
+                        />
+                    </span>
                 </div>
 
                 {/* Buttons & Search bar */}
-                <div className="flex items-center space-x-2 justify-between mb-2">
+                <div className="flex items-center space-x-2 justify-between mb-2 py-2">
                     <div className="flex flex-row space-x-2 items-center w-1/2 drop-shadow-md">
-                        <Button className="p-2 px-3 rounded-lg text-md font-medium text-white bg-gradient-to-r from-primary to-secondary ring-0">All</Button>
-                        <span className="p-input-icon-left w-full mr-4">
-                            <Search className="text-primary ml-2 -translate-y-1"/>
-                            <InputText 
-                                type="search"
-                                value={globalFilterValue} 
-                                onChange={(e) => setGlobalFilterValue(e.target.value)} 
-                                placeholder="Tap to Search" 
-                                className="w-full pl-10 pr-4 py-2 rounded-full text-primary border border-gray-300 ring-0 placeholder:text-primary"
-                            />
-                        </span>
-                    </div>
-                    
-
-                    <div className="flex flex-row w-1/2 justify-between">
+                        <Button className="p-2 px-3 rounded-lg text-md font-medium text-white bg-primary ring-0">All</Button>
                         <Button 
                             icon={<Settings2 className="mr-2 text-primary" />}
                             label="Filters" 
                             className="p-button-success text-primary border border-gray-300 rounded-full bg-white p-2 w-1/16 ring-0" />
+                    </div>
+                    
 
+                    <div className="flex flex-row w-1/2 justify-end">
                         <Button 
                             label="Add Palay +" 
                             className="w-1/16 p-2 rounded-md p-button-success text-white bg-gradient-to-r from-primary to-secondary ring-0"
@@ -119,7 +118,7 @@ function BuyPalay() {
                             emptyMessage="No inventory found."
                             paginator
                             rows={30}
-                            tableStyle={{ minWidth: '2400px' }}
+                            tableStyle={{ minWidth: '2600px' }}
                         >
                             <Column field="trackingId" header="Tracking ID" className="text-center" headerClassName="text-center" />
                             <Column field="id" header="Batch ID" className="text-center" headerClassName="text-center" />

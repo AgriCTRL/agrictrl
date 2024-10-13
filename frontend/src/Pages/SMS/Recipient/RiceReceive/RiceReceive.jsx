@@ -81,7 +81,7 @@ function RiceReceive() {
     );
 
     const buttonStyle = (isSelected) => isSelected
-        ? 'bg-gradient-to-r from-primary to-secondary text-white'
+        ? 'bg-prmary text-white'
         : 'bg-white text-primary border border-gray-300';
 
     return (
@@ -102,7 +102,7 @@ function RiceReceive() {
                 </div>
 
                 {/* Buttons & Search bar */}
-                <div className="flex items-center space-x-2 justify-between mb-2">
+                <div className="flex items-center space-x-2 justify-between mb-2 py-2">
                     <div className="flex flex-row space-x-2 items-center w-1/2 drop-shadow-md">
                         <Button 
                             icon={<Settings2 className="mr-2" />} 

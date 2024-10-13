@@ -118,7 +118,7 @@ function MillingTransactions() {
                 </div>
 
                 {/* Buttons & Filters */}
-                <div className="flex justify-start mb-4 space-x-2">
+                <div className="flex justify-start mb-4 space-x-2 py-2">
                     <Button 
                         label="All" 
                         className={`p-button-sm border-none ring-0  ${selectedFilter === 'all' ? 'p-button-raised bg-primary text-white' : 'p-button-outlined bg-white text-primary'}`} 
