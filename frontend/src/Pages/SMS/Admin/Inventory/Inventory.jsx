@@ -165,7 +165,7 @@ function Inventory() {
                             emptyMessage="No inventory found."
                             paginator
                             rows={30}
-                            tableStyle={{ minWidth: '2200px' }}
+                            tableStyle={{ minWidth: '2300px' }}
                         >
                             <Column field="trackingId" header="Tracking ID" className="text-center" headerClassName="text-center" />
                             <Column field="id" header="Batch ID" className="text-center" headerClassName="text-center" />

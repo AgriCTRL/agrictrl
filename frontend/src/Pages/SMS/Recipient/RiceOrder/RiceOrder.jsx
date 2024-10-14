@@ -92,7 +92,7 @@ function RiceOrder() {
     );
 
     const buttonStyle = (isSelected) => isSelected
-        ? 'bg-gradient-to-r from-primary to-secondary text-white'
+        ? 'bg-primary text-white'
         : 'bg-white text-primary border border-gray-300';
 
     return (
@@ -113,7 +113,7 @@ function RiceOrder() {
                 </div>
 
                 {/* Buttons & Search bar */}
-                <div className="flex items-center space-x-2 justify-between mb-2">
+                <div className="flex items-center space-x-2 justify-between mb-2 py-2">
                     <div className="flex flex-row space-x-2 items-center w-1/2 drop-shadow-md">
                         <Button 
                             icon={<Settings2 className="mr-2" />} 
@@ -132,7 +132,7 @@ function RiceOrder() {
 
                     <div className="flex flex-row w-1/2 justify-end">
                         <Button 
-                            label="Add Palay +" 
+                            label="New Order + " 
                             className="w-1/16 p-2 rounded-md p-button-success text-white bg-gradient-to-r from-primary to-secondary ring-0"
                             onClick={handleAddPalay} />
                     </div>

@@ -159,7 +159,7 @@ function History() {
                 <div className="flex items-center space-x-4 p-4 rounded-lg mb-4">
                     <Button 
                         label="All" 
-                        className={`p-button-text bg-white rounded-md ring-0  ${showAll ? 'bg-gradient-to-r from-primary to-secondary border-none text-white' : ''}`}
+                        className={`p-button-text bg-white rounded-md ring-0  ${showAll ? 'bg-gradient-to-r from-primary to-primary border-none text-white' : ''}`}
                         onClick={toggleShowAll}
                     />
                     <Dropdown

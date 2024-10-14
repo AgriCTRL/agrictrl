@@ -141,6 +141,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                     <InputText
                         label="Name"
                         id="name" 
+                        name="name"
                         value={formData.name}
                         onChange={handleInputChange}
                         placeholder="Enter your name" 
@@ -182,6 +183,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                     <InputText
                         label="Email"
                         id="email"
+                        name="email"
                         value={formData.email}
                         onChange={handleInputChange}
                         placeholder="Enter your email"
@@ -194,6 +196,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                     <InputText
                         label="Phone Number"
                         id="phoneNumber"
+                        name="phoneNumber"
                         value={formData.phoneNumber}
                         onChange={handleInputChange}
                         placeholder="Enter your phone number"
@@ -228,6 +231,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                     <InputText
                         label="Variety"
                         id="variety"
+                        name="variety"
                         value={formData.variety}
                         onChange={handleInputChange}
                         placeholder="Enter variety"
@@ -240,6 +244,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                     <InputText
                         label="Total Weight"
                         id="totalWeight"
+                        name="totalWeight"
                         value={formData.totalWeight}
                         onChange={handleInputChange}
                         placeholder="Enter total weight"
@@ -252,6 +257,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                     <InputText
                         label="Price per KG"
                         id="pricePerKg"
+                        name="pricePerKg"
                         value={formData.pricePerKg}
                         onChange={handleInputChange}
                         placeholder="Enter price"
@@ -279,6 +285,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                     <InputText
                         label="Moisture Content"
                         id="moistureContent"
+                        name="moistureContent"
                         value={formData.moistureContent}
                         onChange={handleInputChange}
                         placeholder="Enter moisture"
@@ -292,6 +299,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                         <InputText
                             label="Purity"
                             id="purity"
+                            name="purity"
                             value={formData.purity}
                             onChange={handleInputChange}
                             placeholder="Enter price"
@@ -304,6 +312,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                         <InputText
                             label="Damaged"
                             id="damaged"
+                            name="damaged"
                             value={formData.damaged}
                             onChange={handleInputChange}
                             placeholder="Enter price"
@@ -335,9 +344,10 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                     <InputText
                         label="Farm Size"
                         id="farmSize"
+                        name="farmSize"
                         value={formData.farmSize}
                         onChange={handleInputChange}
-                        placeholder="Enter price"
+                        placeholder="Enter farm size"
                         className='w-full focus:ring-0'
                     />
                 </div>
@@ -371,6 +381,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                     <InputText
                         label="Estimated Capital"
                         id="estimatedCapital"
+                        name="estimatedCapital"
                         value={formData.estimatedCapital}
                         onChange={handleInputChange}
                         placeholder="Enter Capital"
@@ -401,6 +412,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                 <InputText
                     label="Transported by"
                     id="transportedBy"
+                    name="transportedBy"
                     value={formData.transportedBy}
                     onChange={handleInputChange}
                     placeholder="Enter transport"
