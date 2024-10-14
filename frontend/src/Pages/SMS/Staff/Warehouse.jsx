@@ -191,12 +191,18 @@ function Warehouse() {
                         <Button 
                             label="In Warehouse" 
                             className={`p-button-sm ring-0 ${viewMode === 'inWarehouse' ? 'bg-white text-primary' : 'bg-transparent text-white border-white'}`} 
-                            onClick={() => setViewMode('inWarehouse')} 
+                            onClick={() => {
+                                setViewMode('inWarehouse');
+                                setSelectedFilter('all');
+                            }} 
                         />
                         <Button 
                             label="Requests" 
                             className={`p-button-sm ring-0 ${viewMode === 'requests' ? 'bg-white text-primary' : 'bg-transparent text-white border-white'}`} 
-                            onClick={() => setViewMode('requests')} 
+                            onClick={() => {
+                                setViewMode('requests');
+                                setSelectedFilter('all');
+                            }} 
                         />
                     </div>
                 </div>
