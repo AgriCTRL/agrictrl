@@ -132,7 +132,7 @@ function RiceOrder() {
 
                     <div className="flex flex-row w-1/2 justify-end">
                         <Button 
-                            label="Add Palay +" 
+                            label="New Order + " 
                             className="w-1/16 p-2 rounded-md p-button-success text-white bg-gradient-to-r from-primary to-secondary ring-0"
                             onClick={handleAddPalay} />
                     </div>

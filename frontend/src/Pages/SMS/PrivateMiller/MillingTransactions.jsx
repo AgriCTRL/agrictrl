@@ -10,6 +10,7 @@ import { InputText } from 'primereact/inputtext';
 import { Dialog } from 'primereact/dialog';
 import { Calendar } from 'primereact/calendar';
 import { Dropdown } from 'primereact/dropdown';
+import { InputTextarea } from 'primereact/inputtextarea';
 
 function MillingTransactions() {
     const [globalFilterValue, setGlobalFilterValue] = useState('');
@@ -34,6 +35,25 @@ function MillingTransactions() {
     const [showReceiveDialog, setShowReceiveDialog] = useState(false);
     const [showMillDialog, setShowMillDialog] = useState(false);
     const [showReturnDialog, setShowReturnDialog] = useState(false);
+
+    const [receiveFormData, setReceiveFormData] = useState({
+        // You can add more fields as needed
+        dateReceived: null,
+    });
+
+    const [millFormData, setMillFormData] = useState({
+        dateMilled: null,
+        palayQuantity: '',
+    });
+
+    const [returnFormData, setReturnFormData] = useState({
+        dateReturned: null,
+        riceQuantity: '',
+        warehouse: '',
+        millingEfficiency: '',
+        transportedBy: '',
+        description: '',
+    });
 
     const getSeverity = (status) => {
         switch (status.toLowerCase()) {
@@ -78,6 +98,21 @@ function MillingTransactions() {
         }
     };
 
+    const handleReceiveInputChange = (e) => {
+        const { name, value } = e.target;
+        setReceiveFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleMillInputChange = (e) => {
+        const { name, value } = e.target;
+        setMillFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleReturnInputChange = (e) => {
+        const { name, value } = e.target;
+        setReturnFormData(prev => ({ ...prev, [name]: value }));
+    };
+
     const filteredData = inventoryData.filter(item => 
         selectedFilter === 'all' || item.status.toLowerCase() === selectedFilter.toLowerCase()
     );
@@ -85,7 +120,6 @@ function MillingTransactions() {
     const getFilterCount = (filter) => {
         return inventoryData.filter(item => item.status.toLowerCase() === filter.toLowerCase()).length;
     };
-
 
     const FilterButton = ({ label, icon, filter }) => (
         <Button 
@@ -125,7 +159,7 @@ function MillingTransactions() {
                         onClick={() => setSelectedFilter('all')} 
                     />
                     <div className="flex bg-white rounded-full gap-2">
-                        <FilterButton label="To receive" icon={<Box className="mr-2" size={16} />} filter="to receive" />
+                        <FilterButton label="Request" icon={<Box className="mr-2" size={16} />} filter="to receive" />
                         <FilterButton label="To mill" icon={<Factory className="mr-2" size={16} />} filter="to mill" />
                         <FilterButton label="To return" icon={<RotateCcw className="mr-2" size={16} />} filter="to return" />
                     </div>
@@ -166,7 +200,19 @@ function MillingTransactions() {
                     <p className="mb-10">Are you sure you want receive this palay?</p>
                     <div className="flex justify-between w-full gap-4">
                         <Button label="Cancel" className="w-1/2 bg-transparent text-primary border-primary" onClick={() => setShowReceiveDialog(false)} />
-                        <Button label="Confirm Receive" className="w-1/2 bg-primary hover:border-none" onClick={() => setShowReceiveDialog(false)} />
+                        <Button 
+                            label="Confirm Receive" 
+                            className="w-1/2 bg-primary hover:border-none" 
+                            onClick={() => {
+                                const currentDate = new Date();
+                                setReceiveFormData(prev => ({
+                                    ...prev,
+                                    dateReceived: currentDate
+                                }));
+                                console.log({...receiveFormData, dateReceived: currentDate});
+                                setShowReceiveDialog(false);
+                            }} 
+                        />
                     </div>
                 </div>
             </Dialog>
@@ -176,15 +222,29 @@ function MillingTransactions() {
                 <div className="flex flex-col">
                     <div className="mb-4">
                         <label className="block mb-2">Date Milled</label>
-                        <Calendar className="w-full" />
+                        <Calendar 
+                            name="dateMilled"
+                            value={millFormData.dateMilled}
+                            onChange={handleMillInputChange}
+                            className="w-full" 
+                        />
                     </div>
                     <div className="mb-4">
                         <label className="block mb-2">Palay Quantity (kg)</label>
-                        <InputText type="number" className="w-full ring-0" />
+                        <InputText 
+                            type="number" 
+                            name="palayQuantity"
+                            value={millFormData.palayQuantity}
+                            onChange={handleMillInputChange}
+                            className="w-full ring-0" 
+                        />
                     </div>
                     <div className="flex justify-between w-full gap-4">
                         <Button label="Cancel" className="w-1/2 bg-transparent text-primary border-primary" onClick={() => setShowMillDialog(false)} />
-                        <Button label="Mill" className="w-1/2 bg-primary hover:border-none" onClick={() => setShowMillDialog(false)} />
+                        <Button label="Mill" className="w-1/2 bg-primary hover:border-none" onClick={() => {
+                            console.log(millFormData);
+                            setShowMillDialog(false);
+                        }} />
                     </div>
                 </div>
             </Dialog>
@@ -195,28 +255,75 @@ function MillingTransactions() {
                     <div className="flex w-full gap-4">
                         <div className="w-1/2">
                             <label className="block mb-2">Date Returned</label>
-                            <Calendar className="w-full" />
+                            <Calendar 
+                                name="dateReturned"
+                                value={returnFormData.dateReturned}
+                                onChange={handleReturnInputChange}
+                                className="w-full ring-0" 
+                            />
                         </div>
                         <div className="w-1/2">
                             <label className="block mb-2">Rice Quantity (kg)</label>
-                            <InputText type="number" className="w-full" />
+                            <InputText 
+                                type="number" 
+                                name="riceQuantity"
+                                value={returnFormData.riceQuantity}
+                                onChange={handleReturnInputChange}
+                                className="w-full ring-0" 
+                            />
                         </div>
                     </div>
                     
                     <div className="flex w-full gap-4">
                         <div className="w-1/2">
                             <label className="block mb-2">Warehouse</label>
-                            <Dropdown className="w-full" options={['Warehouse A', 'Warehouse B', 'Warehouse C']} placeholder="Select a warehouse" />
+                            <Dropdown 
+                                name="warehouse"
+                                value={returnFormData.warehouse}
+                                options={['Warehouse A', 'Warehouse B', 'Warehouse C']} 
+                                onChange={handleReturnInputChange}
+                                placeholder="Select a warehouse" 
+                                className="w-full ring-0" 
+                            />
                         </div>
                         <div className="w-1/2">
                             <label className="block mb-2">Milling Efficiency</label>
-                            <InputText type="number" className="w-full" />
+                            <InputText 
+                                type="number" 
+                                name="millingEfficiency"
+                                value={returnFormData.millingEfficiency}
+                                onChange={handleReturnInputChange}
+                                className="w-full ring-0" 
+                            />
                         </div>
                     </div>
+
+                    <div className="w-full">
+                        <label htmlFor="transportedBy" className="block text-sm font-medium text-gray-700 mb-1">Transported by</label>
+                        <InputText 
+                            name="transportedBy"
+                            value={returnFormData.transportedBy}
+                            onChange={handleReturnInputChange}
+                            className="w-full ring-0" 
+                        />
+                    </div>
+
+                    <div className="w-full">
+                        <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                        <InputTextarea 
+                            name="description"
+                            value={returnFormData.description}
+                            onChange={handleReturnInputChange}
+                            className="w-full ring-0" 
+                        />
+                    </div>
                     
-                    <div className="flex justify-between gap-4 mt-10">
+                    <div className="flex justify-between gap-4 mt-4">
                         <Button label="Cancel" className="w-1/2 bg-transparent text-primary border-primary" onClick={() => setShowReturnDialog(false)} />
-                        <Button label="Confirm Return" className="w-1/2 bg-primary hover:border-none" onClick={() => setShowReturnDialog(false)} />
+                        <Button label="Confirm Return" className="w-1/2 bg-primary hover:border-none" onClick={() => {
+                            console.log(returnFormData);
+                            setShowReturnDialog(false);
+                        }} />
                     </div>
                 </div>
             </Dialog>

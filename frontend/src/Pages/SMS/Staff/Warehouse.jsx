@@ -9,6 +9,7 @@ import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { Dialog } from 'primereact/dialog';
 import { Dropdown } from 'primereact/dropdown';
+import { InputTextarea } from 'primereact/inputtextarea';
 
 function Warehouse() {
     const [globalFilterValue, setGlobalFilterValue] = useState('');
@@ -40,17 +41,63 @@ function Warehouse() {
         { id: 4, from: 'Cebu', toBeStoreAt: 'Warehouse 005', dateRequest: '5/15/12', transportedBy: 'Fast Logistics', status: 'Rice' },
     ];
 
-    const dryingOptions = [
-        { label: 'Drying Option 1', value: 'drying1' },
-        { label: 'Drying Option 2', value: 'drying2' },
-        { label: 'Drying Option 3', value: 'drying3' }
+    const [formData, setFormData] = useState({
+        sendTo: '',
+        facility: '',
+        transportedBy: '',
+        description: ''
+    });
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prevState => ({
+            ...prevState,
+            [name]: value,
+            facility: name === 'sendTo' ? '' : prevState.facility
+        }));
+    };
+
+    const handleSendTo = () => {
+        console.log("Send To form data:", formData);
+        setShowSendToDialog(false);
+        // Reset form data
+        setFormData({
+            sendTo: '',
+            facility: '',
+            transportedBy: '',
+            description: '',
+            receiveDate: null
+        });
+    };
+
+    const handleConfirmReceive = () => {
+        const currentDate = new Date().toISOString();
+        setFormData(prevState => ({
+            ...prevState,
+            receiveDate: currentDate
+        }));
+        console.log("Confirmed Receive. Date:", currentDate);
+        setShowAcceptDialog(false);
+    };
+
+    const sendToOptions = [
+        { label: 'Dryer', value: 'dryer' },
+        { label: 'Miller', value: 'miller' }
     ];
-    
-    const dryerOptions = [
-        { label: 'Dryer 001', value: 'dryer1' },
-        { label: 'Dryer 002', value: 'dryer2' },
-        { label: 'Dryer 003', value: 'dryer3' }
-    ];
+
+    const facilityOptions = {
+        dryer: [
+            { label: 'Dryer 1', value: 'dryer1' },
+            { label: 'Dryer 2', value: 'dryer2' },
+            { label: 'Dryer 3', value: 'dryer3' }
+        ],
+        miller: [
+            { label: 'Miller 1', value: 'miller1' },
+            { label: 'Miller 2', value: 'miller2' },
+            { label: 'Miller 3', value: 'miller3' }
+        ],
+        '': []
+    };
     
 
     const getSeverity = (status) => {
@@ -204,28 +251,50 @@ function Warehouse() {
             <Dialog header="Send To" visible={showSendToDialog} onHide={() => setShowSendToDialog(false)} className="w-1/3">
                 <div className="flex flex-col">
                     <div className="mb-4">
-                        <label className="block mb-2">Drying</label>
+                        <label className="block mb-2">Send To</label>
                         <Dropdown 
                             className="w-full ring-0" 
-                            value={selectedDrying} 
-                            options={dryingOptions} 
-                            onChange={(e) => setSelectedDrying(e.value)} 
+                            value={formData.sendTo} 
+                            options={sendToOptions} 
+                            onChange={(e) => handleInputChange({ target: { name: 'sendTo', value: e.value } })} 
                             placeholder="Select an option" 
                         />
                     </div>
+
                     <div className="mb-4">
-                        <label className="block mb-2">Dryer 001</label>
+                        <label className="block mb-2">Facility</label>
                         <Dropdown 
                             className="w-full ring-0" 
-                            value={selectedDryer} 
-                            options={dryerOptions} 
-                            onChange={(e) => setSelectedDryer(e.value)} 
-                            placeholder="Select an option" 
+                            value={formData.facility} 
+                            options={facilityOptions[formData.sendTo] || []} 
+                            onChange={(e) => handleInputChange({ target: { name: 'facility', value: e.value } })} 
+                            placeholder="Select a facility" 
+                            disabled={!formData.sendTo}
+                        />
+                    </div>
+
+                    <div className="w-full mb-4">
+                        <label htmlFor="transportedBy" className="block text-sm font-medium text-gray-700 mb-1">Transported by</label>
+                        <InputText 
+                            name="transportedBy"
+                            value={formData.transportedBy}
+                            onChange={handleInputChange}
+                            className="w-full ring-0" 
+                        />
+                    </div>
+
+                    <div className="w-full mb-4">
+                        <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                        <InputTextarea 
+                            name="description"
+                            value={formData.description}
+                            onChange={handleInputChange}
+                            className="w-full ring-0" 
                         />
                     </div>
                     <div className="flex justify-between w-full gap-4 mt-4">
                         <Button label="Cancel" className="w-1/2 bg-transparent text-primary border-primary" onClick={() => setShowSendToDialog(false)} />
-                        <Button label="Send Request" className="w-1/2 bg-primary hover:border-none" onClick={() => setShowSendToDialog(false)} />
+                        <Button label="Send Request" className="w-1/2 bg-primary hover:border-none" onClick={handleSendTo} />
                     </div>
                 </div>
             </Dialog>
@@ -235,7 +304,11 @@ function Warehouse() {
                 <div className="flex flex-col items-center">
                     <p className="mb-10">Click Confirm Receive to accept request to warehouse</p>
                     <div className="flex justify-between w-full">
-                        <Button label="Confirm Receive" className="w-full bg-primary hover:border-none" onClick={() => setShowAcceptDialog(false)} />
+                        <Button 
+                            label="Confirm Receive" 
+                            className="w-full bg-primary hover:border-none" 
+                            onClick={handleConfirmReceive} 
+                        />
                     </div>
                 </div>
             </Dialog>
