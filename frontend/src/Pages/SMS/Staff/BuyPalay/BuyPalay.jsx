@@ -53,7 +53,7 @@ function BuyPalay() {
     
     const actionBodyTemplate = (rowData) => (
         <CircleAlert 
-            className="text-red-500 mr-10"
+            className="text-red-500"
             onClick={() => console.log('Edit clicked for:', rowData)}
         />
     );
@@ -70,34 +70,33 @@ function BuyPalay() {
 
     return (
         <StaffLayout activePage="Buy Palay">
-            <div className="flex flex-col px-4 py-2 h-full bg-[#F1F5F9]">
-                <div className="flex justify-center rounded-lg bg-gradient-to-r from-primary to-secondary mb-2">
-                    <h1 className="text-3xl text-white p-4 font-bold">Palay Procurement</h1>
+            <div className="flex flex-col px-10 py-2 h-full bg-[#F1F5F9]">
+                <div className="flex flex-col justify-center items-center p-10 h-1/4 rounded-lg bg-gradient-to-r from-primary to-secondary mb-2">
+                    <h1 className="text-5xl text-white font-bold mb-2">Palay Procurement</h1>
+                    <span className="p-input-icon-left w-1/2 mr-4 mb-4">
+                        <Search className="text-white ml-2 -translate-y-1"/>
+                        <InputText 
+                            type="search"
+                            value={globalFilterValue} 
+                            onChange={(e) => setGlobalFilterValue(e.target.value)} 
+                            placeholder="Tap to Search" 
+                            className="w-full pl-10 pr-4 py-2 rounded-full text-white bg-transparent border border-white placeholder:text-white"
+                        />
+                    </span>
                 </div>
 
                 {/* Buttons & Search bar */}
-                <div className="flex items-center space-x-2 justify-between mb-2">
+                <div className="flex items-center space-x-2 justify-between mb-2 py-2">
                     <div className="flex flex-row space-x-2 items-center w-1/2 drop-shadow-md">
-                        <Button className="p-2 px-3 rounded-lg text-md font-medium text-white bg-gradient-to-r from-primary to-secondary ring-0">All</Button>
-                        <span className="p-input-icon-left w-full mr-4">
-                            <Search className="text-primary ml-2 -translate-y-1"/>
-                            <InputText 
-                                type="search"
-                                value={globalFilterValue} 
-                                onChange={(e) => setGlobalFilterValue(e.target.value)} 
-                                placeholder="Tap to Search" 
-                                className="w-full pl-10 pr-4 py-2 rounded-full text-primary border border-gray-300 ring-0 placeholder:text-primary"
-                            />
-                        </span>
-                    </div>
-                    
-
-                    <div className="flex flex-row w-1/2 justify-between">
+                        <Button className="p-2 px-3 rounded-lg text-md font-medium text-white bg-primary ring-0">All</Button>
                         <Button 
                             icon={<Settings2 className="mr-2 text-primary" />}
                             label="Filters" 
                             className="p-button-success text-primary border border-gray-300 rounded-full bg-white p-2 w-1/16 ring-0" />
+                    </div>
+                    
 
+                    <div className="flex flex-row w-1/2 justify-end">
                         <Button 
                             label="Add Palay +" 
                             className="w-1/16 p-2 rounded-md p-button-success text-white bg-gradient-to-r from-primary to-secondary ring-0"
@@ -119,22 +118,22 @@ function BuyPalay() {
                             emptyMessage="No inventory found."
                             paginator
                             rows={30}
-                            tableStyle={{ minWidth: '2450px' }}
+                            tableStyle={{ minWidth: '2600px' }}
                         >
-                            <Column field="trackingId" header="Tracking ID" className="w-80 pl-16" headerClassName="p-4 pl-10" />
-                            <Column field="id" header="Batch ID" className="w-80 pl-14" headerClassName="p-4 pl-8" />
-                            <Column field="dateBought" header="Date Bought" className="w-96 p-4 pl-4" headerClassName="p-4 pl-4" />
-                            <Column field="quantity" header="Quantity" className="w-80 pl-5" headerClassName="p-4 pl-2" />
-                            <Column field="qualityType" header="Quality Type" className="w-72  pl-5" headerClassName="p-4 pl-2" />
-                            <Column field="moistureContent" header="Moisture Content" className="w-96  pl-16" headerClassName="p-4 pl-4" />
-                            <Column field="purity" header="Purity" className="w-80  pl-5" headerClassName="p-4 pl-2" />
-                            <Column field="damage" header="Damage" className="w-80  pl-8" headerClassName="p-4 pl-2" />
-                            <Column field="pricePerKg" header="Price/Kg" className="w-80  pl-7" headerClassName="p-4 pl-2" />
-                            <Column field="farmer" header="Farmer" className="w-80 " headerClassName="p-4 pl-5" />
-                            <Column field="originFarm" header="Origin Farm" className="w-80  pl-5" headerClassName="p-4 pl-2" />
-                            <Column field="currentLocation" header="Current Location" className="w-80 pl-5" headerClassName="p-4" />
-                            <Column field="status" header="Status" body={statusBodyTemplate} className="w-40 " headerClassName="p-4" frozen alignFrozen="right" />
-                            <Column body={actionBodyTemplate} exportable={false} className="w-20 " headerClassName="p-4" frozen alignFrozen="right" />
+                            <Column field="trackingId" header="Tracking ID" className="text-center" headerClassName="text-center" />
+                            <Column field="id" header="Batch ID" className="text-center" headerClassName="text-center" />
+                            <Column field="dateBought" header="Date Bought" className="text-center" headerClassName="text-center" />
+                            <Column field="quantity" header="Quantity" className="text-center" headerClassName="text-center" />
+                            <Column field="qualityType" header="Quality Type" className="text-center" headerClassName="text-center" />
+                            <Column field="moistureContent" header="Moisture Content" className="text-center" headerClassName="text-center" />
+                            <Column field="purity" header="Purity" className="text-center" headerClassName="text-center" />
+                            <Column field="damage" header="Damage" className="text-center" headerClassName="text-center" />
+                            <Column field="pricePerKg" header="Price/Kg" className="text-center" headerClassName="text-center" />
+                            <Column field="farmer" header="Farmer" className="text-center" headerClassName="text-center" />
+                            <Column field="originFarm" header="Origin Farm" className="text-center" headerClassName="text-center" />
+                            <Column field="currentLocation" header="Current Location" className="text-center" headerClassName="text-center" />
+                            <Column field="status" header="Status" body={statusBodyTemplate} className="text-center" headerClassName="text-center" frozen alignFrozen="right" />
+                            <Column body={actionBodyTemplate} exportable={false} className="text-center" headerClassName="text-center" frozen alignFrozen="right" />
                         </DataTable>
                     </div>
                 </div>

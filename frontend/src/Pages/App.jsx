@@ -27,6 +27,16 @@ import StaffOrders from "./SMS/Staff/Orders";
 import StaffProcessing from "./SMS/Staff/Processing";
 import StaffWarehouse from "./SMS/Staff/Warehouse";
 
+import RecipientHome from "./SMS/Recipient/Home";
+import RecipientRiceOrder from "./SMS/Recipient/RiceOrder/RiceOrder";
+import RecipientRiceReceive from "./SMS/Recipient/RiceReceive/RiceReceive";
+import RecipientHistory from "./SMS/Recipient/History";
+
+import PrivateMillerHome from "./SMS/PrivateMiller/Home";
+import PrivateMillerMillingTransactions from "./SMS/PrivateMiller/MillingTransactions";
+import PrivateMillerManageMiller from "./SMS/PrivateMiller/ManageMiller";
+import PrivateMillerHistory from "./SMS/PrivateMiller/History";
+
 function App() {
     return (
         <div className="flex h-screen transition-transform duration-300">
@@ -38,6 +48,8 @@ function App() {
                 <Route path="/TnT" element={<TracknTrace />} />
                 <Route path="/admin/*" element={<AdminRoutes />} />
                 <Route path="/staff/*" element={<StaffRoutes />} />
+                <Route path="/recipient/*" element={<RecipientRoutes />} />
+                <Route path="/miller/*" element={<PrivateMillerRoutes />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
         </div>
@@ -74,6 +86,28 @@ function StaffRoutes() {
             <Route path="orders" element={<StaffOrders />} />
             <Route path="processing" element={<StaffProcessing />} />
             <Route path="warehouse" element={<StaffWarehouse />} />
+        </Routes>
+    );
+}
+
+function RecipientRoutes() {
+    return (
+        <Routes>
+            <Route index element={<RecipientHome />} />
+            <Route path="order" element={<RecipientRiceOrder />} />
+            <Route path="receive" element={<RecipientRiceReceive />} />
+            <Route path="history" element={<RecipientHistory />} />
+        </Routes>
+    );
+}
+
+function PrivateMillerRoutes() {
+    return (
+        <Routes>
+            <Route index element={<PrivateMillerHome />} />
+            <Route path="transactions" element={<PrivateMillerMillingTransactions />} />
+            <Route path="facility" element={<PrivateMillerManageMiller />} />
+            <Route path="history" element={<PrivateMillerHistory />} />
         </Routes>
     );
 }

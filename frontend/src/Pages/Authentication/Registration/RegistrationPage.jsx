@@ -43,20 +43,26 @@ const RegistrationPageContent = ({ onRegisterSuccess }) => {
   const navigate = useNavigate();
   const { registrationData } = useRegistration();
   const toast = useRef(null);
+  const [confirmPasswordValid, setConfirmPasswordValid] = useState(false);
 
   const handleRegister1 = (e) => {
     e.preventDefault();
     toast.current.show({ severity: 'success', summary: 'Success', detail: 'Registration Successful!', life: 3000 });
     console.log('Registration Data:', registrationData);
-    navigate('/admin');
+    navigate('/login');
     localStorage.removeItem('registrationData');
   };
 
   const handleRegister = async (e) => {
     e.preventDefault();
 
+    if (!confirmPasswordValid) {
+      toast.current.show({ severity: 'error', summary: 'Error', detail: 'Passwords do not match.', life: 3000 });
+      return;
+    }
+
     try {
-      const res = await fetch(`${apiUrl}/nfapersonnels`, {
+      const res = await fetch(`${apiUrl}/users`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -101,7 +107,7 @@ const RegistrationPageContent = ({ onRegisterSuccess }) => {
       case 2:
         return <OfficeAddress />;
       case 3:
-        return <Finishing />;
+        return <Finishing setConfirmPasswordValid={setConfirmPasswordValid}/>;
       default:
         return null;
     }
@@ -157,7 +163,7 @@ const RegistrationPageContent = ({ onRegisterSuccess }) => {
           <Button
             className='border-2 border-secondary bg-transparent py-1 px-16 text-secondary transition duration-200 hover:bg-secondary hover:text-white ring-0'
             label={activeStep === steps.length - 1 ? "Submit" : "Next"}
-            onClick={activeStep === steps.length - 1 ? handleRegister1 : handleNext}
+            onClick={activeStep === steps.length - 1 ? handleRegister : handleNext}
           />
         </div>
 

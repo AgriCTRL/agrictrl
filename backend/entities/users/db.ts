@@ -14,7 +14,7 @@ export class User extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ unique: true})
+    @Column({ unique: true, nullable: true })
     principal: string;
 
     @Column()
@@ -41,15 +41,17 @@ export class User extends BaseEntity {
     @Column()
     jobTitlePosition: string;
 
-    @Column()
+    @Column({ nullable: true })
     branchRegion: string;
 
-    @Column()
+    @Column({ nullable: true })
     branchOffice: string;
 
-    // TODO: change into blob
-    @Column()
+    @Column({ nullable: true })
     validId: string;
+
+    @Column({ nullable: true })
+    validIdName: string;
 
     @Column()
     officeAddressId: number;
@@ -63,17 +65,17 @@ export class User extends BaseEntity {
     @Column()
     password: string;
 
-    @Column()
+    @Column({ default: 'active' })
     status: string;
 
-    @Column()
+    @Column({ default: false })
     isVerified: boolean;
 
     @CreateDateColumn()
     dateCreated: Date;
 }
 
-export type UserCreate = Pick<User, 'principal' | 'firstName' | 'lastName' | 'gender' | 'birthDate' | 'contactNumber' | 'userType' | 'organizationName' | 'jobTitlePosition' | 'branchRegion' | 'branchOffice' | 'validId' | 'officeAddressId' | 'email' | 'password' | 'status' | 'isVerified' > &
+export type UserCreate = Pick<User, 'principal' | 'firstName' | 'lastName' | 'gender' | 'birthDate' | 'contactNumber' | 'userType' | 'organizationName' | 'jobTitlePosition' | 'branchRegion' | 'branchOffice' | 'validId' | 'validIdName' | 'officeAddressId' | 'email' | 'password' | 'status' | 'isVerified' > &
 { officeAddressId: OfficeAddress['id'] };
 export type UserUpdate = Pick<User, 'id'> & Partial<UserCreate>;
 
@@ -117,6 +119,7 @@ export async function createUser(userCreate: UserCreate): Promise<User> {
     user.branchRegion = userCreate.branchRegion;
     user.branchOffice = userCreate.branchOffice;
     user.validId = userCreate.validId;
+    user.validIdName = userCreate.validIdName;
 
     // officeAddress
 
@@ -150,6 +153,7 @@ export async function updateUser(userUpdate: UserUpdate): Promise<User> {
         branchRegion: userUpdate.branchRegion,
         branchOffice: userUpdate.branchOffice,
         validId: userUpdate.validId,
+        validIdName: userUpdate.validIdName,
         email: userUpdate.email,
         password: userUpdate.password,
         status: userUpdate.status,

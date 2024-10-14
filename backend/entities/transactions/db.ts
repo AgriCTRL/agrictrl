@@ -1,4 +1,11 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+    BaseEntity,
+    Column,
+    Entity,
+    ManyToOne,
+    PrimaryGeneratedColumn
+} from 'typeorm';
+import { getTransporter, Transporter } from '../transporters/db';
 
 @Entity()
 export class Transaction extends BaseEntity {
@@ -21,6 +28,12 @@ export class Transaction extends BaseEntity {
     fromLocationId: number;
 
     @Column()
+    transporterId: number;
+
+    @ManyToOne(() => Transporter)
+    transporter: Transporter;
+
+    @Column()
     toLocationType: string;
     
     @Column()
@@ -30,13 +43,16 @@ export class Transaction extends BaseEntity {
     transactionTimeDate: Date;
 }
 
-export type TransactionCreate = Pick<Transaction, 'item' | 'itemIds' | 'userId' | 'fromLocationType' | 'fromLocationId' | 'toLocationType' | 'toLocationId' | 'transactionTimeDate'>;
+export type TransactionCreate = Pick<Transaction, 'item' | 'itemIds' | 'userId' | 'fromLocationType' | 'fromLocationId' | 'transporterId' | 'toLocationType' | 'toLocationId' | 'transactionTimeDate'>;
 export type TransactionUpdate = Pick<Transaction, 'id'> & Partial<TransactionCreate>;
 
 export async function getTransactions(limit: number, offset: number): Promise<Transaction[]> {
     return await Transaction.find({
         take: limit,
-        skip: offset
+        skip: offset,
+        relations: {
+            transporter: true
+        }
     });
 }
 
@@ -44,6 +60,9 @@ export async function getTransaction(id: number): Promise<Transaction | null> {
     return await Transaction.findOne({
         where: {
             id
+        },
+        relations: {
+            transporter: true
         }
     });
 }
@@ -60,6 +79,17 @@ export async function createTransaction(transactionCreate: TransactionCreate): P
     transaction.userId = transactionCreate.userId;
     transaction.fromLocationType = transactionCreate.fromLocationType;
     transaction.fromLocationId = transactionCreate.fromLocationId;
+
+    // transporters
+
+    const transporter = await getTransporter(transactionCreate.transporterId);
+
+    if (transporter === null) {
+        throw new Error(``);
+    }
+
+    transaction.transporterId = transporter.id;
+
     transaction.toLocationType = transactionCreate.toLocationType;
     transaction.toLocationId = transactionCreate.toLocationId;
     transaction.transactionTimeDate = transactionCreate.transactionTimeDate;

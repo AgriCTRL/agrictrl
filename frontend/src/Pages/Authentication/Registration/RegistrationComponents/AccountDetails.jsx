@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { FileUpload } from 'primereact/fileupload';
@@ -6,7 +6,7 @@ import { useRegistration } from '../RegistrationContext';
 
 const AccountDetails = () => {
   const { registrationData, updateRegistrationData } = useRegistration();
-  const { userType, organizationName, jobTitle, region, branchOffice, validId, validIdName } = registrationData.accountDetails;
+  const { userType, organizationName, jobTitlePosition, branchRegion, branchOffice, validId, validIdName } = registrationData.accountDetails;
 
   const userTypeOptions = [
     { label: 'NFA Branch Staff', value: 'nfaBranchStaff' },
@@ -14,20 +14,95 @@ const AccountDetails = () => {
     { label: 'Rice Recipient', value: 'riceRecipient' }
   ];
 
-  const regionOptions = [
-    { label: 'Region 1', value: 'region1' },
-    { label: 'Region 2', value: 'region2' },
-    { label: 'Region 3', value: 'region3' }
-  ];
+  const [branchRegionOptions, setBranchRegionOptions] = useState([]);
+  const [branchOfficeOptions, setBranchOfficeOptions] = useState([]);
 
-  const branchOfficeOptions = [
-    { label: 'Office 1', value: 'office1' },
-    { label: 'Office 2', value: 'office2' },
-    { label: 'Office 3', value: 'office3' }
-  ];
+  useEffect(() => {
+    fetchRegions();
+  }, []);
+
+  useEffect(() => {
+    if (branchRegion) {
+      const selectedRegion = branchRegionOptions.find(r => r.value === branchRegion);
+      if (selectedRegion && selectedRegion.code === '130000000') {
+        fetchCities();
+      } else if (selectedRegion) {
+        fetchProvinces(selectedRegion.code);
+      }
+    }
+  }, [branchRegion, branchRegionOptions]);
+
+  useEffect(() => {
+    // Reset branchRegion and branchOffice to null if userType is not nfaBranchStaff
+    if (userType !== 'nfaBranchStaff') {
+      handleInputChange('branchRegion', null);
+      handleInputChange('branchOffice', null);
+    }
+  }, [userType]);
+  
+  const fetchRegions = async () => {
+    try {
+      const res = await fetch('https://psgc.gitlab.io/api/regions/');
+      const data = await res.json();
+      const regions = data.map(region => ({
+        label: region.regionName,
+        value: region.regionName,
+        code: region.code
+      }));
+      setBranchRegionOptions(regions);
+    } catch (error) {
+      console.error('Error fetching regions:', error);
+    }
+  };
+
+  const fetchProvinces = async (regionCode) => {
+    try {
+      const res = await fetch(`https://psgc.gitlab.io/api/regions/${regionCode}/provinces/`);
+      const data = await res.json();
+      const provinces = data.map(province => ({
+        label: province.name,
+        value: province.name,
+        code: province.code
+      }));
+      setBranchOfficeOptions(provinces);
+    } catch (error) {
+      console.error('Error fetching provinces:', error);
+    }
+  };
+
+  const fetchCities = async () => {
+    try {
+      const res = await fetch('https://psgc.gitlab.io/api/regions/130000000/cities/');
+      const data = await res.json();
+      const cities = data.map(city => ({
+        label: city.name,
+        value: city.name,
+        code: city.code
+      }));
+      setBranchOfficeOptions(cities);
+    } catch (error) {
+      console.error('Error fetching cities:', error);
+    }
+  };
 
   const handleInputChange = (field, value) => {
-    updateRegistrationData('accountDetails', { [field]: value });
+    const updatedData = {
+      ...registrationData.accountDetails,
+      [field]: value,
+    };
+
+    // Reset branchOffice when branchRegion changes
+    if (field === 'branchRegion') {
+      updatedData.branchOffice = null;
+    }
+
+    // If userType is changed and it's not nfaBranchStaff, reset branchRegion and branchOffice
+    if (field === 'userType' && value !== 'nfaBranchStaff') {
+      updatedData.branchRegion = null;
+      updatedData.branchOffice = null;
+    }
+
+    updateRegistrationData('accountDetails', updatedData);
   };
 
   const handleFileUpload = (event) => {
@@ -40,17 +115,6 @@ const AccountDetails = () => {
     };
     reader.readAsDataURL(file);
   };
-
-  // Hide region and branchOffice if userType is privateMiller or riceRecipient
-  const hideRegionAndBranchOffice = userType === 'privateMiller' || userType === 'riceRecipient';
-
-  if (hideRegionAndBranchOffice) {
-    // Clear values when hidden
-    if (region || branchOffice) {
-      handleInputChange('region', '');
-      handleInputChange('branchOffice', '');
-    }
-  }
 
   return (
     <form className="h-full w-full px-16">
@@ -83,26 +147,26 @@ const AccountDetails = () => {
           />
         </div>
         <div className="mb-2">
-          <label htmlFor="jobTitle" className="block mb-2 text-sm font-medium text-gray-700">Job Title / Position</label>
+          <label htmlFor="jobTitlePosition" className="block mb-2 text-sm font-medium text-gray-700">Job Title / Position</label>
           <InputText
-            id="jobTitle"
-            value={jobTitle}
-            onChange={(e) => handleInputChange('jobTitle', e.target.value)}
+            id="jobTitlePosition"
+            value={jobTitlePosition}
+            onChange={(e) => handleInputChange('jobTitlePosition', e.target.value)}
             placeholder="job title"
             className="w-full focus:ring-0"
           />
         </div>
       </div>
 
-      {!hideRegionAndBranchOffice && (
+      {userType === 'nfaBranchStaff' && (
         <div className="grid grid-cols-2 gap-4 mb-2">
           <div>
-            <label htmlFor="region" className="block mb-2 text-sm font-medium text-gray-700">Region</label>
+            <label htmlFor="branchRegion" className="block mb-2 text-sm font-medium text-gray-700">Region</label>
             <Dropdown
-              id="region"
-              value={region}
-              options={regionOptions}
-              onChange={(e) => handleInputChange('region', e.value)}
+              id="branchRegion"
+              value={branchRegion}
+              options={branchRegionOptions}
+              onChange={(e) => handleInputChange('branchRegion', e.value)}
               placeholder="Select Region"
               className="ring-0 w-full placeholder:text-gray-400"
             />
@@ -128,7 +192,7 @@ const AccountDetails = () => {
           name="validId"
           accept="image/*"
           maxFileSize={1000000}
-          chooseLabel={validIdName || "Select Image"} // Show file name or default label
+          chooseLabel={validIdName || "Select Image"}
           className="w-full ring-0 flex justify-center items-center border-gray-300"
           chooseOptions={{
             className: 'bg-transparent text-primary flex flex-col items-center ring-0'

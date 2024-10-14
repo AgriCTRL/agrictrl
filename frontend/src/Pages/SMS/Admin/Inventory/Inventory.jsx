@@ -114,7 +114,7 @@ function Inventory() {
     
     const actionBodyTemplate = (rowData) => (
         <CircleAlert 
-            className="text-red-500 mr-10"
+            className="text-red-500"
             onClick={() => console.log('Edit clicked for:', rowData)}
         />
     );
@@ -165,22 +165,22 @@ function Inventory() {
                             emptyMessage="No inventory found."
                             paginator
                             rows={30}
-                            tableStyle={{ minWidth: '2510px' }}
+                            tableStyle={{ minWidth: '2300px' }}
                         >
-                            <Column field="trackingId" header="Tracking ID" className="w-80 pl-16" headerClassName="p-4 pl-10" />
-                            <Column field="id" header="Batch ID" className="w-80 pl-14" headerClassName="p-4 pl-8" />
-                            <Column field="dateBought" header="Date Bought" className="w-96 p-4 pl-4" headerClassName="p-4 pl-4" />
-                            <Column field="quantity" header="Quantity" className="w-80 pl-5" headerClassName="p-4 pl-2" />
-                            <Column field="qualityType" header="Quality Type" className="w-72  pl-5" headerClassName="p-4 pl-2" />
-                            <Column field="moistureContent" header="Moisture Content" className="w-96  pl-16" headerClassName="p-4 pl-4" />
-                            <Column field="purity" header="Purity" className="w-80  pl-5" headerClassName="p-4 pl-2" />
-                            <Column field="damage" header="Damage" className="w-80  pl-8" headerClassName="p-4 pl-2" />
-                            <Column field="pricePerKg" header="Price/Kg" className="w-80  pl-7" headerClassName="p-4 pl-2" />
-                            <Column field="farmer" header="Farmer" className="w-80 " headerClassName="p-4 pl-5" />
-                            <Column field="originFarm" header="Origin Farm" className="w-80  pl-5" headerClassName="p-4 pl-2" />
-                            <Column field="currentLocation" header="Current Location" className="w-80 pl-5" headerClassName="p-4" />
-                            <Column field="status" header="Status" body={statusBodyTemplate} className="w-40 " headerClassName="p-4" frozen alignFrozen="right" />
-                            <Column body={actionBodyTemplate} exportable={false} className="w-20 " headerClassName="p-4" frozen alignFrozen="right" />
+                            <Column field="trackingId" header="Tracking ID" className="text-center" headerClassName="text-center" />
+                            <Column field="id" header="Batch ID" className="text-center" headerClassName="text-center" />
+                            <Column field="dateBought" header="Date Bought" className="text-center" headerClassName="text-center" />
+                            <Column field="quantity" header="Quantity" className="text-center" headerClassName="text-center" />
+                            <Column field="qualityType" header="Quality Type" className="text-center" headerClassName="text-center" />
+                            <Column field="moistureContent" header="Moisture Content" className="text-center" headerClassName="text-center" />
+                            <Column field="purity" header="Purity" className="text-center" headerClassName="text-center" />
+                            <Column field="damage" header="Damage" className="text-center" headerClassName="text-center" />
+                            <Column field="pricePerKg" header="Price/Kg" className="text-center" headerClassName="text-center" />
+                            <Column field="farmer" header="Farmer" className="text-center" headerClassName="text-center" />
+                            <Column field="originFarm" header="Origin Farm" className="text-center" headerClassName="text-center" />
+                            <Column field="currentLocation" header="Current Location" className="text-center" headerClassName="text-center" />
+                            <Column field="status" header="Status" body={statusBodyTemplate} className="text-center" headerClassName="text-center" frozen alignFrozen="right" />
+                            <Column body={actionBodyTemplate} exportable={false} className="text-center" headerClassName="text-center" frozen alignFrozen="right" />
                         </DataTable>
                     </div>
                 </div>

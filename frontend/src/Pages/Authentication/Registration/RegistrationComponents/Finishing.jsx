@@ -3,12 +3,20 @@ import { InputText } from 'primereact/inputtext';
 import CustomPasswordInput from '../../../../Components/Form/PasswordComponent';
 import { useRegistration } from '../RegistrationContext';
 
-const Finishing = () => {
-  const { registrationData, updateRegistrationData } = useRegistration();
-  const { email, password, confirmPassword } = registrationData.finishingDetails;
+const Finishing = ({setConfirmPasswordValid}) => {
+  const { registrationData, updateRegistrationData, confirmPassword, updateConfirmPassword } = useRegistration();
+  const { email, password } = registrationData.finishingDetails;
 
   const handleInputChange = (field, value) => {
     updateRegistrationData('finishingDetails', { [field]: value });
+    if (field === 'password') {
+      setConfirmPasswordValid(value === confirmPassword);
+    }
+  };
+
+  const handleConfirmPasswordChange = (value) => {
+    updateConfirmPassword(value);
+    setConfirmPasswordValid(value === registrationData.finishingDetails.password); // Check if passwords match
   };
 
   return (
@@ -44,7 +52,7 @@ const Finishing = () => {
         <CustomPasswordInput 
           id="confirmPassword" 
           value={confirmPassword} 
-          onChange={(e) => handleInputChange('confirmPassword', e.target.value)}  
+          onChange={(e) => handleConfirmPasswordChange(e.target.value)}  
           placeholder="Confirm your password" 
           className="focus:border-[#14b8a6] hover:border-[#14b8a6] w-full p-inputtext-sm p-3 rounded-md border border-gray-300 placeholder:text-gray-400 placeholder:font-normal"
         />

@@ -11,6 +11,7 @@ import {
     updatePalayBatch
 } from './db';
 import { createHouseOfficeAddress } from '../houseofficeaddresses/db';
+import { createBuyingStation } from '../buyingstations/db';
 
 export function getRouter(): Router {
     const router = express.Router();
@@ -47,6 +48,8 @@ export function getRouter(): Router {
         async (
             req: Request<any, any, { palayVariety: string;
                 dateBought: Date;
+                buyingStationName: string;
+                location: string;
                 quantityKg: number;
                 qualityType: string;
                 moistureContent: number;
@@ -74,12 +77,13 @@ export function getRouter(): Router {
                 plantedDate: Date;
                 harvestedDate: Date;
                 estimatedCapital: number;
-                userId: number;
                 status: string }>,
             res
         ) => {
             const { palayVariety,
                 dateBought,
+                buyingStationName,
+                location,
                 quantityKg,
                 qualityType,
                 moistureContent,
@@ -107,8 +111,12 @@ export function getRouter(): Router {
                 plantedDate,
                 harvestedDate,
                 estimatedCapital,
-                userId,
                 status } = req.body;
+
+            const buyingStation = await createBuyingStation({
+                buyingStationName: buyingStationName,
+                location: location
+            })
 
             const qualitySpec = await createQualitySpec({
                 moistureContent: moistureContent,
@@ -148,6 +156,7 @@ export function getRouter(): Router {
             const palayBatch = await createPalayBatch({
                 palayVariety,
                 dateBought,
+                boughtAt: buyingStation.id,
                 quantityKg,
                 qualityType,
                 qualitySpecId: qualitySpec.id,
@@ -157,7 +166,6 @@ export function getRouter(): Router {
                 plantedDate,
                 harvestedDate,
                 estimatedCapital,
-                userId,
                 status
             });
 
@@ -180,7 +188,6 @@ async function updateHandler(
         plantedDate: Date;
         harvestedDate: Date;
         estimatedCapital: number;
-        userId: number;
         status: string }>,
     res: Response
 ): Promise<void> {
@@ -193,7 +200,6 @@ async function updateHandler(
         plantedDate,
         harvestedDate,
         estimatedCapital,
-        userId,
         status } = req.body;
 
     const palayBatch = await updatePalayBatch({
@@ -206,7 +212,6 @@ async function updateHandler(
         plantedDate,
         harvestedDate,
         estimatedCapital,
-        userId,
         status
     });
 

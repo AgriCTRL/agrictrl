@@ -98,7 +98,7 @@ function MillerFacility() {
     const getSeverity = (status) => {
         switch (status.toLowerCase()) {
             case 'active': return 'success';
-            case 'inactive': return 'warning';
+            case 'inactive': return 'danger';
             default: return 'secondary';
         }
     };
@@ -163,14 +163,14 @@ function MillerFacility() {
                             paginatorClassName="border-t-2 border-gray-300"
                             rows={30}
                         >
-                            <Column field="id" header="ID"/>
-                            <Column field="millerName" header="Warehouse Name" className="pl-6"/>
-                            <Column field="location" header="Location" className="pl-2"/>
-                            <Column field="capacity" header="Capacity (mt)" className="pl-10"/>
-                            <Column field="processing" header="Processing" className="pl-7"/>
-                            <Column field="type" header="Type" className="pl-1"/>
-                            <Column field="status" header="Status" body={statusBodyTemplate} className="w-1" headerClassName="pl-5"/>
-                            <Column body={actionBodyTemplate} exportable={false} />
+                            <Column field="id" header="ID" className="text-center" headerClassName="text-center"/>
+                            <Column field="millerName" header="Miller Name" className="text-center" headerClassName="text-center"/>
+                            <Column field="location" header="Location" className="text-center" headerClassName="text-center"/>
+                            <Column field="capacity" header="Capacity (mt)" className="text-center" headerClassName="text-center"/>
+                            <Column field="processing" header="Processing" className="text-center" headerClassName="text-center"/>
+                            <Column field="type" header="Type" className="text-center" headerClassName="text-center"/>
+                            <Column field="status" header="Status" body={statusBodyTemplate} className="text-center" headerClassName="text-center"/>
+                            <Column body={actionBodyTemplate} exportable={false} className="text-center" headerClassName="text-center"/>
                         </DataTable>
                     </div>
                 </div>
