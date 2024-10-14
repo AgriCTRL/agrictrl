@@ -7,6 +7,7 @@ import {
     getTransactions,
     updateTransaction
 } from './db';
+import { createTransporter } from '../transporters/db';
 
 export function getRouter(): Router {
     const router = express.Router();
@@ -41,17 +42,23 @@ export function getRouter(): Router {
     router.post(
         '/',
         async (
-            req: Request<any, any, { item: string; itemIds: number[]; userId: number; fromLocationType: string; fromLocationId: number; toLocationType: string; toLocationId: number; transactionTimeDate: Date }>,
+            req: Request<any, any, { item: string; itemIds: number[]; userId: number; fromLocationType: string; fromLocationId: number; transporterName: string; description: string; toLocationType: string; toLocationId: number; transactionTimeDate: Date }>,
             res
         ) => {
-            const { item, itemIds, userId, fromLocationType, fromLocationId, toLocationType, toLocationId, transactionTimeDate } = req.body;
+            const { item, itemIds, userId, fromLocationType, fromLocationId, transporterName, description, toLocationType, toLocationId, transactionTimeDate } = req.body;
 
+            const transporter = await createTransporter({
+                transporterName: transporterName,
+                description: description,
+            });
+            
             const transaction = await createTransaction({
                 item,
                 itemIds,
                 userId,
                 fromLocationType,
                 fromLocationId,
+                transporterId: transporter.id,
                 toLocationType,
                 toLocationId,
                 transactionTimeDate
