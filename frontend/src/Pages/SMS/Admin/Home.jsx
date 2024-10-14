@@ -76,35 +76,35 @@ function Home() {
                     <p className="font-bold text-black">Quick Links</p>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <CardComponent 
-                            className="text-primary cursor-pointer flex-col gap-4 py-6 items-center transition-transform duration-300 hover:bg-primary hover:text-white"
+                            className="bg-white text-primary cursor-pointer flex-col gap-4 py-6 items-center transition-transform duration-300 hover:bg-primary hover:text-white"
                             onClick={() => navigate('/admin/dashboard')}
                         >
                             <LayoutDashboard size={40}/>
                             <span className='font-bold'>Dashboard</span>
                         </CardComponent>
                         <CardComponent 
-                            className="text-primary cursor-pointer flex-col gap-4 py-6 items-center transition-transform duration-300 hover:bg-primary hover:text-white"
+                            className="bg-white text-primary cursor-pointer flex-col gap-4 py-6 items-center transition-transform duration-300 hover:bg-primary hover:text-white"
                             onClick={() => navigate('/admin/tracking')}
                         >
                             <MapPin size={40}/>
                             <span className='font-bold'>Tracking</span>
                         </CardComponent>
                         <CardComponent 
-                            className="text-primary cursor-pointer flex-col gap-4 py-6 items-center transition-transform duration-300 hover:bg-primary hover:text-white"
+                            className="bg-white text-primary cursor-pointer flex-col gap-4 py-6 items-center transition-transform duration-300 hover:bg-primary hover:text-white"
                             onClick={() => navigate('/admin/inventory')}
                         >
                             <Layers size={40}/>
                             <span className='font-bold'>Inventory</span>
                         </CardComponent>
                         <CardComponent 
-                            className="text-primary cursor-pointer flex-col gap-4 py-6 items-center transition-transform duration-300 hover:bg-primary hover:text-white"
+                            className="bg-white text-primary cursor-pointer flex-col gap-4 py-6 items-center transition-transform duration-300 hover:bg-primary hover:text-white"
                             onClick={() => navigate('/admin/facilities')}
                         >
                             <Building2 size={40}/>
                             <span className='font-bold'>Facilities</span>
                         </CardComponent>
                         <CardComponent 
-                            className="text-primary cursor-pointer flex-col gap-4 py-6 items-center transition-transform duration-300 hover:bg-primary hover:text-white"
+                            className="bg-white text-primary cursor-pointer flex-col gap-4 py-6 items-center transition-transform duration-300 hover:bg-primary hover:text-white"
                             onClick={() => navigate('/admin/users')}
                         >
                             <Users size={40}/>

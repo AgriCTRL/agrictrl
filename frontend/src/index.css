@@ -165,5 +165,11 @@
     .p-dropdown-panel .p-dropdown-items .p-dropdown-item.p-highlight.p-focus {
         background: #f3f4f6 !important;
     }
+
+    .p-tabview.dashboard {
+        .p-tabview-panels {
+            padding: 0rem;
+        }
+      }
     
 }

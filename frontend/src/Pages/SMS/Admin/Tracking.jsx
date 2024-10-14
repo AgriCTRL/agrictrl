@@ -450,7 +450,7 @@ const Tracking = () => {
                 {filteredTransactions.length === 0 ? (
                     emptyData()
                 ) : (
-                    <CardComponent>
+                    <CardComponent className="bg-white">
                         <DataTable 
                             value={filteredTransactions} 
                             expandedRows={expandedRows} 
