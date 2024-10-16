@@ -3,8 +3,10 @@ import {
     BrowserRouter as Router,
     Route,
     Routes,
-    Navigate
+    Navigate,
+    useLocation
 } from "react-router-dom";
+import { AuthProvider, useAuth } from './Authentication/Login/AuthContext';
 
 import LandingPage from "./Landing/LandingPage";
 import TracknTrace from "./TNT/TracknTrace";
@@ -37,19 +39,71 @@ import PrivateMillerMillingTransactions from "./SMS/PrivateMiller/MillingTransac
 import PrivateMillerManageMiller from "./SMS/PrivateMiller/ManageMiller";
 import PrivateMillerHistory from "./SMS/PrivateMiller/History";
 
+const ProtectedRoute = ({ children, allowedUserTypes }) => {
+    const { user } = useAuth();
+    const location = useLocation();
+
+    if (!user) {
+        return <Navigate to="/login" state={{ from: location }} replace />;
+    }
+
+    if (!allowedUserTypes.includes(user.userType)) {
+        return <Navigate to="/" replace />;
+    }
+
+    return children;
+};
+
+const AuthenticatedRedirect = () => {
+    const { user } = useAuth();
+    
+    if (user) {
+        switch (user.userType) {
+            case 'admin':
+                return <Navigate to="/admin" replace />;
+            case 'staff':
+                return <Navigate to="/staff" replace />;
+            case 'recipient':
+                return <Navigate to="/recipient" replace />;
+            case 'privateMiller':
+                return <Navigate to="/miller" replace />;
+            default:
+                return <Navigate to="/" replace />;
+        }
+    }
+    
+    return <LandingPage />;
+};
+
 function App() {
     return (
         <div className="flex h-screen transition-transform duration-300">
             <Routes>
-                <Route path="/" element={<LandingPage />} />
+                <Route path="/" element={<AuthenticatedRedirect />} />
                 <Route path="/register" element={<RegistrationPage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/forgotpassword" element={<ForgotPassword />} />
                 <Route path="/TnT" element={<TracknTrace />} />
-                <Route path="/admin/*" element={<AdminRoutes />} />
-                <Route path="/staff/*" element={<StaffRoutes />} />
-                <Route path="/recipient/*" element={<RecipientRoutes />} />
-                <Route path="/miller/*" element={<PrivateMillerRoutes />} />
+                <Route path="/admin/*" element={
+                    <ProtectedRoute allowedUserTypes={['admin']}>
+                        <AdminRoutes />
+                    </ProtectedRoute>
+                } />
+                <Route path="/staff/*" element={
+                    <ProtectedRoute allowedUserTypes={['staff']}>
+                        <StaffRoutes />
+                    </ProtectedRoute>
+                } />
+                <Route path="/recipient/*" element={
+                    <ProtectedRoute allowedUserTypes={['recipient']}>
+                        <RecipientRoutes />
+                    </ProtectedRoute>
+                } />
+                <Route path="/miller/*" element={
+                    <ProtectedRoute allowedUserTypes={['privateMiller']}>
+                        <PrivateMillerRoutes />
+                    </ProtectedRoute>
+                } />
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
         </div>
@@ -59,7 +113,9 @@ function App() {
 function AppWrapper() {
     return (
         <Router>
-            <App />
+            <AuthProvider>
+                <App />
+            </AuthProvider>
         </Router>
     );
 }

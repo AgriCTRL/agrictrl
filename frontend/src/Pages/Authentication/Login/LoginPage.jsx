@@ -5,6 +5,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { Button } from 'primereact/button';
 import { Wheat, Link, Map, FileStack, MapPinned, Facebook, Mail, Linkedin} from 'lucide-react';
 import CustomPasswordInput from '../../../Components/Form/PasswordComponent';
+import { useAuth } from './AuthContext';
 
 // Login function
 const loginUser = async (email, password, userType) => {
@@ -32,13 +33,13 @@ const loginUser = async (email, password, userType) => {
   }
 }
 
-// LoginPage component
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [userType, setUserType] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const userTypes = [
     { label: 'Staff', value: 'staff' },
@@ -58,6 +59,8 @@ const LoginPage = () => {
     setLoading(false);
 
     if (result.success) {
+      login({ ...result.user, userType });
+
       switch (userType) {
         case 'admin':
           navigate('/admin');

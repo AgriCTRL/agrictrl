@@ -1,14 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Bell } from 'lucide-react';
 import { Avatar } from 'primereact/avatar';
-import { AuthClient } from "@dfinity/auth-client";
+import { useAuth } from '../Pages/Authentication/Login/AuthContext';
 
 function PrivateMillerLayout({ children, activePage }) {
-    const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const [name, setName] = useState(() => localStorage.getItem('userName') || '');
     const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
     const navigate = useNavigate();
+    const { logout } = useAuth();
 
     const navItems = [
         { text: 'Home', link: '/miller' },
@@ -17,48 +16,13 @@ function PrivateMillerLayout({ children, activePage }) {
         { text: 'History', link: '/miller/history' },
     ];
 
-    useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                const authClient = await AuthClient.create();
-                const identity = authClient.getIdentity();
-                const principal = identity.getPrincipal().toText();
-
-                localStorage.removeItem('userName');
-
-                const res = await fetch(`${apiUrl}/nfapersonnels/principal/${principal}`, {
-                    method: 'GET',
-                    headers: {'Content-Type': 'application/json'}
-                });
-                const data = await res.json();
-                setName(data.firstName);
-
-                localStorage.setItem('userName', data.firstName);
-            } catch (error) {
-                console.log(error.message);
-            }
-        };
-        fetchUser();
-
-        const handleStorageChange = () => {
-            setName(localStorage.getItem('userName') || '');
-        };
-
-        window.addEventListener('storage', handleStorageChange);
-
-        return () => {
-            window.removeEventListener('storage', handleStorageChange);
-        };
-    }, []);
-
     const toggleRightSidebar = () => {
         setIsRightSidebarOpen(!isRightSidebarOpen);
     };
 
     const logoutButton = async () => {
         try {
-            const authClient = await AuthClient.create();
-            await authClient.logout();
+            await logout();
             navigate('/');
         }
         catch (error) {
