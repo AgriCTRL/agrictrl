@@ -54,6 +54,27 @@ const ProtectedRoute = ({ children, allowedUserTypes }) => {
     return children;
 };
 
+const UnauthenticatedRoute = ({ children }) => {
+    const { user } = useAuth();
+    
+    if (user) {
+        switch (user.userType) {
+            case 'admin':
+                return <Navigate to="/admin" replace />;
+            case 'staff':
+                return <Navigate to="/staff" replace />;
+            case 'recipient':
+                return <Navigate to="/recipient" replace />;
+            case 'privateMiller':
+                return <Navigate to="/miller" replace />;
+            default:
+                return <Navigate to="/" replace />;
+        }
+    }
+    
+    return children;
+};
+
 const AuthenticatedRedirect = () => {
     const { user } = useAuth();
     
@@ -80,10 +101,30 @@ function App() {
         <div className="flex h-screen transition-transform duration-300">
             <Routes>
                 <Route path="/" element={<AuthenticatedRedirect />} />
-                <Route path="/register" element={<RegistrationPage />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/forgotpassword" element={<ForgotPassword />} />
-                <Route path="/TnT" element={<TracknTrace />} />
+                
+                {/* Unauthenticated routes */}
+                <Route path="/register" element={
+                    <UnauthenticatedRoute>
+                        <RegistrationPage />
+                    </UnauthenticatedRoute>
+                } />
+                <Route path="/login" element={
+                    <UnauthenticatedRoute>
+                        <LoginPage />
+                    </UnauthenticatedRoute>
+                } />
+                <Route path="/forgotpassword" element={
+                    <UnauthenticatedRoute>
+                        <ForgotPassword />
+                    </UnauthenticatedRoute>
+                } />
+                <Route path="/TnT" element={
+                    <UnauthenticatedRoute>
+                        <TracknTrace />
+                    </UnauthenticatedRoute>
+                } />
+
+                {/* Protected routes */}
                 <Route path="/admin/*" element={
                     <ProtectedRoute allowedUserTypes={['admin']}>
                         <AdminRoutes />
@@ -107,16 +148,6 @@ function App() {
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
         </div>
-    );
-}
-
-function AppWrapper() {
-    return (
-        <Router>
-            <AuthProvider>
-                <App />
-            </AuthProvider>
-        </Router>
     );
 }
 
@@ -165,6 +196,16 @@ function PrivateMillerRoutes() {
             <Route path="facility" element={<PrivateMillerManageMiller />} />
             <Route path="history" element={<PrivateMillerHistory />} />
         </Routes>
+    );
+}
+
+function AppWrapper() {
+    return (
+        <Router>
+            <AuthProvider>
+                <App />
+            </AuthProvider>
+        </Router>
     );
 }
 

@@ -69,7 +69,7 @@ function RecipientLayout({ children, activePage }) {
                                 <p className="font-bold text-primary">
                                     Juan Valencio
                                 </p> 
-                                <p onClick={logoutButton}>
+                                <p onClick={logoutButton} className="cursor-pointer">
                                     Recipient
                                 </p>
                             </div> 

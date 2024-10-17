@@ -20,6 +20,7 @@ const loginUser = async (email, password, userType) => {
       u.email === email && 
       u.password === password && 
       u.userType === userType
+      // && u.isVerified === true
     );
 
     if (user) {
