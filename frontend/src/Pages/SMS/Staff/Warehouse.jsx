@@ -166,7 +166,7 @@ function Warehouse() {
             className={`p-button-sm ring-0 border-none rounded-full ${selectedFilter === filter ? 'p-button-outlined bg-primary text-white' : 'p-button-text text-primary'} flex items-center`} 
             onClick={() => setSelectedFilter(filter)}
         >
-            <span className="ml-2 bg-gray-200 text-gray-700 rounded-full px-2 py-1 text-xs">
+            <span className={`ring-0 border-none rounded-full ml-2 px-1 ${selectedFilter === filter ? 'p-button-outlined bg-gray-200 text-primary' : 'p-button-text text-white bg-primary'} flex items-center`}>
                 {getFilterCount(filter)}
             </span>
         </Button>

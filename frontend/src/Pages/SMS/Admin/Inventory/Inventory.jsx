@@ -78,16 +78,16 @@ function Inventory() {
     // };
 
     const [inventoryData, setInventoryData] = useState([
-        { id: 1, trackingId: '001', dateBought: '2024-03-01', quantity: 1000, qualityType: 'Premium', status: 'Palay', moistureContent: 13, purity: 99, damage: 1, pricePerKg: 20, farmer: 'Pablo Garcia', originFarm: 'Sta. Rosa', currentLocation: '001 Warehouse' },
-        { id: 2, trackingId: '002', dateBought: '2024-03-02', quantity: 1500, qualityType: 'Standard', status: 'Processing', moistureContent: 14, purity: 98, damage: 2, pricePerKg: 18, farmer: 'Juan Dela Cruz', originFarm: 'Sta. Rosa', currentLocation: '002 Dryer' },
-        { id: 3, trackingId: '003', dateBought: '2024-03-03', quantity: 2000, qualityType: 'Premium', status: 'Palay', moistureContent: 13, purity: 99, damage: 1, pricePerKg: 21, farmer: 'Maria Santos', originFarm: 'San Pedro', currentLocation: '003 Warehouse' },
-        { id: 4, trackingId: '004', dateBought: '2024-03-04', quantity: 1800, qualityType: 'Standard', status: 'Rice', moistureContent: 12, purity: 97, damage: 3, pricePerKg: 17, farmer: 'Pedro Reyes', originFarm: 'Biñan', currentLocation: 'Mill 01' },
-        { id: 5, trackingId: '005', dateBought: '2024-03-05', quantity: 2200, qualityType: 'Premium', status: 'Processing', moistureContent: 13, purity: 99, damage: 1, pricePerKg: 22, farmer: 'Ana Lim', originFarm: 'Cabuyao', currentLocation: '001 Warehouse' },
-        { id: 6, trackingId: '001', dateBought: '2024-03-01', quantity: 1000, qualityType: 'Premium', status: 'Palay', moistureContent: 13, purity: 99, damage: 1, pricePerKg: 20, farmer: 'Pablo Garcia', originFarm: 'Sta. Rosa', currentLocation: '001 Warehouse' },
-        { id: 7, trackingId: '002', dateBought: '2024-03-02', quantity: 1500, qualityType: 'Standard', status: 'Processing', moistureContent: 14, purity: 98, damage: 2, pricePerKg: 18, farmer: 'Juan Dela Cruz', originFarm: 'Sta. Rosa', currentLocation: '002 Dryer' },
-        { id: 8, trackingId: '003', dateBought: '2024-03-03', quantity: 2000, qualityType: 'Premium', status: 'Palay', moistureContent: 13, purity: 99, damage: 1, pricePerKg: 21, farmer: 'Maria Santos', originFarm: 'San Pedro', currentLocation: '003 Warehouse' },
-        { id: 9, trackingId: '004', dateBought: '2024-03-04', quantity: 1800, qualityType: 'Standard', status: 'Rice', moistureContent: 12, purity: 97, damage: 3, pricePerKg: 17, farmer: 'Pedro Reyes', originFarm: 'Biñan', currentLocation: 'Mill 01' },
-        { id: 10, trackingId: '005', dateBought: '2024-03-05', quantity: 2200, qualityType: 'Premium', status: 'Palay', moistureContent: 13, purity: 99, damage: 1, pricePerKg: 22, farmer: 'Ana Lim', originFarm: 'Cabuyao', currentLocation: '001 Warehouse' },
+        { id: 1, trackingId: '001', dateBought: '2024-03-01', datePlanted: '2024-03-01', dateHarvested: '2024-03-01', quantityInBags: 1000, grossWeight: 1000, netWeight: 1000,  qualityType: 'Premium', status: 'To be Dry', moistureContent: 13, purity: 99, damage: 1, pricePerKg: 20, farmer: 'Pablo Garcia', originFarm: 'Sta. Rosa', currentLocation: '001 Warehouse' },
+        { id: 2, trackingId: '002', dateBought: '2024-03-02', datePlanted: '2024-03-01', dateHarvested: '2024-03-01', quantityInBags: 1000, grossWeight: 1000, netWeight: 1000, qualityType: 'Standard', status: 'In Drying', moistureContent: 14, purity: 98, damage: 2, pricePerKg: 18, farmer: 'Juan Dela Cruz', originFarm: 'Sta. Rosa', currentLocation: '002 Dryer' },
+        { id: 3, trackingId: '003', dateBought: '2024-03-03', datePlanted: '2024-03-01', dateHarvested: '2024-03-01', quantityInBags: 1000, grossWeight: 1000, netWeight: 1000, qualityType: 'Premium', status: 'To be Mill', moistureContent: 13, purity: 99, damage: 1, pricePerKg: 21, farmer: 'Maria Santos', originFarm: 'San Pedro', currentLocation: '003 Warehouse' },
+        { id: 4, trackingId: '004', dateBought: '2024-03-04', datePlanted: '2024-03-01', dateHarvested: '2024-03-01', quantityInBags: 1000, grossWeight: 1000, netWeight: 1000, qualityType: 'Standard', status: 'Milled', moistureContent: 12, purity: 97, damage: 3, pricePerKg: 17, farmer: 'Pedro Reyes', originFarm: 'Biñan', currentLocation: 'Mill 01' },
+        { id: 5, trackingId: '005', dateBought: '2024-03-05', datePlanted: '2024-03-01', dateHarvested: '2024-03-01', quantityInBags: 1000, grossWeight: 1000, netWeight: 1000, qualityType: 'Premium', status: 'To be Dry', moistureContent: 13, purity: 99, damage: 1, pricePerKg: 22, farmer: 'Ana Lim', originFarm: 'Cabuyao', currentLocation: '001 Warehouse' },
+        { id: 6, trackingId: '001', dateBought: '2024-03-01', datePlanted: '2024-03-01', dateHarvested: '2024-03-01', quantityInBags: 1000, grossWeight: 1000, netWeight: 1000, qualityType: 'Premium', status: 'In Drying', moistureContent: 13, purity: 99, damage: 1, pricePerKg: 20, farmer: 'Pablo Garcia', originFarm: 'Sta. Rosa', currentLocation: '001 Warehouse' },
+        { id: 7, trackingId: '002', dateBought: '2024-03-02', datePlanted: '2024-03-01', dateHarvested: '2024-03-01', quantityInBags: 1000, grossWeight: 1000, netWeight: 1000, qualityType: 'Standard', status: 'To be Mill', moistureContent: 14, purity: 98, damage: 2, pricePerKg: 18, farmer: 'Juan Dela Cruz', originFarm: 'Sta. Rosa', currentLocation: '002 Dryer' },
+        { id: 8, trackingId: '003', dateBought: '2024-03-03', datePlanted: '2024-03-01', dateHarvested: '2024-03-01', quantityInBags: 1000, grossWeight: 1000, netWeight: 1000, qualityType: 'Premium', status: 'Milled', moistureContent: 13, purity: 99, damage: 1, pricePerKg: 21, farmer: 'Maria Santos', originFarm: 'San Pedro', currentLocation: '003 Warehouse' },
+        { id: 9, trackingId: '004', dateBought: '2024-03-04', datePlanted: '2024-03-01', dateHarvested: '2024-03-01', quantityInBags: 1000, grossWeight: 1000, netWeight: 1000, qualityType: 'Standard', status: 'To be Dry', moistureContent: 12, purity: 97, damage: 3, pricePerKg: 17, farmer: 'Pedro Reyes', originFarm: 'Biñan', currentLocation: 'Mill 01' },
+        { id: 10, trackingId: '005', dateBought: '2024-03-05', datePlanted: '2024-03-01', dateHarvested: '2024-03-01', quantityInBags: 1000, grossWeight: 1000, netWeight: 1000, qualityType: 'Premium', status: 'In Milling', moistureContent: 13, purity: 99, damage: 1, pricePerKg: 22, farmer: 'Ana Lim', originFarm: 'Cabuyao', currentLocation: '001 Warehouse' },
     ]);
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [filters, setFilters] = useState({
@@ -96,12 +96,19 @@ function Inventory() {
 
     const getSeverity = (status) => {
         switch (status.toLowerCase()) {
-            case 'palay': return 'success';
-            case 'processing': return 'info';
-            case 'rice': return 'warning';
-            default: return 'secondary';
+          case 'to be dry': return 'warning';
+          case 'in drying': return 'info';
+          case 'to be mill': return 'warning';
+          case 'in milling': return 'info';
+          case 'milled': return 'success';
+          default: return 'danger';
         }
-    };
+        // sucess - green
+        // info - blue
+        // warning - orange
+        // danger - red 
+        // primary - cyan
+      };
     
     const statusBodyTemplate = (rowData) => (
         <Tag 
@@ -165,12 +172,16 @@ function Inventory() {
                             emptyMessage="No inventory found."
                             paginator
                             rows={30}
-                            tableStyle={{ minWidth: '2300px' }}
+                            tableStyle={{ minWidth: '3100px' }}
                         >
                             <Column field="trackingId" header="Tracking ID" className="text-center" headerClassName="text-center" />
                             <Column field="id" header="Batch ID" className="text-center" headerClassName="text-center" />
+                            <Column field="datePlanted" header="Date Planted" className="text-center" headerClassName="text-center" />
+                            <Column field="dateHarvested" header="Date Harvested" className="text-center" headerClassName="text-center" />
                             <Column field="dateBought" header="Date Bought" className="text-center" headerClassName="text-center" />
-                            <Column field="quantity" header="Quantity" className="text-center" headerClassName="text-center" />
+                            <Column field="quantityInBags" header="Quantity in Bags" className="text-center" headerClassName="text-center" />
+                            <Column field="grossWeight" header="Gross Weight" className="text-center" headerClassName="text-center" />
+                            <Column field="netWeight" header="Net Weight" className="text-center" headerClassName="text-center" />
                             <Column field="qualityType" header="Quality Type" className="text-center" headerClassName="text-center" />
                             <Column field="moistureContent" header="Moisture Content" className="text-center" headerClassName="text-center" />
                             <Column field="purity" header="Purity" className="text-center" headerClassName="text-center" />
