@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import CardComponent from '@/Components/CardComponent';
-import { Divider } from 'primereact/divider';
+
 import { 
-    Wheat, 
-    HeartHandshake,
-    Tractor,
-    Building2
+    Warehouse
 } from "lucide-react";
+
+import Stats from '@/Components/Admin/Dashboard/Stats';
+import PalayInventory from '@/Components/Admin/Dashboard/PalayInventory';
+import UserDemographic from '@/Components/Admin/Dashboard/UserDemographic';
+import MillingCapacity from '@/Components/Admin/Dashboard/MillingCapacity';
+import NfaFacilities from '@/Components/Admin/Dashboard/NfaFacilities';
+
 function Dashboard() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const [riceBatchesCount, setRiceBatchesCount] = useState(0);
-    const [tradersCount, setTradersCount] = useState(0);
     const [warehousesCount, setWarehousesCount] = useState(0);
     const [dryersCount, setDryersCount] = useState(0);
     const [millersCount, setMillersCount] = useState(0);
@@ -26,7 +28,7 @@ function Dashboard() {
                     headers: { 'Content-Type': 'application/json'}
                 });
                 const data = await res.json();
-                setRiceBatchesCount(data);
+                stats.find((item) => item.label === "Total Rice").count = data;
             }
             catch (error) {
                 console.log(error.message);
@@ -40,6 +42,7 @@ function Dashboard() {
                 });
                 const data = await res.json();
                 setTradersCount(data);
+                stats.find((item) => item.label === "Total Palay").count = data;
             }
             catch (error) {
                 console.log(error.message);
@@ -93,39 +96,38 @@ function Dashboard() {
 
     return (
         <AdminLayout activePage="Dashboard">
-            <CardComponent>
-                <CardComponent className='flex-1 flex-col gap-4 justify-center'>
-                    <div className='flex gap-4 text-black'>
-                        <Wheat />
-                        <p className='font-bold'>Rice Tracked</p>
-                    </div>
-                    <h1 className='text-heading text-primary text-center font-bold'>{riceBatchesCount}</h1>
-                </CardComponent>
-                <Divider className='bg-lightest-grey w-px my-4' layout='vertical'/>
-                <CardComponent className='flex-1 flex-col gap-4 justify-center'>
-                    <div className='flex gap-4 text-black'>
-                        <HeartHandshake />
-                        <p className='font-bold'>Personnels</p>
-                    </div>
-                    <h1 className='text-heading text-primary text-center font-bold'>{tradersCount}</h1>
-                </CardComponent>
-                <Divider className='bg-lightest-grey w-px my-4' layout='vertical'/>
-                <CardComponent className='flex-1 flex-col gap-4 justify-center'>
-                    <div className='flex gap-4 text-black'>
-                        <Tractor />
-                        <p className='font-bold'>Farmers</p>
-                    </div>
-                    <h1 className='text-heading text-primary text-center font-bold'>0</h1>
-                </CardComponent>
-                <Divider className='bg-lightest-grey w-px my-4' layout='vertical'/>
-                <CardComponent className='flex-1 flex-col gap-4 justify-center'>
-                    <div className='flex gap-4 text-black'>
-                        <Building2 />
-                        <p className='font-bold'>Facilities</p>
-                    </div>
-                    <h1 className='text-heading text-primary text-center font-bold'>{facilitiesCount}</h1>
-                </CardComponent>
-            </CardComponent>
+            <div className="flex flex-col gap-8">
+                <Stats stats={null} />
+
+                <div className='grid grid-flow-col grid-rows-3 grid-cols-3 gap-4'>
+                    <PalayInventory />
+
+                    <CardComponent className="col-start-3 col-end-4 row-start-1 row-end-2 bg-gradient-to-t from-secondary to-primary">
+                        <CardComponent className="w-full flex-col gap-4">
+                        </CardComponent>
+                    </CardComponent>
+                    
+                    <MillingCapacity />
+
+                    <UserDemographic />
+
+                    <NfaFacilities />
+                    
+                    <CardComponent className="bg-white transition hover:shadow-lg row-start-2 row-end-4">
+                        <CardComponent className="bg-white w-full flex-col gap-4">
+                            <div className='w-full flex justify-between'>
+                                <div className="title flex gap-4 text-black">
+                                    <Warehouse size={20}/>
+                                    <p className='font-bold'>Warehouse Capacity</p>
+                                </div>
+                            </div>
+                            <div className='graph'>
+
+                            </div>
+                        </CardComponent>
+                    </CardComponent>
+                </div>
+            </div>
         </AdminLayout>
     );
 }
