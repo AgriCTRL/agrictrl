@@ -137,7 +137,7 @@ function AdminLayout({ children, activePage }) {
                 />
 
                 {/* Content with remaining space */}
-                <main className="flex-1 overflow-auto">
+                <main className="flex-1 overflow-auto mb-10">
                     {children}
                 </main>
             </div>
