@@ -6,9 +6,39 @@ import { Button } from 'primereact/button';
 import { Wheat, Link, Map, FileStack, MapPinned, Facebook, Mail, Linkedin} from 'lucide-react';
 import CustomPasswordInput from '../../../Components/Form/PasswordComponent';
 import { useAuth } from './AuthContext';
+import { AuthClient } from "@dfinity/auth-client";
 
 // Login function
 const loginUser = async (email, password, userType) => {
+  const authClient = await AuthClient.create();
+  
+  const identityLogIn = async () => {
+    const width = 500;
+    const height = 500;
+    const left = (window.screen.width / 2) - (width / 2);
+    const top = (window.screen.height / 2) - (height / 2) - 25;
+    await new Promise((resolve, reject) => {
+      authClient.login({
+          identityProvider: 'http://be2us-64aaa-aaaaa-qaabq-cai.localhost:4943/',
+          onSuccess: resolve,
+          onError: reject,
+          windowOpenerFeatures: `width=${width},height=${height},left=${left},top=${top}`
+      });
+    });
+  }
+
+  const getPrincipal = async () => {
+    try {
+        const isAuthenticated = await authClient.isAuthenticated();
+        if (isAuthenticated) {
+            const identity = authClient.getIdentity();
+            return identity.getPrincipal().toText();
+        }
+    } catch (error) {
+        console.log(error.message);
+    }
+  };
+  
   try {
     const response = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/users');
     if (!response.ok) {
@@ -24,6 +54,30 @@ const loginUser = async (email, password, userType) => {
     );
 
     if (user) {
+      if(userType === 'admin') {
+        await identityLogIn();
+        const newPrincipal = await getPrincipal();
+
+        if (newPrincipal) {
+          if (user.principal === null) {
+            const res = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/users/update', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ id: user.id, principal: newPrincipal })
+            });
+
+            if (!res.ok) {
+              throw new Error('Failed to update user principal');
+            }
+            
+            user.principal = newPrincipal;
+          } else if (user.principal !== newPrincipal) {
+            return { success: false, message: 'Principal mismatch' };
+          }
+        } else {
+          return { success: false, message: 'Failed to get principal' };
+        }
+      }
       return { success: true, user };
     } else {
       return { success: false, message: 'Invalid credentials' };
