@@ -12,7 +12,7 @@ function StaffLayout({ children, activePage }) {
 
     const navItems = [
         { text: 'Home', link: '/staff' },
-        { text: 'Buy Palay', link: '/staff/buy' },
+        { text: 'Procurement', link: '/staff/buy' },
         { text: 'Warehouse', link: '/staff/warehouse' },
         { text: 'Processing', link: '/staff/processing' },
         { text: 'Orders', link: '/staff/orders' },

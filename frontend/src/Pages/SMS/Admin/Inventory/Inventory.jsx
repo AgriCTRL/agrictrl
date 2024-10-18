@@ -96,11 +96,11 @@ function Inventory() {
 
     const getSeverity = (status) => {
         switch (status.toLowerCase()) {
-          case 'to be dry': return 'warning';
-          case 'in drying': return 'info';
-          case 'to be mill': return 'warning';
+          case 'to be dry': return 'success';
+          case 'in drying': return 'success';
+          case 'to be mill': return 'info';
           case 'in milling': return 'info';
-          case 'milled': return 'success';
+          case 'milled': return 'primary';
           default: return 'danger';
         }
         // sucess - green

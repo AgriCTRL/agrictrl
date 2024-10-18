@@ -5,6 +5,8 @@ import { Dropdown } from 'primereact/dropdown';
 import { Button } from 'primereact/button';
 import { Wheat, Link, Map, FileStack, MapPinned, Facebook, Mail, Linkedin} from 'lucide-react';
 import CustomPasswordInput from '../../../Components/Form/PasswordComponent';
+import { Password } from 'primereact/password';
+import { Divider } from 'primereact/divider';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -42,6 +44,19 @@ const LoginPage = () => {
 		e.preventDefault();   
     navigate('/forgotpassword');
   }
+
+  const footer = (
+		<>
+			<Divider />
+			<p className="mt-2">Suggestions</p>
+			<ul className="pl-2 ml-2 mt-0 line-height-3">
+				<li>At least one lowercase</li>
+				<li>At least one uppercase</li>
+				<li>At least one numeric</li>
+				<li>Minimum 8 characters</li>
+			</ul>
+		</>
+	);
 
   return (
     <div className="h-screen w-screen flex flex-row">
@@ -86,12 +101,15 @@ const LoginPage = () => {
 
 					<div className="mb-4 w-full">
 						<label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-700">Password</label>
-						<CustomPasswordInput 
-							id="password" 
-							value={password} 
-							onChange={(e) => setPassword(e.target.value)} 
-							placeholder="Enter your password" 
-							className="focus:border-[#14b8a6] hover:border-[#14b8a6] w-full p-inputtext-sm p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+						<Password
+							id="password"
+							value={password}
+							footer={footer}
+							toggleMask 
+							feedback={false}
+							onChange={(e) => setPassword(e.target.value)}
+							placeholder="Enter your password"
+							inputClassName='w-full ring-0'
 						/>
 					</div>
 
