@@ -55,15 +55,8 @@ function PrivateMillerLayout({ children, activePage }) {
         setIsRightSidebarOpen(!isRightSidebarOpen);
     };
 
-    const logoutButton = async () => {
-        try {
-            const authClient = await AuthClient.create();
-            await authClient.logout();
-            navigate('/');
-        }
-        catch (error) {
-            console.log(error.message);
-        }
+    const profileClick = () => {
+        navigate('/miller/profile');
     }
 
     return (
@@ -98,13 +91,14 @@ function PrivateMillerLayout({ children, activePage }) {
                                 image="/profileAvatar.png"
                                 size="large" 
                                 shape="circle"
+                                onClick={profileClick}
                                 className="cursor-pointer border-primary border-2"
                             />
                             <div>
                                 <p className="font-bold text-primary">
                                     Juan Valencio
                                 </p> 
-                                <p onClick={logoutButton}>
+                                <p>
                                     Private Miller
                                 </p>
                             </div> 

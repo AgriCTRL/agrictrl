@@ -4,7 +4,6 @@ import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { Button } from 'primereact/button';
 import { Wheat, Link, Map, FileStack, MapPinned, Facebook, Mail, Linkedin} from 'lucide-react';
-import CustomPasswordInput from '../../../Components/Form/PasswordComponent';
 import { Password } from 'primereact/password';
 import { Divider } from 'primereact/divider';
 

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Bell } from 'lucide-react';
 import { Avatar } from 'primereact/avatar';
-import { Divider } from 'primereact/divider';
 import { AuthClient } from "@dfinity/auth-client";
 
 function RecipientLayout({ children, activePage }) {
@@ -56,15 +55,8 @@ function RecipientLayout({ children, activePage }) {
         setIsRightSidebarOpen(!isRightSidebarOpen);
     };
 
-    const logoutButton = async () => {
-        try {
-            const authClient = await AuthClient.create();
-            await authClient.logout();
-            navigate('/');
-        }
-        catch (error) {
-            console.log(error.message);
-        }
+    const profileClick = () => {
+        navigate('/recipient/profile');
     }
 
     return (
@@ -99,13 +91,14 @@ function RecipientLayout({ children, activePage }) {
                                 image="/profileAvatar.png"
                                 size="large" 
                                 shape="circle"
+                                onClick={profileClick}
                                 className="cursor-pointer border-primary border-2"
                             />
                             <div>
                                 <p className="font-bold text-primary">
                                     Juan Valencio
                                 </p> 
-                                <p onClick={logoutButton}>
+                                <p>
                                     Recipient
                                 </p>
                             </div> 
