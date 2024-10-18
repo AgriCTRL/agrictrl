@@ -11,6 +11,7 @@ import { AuthClient } from "@dfinity/auth-client";
 // Login function
 const loginUser = async (email, password, userType) => {
   const authClient = await AuthClient.create();
+  const apiUrl = import.meta.env.VITE_API_BASE_URL;
   
   const identityLogIn = async () => {
     const width = 500;
@@ -40,7 +41,7 @@ const loginUser = async (email, password, userType) => {
   };
   
   try {
-    const response = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/users');
+    const response = await fetch(`${apiUrl}/users`);
     if (!response.ok) {
       throw new Error('Failed to fetch users');
     }
@@ -60,7 +61,7 @@ const loginUser = async (email, password, userType) => {
 
         if (newPrincipal) {
           if (user.principal === null) {
-            const res = await fetch('http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/users/update', {
+            const res = await fetch(`${apiUrl}/users/update`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ id: user.id, principal: newPrincipal })
