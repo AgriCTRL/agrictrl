@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Bell } from 'lucide-react';
 import { Avatar } from 'primereact/avatar';
-import { AuthClient } from "@dfinity/auth-client";
+import { Divider } from 'primereact/divider';
+import { useAuth } from '../Pages/Authentication/Login/AuthContext';
 
 function RecipientLayout({ children, activePage }) {
-    const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const [name, setName] = useState(() => localStorage.getItem('userName') || '');
     const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
     const navigate = useNavigate();
+    const { logout } = useAuth();
 
     const navItems = [
         { text: 'Home', link: '/recipient' },
@@ -16,40 +16,6 @@ function RecipientLayout({ children, activePage }) {
         { text: 'Rice Receive', link: '/recipient/receive' },
         { text: 'History', link: '/recipient/history' }
     ];
-
-    useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                const authClient = await AuthClient.create();
-                const identity = authClient.getIdentity();
-                const principal = identity.getPrincipal().toText();
-
-                localStorage.removeItem('userName');
-
-                const res = await fetch(`${apiUrl}/nfapersonnels/principal/${principal}`, {
-                    method: 'GET',
-                    headers: {'Content-Type': 'application/json'}
-                });
-                const data = await res.json();
-                setName(data.firstName);
-
-                localStorage.setItem('userName', data.firstName);
-            } catch (error) {
-                console.log(error.message);
-            }
-        };
-        fetchUser();
-
-        const handleStorageChange = () => {
-            setName(localStorage.getItem('userName') || '');
-        };
-
-        window.addEventListener('storage', handleStorageChange);
-
-        return () => {
-            window.removeEventListener('storage', handleStorageChange);
-        };
-    }, []);
 
     const toggleRightSidebar = () => {
         setIsRightSidebarOpen(!isRightSidebarOpen);

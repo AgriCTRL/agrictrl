@@ -51,42 +51,42 @@ const sidebarItems = [
 ];
  
 function AdminLayout({ children, activePage }) {
-    const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const [name, setName] = useState(() => localStorage.getItem('userName') || '');
+    // const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    // const [name, setName] = useState(() => localStorage.getItem('userName') || '');
 
-    useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                const authClient = await AuthClient.create();
-                const identity = authClient.getIdentity();
-                const principal = identity.getPrincipal().toText();
+    // useEffect(() => {
+    //     const fetchUser = async () => {
+    //         try {
+    //             const authClient = await AuthClient.create();
+    //             const identity = authClient.getIdentity();
+    //             const principal = identity.getPrincipal().toText();
 
-                localStorage.removeItem('userName');
+    //             localStorage.removeItem('userName');
 
-                const res = await fetch(`${apiUrl}/nfapersonnels/principal/${principal}`, {
-                    method: 'GET',
-                    headers: {'Content-Type': 'application/json'}
-                });
-                const data = await res.json();
-                setName(data.firstName);
+    //             const res = await fetch(`${apiUrl}/nfapersonnels/principal/${principal}`, {
+    //                 method: 'GET',
+    //                 headers: {'Content-Type': 'application/json'}
+    //             });
+    //             const data = await res.json();
+    //             setName(data.firstName);
 
-                localStorage.setItem('userName', data.firstName);
-            } catch (error) {
-                console.log(error.message);
-            }
-        };
-        fetchUser();
+    //             localStorage.setItem('userName', data.firstName);
+    //         } catch (error) {
+    //             console.log(error.message);
+    //         }
+    //     };
+    //     fetchUser();
 
-        const handleStorageChange = () => {
-            setName(localStorage.getItem('userName') || '');
-        };
+    //     const handleStorageChange = () => {
+    //         setName(localStorage.getItem('userName') || '');
+    //     };
 
-        window.addEventListener('storage', handleStorageChange);
+    //     window.addEventListener('storage', handleStorageChange);
 
-        return () => {
-            window.removeEventListener('storage', handleStorageChange);
-        };
-    }, []);
+    //     return () => {
+    //         window.removeEventListener('storage', handleStorageChange);
+    //     };
+    // }, []);
 
     const [expanded, setExpanded] = useState(() => {
         const storedState = localStorage.getItem('sidebarExpanded');

@@ -25,6 +25,19 @@ const PersonalInformation = () => {
     }
   };
 
+  const handleDateChange = (e) => {
+    const selectedDate = e.value;
+    if (selectedDate) {
+      const offset = selectedDate.getTimezoneOffset();
+      const adjustedDate = new Date(selectedDate.getTime() - (offset * 60 * 1000));
+
+      const formattedDate = adjustedDate.toISOString().split('T')[0];
+      handleInputChange('birthDate', formattedDate);
+    } else {
+      handleInputChange('birthDate', null);
+    }
+  };
+
   return (
     <form className="h-full w-full px-16">
       <h2 className="text-4xl font-medium mb-6 text-secondary">Personal Information</h2>
@@ -68,8 +81,9 @@ const PersonalInformation = () => {
           <label htmlFor="birthDate" className="block mb-2 text-sm font-medium text-gray-700">Birth Date</label>
           <Calendar 
             id="birthDate" 
-            value={birthDate} 
-            onChange={(e) => handleInputChange('birthDate', e.value)}
+            value={birthDate ? new Date(birthDate) : null} 
+            onChange={handleDateChange} 
+            dateFormat="mm/dd/yy"
             placeholder="MM/DD/YYYY" 
             className="rig-0 w-full placeholder:text-gray-400 focus:shadow-none custom-calendar" 
             showIcon/>

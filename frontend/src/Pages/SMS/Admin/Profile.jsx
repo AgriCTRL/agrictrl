@@ -6,118 +6,311 @@ import { Calendar } from 'primereact/calendar';
 import { Button } from 'primereact/button';
 
 import CustomPasswordInput from '../../../Components/Form/PasswordComponent'; 
+import { useAuth } from '../../Authentication/Login/AuthContext';
 
 function Profile() {
-    // const apiUrl = import.meta.env.VITE_API_BASE_URL;
-
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    const { user } = useAuth();
     const [activeTab, setActiveTab] = useState('personal');
     const [editing, setEditing] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [userData, setUserData] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
 
-    // Static data for testing
-    const [userData, setUserData] = useState({
-        personalInfo: {
-            firstName: 'John',
-            lastName: 'Doe',
-            gender: 'male',
-            birthDate: new Date('1990-01-01'),
-            contactNumber: '09123456789',
-        },
-        accountDetails: {
-            userType: 'nfaBranchStaff',
-            organizationName: 'NFA Branch Office',
-            jobTitle: 'Manager',
-            region: 'region1',
-            branchOffice: 'office1',
-        },
-        officeAddress: {
-            region: 'region1',
-            province: 'province1',
-            cityTown: 'city1',
-            barangay: 'barangay1',
-            street: '#123 Sample Street',
-        },
-        passwordInfo: {
-            email: 'john.doe@example.com',
-            password: 'asdasd123',
-            confirmPassword: 'asdasd123',
-        },
-    });
+    const [regionOptions, setRegionOptions] = useState([]);
+    const [provinceOptions, setProvinceOptions] = useState([]);
+    const [cityTownOptions, setCityTownOptions] = useState([]);
+    const [barangayOptions, setBarangayOptions] = useState([]);
 
-    // useEffect(() => {
-    //     const fetchUser = async () => {
-    //         try {
-    //             const authClient = await AuthClient.create();
-    //             const identity = authClient.getIdentity();
-    //             const principal = identity.getPrincipal().toText();
-    //             const res = await fetch(`${apiUrl}/nfapersonnels/principal/${principal}`, {
-    //                 method: 'GET',
-    //                 headers: { 'Content-Type': 'application/json' }
-    //             });
-    //             const data = await res.json();
-    //             setId(data.id);
-    //             setFirstName(data.firstName);
-    //             setLastName(data.lastName);
-    //             setPosition(data.position);
-    //             setRegion(data.region);
-    //         } catch (error) {
-    //             console.log(error.message);
-    //         }
-    //     };
-    //     fetchUser();
-    // }, []);
+    const [branchRegionOptions, setBranchRegionOptions] = useState([]);
+    const [branchOfficeOptions, setBranchOfficeOptions] = useState([]);
 
-    const genderOptions = [
-        { label: 'Male', value: 'male' },
-        { label: 'Female', value: 'female' },
-        { label: 'Other', value: 'other' }
-    ];
+    useEffect(() => {
+        fetchData();
+        fetchRegions();
+    }, []);
 
-    const userTypeOptions = [
-        { label: 'NFA Branch Staff', value: 'nfaBranchStaff' },
-        { label: 'Private Miller', value: 'privateMiller' },
-        { label: 'Rice Recipient', value: 'riceRecipient' }
-    ];
-    
-    const  accountRegionOptions = [
-        { label: 'Region 1', value: 'region1' },
-        { label: 'Region 2', value: 'region2' },
-        { label: 'Region 3', value: 'region3' }
-    ];
-    
-    const branchOfficeOptions = [
-        { label: 'Office 1', value: 'office1' },
-        { label: 'Office 2', value: 'office2' },
-        { label: 'Office 3', value: 'office3' }
-    ];
+    useEffect(() => {
+        if (userData && userData.officeAddress.region) {
+            const selectedRegion = regionOptions.find(r => r.value === userData.officeAddress.region);
+            if (selectedRegion && selectedRegion.code === '130000000') {
+                fetchCities(selectedRegion.code);
+            } else if (selectedRegion) {
+                fetchProvinces(selectedRegion.code);
+            }
+        }
+    }, [userData?.officeAddress.region, regionOptions]);
 
-    const officeRegionOptions = [
-        { label: 'Region 1', value: 'region1' },
-        { label: 'Region 2', value: 'region2' },
-        { label: 'Region 3', value: 'region3' }
-    ];
-    
-    const provinceOptions = [
-        { label: 'Province 1', value: 'province1' },
-        { label: 'Province 2', value: 'province2' },
-        { label: 'Province 3', value: 'province3' }
-    ];
-    
-    const cityOptions = [
-        { label: 'City 1', value: 'city1' },
-        { label: 'City 2', value: 'city2' },
-        { label: 'City 3', value: 'city3' }
-    ];
-    
-    const barangayOptions = [
-        { label: 'Barangay 1', value: 'barangay1' },
-        { label: 'Barangay 2', value: 'barangay2' },
-        { label: 'Barangay 3', value: 'barangay3' }
-    ];
+    useEffect(() => {
+        if (userData && userData.officeAddress.province) {
+            const selectedProvince = provinceOptions.find(p => p.value === userData.officeAddress.province);
+            if (selectedProvince) {
+                fetchCities(selectedProvince.code);
+            }
+        }
+    }, [userData?.officeAddress.province, provinceOptions]);
 
-    const getUserTypeLabel = (value) => {
-        const option = userTypeOptions.find(option => option.value === value);
-        return option ? option.label : value;
+    useEffect(() => {
+        if (userData && userData.officeAddress.cityTown) {
+            const selectedCity = cityTownOptions.find(c => c.value === userData.officeAddress.cityTown);
+            if (selectedCity) {
+                fetchBarangays(selectedCity.code);
+            }
+        }
+    }, [userData?.officeAddress.cityTown, cityTownOptions]);
+
+    useEffect(() => {
+        if (userData && userData.accountDetails.branchRegion) {
+            const selectedRegion = branchRegionOptions.find(r => r.value === userData.accountDetails.branchRegion);
+            if (selectedRegion && selectedRegion.code === '130000000') {
+                fetchBranchCities();
+            } else if (selectedRegion) {
+                fetchBranchProvinces(selectedRegion.code);
+            }
+        }
+    }, [userData?.accountDetails.branchRegion, branchRegionOptions]);
+
+    const fetchData = async () => {
+        try {
+            const res = await fetch(`${apiUrl}/users/${user.id}`);
+            const data = await res.json();
+            setUserData({
+                personalInfo: {
+                    firstName: data.firstName,
+                    lastName: data.lastName,
+                    gender: data.gender,
+                    birthDate: data.birthDate ? new Date(data.birthDate) : null,
+                    contactNumber: data.contactNumber
+                },
+                accountDetails: {
+                    userType: data.userType,
+                    organizationName: data.organizationName,
+                    jobTitlePosition: data.jobTitlePosition,
+                    branchRegion: data.branchRegion,
+                    branchOffice: data.branchOffice,
+                },
+                officeAddress: {
+                    region: data.officeAddress.region,
+                    province: data.officeAddress.province,
+                    cityTown: data.officeAddress.cityTown,
+                    barangay: data.officeAddress.barangay,
+                    street: data.officeAddress.street,
+                },
+                passwordInfo: {
+                    email: data.email,
+                    password: null,
+                    confirmPassword: null
+                }
+            });
+        } catch (error) {
+            console.error(error.message);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const fetchRegions = async () => {
+        try {
+            const res = await fetch('https://psgc.gitlab.io/api/regions/');
+            const data = await res.json();
+            const regions = data.map(region => ({
+                label: region.regionName,
+                value: region.regionName,
+                code: region.code
+            }));
+            setRegionOptions(regions);
+            setBranchRegionOptions(regions);
+        } catch (error) {
+            console.error('Error fetching regions:', error);
+        }
+    };
+
+    const fetchProvinces = async (regionCode) => {
+        try {
+            const res = await fetch(`https://psgc.gitlab.io/api/regions/${regionCode}/provinces/`);
+            const data = await res.json();
+            const provinces = data.map(province => ({
+                label: province.name,
+                value: province.name,
+                code: province.code
+            }));
+            setProvinceOptions(provinces);
+            setCityTownOptions([]);
+            setBarangayOptions([]);
+        } catch (error) {
+            console.error('Error fetching provinces:', error);
+        }
+    };
+
+    const fetchCities = async (code) => {
+        try {
+            const endpoint = `https://psgc.gitlab.io/api/${code === '130000000' ? 'regions' : 'provinces'}/${code}/cities-municipalities/`;
+            const res = await fetch(endpoint);
+            const data = await res.json();
+            const cities = data.map(city => ({
+                label: city.name,
+                value: city.name,
+                code: city.code
+            }));
+            setCityTownOptions(cities);
+            setBarangayOptions([]);
+        } catch (error) {
+            console.error('Error fetching cities:', error);
+        }
+    };
+
+    const fetchBarangays = async (cityOrMunicipalityCode) => {
+        try {
+            const res = await fetch(`https://psgc.gitlab.io/api/cities-municipalities/${cityOrMunicipalityCode}/barangays/`);
+            const data = await res.json();
+            const barangays = data.map(barangay => ({
+                label: barangay.name,
+                value: barangay.name,
+                code: barangay.code
+            }));
+            setBarangayOptions(barangays);
+        } catch (error) {
+            console.error('Error fetching barangays:', error);
+        }
+    };
+
+    const fetchBranchProvinces = async (regionCode) => {
+        try {
+            const res = await fetch(`https://psgc.gitlab.io/api/regions/${regionCode}/provinces/`);
+            const data = await res.json();
+            const provinces = data.map(province => ({
+                label: province.name,
+                value: province.name,
+                code: province.code
+            }));
+            setBranchOfficeOptions(provinces);
+        } catch (error) {
+            console.error('Error fetching branch provinces:', error);
+        }
+    };
+
+    const fetchBranchCities = async () => {
+        try {
+            const res = await fetch('https://psgc.gitlab.io/api/regions/130000000/cities/');
+            const data = await res.json();
+            const cities = data.map(city => ({
+                label: city.name,
+                value: city.name,
+                code: city.code
+            }));
+            setBranchOfficeOptions(cities);
+        } catch (error) {
+            console.error('Error fetching branch cities:', error);
+        }
+    };
+
+    const handleInputChange = (section, field, value) => {
+        if (section === 'officeAddress') {
+            if (field === 'region') {
+                const selectedRegion = regionOptions.find(r => r.value === value);
+                setUserData(prev => ({
+                    ...prev,
+                    officeAddress: {
+                        ...prev.officeAddress,
+                        region: value,
+                        province: '',
+                        cityTown: '',
+                        barangay: ''
+                    }
+                }));
+                if (selectedRegion) {
+                    if (selectedRegion.code === '130000000') {
+                        setProvinceOptions([]);
+                        fetchCities(selectedRegion.code);
+                    } else {
+                        fetchProvinces(selectedRegion.code);
+                    }
+                }
+                setCityTownOptions([]);
+                setBarangayOptions([]);
+            } else if (field === 'province') {
+                const selectedProvince = provinceOptions.find(p => p.value === value);
+                setUserData(prev => ({
+                    ...prev,
+                    officeAddress: {
+                        ...prev.officeAddress,
+                        province: value,
+                        cityTown: '',
+                        barangay: ''
+                    }
+                }));
+                if (selectedProvince) {
+                    fetchCities(selectedProvince.code);
+                }
+                setCityTownOptions([]);
+                setBarangayOptions([]);
+            } else if (field === 'cityTown') {
+                const selectedCity = cityTownOptions.find(c => c.value === value);
+                setUserData(prev => ({
+                    ...prev,
+                    officeAddress: {
+                        ...prev.officeAddress,
+                        cityTown: value,
+                        barangay: ''
+                    }
+                }));
+                if (selectedCity) {
+                    fetchBarangays(selectedCity.code);
+                }
+                setBarangayOptions([]);
+            } else {
+                setUserData(prev => ({
+                    ...prev,
+                    officeAddress: {
+                        ...prev.officeAddress,
+                        [field]: value
+                    }
+                }));
+            }
+        } else if (section === 'accountDetails' && field === 'branchRegion') {
+            const selectedRegion = branchRegionOptions.find(r => r.value === value);
+            setUserData(prev => ({
+                ...prev,
+                accountDetails: {
+                    ...prev.accountDetails,
+                    branchRegion: value,
+                    branchOffice: ''
+                }
+            }));
+            if (selectedRegion) {
+                if (selectedRegion.code === '130000000') {
+                    fetchBranchCities();
+                } else {
+                    fetchBranchProvinces(selectedRegion.code);
+                }
+            }
+        } else if (section === 'personalInfo' && field === 'birthDate') {
+            const handleDateChange = (value) => {
+                if (value) {
+                    const offset = value.getTimezoneOffset();
+                    const adjustedDate = new Date(value.getTime() - (offset * 60 * 1000));
+                    const formattedDate = adjustedDate.toISOString().split('T')[0];
+                    return formattedDate;
+                }
+                return null;
+            };
+            
+            setUserData(prev => ({
+                ...prev,
+                personalInfo: {
+                    ...prev.personalInfo,
+                    birthDate: handleDateChange(value)
+                }
+            }));
+        } else {
+            setUserData(prev => ({
+                ...prev,
+                [section]: {
+                    ...prev[section],
+                    [field]: value
+                }
+            }));
+        }
     };
 
     const handleToggleEdit = () => {
@@ -127,15 +320,90 @@ function Profile() {
     const handleSave = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
-
+    
         try {
-            console.log('Saving user data:', userData);
+            // Prepare user data
+            const userUpdateData = {
+                id: user.id,
+                firstName: userData.personalInfo.firstName,
+                lastName: userData.personalInfo.lastName,
+                gender: userData.personalInfo.gender,
+                birthDate: userData.personalInfo.birthDate,
+                contactNumber: userData.personalInfo.contactNumber,
+                userType: userData.accountDetails.userType,
+                organizationName: userData.accountDetails.organizationName,
+                jobTitlePosition: userData.accountDetails.jobTitlePosition,
+                branchRegion: userData.accountDetails.branchRegion,
+                branchOffice: userData.accountDetails.branchOffice,
+                email: userData.passwordInfo.email,
+            };
+    
+            // Include password only if it's been changed
+            if (userData.passwordInfo.password) {
+                userData.password = userData.passwordInfo.password;
+            }
+    
+            // Update user data
+            const userResponse = await fetch(`${apiUrl}/users/update`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(userUpdateData),
+            });
+    
+            if (!userResponse.ok) {
+                throw new Error('Failed to update user data');
+            }
+    
+            // Prepare office address data
+            const officeAddressData = {
+                id: user.officeAddressId, // Assuming this is available in the user object
+                region: userData.officeAddress.region,
+                province: userData.officeAddress.province,
+                cityTown: userData.officeAddress.cityTown,
+                barangay: userData.officeAddress.barangay,
+                street: userData.officeAddress.street,
+            };
+    
+            // Update office address
+            const addressResponse = await fetch(`${apiUrl}/officeaddresses/update`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(officeAddressData),
+            });
+    
+            if (!addressResponse.ok) {
+                throw new Error('Failed to update office address');
+            }
+    
+            console.log('User data and office address updated successfully');
             setEditing(false);
+            // Optionally, you can refetch the user data here to ensure the UI reflects the latest changes
+            fetchData();
         } catch (error) {
-            console.log(error);
+            console.error('Error updating user data:', error);
+            // Handle error (e.g., show error message to user)
         } finally {
             setIsSubmitting(false);
         }
+    };
+
+    const genderOptions = [
+        { label: 'Male', value: 'male' },
+        { label: 'Female', value: 'female' },
+        { label: 'Other', value: 'other' }
+    ];
+
+    const userTypeOptions = [
+        { label: 'Admin', value: 'admin' },
+    ];
+
+    const getUserTypeLabel = (value) => {
+        const option = userTypeOptions.find(option => option.value === value);
+        return option ? option.label : value;
     };
 
     const renderPersonalInformation = () => (
@@ -144,7 +412,7 @@ function Profile() {
                 <label className="block mb-2 text-sm font-medium text-gray-700">First Name</label>
                 <InputText
                     value={userData.personalInfo.firstName}
-                    onChange={(e) => setUserData(prev => ({...prev, personalInfo: {...prev.personalInfo, firstName: e.target.value}}))}
+                    onChange={(e) => handleInputChange('personalInfo', 'firstName', e.target.value)}
                     disabled={!editing}
                     className="w-full focus:ring-0"
                 />
@@ -153,7 +421,7 @@ function Profile() {
                 <label className="block mb-2 text-sm font-medium text-gray-700">Last Name</label>
                 <InputText
                     value={userData.personalInfo.lastName}
-                    onChange={(e) => setUserData(prev => ({...prev, personalInfo: {...prev.personalInfo, lastName: e.target.value}}))}
+                    onChange={(e) => handleInputChange('personalInfo', 'lastName', e.target.value)}
                     disabled={!editing}
                     className="w-full focus:ring-0"
                 />
@@ -163,7 +431,7 @@ function Profile() {
                 <Dropdown
                     value={userData.personalInfo.gender}
                     options={genderOptions}
-                    onChange={(e) => setUserData(prev => ({...prev, personalInfo: {...prev.personalInfo, gender: e.target.value}}))}
+                    onChange={(e) => handleInputChange('personalInfo', 'gender', e.value)}
                     disabled={!editing}
                     className="ring-0 w-full placeholder:text-gray-400"
                 />
@@ -171,9 +439,10 @@ function Profile() {
             <div>
                 <label className="block mb-2 text-sm font-medium text-gray-700">Birth Date</label>
                 <Calendar
-                    value={userData.personalInfo.birthDate}
-                    onChange={(e) => setUserData(prev => ({...prev, personalInfo: {...prev.personalInfo, birthDate: e.value}}))}
+                    value={userData.personalInfo.birthDate ? new Date(userData.personalInfo.birthDate) : null}
+                    onChange={(e) => handleInputChange('personalInfo', 'birthDate', e.value)}
                     disabled={!editing}
+                    dateFormat="mm/dd/yy"
                     className="w-full rounded-md"
                 />
             </div>
@@ -181,7 +450,7 @@ function Profile() {
                 <label className="block mb-2 text-sm font-medium text-gray-700">Contact Number</label>
                 <InputText
                     value={userData.personalInfo.contactNumber}
-                    onChange={(e) => setUserData(prev => ({...prev, personalInfo: {...prev.personalInfo, lastName: e.target.value}}))}
+                    onChange={(e) => handleInputChange('personalInfo', 'contactNumber', e.target.value)}
                     disabled={!editing}
                     className="w-full focus:ring-0"
                 />
@@ -196,7 +465,7 @@ function Profile() {
                 <Dropdown
                     value={userData.accountDetails.userType}
                     options={userTypeOptions}
-                    onChange={(e) => setUserData(prev => ({...prev, accountDetails: {...prev.accountDetails, userType: e.target.value}}))}
+                    onChange={(e) => handleInputChange('accountDetails', 'userType', e.value)}
                     disabled={!editing}
                     className="w-full border rounded-md border-gray-300"
                 />
@@ -204,27 +473,27 @@ function Profile() {
             <div>
                 <label className="block mb-2 text-sm font-medium text-gray-700">Organization Name</label>
                 <InputText
-                    value={userData.personalInfo.organizationName}
-                    onChange={(e) => setUserData(prev => ({...prev, personalInfo: {...prev.personalInfo, lastName: e.target.value}}))}
+                    value={userData.accountDetails.organizationName}
+                    onChange={(e) => handleInputChange('accountDetails', 'organizationName', e.target.value)}
                     disabled={!editing}
                     className="w-full focus:ring-0"
                 />
             </div>
             <div>
-                <label className="block mb-2 text-sm font-medium text-gray-700">Job Title/Position</label>
+            <label className="block mb-2 text-sm font-medium text-gray-700">Job Title/Position</label>
                 <InputText
-                    value={userData.personalInfo.organizationName}
-                    onChange={(e) => setUserData(prev => ({...prev, personalInfo: {...prev.personalInfo, lastName: e.target.value}}))}
+                    value={userData.accountDetails.jobTitlePosition}
+                    onChange={(e) => handleInputChange('accountDetails', 'jobTitlePosition', e.target.value)}
                     disabled={!editing}
                     className="w-full focus:ring-0"
                 />
             </div>
             <div>
-                <label className="block mb-2 text-sm font-medium text-gray-700">Region</label>
+                <label className="block mb-2 text-sm font-medium text-gray-700">Branch Region</label>
                 <Dropdown
-                    value={userData.accountDetails.region}
-                    options={accountRegionOptions}
-                    onChange={(e) => setUserData(prev => ({...prev, accountDetails: {...prev.accountDetails, region: e.target.value}}))}
+                    value={userData.accountDetails.branchRegion}
+                    options={branchRegionOptions}
+                    onChange={(e) => handleInputChange('accountDetails', 'branchRegion', e.value)}
                     disabled={!editing}
                     className="ring-0 w-full placeholder:text-gray-400"
                 />
@@ -234,7 +503,7 @@ function Profile() {
                 <Dropdown
                     value={userData.accountDetails.branchOffice}
                     options={branchOfficeOptions}
-                    onChange={(e) => setUserData(prev => ({...prev, accountDetails: {...prev.accountDetails, branchOffice: e.target.value}}))}
+                    onChange={(e) => handleInputChange('accountDetails', 'branchOffice', e.value)}
                     disabled={!editing}
                     className="ring-0 w-full placeholder:text-gray-400"
                 />
@@ -248,28 +517,30 @@ function Profile() {
                 <label className="block mb-2 text-sm font-medium text-gray-700">Region</label>
                 <Dropdown 
                     value={userData.officeAddress.region}
-                    options={officeRegionOptions}
-                    onChange={(e) => setUserData(prev => ({...prev, officeAddress: {...prev.officeAddress, region: e.target.value}}))}
+                    options={regionOptions}
+                    onChange={(e) => handleInputChange('officeAddress', 'region', e.value)}
                     disabled={!editing}
                     className="ring-0 w-full placeholder:text-gray-400"
                 />
             </div>
-            <div>
-                <label className="block mb-2 text-sm font-medium text-gray-700">Province</label>
-                <Dropdown
-                    value={userData.officeAddress.province}
-                    options={provinceOptions}
-                    onChange={(e) => setUserData(prev => ({...prev, officeAddress: {...prev.officeAddress, province: e.target.value}}))}
-                    disabled={!editing}
-                    className="ring-0 w-full placeholder:text-gray-400"
-                />
-            </div>
+            {userData.officeAddress.region !== "National Capital Region" && (
+                <div>
+                    <label className="block mb-2 text-sm font-medium text-gray-700">Province</label>
+                    <Dropdown
+                        value={userData.officeAddress.province}
+                        options={provinceOptions}
+                        onChange={(e) => handleInputChange('officeAddress', 'province', e.value)}
+                        disabled={!editing}
+                        className="ring-0 w-full placeholder:text-gray-400"
+                    />
+                </div>
+            )}
             <div>
                 <label className="block mb-2 text-sm font-medium text-gray-700">City/Town</label>
                 <Dropdown
                     value={userData.officeAddress.cityTown}
-                    options={cityOptions}
-                    onChange={(e) => setUserData(prev => ({...prev, officeAddress: {...prev.officeAddress, cityTown: e.target.value}}))}
+                    options={cityTownOptions}
+                    onChange={(e) => handleInputChange('officeAddress', 'cityTown', e.value)}
                     disabled={!editing}
                     className="ring-0 w-full placeholder:text-gray-400"
                 />
@@ -279,7 +550,7 @@ function Profile() {
                 <Dropdown
                     value={userData.officeAddress.barangay}
                     options={barangayOptions}
-                    onChange={(e) => setUserData(prev => ({...prev, officeAddress: {...prev.officeAddress, barangay: e.target.value}}))}
+                    onChange={(e) => handleInputChange('officeAddress', 'barangay', e.value)}
                     disabled={!editing}
                     className="ring-0 w-full placeholder:text-gray-400"
                 />
@@ -288,7 +559,7 @@ function Profile() {
                 <label className="block mb-2 text-sm font-medium text-gray-700">Street</label>
                 <InputText
                     value={userData.officeAddress.street}
-                    onChange={(e) => setUserData(prev => ({...prev, officeAddress: {...prev.officeAddress, street: e.target.value}}))}
+                    onChange={(e) => handleInputChange('officeAddress', 'street', e.target.value)}
                     disabled={!editing}
                     className="w-full focus:ring-0"
                 />
@@ -302,34 +573,37 @@ function Profile() {
                 <label className="block mb-2 text-sm font-medium text-gray-700">Email</label>
                 <InputText
                     value={userData.passwordInfo.email}
-                    onChange={(e) => setUserData(prev => ({...prev, passwordInfo: {...prev.passwordInfo, email: e.target.value}}))}
+                    onChange={(e) => handleInputChange('passwordInfo', 'email', e.target.value)}
                     disabled={!editing}
                     className="w-full focus:ring-0"
                 />
             </div>
-            <div>
-                <label className="block mb-2 text-sm font-medium text-gray-700">New Password</label>
-                <CustomPasswordInput
-                    value={userData.passwordInfo.password}
-                    onChange={(e) => setUserData(prev => ({...prev, passwordInfo: {...prev.passwordInfo, password: e.target.value}}))}
-                    disabled={!editing}
-                    className="focus:border-[#14b8a6] hover:border-[#14b8a6] w-full p-2 border rounded-md border-gray-300"
-                    toggleMask
-                    feedback={false}
-                />
-            </div>
-
-            <div>
-                <label className="block mb-2 text-sm font-medium text-gray-700">Confirm Password</label>
-                <CustomPasswordInput
-                    value={userData.passwordInfo.confirmPassword}
-                    onChange={(e) => setUserData(prev => ({...prev, passwordInfo: {...prev.passwordInfo, confirmPassword: e.target.value}}))}
-                    disabled={!editing}
-                    className="focus:border-[#14b8a6] hover:border-[#14b8a6] w-full p-2 border rounded-md border-gray-300"
-                    toggleMask
-                    feedback={false}
-                />
-            </div>
+            { editing && (
+                <div>
+                    <div>
+                        <label className="block mb-2 text-sm font-medium text-gray-700">New Password</label>
+                        <CustomPasswordInput
+                            value={userData.passwordInfo.password}
+                            onChange={(e) => handleInputChange('passwordInfo', 'password', e.target.value)}
+                            disabled={!editing}
+                            className="focus:border-[#14b8a6] hover:border-[#14b8a6] w-full p-2 border rounded-md border-gray-300"
+                            toggleMask
+                            feedback={false}
+                        />
+                    </div>
+                    <div>
+                        <label className="block mb-2 text-sm font-medium text-gray-700">Confirm Password</label>
+                        <CustomPasswordInput
+                            value={userData.passwordInfo.confirmPassword}
+                            onChange={(e) => handleInputChange('passwordInfo', 'confirmPassword', e.target.value)}
+                            disabled={!editing}
+                            className="focus:border-[#14b8a6] hover:border-[#14b8a6] w-full p-2 border rounded-md border-gray-300"
+                            toggleMask
+                            feedback={false}
+                        />
+                    </div>
+                </div>
+            )}
         </div>
     );
 
@@ -339,6 +613,26 @@ function Profile() {
         { id: 'address', label: 'Office Address', content: renderOfficeAddress },
         { id: 'password', label: 'Password', content: renderPassword },
     ];
+
+    if (isLoading) {
+        return (
+            <AdminLayout activePage="Profile">
+                <div className="flex items-center justify-center h-full">
+                    <p>Loading...</p>
+                </div>
+            </AdminLayout>
+        );
+    }
+
+    if (!userData) {
+        return (
+            <AdminLayout activePage="Profile">
+                <div className="flex items-center justify-center h-full">
+                    <p>Error loading user data. Please try again later.</p>
+                </div>
+            </AdminLayout>
+        );
+    }
 
     return (
         <AdminLayout activePage="Profile">

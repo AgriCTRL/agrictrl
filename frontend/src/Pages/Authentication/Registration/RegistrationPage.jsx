@@ -37,7 +37,7 @@ const CustomStepLabel = ({ icon, isActive }) => {
   );
 };
 
-const RegistrationPageContent = ({ onRegisterSuccess }) => {
+const RegistrationPageContent = () => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const [activeStep, setActiveStep] = useState(0);
   const navigate = useNavigate();
@@ -75,8 +75,7 @@ const RegistrationPageContent = ({ onRegisterSuccess }) => {
       if (!res.ok) {
         throw new Error('Error registering user');
       }
-      onRegisterSuccess();
-      navigate('/staff');
+      navigate('/login');
       localStorage.removeItem('registrationData');
     } catch (error) {
       console.log(error.message);

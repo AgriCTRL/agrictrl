@@ -1,18 +1,19 @@
-import React, { useState, useContext, createContext } from 'react';
+import React, { useContext, createContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronFirst, ChevronLast } from 'lucide-react';
 import { Button } from 'primereact/button';
 import { Divider } from 'primereact/divider';
 import { LogOut } from 'lucide-react';
-import { AuthClient } from "@dfinity/auth-client";
+import { useAuth } from '../Pages/Authentication/Login/AuthContext';
         
 const SidebarContext = createContext()
 function AdminSidebarComponent({ children, expanded }) {
     const navigate = useNavigate();
+    const { logout } = useAuth();
+
     const logoutButton = async () => {
         try {
-            const authClient = await AuthClient.create();
-            await authClient.logout();
+            await logout();
             navigate('/');
         }
         catch (error) {
