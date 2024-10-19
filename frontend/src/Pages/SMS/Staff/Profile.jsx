@@ -7,6 +7,7 @@ import { Calendar } from 'primereact/calendar';
 import { Button } from 'primereact/button';
 import { Password } from 'primereact/password';
 import { Divider } from 'primereact/divider';
+import { useAuth } from '../../Authentication/Login/AuthContext';
 
 function Profile() {
     // const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -15,6 +16,7 @@ function Profile() {
     const [editing, setEditing] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate();
+    const { logout } = useAuth();
 
     // Static data for testing
     const [userData, setUserData] = useState({
@@ -359,7 +361,13 @@ function Profile() {
     );
 
     const logoutButton = async () => {
-        navigate('/');
+        try {
+            await logout();
+            navigate('/');
+        }
+        catch (error) {
+            console.log(error.message);
+        }
     }
 
     const footer = (

@@ -2,12 +2,10 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Bell } from 'lucide-react';
 import { Avatar } from 'primereact/avatar';
-import { useAuth } from '../Pages/Authentication/Login/AuthContext';
 
 function StaffLayout({ children, activePage }) {
     const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
     const navigate = useNavigate();
-    const { logout } = useAuth();
 
     const navItems = [
         { text: 'Home', link: '/staff' },
