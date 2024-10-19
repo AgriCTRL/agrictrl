@@ -385,18 +385,24 @@ function Profile() {
     return (
         <StaffLayout activePage="Profile">
             <div className='flex flex-row h-full w-full px-4 py-2 bg-[#F1F5F9] rounded-xl'>
-                <div className='flex flex-col items-center justify-between h-full w-1/4 p-5 bg-primary rounded-lg'>
-                    <div className="flex flex-col justify-center items-center gap-4">
-                        <img src="/profileAvatar.png" alt="Profile" className="w-20 h-20 rounded-full" />
+                <div className='relative flex flex-col items-center justify-between h-full w-1/4 p-5 rounded-lg overflow-hidden'>
+                    <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('/Registration-leftBG.png')" }}>
+                        <div className="absolute inset-0 bg-gradient-to-t from-secondary via-[#00c26170] to-transparent"></div>
+                    </div>
+
+                    <div className="relative flex flex-col justify-center items-center gap-4 z-10">
+                        <img src="/profileAvatar.png" alt="Profile" className="w-32 h-32 rounded-full" />
                         <div className="flex flex-col items-center">
-                            <h1 className='text-2xl text-white font-bold'>{userData.personalInfo.firstName} {userData.personalInfo.lastName}</h1>
-                            <p className='text-sm text-white'>{getUserTypeLabel(userData.accountDetails.userType)}</p>
+                        <h1 className='text-5xl text-white font-bold'>{userData.personalInfo.firstName} {userData.personalInfo.lastName}</h1>
+                        <p className='text-xl text-white'>{getUserTypeLabel(userData.accountDetails.userType)}</p>
                         </div>
                     </div>
-                    <div className="flex justify-center w-full">
-                        <Button onClick={logoutButton} label="Logout" className='text-lg text-primary text-center bg-white p-4 w-full'/>
+
+                    <div className="flex justify-center items-center w-full z-10">
+                        <Button onClick={logoutButton} variant="secondary" className='text-lg text-primary bg-white p-4 px-32'>
+                        Logout
+                        </Button>
                     </div>
-                    
                 </div>
 
                 <div className='flex justify-between flex-col w-full p-4'>

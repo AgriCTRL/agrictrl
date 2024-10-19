@@ -21,6 +21,7 @@ function Warehouse() {
     const [selectedFilter, setSelectedFilter] = useState('all');
     const [showSendToDialog, setShowSendToDialog] = useState(false);
     const [showAcceptDialog, setShowAcceptDialog] = useState(false);
+    const [selectedItemStatus, setSelectedItemStatus] = useState(null);
 
     const [selectedDrying, setSelectedDrying] = useState(null);
     const [selectedDryer, setSelectedDryer] = useState(null);
@@ -49,6 +50,12 @@ function Warehouse() {
         remarks: ''
     });
 
+    const [acceptFormData, setAcceptFormData] = useState({
+        riceBatchName: '',
+        riceType: '',
+        price: ''
+    });
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData(prevState => ({
@@ -58,11 +65,26 @@ function Warehouse() {
     };
 
     useEffect(() => {
-        setFormData(prevState => ({
-            ...prevState,
-            facility: ''
-        }));
-    }, [formData.sendTo]);
+        if (selectedItemStatus === 'To Mill') {
+            setFormData(prevState => ({
+                ...prevState,
+                sendTo: 'miller',
+                facility: ''
+            }));
+        } else if (selectedItemStatus === 'To Dry') {
+            setFormData(prevState => ({
+                ...prevState,
+                sendTo: 'dryer',
+                facility: ''
+            }));
+        } else {
+            setFormData(prevState => ({
+                ...prevState,
+                sendTo: '',
+                facility: ''
+            }));
+        }
+    }, [selectedItemStatus]);
 
     const handleSendTo = () => {
         console.log("Send To form data:", formData);
@@ -142,6 +164,7 @@ function Warehouse() {
     
     const handleActionClick = (status) => {
         if (viewMode === 'inWarehouse') {
+            setSelectedItemStatus(status);
             setShowSendToDialog(true);
         } else {
             setShowAcceptDialog(true);
@@ -242,7 +265,9 @@ function Warehouse() {
                         paginator
                         rows={10}
                     > 
-                        <Column field="id" header="Batch ID" className="text-center" headerClassName="text-center" />
+                        <Column field="id" 
+                                header={selectedFilter === 'rice' ? 'Rice Batch ID' : 'Batch ID'} 
+                                className="text-center" headerClassName="text-center" />
                         <Column field="quantityInBags" header="Quantity In Bags" className="text-center" headerClassName="text-center" />
                         <Column field="from" header="From" className="text-center" headerClassName="text-center" />
                         <Column field={viewMode === 'inWarehouse' ? "currentlyAt" : "toBeStoreAt"} 
@@ -270,20 +295,21 @@ function Warehouse() {
                             options={sendToOptions} 
                             onChange={(e) => handleInputChange({ target: { name: 'sendTo', value: e.value } })} 
                             placeholder="Select an option" 
+                            disabled={true}
                         />
                     </div>
 
-                    <div className="mb-4">
-                        <label className="block mb-2">Facility</label>
-                        <Dropdown 
-                            className="w-full ring-0" 
-                            value={formData.facility} 
-                            options={facilityOptions[formData.sendTo] || []} 
-                            onChange={(e) => handleInputChange({ target: { name: 'facility', value: e.value } })} 
-                            placeholder="Select a facility" 
-                            disabled={!formData.sendTo}
-                        />
-                    </div>
+                        <div className="mb-4">
+                            <label className="block mb-2">Facility</label>
+                            <Dropdown 
+                                className="w-full ring-0" 
+                                value={formData.facility} 
+                                options={facilityOptions[formData.sendTo] || []} 
+                                onChange={(e) => handleInputChange({ target: { name: 'facility', value: e.value } })} 
+                                placeholder="Select a facility" 
+                                disabled={!formData.sendTo}
+                            />
+                        </div>
 
                     <div className="w-full mb-4">
                         <label htmlFor="transportedBy" className="block text-sm font-medium text-gray-700 mb-1">Transported by</label>
@@ -325,9 +351,38 @@ function Warehouse() {
 
             {/* Accept Dialog */}
             <Dialog header="Receive palay" visible={showAcceptDialog} onHide={() => setShowAcceptDialog(false)} className="w-1/3">
-                <div className="flex flex-col items-center">
-                    <p className="mb-10">Click Confirm Receive to accept request to warehouse</p>
-                    <div className="flex justify-between w-full">
+                <div className="flex flex-col items-center gap-2">
+                    <div className="w-full">
+                        <label htmlFor="riceBatchName" className="block text-sm font-medium text-gray-700 mb-1">Rice Batch Name</label>
+                        <InputText 
+                            name="riceBatchName"
+                            value={acceptFormData.riceBatchName}
+                            onChange={handleInputChange}
+                            className="w-full ring-0" 
+                        />
+                    </div>
+
+                    <div className="w-full">
+                        <label htmlFor="riceType" className="block text-sm font-medium text-gray-700 mb-1">Rice Type</label>
+                        <InputText 
+                            name="riceType"
+                            value={acceptFormData.riceType}
+                            onChange={handleInputChange}
+                            className="w-full ring-0" 
+                        />
+                    </div>
+
+                    <div className="w-full">
+                        <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">Price</label>
+                        <InputText 
+                            name="price"
+                            value={acceptFormData.price}
+                            onChange={handleInputChange}
+                            className="w-full ring-0" 
+                        />
+                    </div>
+                    
+                    <div className="flex justify-between w-full mt-5">
                         <Button 
                             label="Confirm Receive" 
                             className="w-full bg-primary hover:border-none" 

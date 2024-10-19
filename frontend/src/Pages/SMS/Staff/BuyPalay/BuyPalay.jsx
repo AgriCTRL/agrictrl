@@ -21,26 +21,30 @@ function BuyPalay() {
     const [showRegisterPalay, setShowRegisterPalay] = useState(false);
 
     const [inventoryData, setInventoryData] = useState([
-        { id: 1, trackingId: '001', dateBought: '2024-03-01', quantityInBags: 1000, grossWeight: 1000, netWeight: 1000, qualityType: 'Premium', status: 'Palay', moistureContent: 13, purity: 99, damage: 1, pricePerKg: 20, farmer: 'Pablo Garcia', originFarm: 'Sta. Rosa', currentLocation: '001 Warehouse' },
-        { id: 2, trackingId: '002', dateBought: '2024-03-02', quantityInBags: 1000, grossWeight: 1000, netWeight: 1000, qualityType: 'Standard', status: 'Processing', moistureContent: 14, purity: 98, damage: 2, pricePerKg: 18, farmer: 'Juan Dela Cruz', originFarm: 'Sta. Rosa', currentLocation: '002 Dryer' },
-        { id: 3, trackingId: '003', dateBought: '2024-03-03', quantityInBags: 1000, grossWeight: 1000, netWeight: 1000, qualityType: 'Premium', status: 'Palay', moistureContent: 13, purity: 99, damage: 1, pricePerKg: 21, farmer: 'Maria Santos', originFarm: 'San Pedro', currentLocation: '003 Warehouse' },
-        { id: 4, trackingId: '004', dateBought: '2024-03-04', quantityInBags: 1000, grossWeight: 1000, netWeight: 1000, qualityType: 'Standard', status: 'Rice', moistureContent: 12, purity: 97, damage: 3, pricePerKg: 17, farmer: 'Pedro Reyes', originFarm: 'Biñan', currentLocation: 'Mill 01' },
-        { id: 5, trackingId: '005', dateBought: '2024-03-05', quantityInBags: 1000, grossWeight: 1000, netWeight: 1000, qualityType: 'Premium', status: 'Processing', moistureContent: 13, purity: 99, damage: 1, pricePerKg: 22, farmer: 'Ana Lim', originFarm: 'Cabuyao', currentLocation: '001 Warehouse' },
-        { id: 6, trackingId: '001', dateBought: '2024-03-01', quantityInBags: 1000, grossWeight: 1000, netWeight: 1000, qualityType: 'Premium', status: 'Palay', moistureContent: 13, purity: 99, damage: 1, pricePerKg: 20, farmer: 'Pablo Garcia', originFarm: 'Sta. Rosa', currentLocation: '001 Warehouse' },
-        { id: 7, trackingId: '002', dateBought: '2024-03-02', quantityInBags: 1000, grossWeight: 1000, netWeight: 1000, qualityType: 'Standard', status: 'Processing', moistureContent: 14, purity: 98, damage: 2, pricePerKg: 18, farmer: 'Juan Dela Cruz', originFarm: 'Sta. Rosa', currentLocation: '002 Dryer' },
-        { id: 8, trackingId: '003', dateBought: '2024-03-03', quantityInBags: 1000, grossWeight: 1000, netWeight: 1000, qualityType: 'Premium', status: 'Palay', moistureContent: 13, purity: 99, damage: 1, pricePerKg: 21, farmer: 'Maria Santos', originFarm: 'San Pedro', currentLocation: '003 Warehouse' },
-        { id: 9, trackingId: '004', dateBought: '2024-03-04', quantityInBags: 1000, grossWeight: 1000, netWeight: 1000, qualityType: 'Standard', status: 'Rice', moistureContent: 12, purity: 97, damage: 3, pricePerKg: 17, farmer: 'Pedro Reyes', originFarm: 'Biñan', currentLocation: 'Mill 01' },
-        { id: 10, trackingId: '005', dateBought: '2024-03-05', quantityInBags: 1000, grossWeight: 1000, netWeight: 1000, qualityType: 'Premium', status: 'Palay', moistureContent: 13, purity: 99, damage: 1, pricePerKg: 22, farmer: 'Ana Lim', originFarm: 'Cabuyao', currentLocation: '001 Warehouse' },
+        { id: 1, trackingId: '001', dateBought: '2024-03-01', quantityInBags: 1000, grossWeight: 1000, netWeight: 1000, qualityType: 'Premium', status: 'To be Dry', moistureContent: 13, purity: 99, damage: 1, pricePerKg: 20, farmer: 'Pablo Garcia', originFarm: 'Sta. Rosa', currentLocation: '001 Warehouse' },
+        { id: 2, trackingId: '002', dateBought: '2024-03-02', quantityInBags: 1000, grossWeight: 1000, netWeight: 1000, qualityType: 'Standard', status: 'To be Mill', moistureContent: 14, purity: 98, damage: 2, pricePerKg: 18, farmer: 'Juan Dela Cruz', originFarm: 'Sta. Rosa', currentLocation: '002 Dryer' },
+        { id: 3, trackingId: '003', dateBought: '2024-03-03', quantityInBags: 1000, grossWeight: 1000, netWeight: 1000, qualityType: 'Premium', status: 'To be Dry', moistureContent: 13, purity: 99, damage: 1, pricePerKg: 21, farmer: 'Maria Santos', originFarm: 'San Pedro', currentLocation: '003 Warehouse' },
+        { id: 4, trackingId: '004', dateBought: '2024-03-04', quantityInBags: 1000, grossWeight: 1000, netWeight: 1000, qualityType: 'Standard', status: 'To be Dry', moistureContent: 12, purity: 97, damage: 3, pricePerKg: 17, farmer: 'Pedro Reyes', originFarm: 'Biñan', currentLocation: 'Mill 01' },
+        { id: 5, trackingId: '005', dateBought: '2024-03-05', quantityInBags: 1000, grossWeight: 1000, netWeight: 1000, qualityType: 'Premium', status: 'To be Dry', moistureContent: 13, purity: 99, damage: 1, pricePerKg: 22, farmer: 'Ana Lim', originFarm: 'Cabuyao', currentLocation: '001 Warehouse' },
+        { id: 6, trackingId: '001', dateBought: '2024-03-01', quantityInBags: 1000, grossWeight: 1000, netWeight: 1000, qualityType: 'Premium', status: 'To be Mill', moistureContent: 13, purity: 99, damage: 1, pricePerKg: 20, farmer: 'Pablo Garcia', originFarm: 'Sta. Rosa', currentLocation: '001 Warehouse' },
+        { id: 7, trackingId: '002', dateBought: '2024-03-02', quantityInBags: 1000, grossWeight: 1000, netWeight: 1000, qualityType: 'Standard', status: 'To be Dry', moistureContent: 14, purity: 98, damage: 2, pricePerKg: 18, farmer: 'Juan Dela Cruz', originFarm: 'Sta. Rosa', currentLocation: '002 Dryer' },
+        { id: 8, trackingId: '003', dateBought: '2024-03-03', quantityInBags: 1000, grossWeight: 1000, netWeight: 1000, qualityType: 'Premium', status: 'To be Dry', moistureContent: 13, purity: 99, damage: 1, pricePerKg: 21, farmer: 'Maria Santos', originFarm: 'San Pedro', currentLocation: '003 Warehouse' },
+        { id: 9, trackingId: '004', dateBought: '2024-03-04', quantityInBags: 1000, grossWeight: 1000, netWeight: 1000, qualityType: 'Standard', status: 'To be Mill', moistureContent: 12, purity: 97, damage: 3, pricePerKg: 17, farmer: 'Pedro Reyes', originFarm: 'Biñan', currentLocation: 'Mill 01' },
+        { id: 10, trackingId: '005', dateBought: '2024-03-05', quantityInBags: 1000, grossWeight: 1000, netWeight: 1000, qualityType: 'Premium', status: 'To be Dry', moistureContent: 13, purity: 99, damage: 1, pricePerKg: 22, farmer: 'Ana Lim', originFarm: 'Cabuyao', currentLocation: '001 Warehouse' },
     ]);
 
     const getSeverity = (status) => {
         switch (status.toLowerCase()) {
-            case 'palay': return 'success';
-            case 'processing': return 'info';
-            case 'rice': return 'warning';
-            default: return 'secondary';
+          case 'to be dry': return 'success';
+          case 'to be mill': return 'info';
+          default: return 'danger';
         }
-    };
+        // sucess - green
+        // info - blue
+        // warning - orange
+        // danger - red 
+        // primary - cyan
+      };
     
     const statusBodyTemplate = (rowData) => (
         <Tag 

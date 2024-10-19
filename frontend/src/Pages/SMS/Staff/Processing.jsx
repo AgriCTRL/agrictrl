@@ -25,21 +25,21 @@ function Processing() {
     const [showReturnDialog, setShowReturnDialog] = useState(false);
 
     const [dryingData, setDryingData] = useState([
-        { id: 1, batchId: '001', quantityInBags: '100', preNetWeight: '100', postNetWeight: '100', from: 'Farm 001', toBeDryAt: 'Warehouse 003', requestDate: '0/0/0', startDate: '1/1/1', endDate: '2/2/2', moistureContent: '10', transportedBy: 'Bills Trucking Inc.', status: 'To Be Dry', dryingStatus: 'In Process'},
-        { id: 2, batchId: '002', quantityInBags: '100', preNetWeight: '100', postNetWeight: '100', from: 'Pune', toBeDryAt: 'Warehouse 002', requestDate: '7/11/19', startDate: '2/11/12', endDate: '2/11/12', moistureContent: '10', transportedBy: 'Mobilis Services', status: 'To Be Dry', dryingStatus: 'In Process'},
-        { id: 3, batchId: '003', quantityInBags: '100', preNetWeight: '100', postNetWeight: '100', from: 'Augusta', toBeDryAt: 'Warehouse 002', requestDate: '4/21/12', startDate: '1/1/1', endDate: '1/1/1', moistureContent: '10', transportedBy: 'NFA Trucking', status: 'In Drying', dryingStatus: 'In Process'},
-        { id: 4, batchId: '004', quantityInBags: '100', preNetWeight: '100', postNetWeight: '100', from: 'Augusta', toBeDryAt: 'Warehouse 004', requestDate: '10/28/12', startDate: '2/11/12', endDate: '2/11/12', moistureContent: '10', transportedBy: 'N/A', status: 'In Drying', dryingStatus: 'In Process'},
-        { id: 5, batchId: '005', quantityInBags: '100', preNetWeight: '100', postNetWeight: '100', from: 'Augusta', toBeDryAt: 'Warehouse 004', requestDate: '12/10/13', startDate: '2/11/12', endDate: '2/2/2', moistureContent: '10', transportedBy: 'N/A', status: 'Dried', dryingStatus: 'Dried'},
-        { id: 6, batchId: '006', quantityInBags: '100', preNetWeight: '100', postNetWeight: '100', from: 'Augusta', toBeDryAt: 'Warehouse 004', requestDate: '12/10/13', startDate: '2/11/12', endDate: '2/11/12', moistureContent: '10', transportedBy: 'Zaragoza Trucks', status: 'Dried', dryingStatus: 'Dried'},
+        { id: 1, batchId: '001', quantityInBags: '100', grossWeight: '10', preNetWeight: '100', postNetWeight: '100', from: 'Farm 001', location: 'Warehouse 003', dryingMethod: 'Machine', requestDate: '0/0/0', startDate: '1/1/1', endDate: '2/2/2', moistureContent: '10', transportedBy: 'Bills Trucking Inc.', status: 'To Be Dry', dryingStatus: 'In Progress'},
+        { id: 2, batchId: '002', quantityInBags: '100', grossWeight: '10', preNetWeight: '100', postNetWeight: '100', from: 'Pune', location: 'Warehouse 002', dryingMethod: 'Machine', requestDate: '7/11/19', startDate: '2/11/12', endDate: '2/11/12', moistureContent: '10', transportedBy: 'Mobilis Services', status: 'To Be Dry', dryingStatus: 'In Progress'},
+        { id: 3, batchId: '003', quantityInBags: '100', grossWeight: '10', preNetWeight: '100', postNetWeight: '100', from: 'Augusta', location: 'Warehouse 002', dryingMethod: 'Machine', requestDate: '4/21/12', startDate: '1/1/1', endDate: '1/1/1', moistureContent: '10', transportedBy: 'NFA Trucking', status: 'In Drying', dryingStatus: 'In Progress'},
+        { id: 4, batchId: '004', quantityInBags: '100', grossWeight: '10', preNetWeight: '100', postNetWeight: '100', from: 'Augusta', location: 'Warehouse 004', dryingMethod: 'Machine', requestDate: '10/28/12', startDate: '2/11/12', endDate: '2/11/12', moistureContent: '10', transportedBy: 'N/A', status: 'In Drying', dryingStatus: 'In Progress'},
+        { id: 5, batchId: '005', quantityInBags: '100', grossWeight: '10', preNetWeight: '100', postNetWeight: '100', from: 'Augusta', location: 'Warehouse 004', dryingMethod: 'Machine', requestDate: '12/10/13', startDate: '2/11/12', endDate: '2/2/2', moistureContent: '10', transportedBy: 'N/A', status: 'Dried', dryingStatus: 'Dried'},
+        { id: 6, batchId: '006', quantityInBags: '100', grossWeight: '10', preNetWeight: '100', postNetWeight: '100', from: 'Augusta', location: 'Warehouse 004', dryingMethod: 'Machine', requestDate: '12/10/13', startDate: '2/11/12', endDate: '2/11/12', moistureContent: '10', transportedBy: 'Zaragoza Trucks', status: 'Dried', dryingStatus: 'Dried'},
     ]);
 
     const [millingData, setMillingData] = useState([
-        { id: 1, batchId: '001', quantityInBags: '100', from: 'Farm 001', toBeDryAt: 'Warehouse 003', requestDate: '2/11/12', transportedBy: 'Bills Trucking Inc.', status: 'To Be Mill'},
-        { id: 2, batchId: '002', quantityInBags: '100', from: 'Pune', toBeDryAt: 'Warehouse 002', requestDate: '7/11/19', transportedBy: 'Mobilis Services', status: 'To Be Mill'},
-        { id: 3, batchId: '003', quantityInBags: '100', from: 'Augusta', toBeDryAt: 'Warehouse 002', requestDate: '4/21/12', transportedBy: 'NFA Trucking', status: 'In Milling'},
-        { id: 4, batchId: '004', quantityInBags: '100', from: 'Augusta', toBeDryAt: 'Warehouse 004', requestDate: '10/28/12', transportedBy: 'N/A', status: 'In Milling'},
-        { id: 5, batchId: '005', quantityInBags: '100', from: 'Augusta', toBeDryAt: 'Warehouse 004', requestDate: '12/10/13', transportedBy: 'N/A', status: 'Milled'},
-        { id: 6, batchId: '006', quantityInBags: '100', from: 'Augusta', toBeDryAt: 'Warehouse 004', requestDate: '12/10/13', transportedBy: 'Zaragoza Trucks', status: 'Milled'},
+        { id: 1, batchId: '001', quantityInBags: '100', grossWeight: '10', preNetWeight: '100', postNetWeight: '100', from: 'Farm 001', location: 'Warehouse 003', millerType: 'Private', requestDate: '2/11/12', startDate: '1/1/1', endDate: '2/2/2', transportedBy: 'Bills Trucking Inc.', status: 'To Be Mill', millingStatus: 'In Progress'},
+        { id: 2, batchId: '002', quantityInBags: '100', grossWeight: '10', preNetWeight: '100', postNetWeight: '100', from: 'Pune', location: 'Warehouse 002', millerType: 'In House', requestDate: '7/11/19', startDate: '1/1/1', endDate: '2/2/2', transportedBy: 'Mobilis Services', status: 'To Be Mill', millingStatus: 'In Progress'},
+        { id: 3, batchId: '003', quantityInBags: '100', grossWeight: '10', preNetWeight: '100', postNetWeight: '100', from: 'Augusta', location: 'Warehouse 002', millerType: 'Private', requestDate: '4/21/12', startDate: '1/1/1', endDate: '2/2/2', transportedBy: 'NFA Trucking', status: 'In Milling', millingStatus: 'In Progress'},
+        { id: 4, batchId: '004', quantityInBags: '100', grossWeight: '10', preNetWeight: '100', postNetWeight: '100', from: 'Augusta', location: 'Warehouse 004', millerType: 'In House', requestDate: '10/28/12', startDate: '1/1/1', endDate: '2/2/2', transportedBy: 'N/A', status: 'In Milling', millingStatus: 'In Progress'},
+        { id: 5, batchId: '005', quantityInBags: '100', grossWeight: '10', preNetWeight: '100', postNetWeight: '100', from: 'Augusta', location: 'Warehouse 004', millerType: 'In House', requestDate: '12/10/13', startDate: '1/1/1', endDate: '2/2/2', transportedBy: 'N/A', status: 'Milled', millingStatus: 'Milled'},
+        { id: 6, batchId: '006', quantityInBags: '100', grossWeight: '10', preNetWeight: '100', postNetWeight: '100', from: 'Augusta', location: 'Warehouse 004', millerType: 'In House', requestDate: '12/10/13', startDate: '1/1/1', endDate: '2/2/2', transportedBy: 'Zaragoza Trucks', status: 'Milled', millingStatus: 'Milled'}
     ]);
 
     const [formData, setFormData] = useState({
@@ -67,8 +67,16 @@ function Processing() {
 
     const getDryingStatusSeverity = (dryingStatus) => {
         switch (dryingStatus.toLowerCase()) {
-            case 'in process': return 'warning';
+            case 'in progress': return 'warning';
             case 'dried': return 'success';
+            default: return 'info';
+        }
+    };
+
+    const getMillingStatusSeverity = (millingStatus) => {
+        switch (millingStatus.toLowerCase()) {
+            case 'in progress': return 'warning';
+            case 'milled': return 'success';
             default: return 'info';
         }
     };
@@ -89,6 +97,15 @@ function Processing() {
         <Tag 
             value={rowData.dryingStatus} 
             severity={getDryingStatusSeverity(rowData.dryingStatus)} 
+            style={{ minWidth: '80px', textAlign: 'center' }}
+            className="text-sm px-2 rounded-md"
+        />
+    );
+
+    const millingStatusBodyTemplate = (rowData) => (
+        <Tag 
+            value={rowData.millingStatus} 
+            severity={getMillingStatusSeverity(rowData.millingStatus)} 
             style={{ minWidth: '80px', textAlign: 'center' }}
             className="text-sm px-2 rounded-md"
         />
@@ -251,44 +268,63 @@ function Processing() {
                             emptyMessage="No data found."
                             paginator
                             rows={10}
+                            // tableStyle={{ minWidth: '2200px' }}
                         > 
-                            <Column field="id" header={viewMode === 'drying' ? "Drying Batch ID" : "Milling Batch ID"} className="text-center" headerClassName="text-center" />
+                            {selectedFilter !== 'request' && (
+                                <Column field="id" header={viewMode === 'drying' ? "Drying Batch ID" : "Milling Batch ID"} className="text-center" headerClassName="text-center" />
+                            )}
                             <Column field="batchId" header="Palay Batch ID" className="text-center" headerClassName="text-center" />
                             <Column field="quantityInBags" header="Quantity In Bags" className="text-center" headerClassName="text-center" />
-                            <Column field="preNetWeight" header="Pre-Net Weight" className="text-center" headerClassName="text-center" />
+                            <Column field="grossWeight" header="Gross Weight" className="text-center" headerClassName="text-center" />
+                            <Column field="preNetWeight" header="Net Weight" className="text-center" headerClassName="text-center" />
                             {selectedFilter === 'return' && (
                                 <Column field="postNetWeight" header="Post-Net Weight" className="text-center" headerClassName="text-center" />
                             )}
                             <Column field="from" header="From" className="text-center" headerClassName="text-center" />
-                            <Column field="toBeDryAt" header="To Be Dry At" className="text-center" headerClassName="text-center" />
-                            <Column 
-                                field={selectedFilter === 'return' ? 'startDate' : ''} 
-                                header={selectedFilter === 'return' ? 'Start Date' : ''} 
-                                className="text-center" 
-                                headerClassName="text-center" 
-                            />
+                            <Column field="location" 
+                                    header={viewMode === 'drying' 
+                                        ? (selectedFilter === 'request' ? 'To be Dry at' 
+                                        : selectedFilter === 'process' ? 'Drying at' 
+                                        : 'Dried at') 
+                                        : (selectedFilter === 'request' ? 'To be Milled at' 
+                                        : selectedFilter === 'process' ? 'Milling at' 
+                                        : 'Milled at')}
+                                    className="text-center" headerClassName="text-center" />
+                            {viewMode === 'drying' && (
+                                <Column field="dryingMethod" header="Drying Method" className="text-center" headerClassName="text-center" />
+                            )}
+                            {viewMode === 'milling' && (
+                                <Column field="millerType" header="Miller Type" className="text-center" headerClassName="text-center" />
+                            )}
+                            {/* <Column 
+                                field={viewMode === 'drying' ? 'dryerType' : 'millerType'}
+                                header={viewMode === 'drying' ? 'Dryer Type' : 'Miller Type'}
+                                className="text-center" headerClassName="text-center" /> */}
+                            {selectedFilter === 'return' && (
+                                <Column field='startDate' header='Start Date' className="text-center" headerClassName="text-center" />
+                            )}
                             <Column 
                                 field={selectedFilter === 'request' ? 'requestDate' : (selectedFilter === 'process' ? 'startDate' : 'endDate')} 
                                 header={selectedFilter === 'request' ? 'Request Date' : (selectedFilter === 'process' ? 'Start Date' : 'End Date')} 
                                 className="text-center" 
                                 headerClassName="text-center" 
                             />
-                            {selectedFilter === 'return' && (
-                                <Column field="moistureContent" header="Moisture Content" className="text-center" headerClassName="text-center" />
-                            )}
+                            {viewMode === 'drying' && (selectedFilter === 'return') && (
+                               <Column field="moistureContent" header="Moisture Content" className="text-center" headerClassName="text-center" />
+                            )}  
                             <Column field="transportedBy" header="Transported By" className="text-center" headerClassName="text-center" />
-                            {viewMode === 'drying' && (selectedFilter === 'process' || selectedFilter === 'return') && (
+                            {(selectedFilter === 'request') && (
+                                <Column field="status" header={viewMode === 'milling' ? 'Rice Status' : 'Palay Status'} body={statusBodyTemplate} className="text-center" headerClassName="text-center" />
+                            )}
+                            {selectedFilter !== 'receive' && (
                                 <Column 
-                                    field="dryingStatus" 
-                                    header="Drying Status" 
-                                    body={dryingStatusBodyTemplate} 
-                                    className="text-center" 
-                                    headerClassName="text-center" />
+                                    field={viewMode === 'drying' ? "dryingStatus" : "millingStatus"} 
+                                    header={viewMode === 'drying' ? "Drying Status" : "Milling Status"} 
+                                    body={viewMode === 'drying' ? dryingStatusBodyTemplate : millingStatusBodyTemplate} 
+                                    className="text-center" headerClassName="text-center" frozen alignFrozen="right"
+                                />
                             )}
-                            {(selectedFilter === 'request' || viewMode === 'milling') && (
-                                <Column field="status" header={viewMode === 'milling' ? 'Rice Status' : 'Palay Status'} body={statusBodyTemplate} className="text-center" headerClassName="text-center"/>
-                            )}
-                            <Column header="Action" body={actionBodyTemplate} className="text-center" headerClassName="text-center"/>
+                            <Column header="Action" body={actionBodyTemplate} className="text-center" headerClassName="text-center" frozen alignFrozen="right"/>
                         </DataTable>
                     </div>
                 </div>
