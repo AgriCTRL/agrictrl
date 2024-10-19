@@ -185,4 +185,16 @@
     .custom-dropdown .p-dropdown-label {
         color: white !important;
     }
+
+    .p-component.p-password {
+        width: 100%;
+        .p-icon-field {
+            width: 100%;
+        }
+
+        .p-input-icon {
+            display: flex;
+            justify-content: center;
+        }
+    }
 }

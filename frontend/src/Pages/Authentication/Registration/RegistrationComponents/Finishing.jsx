@@ -1,10 +1,11 @@
 import React from 'react';
 import { InputText } from 'primereact/inputtext';
-import CustomPasswordInput from '../../../../Components/Form/PasswordComponent';
 import { useRegistration } from '../RegistrationContext';
+import { Password } from 'primereact/password';
+import { Divider } from 'primereact/divider';
 
 const Finishing = ({setConfirmPasswordValid}) => {
-  const { registrationData, updateRegistrationData, confirmPassword, updateConfirmPassword } = useRegistration();
+  const { registrationData, updateRegistrationData, confirmPassword,} = useRegistration();
   const { email, password } = registrationData.finishingDetails;
 
   const handleInputChange = (field, value) => {
@@ -14,10 +15,18 @@ const Finishing = ({setConfirmPasswordValid}) => {
     }
   };
 
-  const handleConfirmPasswordChange = (value) => {
-    updateConfirmPassword(value);
-    setConfirmPasswordValid(value === registrationData.finishingDetails.password); // Check if passwords match
-  };
+  const footer = (
+		<>
+			<Divider />
+			<p className="mt-2">Suggestions</p>
+			<ul className="pl-2 ml-2 mt-0 line-height-3">
+				<li>At least one lowercase</li>
+				<li>At least one uppercase</li>
+				<li>At least one numeric</li>
+				<li>Minimum 8 characters</li>
+			</ul>
+		</>
+	);
 
   return (
     <form className="h-full w-full px-16">
@@ -38,23 +47,27 @@ const Finishing = ({setConfirmPasswordValid}) => {
 
       <div className="mb-4">
         <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-700">Password</label>
-        <CustomPasswordInput 
-          id="password" 
-          value={password} 
-          onChange={(e) => handleInputChange('password', e.target.value)} 
-          placeholder="Enter your password" 
-          className="focus:border-[#14b8a6] hover:border-[#14b8a6] w-full p-inputtext-sm p-3 rounded-md border placeholder:text-gray-400 placeholder:font-normal"
+        <Password
+          id="password"
+          value={password}
+          footer={footer}
+          toggleMask 
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Enter your password"
+          inputClassName='w-full p-3 ring-0'
         />
       </div>
 
       <div className="mb-4">
         <label htmlFor="confirmPassword" className="block mb-2 text-sm font-medium text-gray-700">Confirm Password</label>
-        <CustomPasswordInput 
-          id="confirmPassword" 
-          value={confirmPassword} 
-          onChange={(e) => handleConfirmPasswordChange(e.target.value)}  
-          placeholder="Confirm your password" 
-          className="focus:border-[#14b8a6] hover:border-[#14b8a6] w-full p-inputtext-sm p-3 rounded-md border border-gray-300 placeholder:text-gray-400 placeholder:font-normal"
+        <Password
+          id="password"
+          value={confirmPassword}
+          toggleMask 
+          feedback={false}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          placeholder="Enter your password"
+          inputClassName='w-full p-3'
         />
       </div>
     </form>

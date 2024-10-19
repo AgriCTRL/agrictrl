@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import StaffLayout from '@/Layouts/StaffLayout';
 import { Search, Wheat } from "lucide-react";
 import { DataTable } from 'primereact/datatable';
@@ -21,46 +21,74 @@ function Warehouse() {
     const [selectedFilter, setSelectedFilter] = useState('all');
     const [showSendToDialog, setShowSendToDialog] = useState(false);
     const [showAcceptDialog, setShowAcceptDialog] = useState(false);
+    const [selectedItemStatus, setSelectedItemStatus] = useState(null);
 
     const [selectedDrying, setSelectedDrying] = useState(null);
     const [selectedDryer, setSelectedDryer] = useState(null);
 
     const inWarehouseData = [
-        { id: 1, from: 'Farm 001', currentlyAt: 'Warehouse 003', receivedOn: '2/11/12', transportedBy: 'Bills Trucking Inc.', status: 'To Mill' },
-        { id: 2, from: 'Pune', currentlyAt: 'Warehouse 002', receivedOn: '7/11/19', transportedBy: 'Mobilis Services', status: 'Rice' },
-        { id: 3, from: 'Augusta', currentlyAt: 'Warehouse 002', receivedOn: '4/21/12', transportedBy: 'NFA Trucking', status: 'To Dry' },
-        { id: 4, from: 'Augusta', currentlyAt: 'Warehouse 004', receivedOn: '10/28/12', transportedBy: 'N/A', status: 'Rice' },
-        { id: 5, from: 'Augusta', currentlyAt: 'Warehouse 004', receivedOn: '12/10/13', transportedBy: 'N/A', status: 'Rice' },
-        { id: 6, from: 'Augusta', currentlyAt: 'Warehouse 004', receivedOn: '12/10/13', transportedBy: 'Zaragoza Trucks', status: 'To Mill' },
+        { id: 1, quantityInBags: '100', from: 'Farm 001', currentlyAt: 'Warehouse 003', receivedOn: '2/11/12', transportedBy: 'Bills Trucking Inc.', status: 'To Mill' },
+        { id: 2, quantityInBags: '100', from: 'Pune', currentlyAt: 'Warehouse 002', receivedOn: '7/11/19', transportedBy: 'Mobilis Services', status: 'Rice' },
+        { id: 3, quantityInBags: '100', from: 'Augusta', currentlyAt: 'Warehouse 002', receivedOn: '4/21/12', transportedBy: 'NFA Trucking', status: 'To Dry' },
+        { id: 4, quantityInBags: '100', from: 'Augusta', currentlyAt: 'Warehouse 004', receivedOn: '10/28/12', transportedBy: 'N/A', status: 'Rice' },
+        { id: 5, quantityInBags: '100', from: 'Augusta', currentlyAt: 'Warehouse 004', receivedOn: '12/10/13', transportedBy: 'N/A', status: 'Rice' },
+        { id: 6, quantityInBags: '100', from: 'Augusta', currentlyAt: 'Warehouse 004', receivedOn: '12/10/13', transportedBy: 'Zaragoza Trucks', status: 'To Mill' },
     ];
 
     const requestData = [
-        { id: 1, from: 'Farm 001', toBeStoreAt: 'Warehouse 003', dateRequest: '2/11/12', transportedBy: 'Bills Trucking Inc.', status: 'To Mill' },
-        { id: 2, from: 'Pune', toBeStoreAt: 'Warehouse 002', dateRequest: '7/11/19', transportedBy: 'Mobilis Services', status: 'To Dry' },
-        { id: 3, from: 'Augusta', toBeStoreAt: 'Warehouse 002', dateRequest: '4/21/12', transportedBy: 'NFA Trucking', status: 'To Mill' },
-        { id: 4, from: 'Cebu', toBeStoreAt: 'Warehouse 005', dateRequest: '5/15/12', transportedBy: 'Fast Logistics', status: 'Rice' },
+        { id: 1, quantityInBags: '100', from: 'Farm 001', toBeStoreAt: 'Warehouse 003', dateRequest: '2/11/12', transportedBy: 'Bills Trucking Inc.', status: 'To Mill' },
+        { id: 2, quantityInBags: '100', from: 'Pune', toBeStoreAt: 'Warehouse 002', dateRequest: '7/11/19', transportedBy: 'Mobilis Services', status: 'To Dry' },
+        { id: 3, quantityInBags: '100', from: 'Augusta', toBeStoreAt: 'Warehouse 002', dateRequest: '4/21/12', transportedBy: 'NFA Trucking', status: 'To Mill' },
+        { id: 4, quantityInBags: '100', from: 'Cebu', toBeStoreAt: 'Warehouse 005', dateRequest: '5/15/12', transportedBy: 'Fast Logistics', status: 'Rice' },
     ];
 
     const [formData, setFormData] = useState({
         sendTo: '',
         facility: '',
         transportedBy: '',
-        description: ''
+        description: '',
+        remarks: ''
+    });
+
+    const [acceptFormData, setAcceptFormData] = useState({
+        riceBatchName: '',
+        riceType: '',
+        price: ''
     });
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData(prevState => ({
             ...prevState,
-            [name]: value,
-            facility: name === 'sendTo' ? '' : prevState.facility
+            [name]: value
         }));
     };
+
+    useEffect(() => {
+        if (selectedItemStatus === 'To Mill') {
+            setFormData(prevState => ({
+                ...prevState,
+                sendTo: 'miller',
+                facility: ''
+            }));
+        } else if (selectedItemStatus === 'To Dry') {
+            setFormData(prevState => ({
+                ...prevState,
+                sendTo: 'dryer',
+                facility: ''
+            }));
+        } else {
+            setFormData(prevState => ({
+                ...prevState,
+                sendTo: '',
+                facility: ''
+            }));
+        }
+    }, [selectedItemStatus]);
 
     const handleSendTo = () => {
         console.log("Send To form data:", formData);
         setShowSendToDialog(false);
-        // Reset form data
         setFormData({
             sendTo: '',
             facility: '',
@@ -99,7 +127,6 @@ function Warehouse() {
         '': []
     };
     
-
     const getSeverity = (status) => {
         switch (status) {
             case 'To Mill':
@@ -137,6 +164,7 @@ function Warehouse() {
     
     const handleActionClick = (status) => {
         if (viewMode === 'inWarehouse') {
+            setSelectedItemStatus(status);
             setShowSendToDialog(true);
         } else {
             setShowAcceptDialog(true);
@@ -237,7 +265,10 @@ function Warehouse() {
                         paginator
                         rows={10}
                     > 
-                        <Column field="id" header="Batch ID" className="text-center" headerClassName="text-center" />
+                        <Column field="id" 
+                                header={selectedFilter === 'rice' ? 'Rice Batch ID' : 'Batch ID'} 
+                                className="text-center" headerClassName="text-center" />
+                        <Column field="quantityInBags" header="Quantity In Bags" className="text-center" headerClassName="text-center" />
                         <Column field="from" header="From" className="text-center" headerClassName="text-center" />
                         <Column field={viewMode === 'inWarehouse' ? "currentlyAt" : "toBeStoreAt"} 
                                 header={viewMode === 'inWarehouse' ? "Currently At" : "To Be Store At"} 
@@ -264,20 +295,21 @@ function Warehouse() {
                             options={sendToOptions} 
                             onChange={(e) => handleInputChange({ target: { name: 'sendTo', value: e.value } })} 
                             placeholder="Select an option" 
+                            disabled={true}
                         />
                     </div>
 
-                    <div className="mb-4">
-                        <label className="block mb-2">Facility</label>
-                        <Dropdown 
-                            className="w-full ring-0" 
-                            value={formData.facility} 
-                            options={facilityOptions[formData.sendTo] || []} 
-                            onChange={(e) => handleInputChange({ target: { name: 'facility', value: e.value } })} 
-                            placeholder="Select a facility" 
-                            disabled={!formData.sendTo}
-                        />
-                    </div>
+                        <div className="mb-4">
+                            <label className="block mb-2">Facility</label>
+                            <Dropdown 
+                                className="w-full ring-0" 
+                                value={formData.facility} 
+                                options={facilityOptions[formData.sendTo] || []} 
+                                onChange={(e) => handleInputChange({ target: { name: 'facility', value: e.value } })} 
+                                placeholder="Select a facility" 
+                                disabled={!formData.sendTo}
+                            />
+                        </div>
 
                     <div className="w-full mb-4">
                         <label htmlFor="transportedBy" className="block text-sm font-medium text-gray-700 mb-1">Transported by</label>
@@ -290,7 +322,7 @@ function Warehouse() {
                     </div>
 
                     <div className="w-full mb-4">
-                        <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                        <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">Transport Description</label>
                         <InputTextarea 
                             name="description"
                             value={formData.description}
@@ -298,6 +330,18 @@ function Warehouse() {
                             className="w-full ring-0" 
                         />
                     </div>
+
+                    <div className="w-full mb-4">
+                        <label htmlFor="remarks" className="block text-sm font-medium text-gray-700 mb-1">Remarks</label>
+                        <InputTextarea 
+                            name="remarks"
+                            value={formData.remarks}
+                            onChange={handleInputChange}
+                            className="w-full ring-0" 
+                        />
+                    </div>
+
+
                     <div className="flex justify-between w-full gap-4 mt-4">
                         <Button label="Cancel" className="w-1/2 bg-transparent text-primary border-primary" onClick={() => setShowSendToDialog(false)} />
                         <Button label="Send Request" className="w-1/2 bg-primary hover:border-none" onClick={handleSendTo} />
@@ -307,9 +351,38 @@ function Warehouse() {
 
             {/* Accept Dialog */}
             <Dialog header="Receive palay" visible={showAcceptDialog} onHide={() => setShowAcceptDialog(false)} className="w-1/3">
-                <div className="flex flex-col items-center">
-                    <p className="mb-10">Click Confirm Receive to accept request to warehouse</p>
-                    <div className="flex justify-between w-full">
+                <div className="flex flex-col items-center gap-2">
+                    <div className="w-full">
+                        <label htmlFor="riceBatchName" className="block text-sm font-medium text-gray-700 mb-1">Rice Batch Name</label>
+                        <InputText 
+                            name="riceBatchName"
+                            value={acceptFormData.riceBatchName}
+                            onChange={handleInputChange}
+                            className="w-full ring-0" 
+                        />
+                    </div>
+
+                    <div className="w-full">
+                        <label htmlFor="riceType" className="block text-sm font-medium text-gray-700 mb-1">Rice Type</label>
+                        <InputText 
+                            name="riceType"
+                            value={acceptFormData.riceType}
+                            onChange={handleInputChange}
+                            className="w-full ring-0" 
+                        />
+                    </div>
+
+                    <div className="w-full">
+                        <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">Price</label>
+                        <InputText 
+                            name="price"
+                            value={acceptFormData.price}
+                            onChange={handleInputChange}
+                            className="w-full ring-0" 
+                        />
+                    </div>
+                    
+                    <div className="flex justify-between w-full mt-5">
                         <Button 
                             label="Confirm Receive" 
                             className="w-full bg-primary hover:border-none" 

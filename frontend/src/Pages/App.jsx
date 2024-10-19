@@ -28,16 +28,19 @@ import StaffBuyPalay from "./SMS/Staff/BuyPalay/BuyPalay";
 import StaffOrders from "./SMS/Staff/Orders";
 import StaffProcessing from "./SMS/Staff/Processing";
 import StaffWarehouse from "./SMS/Staff/Warehouse";
+import StaffProfile from "./SMS/Staff/Profile";
 
 import RecipientHome from "./SMS/Recipient/Home";
 import RecipientRiceOrder from "./SMS/Recipient/RiceOrder/RiceOrder";
 import RecipientRiceReceive from "./SMS/Recipient/RiceReceive/RiceReceive";
 import RecipientHistory from "./SMS/Recipient/History";
+import RecipientProfile from "./SMS/Recipient/Profile";
 
 import PrivateMillerHome from "./SMS/PrivateMiller/Home";
 import PrivateMillerMillingTransactions from "./SMS/PrivateMiller/MillingTransactions";
 import PrivateMillerManageMiller from "./SMS/PrivateMiller/ManageMiller";
 import PrivateMillerHistory from "./SMS/PrivateMiller/History";
+import PrivateMillerProfile from "./SMS/PrivateMiller/Profile";
 
 const ProtectedRoute = ({ children, allowedUserTypes }) => {
     const { user } = useAuth();
@@ -173,6 +176,7 @@ function StaffRoutes() {
             <Route path="orders" element={<StaffOrders />} />
             <Route path="processing" element={<StaffProcessing />} />
             <Route path="warehouse" element={<StaffWarehouse />} />
+            <Route path="profile" element={<StaffProfile />} />
         </Routes>
     );
 }
@@ -184,6 +188,7 @@ function RecipientRoutes() {
             <Route path="order" element={<RecipientRiceOrder />} />
             <Route path="receive" element={<RecipientRiceReceive />} />
             <Route path="history" element={<RecipientHistory />} />
+            <Route path="profile" element={<RecipientProfile />} />
         </Routes>
     );
 }
@@ -195,6 +200,7 @@ function PrivateMillerRoutes() {
             <Route path="transactions" element={<PrivateMillerMillingTransactions />} />
             <Route path="facility" element={<PrivateMillerManageMiller />} />
             <Route path="history" element={<PrivateMillerHistory />} />
+            <Route path="profile" element={<PrivateMillerProfile />} />
         </Routes>
     );
 }
