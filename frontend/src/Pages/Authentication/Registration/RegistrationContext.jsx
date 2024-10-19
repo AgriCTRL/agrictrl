@@ -33,7 +33,6 @@ export const RegistrationProvider = ({ children }) => {
   };
 
   const getRegistrationDataForSubmission = () => {
-    // Create a copy of registrationData without confirmPassword
     const { finishingDetails, ...rest } = registrationData;
     const { confirmPassword, ...safeFinishingDetails } = finishingDetails;
     return { ...rest, finishingDetails: safeFinishingDetails };

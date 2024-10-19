@@ -3,6 +3,9 @@ import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { FileUpload } from 'primereact/fileupload';
 import { useRegistration } from '../RegistrationContext';
+import { storage } from '../firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { v4 as uuidv4 } from 'uuid';
 
 const AccountDetails = () => {
   const { registrationData, updateRegistrationData } = useRegistration();
@@ -105,15 +108,21 @@ const AccountDetails = () => {
     updateRegistrationData('accountDetails', updatedData);
   };
 
-  const handleFileUpload = (event) => {
+  const handleFileUpload = async (event) => {
     const file = event.files[0];
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64Data = reader.result;
-      handleInputChange('validId', base64Data);
+    const fileName = `${uuidv4()}_${file.name}`;
+    const storageRef = ref(storage, `validIds/${fileName}`);
+
+    try {
+      const snapshot = await uploadBytes(storageRef, file);
+      const downloadURL = await getDownloadURL(snapshot.ref);
+
+      handleInputChange('validId', downloadURL);
       handleInputChange('validIdName', file.name);
-    };
-    reader.readAsDataURL(file);
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      console.log(error)
+    }
   };
 
   return (
@@ -185,21 +194,21 @@ const AccountDetails = () => {
         </div>
       )}
 
-      <div className="mb-2">
-        <label htmlFor="validId" className="block mb-2 text-sm font-medium text-gray-700">Valid ID</label>
-        <FileUpload
-          mode="basic"
-          name="validId"
-          accept="image/*"
-          maxFileSize={1000000}
-          chooseLabel={validIdName || "Select Image"}
-          className="w-full ring-0 flex justify-center items-center border-gray-300"
-          chooseOptions={{
-            className: 'bg-transparent text-primary flex flex-col items-center ring-0'
-          }}
-          onSelect={handleFileUpload}
-        />
-      </div>
+		<div className="mb-2">
+			<label htmlFor="validId" className="block mb-2 text-sm font-medium text-gray-700">Valid ID</label>
+			<FileUpload
+				mode="basic"
+				name="validId"
+				accept="image/*"
+				maxFileSize={1000000}
+				chooseLabel={validIdName || "Select Image"}
+				className="w-full ring-0 flex justify-center items-center border-gray-300"
+				chooseOptions={{
+				className: 'bg-transparent text-primary flex flex-col items-center ring-0'
+				}}
+				onSelect={handleFileUpload}
+			/>
+		</div>
     </form>
   );
 };

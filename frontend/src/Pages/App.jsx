@@ -8,6 +8,8 @@ import {
 } from "react-router-dom";
 import { AuthProvider, useAuth } from './Authentication/Login/AuthContext';
 
+import './Authentication/Registration/firebase';
+
 import LandingPage from "./Landing/LandingPage";
 import TracknTrace from "./TNT/TracknTrace";
 

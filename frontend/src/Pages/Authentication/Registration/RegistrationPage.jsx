@@ -45,14 +45,6 @@ const RegistrationPageContent = () => {
   const toast = useRef(null);
   const [confirmPasswordValid, setConfirmPasswordValid] = useState(false);
 
-  const handleRegister1 = (e) => {
-    e.preventDefault();
-    toast.current.show({ severity: 'success', summary: 'Success', detail: 'Registration Successful!', life: 3000 });
-    console.log('Registration Data:', registrationData);
-    navigate('/login');
-    localStorage.removeItem('registrationData');
-  };
-
   const handleRegister = async (e) => {
     e.preventDefault();
 

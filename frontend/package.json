@@ -21,6 +21,7 @@
     "chart.js": "^4.4.4",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+    "firebase": "^10.14.1",
     "framer-motion": "^11.9.0",
     "frontend": "file:",
     "lucide-react": "^0.411.0",
@@ -33,7 +34,8 @@
     "react-step-builder": "^3.0.6",
     "react-transition-group": "^4.4.5",
     "simple-parallax-js": "^6.0.1",
-    "tailwind-merge": "^2.5.2"
+    "tailwind-merge": "^2.5.2",
+    "uuid": "^10.0.0"
   },
   "devDependencies": {
     "@types/react": "^18.3.3",
