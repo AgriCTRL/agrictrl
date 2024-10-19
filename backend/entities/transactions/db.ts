@@ -19,7 +19,10 @@ export class Transaction extends BaseEntity {
     itemIds: number[];
 
     @Column()
-    userId: number;
+    senderId: number;
+
+    @Column()
+    sendDateTime: Date;
 
     @Column()
     fromLocationType: string;
@@ -34,16 +37,25 @@ export class Transaction extends BaseEntity {
     transporter: Transporter;
 
     @Column()
+    receiverId: number;
+
+    @Column()
+    receiveDateTime: Date;
+
+    @Column()
     toLocationType: string;
     
     @Column()
     toLocationId: number;
 
     @Column()
-    transactionTimeDate: Date;
+    status: string;
+
+    @Column()
+    remarks: string;
 }
 
-export type TransactionCreate = Pick<Transaction, 'item' | 'itemIds' | 'userId' | 'fromLocationType' | 'fromLocationId' | 'transporterId' | 'toLocationType' | 'toLocationId' | 'transactionTimeDate'>;
+export type TransactionCreate = Pick<Transaction, 'item' | 'itemIds' | 'senderId' | 'sendDateTime' | 'fromLocationType' | 'fromLocationId' | 'transporterId' | 'receiverId' | 'receiveDateTime' | 'toLocationType' | 'toLocationId' | 'status' | 'remarks'>;
 export type TransactionUpdate = Pick<Transaction, 'id'> & Partial<TransactionCreate>;
 
 export async function getTransactions(limit: number, offset: number): Promise<Transaction[]> {
@@ -76,7 +88,8 @@ export async function createTransaction(transactionCreate: TransactionCreate): P
 
     transaction.item = transactionCreate.item;
     transaction.itemIds = transactionCreate.itemIds;
-    transaction.userId = transactionCreate.userId;
+    transaction.senderId = transactionCreate.senderId;
+    transaction.sendDateTime = transactionCreate.sendDateTime;
     transaction.fromLocationType = transactionCreate.fromLocationType;
     transaction.fromLocationId = transactionCreate.fromLocationId;
 
@@ -90,9 +103,12 @@ export async function createTransaction(transactionCreate: TransactionCreate): P
 
     transaction.transporterId = transporter.id;
 
+    transaction.receiverId = transactionCreate.receiverId;
+    transaction.receiveDateTime = transactionCreate.receiveDateTime;
     transaction.toLocationType = transactionCreate.toLocationType;
     transaction.toLocationId = transactionCreate.toLocationId;
-    transaction.transactionTimeDate = transactionCreate.transactionTimeDate;
+    transaction.status = transactionCreate.status;
+    transaction.remarks = transactionCreate.remarks;
 
     return await transaction.save();
 }
@@ -101,12 +117,16 @@ export async function updateTransaction(transactionUpdate: TransactionUpdate): P
     await Transaction.update(transactionUpdate.id, {
         item: transactionUpdate.item,
         itemIds: transactionUpdate.itemIds,
-        userId: transactionUpdate.userId,
+        senderId: transactionUpdate.senderId,
+        sendDateTime: transactionUpdate.sendDateTime,
         fromLocationType: transactionUpdate.fromLocationType,
         fromLocationId: transactionUpdate.fromLocationId,
+        receiverId: transactionUpdate.receiverId,
+        receiveDateTime: transactionUpdate.receiveDateTime,
         toLocationType: transactionUpdate.toLocationType,
         toLocationId: transactionUpdate.toLocationId,
-        transactionTimeDate: transactionUpdate.transactionTimeDate,
+        status: transactionUpdate.status,
+        remarks: transactionUpdate.remarks,
     });
 
     const transaction = await getTransaction(transactionUpdate.id);

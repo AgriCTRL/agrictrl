@@ -1,7 +1,9 @@
 import express, { Request, Response, Router } from 'express';
 
+import { createBuyingStation } from '../buyingstations/db';
 import { createQualitySpec } from '../qualityspecs/db';
 import { createPalaySupplier } from '../palaysuppliers/db';
+import { createHouseOfficeAddress } from '../houseofficeaddresses/db';
 import { createFarm } from '../farms/db';
 import {
     countPalayBatches,
@@ -10,8 +12,6 @@ import {
     getPalayBatches,
     updatePalayBatch
 } from './db';
-import { createHouseOfficeAddress } from '../houseofficeaddresses/db';
-import { createBuyingStation } from '../buyingstations/db';
 
 export function getRouter(): Router {
     const router = express.Router();
@@ -50,7 +50,9 @@ export function getRouter(): Router {
                 dateBought: Date;
                 buyingStationName: string;
                 location: string;
-                quantityKg: number;
+                quantityBags: number;
+                grossWeight: number;
+                netWeight: number;
                 qualityType: string;
                 moistureContent: number;
                 purity: number;
@@ -84,7 +86,9 @@ export function getRouter(): Router {
                 dateBought,
                 buyingStationName,
                 location,
-                quantityKg,
+                quantityBags,
+                grossWeight,
+                netWeight,
                 qualityType,
                 moistureContent,
                 purity,
@@ -156,8 +160,10 @@ export function getRouter(): Router {
             const palayBatch = await createPalayBatch({
                 palayVariety,
                 dateBought,
-                boughtAt: buyingStation.id,
-                quantityKg,
+                buyingStationId: buyingStation.id,
+                quantityBags,
+                grossWeight,
+                netWeight,
                 qualityType,
                 qualitySpecId: qualitySpec.id,
                 price,
@@ -180,21 +186,25 @@ export function getRouter(): Router {
 
 async function updateHandler(
     req: Request<any, any, { id: number;
-        palayVariety: string
-        dateBought: Date;
-        quantityKg: number;
-        qualityType: string;
-        price: number
-        plantedDate: Date;
-        harvestedDate: Date;
-        estimatedCapital: number;
-        status: string }>,
+        palayVariety?: string
+        dateBought?: Date;
+        quantityBags?: number;
+        grossWeight?: number;
+        netWeight?: number;
+        qualityType?: string;
+        price?: number
+        plantedDate?: Date;
+        harvestedDate?: Date;
+        estimatedCapital?: number;
+        status?: string }>,
     res: Response
 ): Promise<void> {
     const { id,
         palayVariety,
         dateBought,
-        quantityKg,
+        quantityBags,
+        grossWeight,
+        netWeight,
         qualityType,
         price,
         plantedDate,
@@ -206,7 +216,9 @@ async function updateHandler(
         id,
         palayVariety,
         dateBought,
-        quantityKg,
+        quantityBags,
+        grossWeight,
+        netWeight,
         qualityType,
         price,
         plantedDate,

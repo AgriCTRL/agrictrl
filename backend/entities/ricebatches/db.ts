@@ -6,22 +6,22 @@ export class RiceBatch extends BaseEntity {
     id: number;
 
     @Column()
-    transactionId: number;
+    name: string;
 
     @Column()
     dateReceived: Date;
-
-    @Column()
-    quantityKg: number;
 
     @Column()
     riceType: string;
 
     @Column()
     warehouseId: number;
+
+    @Column()
+    price: number;
 }
 
-export type RiceBatchCreate = Pick<RiceBatch, 'transactionId' | 'dateReceived' | 'quantityKg' | 'riceType' | 'warehouseId'>;
+export type RiceBatchCreate = Pick<RiceBatch, 'name' | 'dateReceived' | 'riceType' | 'warehouseId' | 'price'>;
 export type RiceBatchUpdate = Pick<RiceBatch, 'id'> & Partial<RiceBatchCreate>;
 
 export async function getRiceBatches(limit: number, offset: number): Promise<RiceBatch[]> {
@@ -46,22 +46,22 @@ export async function countRiceBatches(): Promise<number> {
 export async function createRiceBatch(riceBatchCreate: RiceBatchCreate): Promise<RiceBatch> {
     let riceBatch = new RiceBatch();
 
-    riceBatch.transactionId = riceBatchCreate.transactionId;
+    riceBatch.name = riceBatchCreate.name;
     riceBatch.dateReceived = riceBatchCreate.dateReceived;
-    riceBatch.quantityKg = riceBatchCreate.quantityKg;
     riceBatch.riceType = riceBatchCreate.riceType;
     riceBatch.warehouseId = riceBatchCreate.warehouseId;
+    riceBatch.price = riceBatchCreate.price;
 
     return await riceBatch.save();
 }
 
 export async function updateRiceBatch(riceBatchUpdate: RiceBatchUpdate): Promise<RiceBatch> {
     await RiceBatch.update(riceBatchUpdate.id, {
-        transactionId: riceBatchUpdate.transactionId,
+        name: riceBatchUpdate.name,
         dateReceived: riceBatchUpdate.dateReceived,
-        quantityKg: riceBatchUpdate.quantityKg,
         riceType: riceBatchUpdate.riceType,
         warehouseId: riceBatchUpdate.warehouseId,
+        price: riceBatchUpdate.price,
     });
 
     const riceBatch = await getRiceBatch(riceBatchUpdate.id);
