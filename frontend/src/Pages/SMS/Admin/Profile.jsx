@@ -4,18 +4,24 @@ import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { Calendar } from 'primereact/calendar';
 import { Button } from 'primereact/button';
+import { Password } from 'primereact/password';
+import { Divider } from 'primereact/divider';
 
-import CustomPasswordInput from '../../../Components/Form/PasswordComponent'; 
 import { useAuth } from '../../Authentication/Login/AuthContext';
+
+import { Toast } from 'primereact/toast';
+import { useRef } from 'react';
 
 function Profile() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const { user } = useAuth();
+    const toast = useRef(null);
     const [activeTab, setActiveTab] = useState('personal');
     const [editing, setEditing] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [userData, setUserData] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [errors, setErrors] = useState({});
 
     const [regionOptions, setRegionOptions] = useState([]);
     const [provinceOptions, setProvinceOptions] = useState([]);
@@ -80,7 +86,8 @@ function Profile() {
                     lastName: data.lastName,
                     gender: data.gender,
                     birthDate: data.birthDate ? new Date(data.birthDate) : null,
-                    contactNumber: data.contactNumber
+                    contactNumber: data.contactNumber,
+                    validId: data.validId
                 },
                 accountDetails: {
                     userType: data.userType,
@@ -314,11 +321,19 @@ function Profile() {
     };
 
     const handleToggleEdit = () => {
+        fetchData();
         setEditing(prevState => !prevState);
     };
 
     const handleSave = async (e) => {
         e.preventDefault();
+        if (!validateForm()) {
+            Object.values(errors).forEach(message => {
+                toast.current.show({severity:'error', summary: 'Validation Error', detail: message, life: 5000});
+            });
+            return;
+        }
+    
         setIsSubmitting(true);
     
         try {
@@ -379,16 +394,107 @@ function Profile() {
                 throw new Error('Failed to update office address');
             }
     
-            console.log('User data and office address updated successfully');
-            setEditing(false);
-            // Optionally, you can refetch the user data here to ensure the UI reflects the latest changes
+            toast.current.show({severity:'success', summary: 'Success', detail:'Profile updated successfully!', life: 3000});
             fetchData();
         } catch (error) {
             console.error('Error updating user data:', error);
-            // Handle error (e.g., show error message to user)
+            toast.current.show({severity:'error', summary: 'Error', detail:'Failed to update profile. Please try again.', life: 5000});
         } finally {
             setIsSubmitting(false);
+            setEditing(false);
         }
+    };
+
+    const validateForm = () => {
+        let isValid = true;
+        let newErrors = {};
+    
+        // Personal Information
+        if (!userData.personalInfo.firstName.trim()) {
+            newErrors.firstName = "First name is required";
+            isValid = false;
+        }
+        if (!userData.personalInfo.lastName.trim()) {
+            newErrors.lastName = "Last name is required";
+            isValid = false;
+        }
+        if (!userData.personalInfo.gender) {
+            newErrors.gender = "Gender is required";
+            isValid = false;
+        }
+        if (!userData.personalInfo.birthDate) {
+            newErrors.birthDate = "Birth date is required";
+            isValid = false;
+        }
+        if (!userData.personalInfo.contactNumber.trim()) {
+            newErrors.contactNumber = "Contact number is required";
+            isValid = false;
+        } else if (!/^\d{10,}$/.test(userData.personalInfo.contactNumber)) {
+            newErrors.contactNumber = "Invalid contact number format";
+            isValid = false;
+        }
+    
+        // Account Details
+        if (!userData.accountDetails.userType) {
+            newErrors.userType = "User type is required";
+            isValid = false;
+        }
+        if (!userData.accountDetails.organizationName.trim()) {
+            newErrors.organizationName = "Organization name is required";
+            isValid = false;
+        }
+        if (!userData.accountDetails.jobTitlePosition.trim()) {
+            newErrors.jobTitlePosition = "Job title/position is required";
+            isValid = false;
+        }
+        if (!userData.accountDetails.branchRegion) {
+            newErrors.branchRegion = "Branch region is required";
+            isValid = false;
+        }
+        if (!userData.accountDetails.branchOffice) {
+            newErrors.branchOffice = "Branch office is required";
+            isValid = false;
+        }
+    
+        // Office Address
+        if (!userData.officeAddress.region) {
+            newErrors.region = "Region is required";
+            isValid = false;
+        }
+        if (userData.officeAddress.region !== "National Capital Region" && !userData.officeAddress.province) {
+            newErrors.province = "Province is required";
+            isValid = false;
+        }
+        if (!userData.officeAddress.cityTown) {
+            newErrors.cityTown = "City/Town is required";
+            isValid = false;
+        }
+        if (!userData.officeAddress.barangay) {
+            newErrors.barangay = "Barangay is required";
+            isValid = false;
+        }
+        if (!userData.officeAddress.street.trim()) {
+            newErrors.street = "Street is required";
+            isValid = false;
+        }
+    
+        // Password
+        if (!userData.passwordInfo.email.trim()) {
+            newErrors.email = "Email is required";
+            isValid = false;
+        }
+        if (userData.passwordInfo.password || userData.passwordInfo.confirmPassword) {
+            if (userData.passwordInfo.password !== userData.passwordInfo.confirmPassword) {
+                newErrors.password = "Passwords do not match";
+                isValid = false;
+            } else if (userData.passwordInfo.password.length < 8) {
+                newErrors.password = "Password must be at least 8 characters long";
+                isValid = false;
+            }
+        }
+    
+        setErrors(newErrors);
+        return isValid;
     };
 
     const genderOptions = [
@@ -416,6 +522,7 @@ function Profile() {
                     disabled={!editing}
                     className="w-full focus:ring-0"
                 />
+                {errors.firstName && <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>}
             </div>
             <div>
                 <label className="block mb-2 text-sm font-medium text-gray-700">Last Name</label>
@@ -425,6 +532,7 @@ function Profile() {
                     disabled={!editing}
                     className="w-full focus:ring-0"
                 />
+                {errors.lastName && <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>}
             </div>
             <div>
                 <label className="block mb-2 text-sm font-medium text-gray-700">Gender</label>
@@ -435,6 +543,7 @@ function Profile() {
                     disabled={!editing}
                     className="ring-0 w-full placeholder:text-gray-400"
                 />
+                {errors.gender && <p className="text-red-500 text-xs mt-1">{errors.gender}</p>}
             </div>
             <div>
                 <label className="block mb-2 text-sm font-medium text-gray-700">Birth Date</label>
@@ -445,6 +554,7 @@ function Profile() {
                     dateFormat="mm/dd/yy"
                     className="w-full rounded-md"
                 />
+                {errors.birthDate && <p className="text-red-500 text-xs mt-1">{errors.birthDate}</p>}
             </div>
             <div>
                 <label className="block mb-2 text-sm font-medium text-gray-700">Contact Number</label>
@@ -454,6 +564,7 @@ function Profile() {
                     disabled={!editing}
                     className="w-full focus:ring-0"
                 />
+                {errors.contactNumber && <p className="text-red-500 text-xs mt-1">{errors.contactNumber}</p>}
             </div>
         </div>
     );
@@ -469,6 +580,7 @@ function Profile() {
                     disabled={!editing}
                     className="w-full border rounded-md border-gray-300"
                 />
+                {errors.userType && <p className="text-red-500 text-xs mt-1">{errors.userType}</p>}
             </div>
             <div>
                 <label className="block mb-2 text-sm font-medium text-gray-700">Organization Name</label>
@@ -478,6 +590,7 @@ function Profile() {
                     disabled={!editing}
                     className="w-full focus:ring-0"
                 />
+                {errors.organizationName && <p className="text-red-500 text-xs mt-1">{errors.organizationName}</p>}
             </div>
             <div>
             <label className="block mb-2 text-sm font-medium text-gray-700">Job Title/Position</label>
@@ -487,6 +600,7 @@ function Profile() {
                     disabled={!editing}
                     className="w-full focus:ring-0"
                 />
+                {errors.jobTitlePosition && <p className="text-red-500 text-xs mt-1">{errors.jobTitlePosition}</p>}
             </div>
             <div>
                 <label className="block mb-2 text-sm font-medium text-gray-700">Branch Region</label>
@@ -497,6 +611,7 @@ function Profile() {
                     disabled={!editing}
                     className="ring-0 w-full placeholder:text-gray-400"
                 />
+                {errors.branchRegion && <p className="text-red-500 text-xs mt-1">{errors.branchRegion}</p>}
             </div>
             <div>
                 <label className="block mb-2 text-sm font-medium text-gray-700">Branch Office</label>
@@ -507,6 +622,7 @@ function Profile() {
                     disabled={!editing}
                     className="ring-0 w-full placeholder:text-gray-400"
                 />
+                {errors.branchOffice && <p className="text-red-500 text-xs mt-1">{errors.branchOffice}</p>}
             </div>
         </div>
     );
@@ -522,6 +638,7 @@ function Profile() {
                     disabled={!editing}
                     className="ring-0 w-full placeholder:text-gray-400"
                 />
+                {errors.region && <p className="text-red-500 text-xs mt-1">{errors.region}</p>}
             </div>
             {userData.officeAddress.region !== "National Capital Region" && (
                 <div>
@@ -533,6 +650,7 @@ function Profile() {
                         disabled={!editing}
                         className="ring-0 w-full placeholder:text-gray-400"
                     />
+                    {errors.province && <p className="text-red-500 text-xs mt-1">{errors.province}</p>}
                 </div>
             )}
             <div>
@@ -544,6 +662,7 @@ function Profile() {
                     disabled={!editing}
                     className="ring-0 w-full placeholder:text-gray-400"
                 />
+                {errors.cityTown && <p className="text-red-500 text-xs mt-1">{errors.cityTown}</p>}
             </div>
             <div>
                 <label className="block mb-2 text-sm font-medium text-gray-700">Barangay</label>
@@ -554,6 +673,7 @@ function Profile() {
                     disabled={!editing}
                     className="ring-0 w-full placeholder:text-gray-400"
                 />
+                {errors.barangay && <p className="text-red-500 text-xs mt-1">{errors.barangay}</p>}
             </div>
             <div>
                 <label className="block mb-2 text-sm font-medium text-gray-700">Street</label>
@@ -563,6 +683,7 @@ function Profile() {
                     disabled={!editing}
                     className="w-full focus:ring-0"
                 />
+                {errors.street && <p className="text-red-500 text-xs mt-1">{errors.street}</p>}
             </div>
         </div>
     );
@@ -577,34 +698,50 @@ function Profile() {
                     disabled={!editing}
                     className="w-full focus:ring-0"
                 />
+                {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
             </div>
             { editing && (
                 <div>
                     <div>
                         <label className="block mb-2 text-sm font-medium text-gray-700">New Password</label>
-                        <CustomPasswordInput
+                        <Password
                             value={userData.passwordInfo.password}
+                            footer={passwordFooter}
                             onChange={(e) => handleInputChange('passwordInfo', 'password', e.target.value)}
                             disabled={!editing}
-                            className="focus:border-[#14b8a6] hover:border-[#14b8a6] w-full p-2 border rounded-md border-gray-300"
+                            inputClassName="w-full p-3 ring-0"
                             toggleMask
-                            feedback={false}
                         />
+                        {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
                     </div>
                     <div>
                         <label className="block mb-2 text-sm font-medium text-gray-700">Confirm Password</label>
-                        <CustomPasswordInput
+                        <Password
                             value={userData.passwordInfo.confirmPassword}
                             onChange={(e) => handleInputChange('passwordInfo', 'confirmPassword', e.target.value)}
                             disabled={!editing}
-                            className="focus:border-[#14b8a6] hover:border-[#14b8a6] w-full p-2 border rounded-md border-gray-300"
+                            inputClassName="w-full p-3 ring-0"
                             toggleMask
                             feedback={false}
                         />
+                        {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
                     </div>
                 </div>
             )}
         </div>
+    );
+
+    const passwordFooter = (
+        <>
+          <Divider />
+          <p className="mt-2">Suggestions</p>
+          <ul className="pl-2 ml-2 mt-0 line-height-3">
+            <li>At least one lowercase</li>
+            <li>At least one uppercase</li>
+            <li>At least one numeric</li>
+            <li>Minimum 8 characters</li>
+          </ul>
+        </>
     );
 
     const tabs = [
@@ -636,6 +773,7 @@ function Profile() {
 
     return (
         <AdminLayout activePage="Profile">
+            <Toast ref={toast} />
             <div className='flex flex-row h-full w-full px-4 py-2 bg-white rounded-xl'>
                 <div className='flex flex-col items-center justify-start h-full w-1/4 p-5'>
                     <img src="/profileAvatar.png" alt="Profile" className="w-20 h-20 rounded-full mr-4" />
