@@ -383,19 +383,6 @@ function Processing() {
                     </div>
 
                     <div className="flex w-full gap-2">
-                        <div className="w-full">
-                            <label className="block mb-2">
-                                {viewMode === 'drying' ? 'Dryer' : 'Miller'} Type
-                            </label>
-                            <Dropdown 
-                                name="type"
-                                value={formData.type}
-                                options={['In House', 'Private']}
-                                onChange={handleInputChange}
-                                placeholder="Select a method" 
-                                className="w-full ring-0" 
-                            />
-                        </div>
                         
                         {viewMode === 'drying' && (
                             <div className="w-full">
@@ -409,9 +396,6 @@ function Processing() {
                                 />
                             </div>
                         )}
-                    </div>
-
-                    <div className="flex w-full gap-2">
                         <div className="w-full">
                             <label className="block mb-2">Quantity in Bags</label>
                             <InputText 
@@ -422,7 +406,9 @@ function Processing() {
                                 className="w-full ring-0" 
                             />
                         </div>
+                    </div>
 
+                    <div className="flex w-full gap-2">
                         <div className="w-full">
                             <label className="block mb-2">Gross Weight</label>
                             <InputText 
