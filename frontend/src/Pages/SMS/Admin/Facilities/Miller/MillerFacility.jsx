@@ -170,6 +170,7 @@ function MillerFacility() {
                         <Column field="location" header="Location" className="text-center" headerClassName="text-center"/>
                         <Column field="capacity" header="Capacity (mt)" className="text-center" headerClassName="text-center"/>
                         <Column field="processing" header="Processing" className="text-center" headerClassName="text-center"/>
+                        <Column field="category" header="Category" className="text-center" headerClassName="text-center"/>
                         <Column field="type" header="Type" className="text-center" headerClassName="text-center"/>
                         <Column field="status" header="Status" body={statusBodyTemplate} className="text-center" headerClassName="text-center"/>
                         <Column body={actionBodyTemplate} exportable={false} className="text-center" headerClassName="text-center"/>

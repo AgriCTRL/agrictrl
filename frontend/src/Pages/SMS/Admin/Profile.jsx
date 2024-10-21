@@ -322,15 +322,48 @@ function Profile() {
     const handleToggleEdit = () => {
         fetchData();
         setEditing(prevState => !prevState);
+        setErrors({}); // Reset the errors
+        setUserData(prev => ({
+            ...prev,
+            personalInfo: {
+                ...prev.personalInfo,
+                firstName: prev.personalInfo.firstName,
+                lastName: prev.personalInfo.lastName,
+                gender: prev.personalInfo.gender,
+                birthDate: prev.personalInfo.birthDate,
+                contactNumber: prev.personalInfo.contactNumber,
+            },
+            accountDetails: {
+                ...prev.accountDetails,
+                userType: prev.accountDetails.userType,
+                organizationName: prev.accountDetails.organizationName,
+                jobTitlePosition: prev.accountDetails.jobTitlePosition,
+                branchRegion: prev.accountDetails.branchRegion,
+                branchOffice: prev.accountDetails.branchOffice,
+            },
+            officeAddress: {
+                ...prev.officeAddress,
+                region: prev.officeAddress.region,
+                province: prev.officeAddress.province,
+                cityTown: prev.officeAddress.cityTown,
+                barangay: prev.officeAddress.barangay,
+                street: prev.officeAddress.street,
+            },
+            passwordInfo: {
+                ...prev.passwordInfo,
+                email: prev.passwordInfo.email,
+                password: null,
+                confirmPassword: null,
+            },
+        }));
     };
 
     const handleSave = async (e) => {
         e.preventDefault();
-        if (!validateForm()) {
-            // Display individual error messages
-            Object.values(errors).forEach(message => {
-                toast.current.show({severity:'error', summary: 'Validation Error', detail: message, life: 5000});
-            });
+        setErrors({});
+
+        let validationErrors = validateFormWithToast();
+        if (Object.keys(validationErrors).length > 0) {
             return;
         }
     
@@ -404,96 +437,95 @@ function Profile() {
         }
     };
 
-    const validateForm = () => {
-        let isValid = true;
+    const validateFormWithToast  = () => {
         let newErrors = {};
     
         // Personal Information
         if (!userData.personalInfo.firstName.trim()) {
             newErrors.firstName = "First name is required";
-            isValid = false;
+            toast.current.show({severity:'error', summary: 'Error', detail:'First name is required', life: 5000});
         }
         if (!userData.personalInfo.lastName.trim()) {
             newErrors.lastName = "Last name is required";
-            isValid = false;
+            toast.current.show({severity:'error', summary: 'Error', detail:'Last name is required', life: 5000});
         }
         if (!userData.personalInfo.gender) {
             newErrors.gender = "Gender is required";
-            isValid = false;
+            toast.current.show({severity:'error', summary: 'Error', detail:'Gender is required', life: 5000});
         }
         if (!userData.personalInfo.birthDate) {
             newErrors.birthDate = "Birth date is required";
-            isValid = false;
+            toast.current.show({severity:'error', summary: 'Error', detail:'Birth date is required', life: 5000});
         }
         if (!userData.personalInfo.contactNumber.trim()) {
             newErrors.contactNumber = "Contact number is required";
-            isValid = false;
+            toast.current.show({severity:'error', summary: 'Error', detail:'Contact number is required', life: 5000});
         } else if (!/^\d{10,}$/.test(userData.personalInfo.contactNumber)) {
             newErrors.contactNumber = "Invalid contact number format";
-            isValid = false;
+            toast.current.show({severity:'error', summary: 'Error', detail:'Invalid contact number format', life: 5000});
         }
     
         // Account Details
         if (!userData.accountDetails.userType) {
             newErrors.userType = "User type is required";
-            isValid = false;
+            toast.current.show({severity:'error', summary: 'Error', detail:'User type is required', life: 5000});
         }
         if (!userData.accountDetails.organizationName.trim()) {
             newErrors.organizationName = "Organization name is required";
-            isValid = false;
+            toast.current.show({severity:'error', summary: 'Error', detail:'Organization is required', life: 5000});
         }
         if (!userData.accountDetails.jobTitlePosition.trim()) {
             newErrors.jobTitlePosition = "Job title/position is required";
-            isValid = false;
+            toast.current.show({severity:'error', summary: 'Error', detail:'Job title/position is required', life: 5000});
         }
         if (!userData.accountDetails.branchRegion) {
             newErrors.branchRegion = "Branch region is required";
-            isValid = false;
+            toast.current.show({severity:'error', summary: 'Error', detail:'Branch region is required', life: 5000});
         }
         if (!userData.accountDetails.branchOffice) {
             newErrors.branchOffice = "Branch office is required";
-            isValid = false;
+            toast.current.show({severity:'error', summary: 'Error', detail:'Branch office is required', life: 5000});
         }
     
         // Office Address
         if (!userData.officeAddress.region) {
             newErrors.region = "Region is required";
-            isValid = false;
+            toast.current.show({severity:'error', summary: 'Error', detail:'Region is required', life: 5000});
         }
         if (userData.officeAddress.region !== "National Capital Region" && !userData.officeAddress.province) {
             newErrors.province = "Province is required";
-            isValid = false;
+            toast.current.show({severity:'error', summary: 'Error', detail:'Province is required', life: 5000});
         }
         if (!userData.officeAddress.cityTown) {
             newErrors.cityTown = "City/Town is required";
-            isValid = false;
+            toast.current.show({severity:'error', summary: 'Error', detail:'City/Town is required', life: 5000});
         }
         if (!userData.officeAddress.barangay) {
             newErrors.barangay = "Barangay is required";
-            isValid = false;
+            toast.current.show({severity:'error', summary: 'Error', detail:'Barangay is required', life: 5000});
         }
         if (!userData.officeAddress.street.trim()) {
             newErrors.street = "Street is required";
-            isValid = false;
+            toast.current.show({severity:'error', summary: 'Error', detail:'Street is required', life: 5000});
         }
     
         // Password
         if (!userData.passwordInfo.email.trim()) {
             newErrors.email = "Email is required";
-            isValid = false;
+            toast.current.show({severity:'error', summary: 'Error', detail:'Email is required', life: 5000});
         }
         if (userData.passwordInfo.password || userData.passwordInfo.confirmPassword) {
             if (userData.passwordInfo.password !== userData.passwordInfo.confirmPassword) {
                 newErrors.password = "Passwords do not match";
-                isValid = false;
+                toast.current.show({severity:'error', summary: 'Error', detail:'Passwords do not match', life: 5000});
             } else if (userData.passwordInfo.password.length < 8) {
                 newErrors.password = "Password must be at least 8 characters long";
-                isValid = false;
+                toast.current.show({severity:'error', summary: 'Error', detail:'Password must be at least 8 characters long', life: 5000});
             }
         }
     
         setErrors(newErrors);
-        return isValid;
+        return newErrors;
     };
 
     const genderOptions = [

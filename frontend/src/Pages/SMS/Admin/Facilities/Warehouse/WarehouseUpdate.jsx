@@ -119,7 +119,7 @@ function WarehouseUpdate({ visible, onHide, selectedWarehouse, onUpdateWarehouse
                                 id="facilityName"
                                 value={facilityName}
                                 onChange={(e) => setFacilityName(e.target.value)}
-                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
                             />
                         </div>
 
@@ -129,7 +129,7 @@ function WarehouseUpdate({ visible, onHide, selectedWarehouse, onUpdateWarehouse
                                 id="nfaBranch"
                                 value={nfaBranch}
                                 onChange={(e) => setNfaBranch(e.target.value)}
-                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
                             />
                         </div>
 
@@ -140,7 +140,7 @@ function WarehouseUpdate({ visible, onHide, selectedWarehouse, onUpdateWarehouse
                                 value={totalCapacity}
                                 type='number'
                                 onChange={(e) => setTotalCapacity(e.target.value)}
-                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
                             />
                         </div>
 
@@ -150,7 +150,7 @@ function WarehouseUpdate({ visible, onHide, selectedWarehouse, onUpdateWarehouse
                                 id="location"
                                 value={location}
                                 onChange={(e) => setLocation(e.target.value)}
-                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0" 
                             />
                         </div>
 
@@ -160,7 +160,7 @@ function WarehouseUpdate({ visible, onHide, selectedWarehouse, onUpdateWarehouse
                                 id="contactNumber"
                                 value={contactNumber}
                                 onChange={(e) => setContactNumber(e.target.value)}
-                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
                             />
                         </div>
 
@@ -170,11 +170,11 @@ function WarehouseUpdate({ visible, onHide, selectedWarehouse, onUpdateWarehouse
                                 id="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
                             />
                         </div>
 
-                        <div>
+                        <div className='col-span-2'>
                             <label htmlFor="status" className="block text-sm font-medium text-gray-700">Status</label>
                             <Dropdown
                                 id="status"
@@ -182,7 +182,7 @@ function WarehouseUpdate({ visible, onHide, selectedWarehouse, onUpdateWarehouse
                                 options={statusOptions}
                                 onChange={(e) => setStatus(e.value)}
                                 placeholder="Select Status"
-                                className="w-full rounded-md border border-gray-300"
+                                className="w-full rounded-md border border-gray-300 ring-0"
                             />
                         </div>
 
@@ -190,14 +190,14 @@ function WarehouseUpdate({ visible, onHide, selectedWarehouse, onUpdateWarehouse
                         <Button
                             label="Cancel"
                             onClick={onHide}
-                            className="col-start-1 row-start-7 bg-transparent border border-primary text-primary py-2 rounded-md"
+                            className="col-start-1 row-start-7 bg-transparent border border-primary text-primary py-2 rounded-md ring-0"
                         />
 
                         {/* Update Button */}
                         <Button
                             label="Update"
                             disabled={isSubmitting}
-                            className="col-start-2 row-start-7 bg-primary text-white py-2 rounded-md"
+                            className="col-start-2 row-start-7 bg-primary text-white py-2 rounded-md ring-0"
                         />
                     </div>
                 </form>

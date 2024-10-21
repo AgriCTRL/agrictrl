@@ -105,7 +105,7 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
             <Toast ref={toast} />
             <div className="bg-white rounded-lg p-5 w-1/3 shadow-lg relative">
                 {/* Close button */}
-                <button onClick={onHide} className="absolute top-5 right-5 text-gray-600 hover:text-gray-800">
+                <button onClick={onHide} className="absolute top-5 right-5 text-gray-600 hover:text-gray-800 ring-0">
                     ✕
                 </button>
 
@@ -124,7 +124,7 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
                                 id="millerName"
                                 value={millerName}
                                 onChange={(e) => setMillerName(e.target.value)}
-                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
                             />
                         </div>
 
@@ -135,7 +135,7 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
                                 value={category}
                                 options={categoryOptions}
                                 onChange={(e) => setCategory(e.value)}
-                                className="w-full rounded-md border border-gray-300"
+                                className="w-full rounded-md border border-gray-300 ring-0"
                             />
                         </div>
 
@@ -145,7 +145,7 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
                                 id="capacity"
                                 value={capacity}
                                 onChange={(e) => setCapacity(e.target.value)}
-                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
                             />
                         </div>
 
@@ -155,7 +155,7 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
                                 id="location"
                                 value={location}
                                 onChange={(e) => setLocation(e.target.value)}
-                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
                             />
                         </div>
 
@@ -165,7 +165,7 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
                                 id="contactNumber"
                                 value={contactNumber}
                                 onChange={(e) => setContactNumber(e.target.value)}
-                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
                             />
                         </div>
 
@@ -175,11 +175,11 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
                                 id="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
                             />
                         </div>
 
-                        <div>
+                        <div className='col-span-2'>
                             <label htmlFor="status" className="block text-sm font-medium text-gray-700">Status</label>
                             <Dropdown
                                 id="status"
@@ -187,7 +187,7 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
                                 options={statusOptions}
                                 onChange={(e) => setStatus(e.value)}
                                 placeholder="Select Status"
-                                className="w-full rounded-md border border-gray-300"
+                                className="w-full rounded-md border border-gray-300 ring-0"
                             />
                         </div>
 
@@ -195,14 +195,14 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
                         <Button
                             label="Cancel"
                             onClick={onHide}
-                            className="col-start-1 row-start-7 bg-transparent border border-primary text-primary py-2 rounded-md"
+                            className="col-start-1 row-start-7 bg-transparent border border-primary text-primary py-2 rounded-md ring-0"
                         />
 
                         {/* Update Button */}
                         <Button
                             label="Update"
                             disabled={isSubmitting}
-                            className="col-start-2 row-start-7 bg-primary text-white py-2 rounded-md"
+                            className="col-start-2 row-start-7 bg-primary text-white py-2 rounded-md ring-0"
                         />
                     </div>
                 </form>

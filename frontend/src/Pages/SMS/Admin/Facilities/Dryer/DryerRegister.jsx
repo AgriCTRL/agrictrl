@@ -14,6 +14,7 @@ function DryerRegister({ visible, onHide, onDryerRegistered }) {
     const [dryerName, setDryerName] = useState('');
     const [userId, setUserId] = useState('0');
     const [capacity, setCapacity] = useState('');
+    const [processing, setProcessing] = useState('0');
     const [location, setLocation] = useState('');
     const [contactNumber, setContactNumber] = useState('');
     const [email, setEmail] = useState('');
@@ -55,6 +56,7 @@ function DryerRegister({ visible, onHide, onDryerRegistered }) {
             userId,
             location,
             capacity,
+            processing,
             contactNumber,
             email,
             status
@@ -97,7 +99,7 @@ function DryerRegister({ visible, onHide, onDryerRegistered }) {
             <Toast ref={toast} />
             <div className="bg-white rounded-lg p-5 w-1/3 shadow-lg relative">
                 {/* Close button */}
-                <button onClick={onHide} className="absolute top-5 right-5 text-gray-600 hover:text-gray-800">
+                <button onClick={onHide} className="absolute top-5 right-5 text-gray-600 hover:text-gray-800 ring-0">
                     ✕
                 </button>
 
@@ -116,7 +118,7 @@ function DryerRegister({ visible, onHide, onDryerRegistered }) {
                                 id="dryerName"
                                 value={dryerName}
                                 onChange={(e) => setDryerName(e.target.value)}
-                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
                             />
                         </div>
 
@@ -127,7 +129,7 @@ function DryerRegister({ visible, onHide, onDryerRegistered }) {
                                 value={capacity}
                                 type='number'
                                 onChange={(e) => setCapacity(e.target.value)}
-                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
                             />
                         </div>
 
@@ -137,7 +139,7 @@ function DryerRegister({ visible, onHide, onDryerRegistered }) {
                                 id="location"
                                 value={location}
                                 onChange={(e) => setLocation(e.target.value)}
-                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
                             />
                         </div>
 
@@ -148,7 +150,7 @@ function DryerRegister({ visible, onHide, onDryerRegistered }) {
                                 value={contactNumber}
                                 type='number'
                                 onChange={(e) => setContactNumber(e.target.value)}
-                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
                             />
                         </div>
 
@@ -158,7 +160,7 @@ function DryerRegister({ visible, onHide, onDryerRegistered }) {
                                 id="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
                             />
                         </div>
 
@@ -170,14 +172,14 @@ function DryerRegister({ visible, onHide, onDryerRegistered }) {
                                 options={statusOptions}
                                 onChange={(e) => setStatus(e.value)}
                                 placeholder="Select Status"
-                                className="w-full rounded-md border border-gray-300"
+                                className="w-full rounded-md border border-gray-300 ring-0"
                             />
                         </div>
 
                         <Button
                             label="Add New"
                             disabled={isSubmitting}
-                            className="col-start-2 row-start-7 bg-primary text-white py-2 rounded-md"
+                            className="col-start-2 row-start-7 bg-primary text-white py-2 rounded-md ring-0"
                         />
                     </div>
                 </form>

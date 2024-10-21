@@ -98,7 +98,7 @@ function DryerUpdate({ visible, onHide, selectedDryer, onUpdateDryer }) {
             <Toast ref={toast} />
             <div className="bg-white rounded-lg p-5 w-1/3 shadow-lg relative">
                 {/* Close button */}
-                <button onClick={onHide} className="absolute top-5 right-5 text-gray-600 hover:text-gray-800">
+                <button onClick={onHide} className="absolute top-5 right-5 text-gray-600 hover:text-gray-800 ring-0">
                     ✕
                 </button>
 
@@ -117,7 +117,7 @@ function DryerUpdate({ visible, onHide, selectedDryer, onUpdateDryer }) {
                                 id="dryerName"
                                 value={dryerName}
                                 onChange={(e) => setDryerName(e.target.value)}
-                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
                             />
                         </div>
 
@@ -128,7 +128,7 @@ function DryerUpdate({ visible, onHide, selectedDryer, onUpdateDryer }) {
                                 value={capacity}
                                 type='number'
                                 onChange={(e) => setCapacity(e.target.value)}
-                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
                             />
                         </div>
 
@@ -138,7 +138,7 @@ function DryerUpdate({ visible, onHide, selectedDryer, onUpdateDryer }) {
                                 id="location"
                                 value={location}
                                 onChange={(e) => setLocation(e.target.value)}
-                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
                             />
                         </div>
 
@@ -149,7 +149,7 @@ function DryerUpdate({ visible, onHide, selectedDryer, onUpdateDryer }) {
                                 value={contactNumber}
                                 type='number'
                                 onChange={(e) => setContactNumber(e.target.value)}
-                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
                             />
                         </div>
 
@@ -159,7 +159,7 @@ function DryerUpdate({ visible, onHide, selectedDryer, onUpdateDryer }) {
                                 id="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0" 
                             />
                         </div>
 
@@ -171,7 +171,7 @@ function DryerUpdate({ visible, onHide, selectedDryer, onUpdateDryer }) {
                                 options={statusOptions}
                                 onChange={(e) => setStatus(e.value)}
                                 placeholder="Select Status"
-                                className="w-full rounded-md border border-gray-300"
+                                className="w-full rounded-md border border-gray-300 ring-0"
                             />
                         </div>
 
@@ -179,21 +179,14 @@ function DryerUpdate({ visible, onHide, selectedDryer, onUpdateDryer }) {
                         <Button
                             label="Cancel"
                             onClick={onHide}
-                            className="col-start-1 row-start-7 bg-transparent border border-primary text-primary py-2 rounded-md"
-                        />
-
-                        {/* Cancel Button */}
-                        <Button
-                            label="Cancel"
-                            onClick={onHide}
-                            className="col-start-1 row-start-7 bg-transparent border border-primary text-primary py-2 rounded-md"
+                            className="col-start-1 row-start-7 bg-transparent border border-primary text-primary py-2 rounded-md ring-0"
                         />
 
                         {/* Update Button */}
                         <Button
                             label="Update"
                             disabled={isSubmitting}
-                            className="col-start-2 row-start-7 bg-primary text-white py-2 rounded-md"
+                            className="col-start-2 row-start-7 bg-primary text-white py-2 rounded-md ring-0"
                         />
                     </div>
                 </form>

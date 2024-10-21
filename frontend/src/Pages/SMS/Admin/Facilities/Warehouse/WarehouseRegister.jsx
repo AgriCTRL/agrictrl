@@ -120,7 +120,7 @@ function WarehouseRegister({ visible, onHide, onWarehouseRegistered }) {
                                 id="facilityName"
                                 value={facilityName}
                                 onChange={(e) => setFacilityName(e.target.value)}
-                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
                             />
                         </div>
 
@@ -130,7 +130,7 @@ function WarehouseRegister({ visible, onHide, onWarehouseRegistered }) {
                                 id="nfaBranch"
                                 value={nfaBranch}
                                 onChange={(e) => setNfaBranch(e.target.value)}
-                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
                             />
                         </div>
 
@@ -141,7 +141,7 @@ function WarehouseRegister({ visible, onHide, onWarehouseRegistered }) {
                                 value={totalCapacity}
                                 type='number'
                                 onChange={(e) => setTotalCapacity(e.target.value)}
-                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
                             />
                         </div>
 
@@ -151,7 +151,7 @@ function WarehouseRegister({ visible, onHide, onWarehouseRegistered }) {
                                 id="location"
                                 value={location}
                                 onChange={(e) => setLocation(e.target.value)}
-                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
                             />
                         </div>
 
@@ -162,7 +162,7 @@ function WarehouseRegister({ visible, onHide, onWarehouseRegistered }) {
                                 value={contactNumber}
                                 type='number'
                                 onChange={(e) => setContactNumber(e.target.value)}
-                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
                             />
                         </div>
 
@@ -172,11 +172,11 @@ function WarehouseRegister({ visible, onHide, onWarehouseRegistered }) {
                                 id="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
                             />
                         </div>
 
-                        <div>
+                        <div className='col-span-2'>
                             <label htmlFor="status" className="block text-sm font-medium text-gray-700">Status</label>
                             <Dropdown
                                 id="status"
@@ -184,14 +184,14 @@ function WarehouseRegister({ visible, onHide, onWarehouseRegistered }) {
                                 options={statusOptions}
                                 onChange={(e) => setStatus(e.value)}
                                 placeholder="Select Status"
-                                className="w-full rounded-md border border-gray-300"
+                                className="w-full rounded-md border border-gray-300 ring-0"
                             />
                         </div>
 
                         <Button 
                             label="Add New" 
                             disabled={isSubmitting} 
-                            className="col-start-2 row-start-7 bg-primary text-white py-2 rounded-md"
+                            className="col-start-2 row-start-7 bg-primary text-white py-2 rounded-md ring-0"
                         />
                         
                     </div>
