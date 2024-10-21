@@ -41,17 +41,19 @@ export function getRouter(): Router {
     router.post(
         '/',
         async (
-            req: Request<any, any, { millerName: string; userId: number; category: string; location: string;  capacity: number; contactNumber: string; email: string; status: string }>,
+            req: Request<any, any, { millerName: string; userId: number; category: string; type: string; location: string; capacity: number; processing: number; contactNumber: string; email: string; status: string }>,
             res
         ) => {
-            const { millerName, userId, category, location, capacity, contactNumber, email, status } = req.body;
+            const { millerName, userId, category, type, location, capacity, processing, contactNumber, email, status } = req.body;
 
             const miller = await createMiller({
                 millerName,
                 userId,
                 category,
+                type,
                 location,
                 capacity,
+                processing,
                 contactNumber,
                 email,
                 status
@@ -67,18 +69,20 @@ export function getRouter(): Router {
 }
 
 async function updateHandler(
-    req: Request<any, any, { id: number; millerName?: string; userId?: number; category?: string; location?: string;  capacity?: number; contactNumber?: string; email?: string; status?: string }>,
+    req: Request<any, any, { id: number; millerName?: string; userId?: number; category?: string; type?: string; location?: string; capacity?: number; processing?: number; contactNumber?: string; email?: string; status?: string }>,
     res: Response
 ): Promise<void> {
-    const { id, millerName, userId, category, location, capacity, contactNumber, email, status } = req.body;
+    const { id, millerName, userId, category, type, location, capacity, processing, contactNumber, email, status } = req.body;
 
     const miller = await updateMiller({
         id,
         millerName,
         userId,
         category,
+        type,
         location,
         capacity,
+        processing,
         contactNumber,
         email,
         status

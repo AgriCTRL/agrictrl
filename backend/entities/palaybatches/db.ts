@@ -6,10 +6,10 @@ import {
     PrimaryGeneratedColumn
 } from 'typeorm';
 
+import { getBuyingStation, BuyingStation } from '../buyingstations/db';
 import { getQualitySpec, QualitySpec } from '../qualityspecs/db';
 import { getPalaySupplier, PalaySupplier } from '../palaysuppliers/db';
 import { getFarm, Farm } from '../farms/db';
-import { getBuyingStation, BuyingStation } from '../buyingstations/db';
 
 @Entity()
 export class PalayBatch extends BaseEntity {
@@ -23,13 +23,19 @@ export class PalayBatch extends BaseEntity {
     dateBought: Date;
 
     @Column()
-    boughtAt: number;
+    buyingStationId: number;
 
     @ManyToOne(() => BuyingStation)
     buyingStation: BuyingStation;
 
     @Column()
-    quantityKg: number;
+    quantityBags: number;
+
+    @Column()
+    grossWeight: number;
+
+    @Column()
+    netWeight: number;
     
     @Column()
     qualityType: string;
@@ -55,32 +61,42 @@ export class PalayBatch extends BaseEntity {
     @ManyToOne(() => Farm)
     farm: Farm;
 
-    @Column()
+    @Column({ nullable: true })
     plantedDate: Date;
 
-    @Column()
+    @Column({ nullable: true })
     harvestedDate: Date;
 
-    @Column()
+    @Column({ nullable: true })
     estimatedCapital: number;
 
     @Column()
     status: string;
 }
 
-export type PalayBatchCreate = Pick<PalayBatch, 'palayVariety' | 'dateBought' | 'boughtAt' | 'quantityKg' | 'qualityType' | 'qualitySpecId' | 'price' | 'palaySupplierId' | 'farmId' | 'plantedDate' | 'harvestedDate' | 'estimatedCapital' | 'status'> &
-{ qualitySpecId: QualitySpec['id'] };
+export type PalayBatchCreate = Pick<PalayBatch, 'palayVariety' | 'dateBought' | 'buyingStationId' | 'quantityBags' | 'grossWeight' | 'netWeight' | 'qualityType' | 'qualitySpecId' | 'price' | 'palaySupplierId' | 'farmId' | 'plantedDate' | 'harvestedDate' | 'estimatedCapital' | 'status'> &
+{  buyingStationId: BuyingStation['id'];
+    qualitySpecId: QualitySpec['id'];
+    palaySupplierId: PalaySupplier['id'];
+    farmId: Farm['id'];
+ };
 export type PalayBatchUpdate = Pick<PalayBatch, 'id'> & Partial<PalayBatchCreate>;
+
+function getCurrentPST(): Date {
+    const now = new Date();
+    const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+    return new Date(utc + (3600000 * 8));
+}
 
 export async function getPalayBatches(limit: number, offset: number): Promise<PalayBatch[]> {
     return await PalayBatch.find({
         take: limit,
         skip: offset,
         relations: {
+            buyingStation: true,
             qualitySpec: true,
             palaySupplier: true,
-            farm: true,
-            buyingStation: true
+            farm: true
         }
     });
 }
@@ -91,10 +107,10 @@ export async function getPalayBatch(id: number): Promise<PalayBatch | null> {
             id
         },
         relations: {
+            buyingStation: true,
             qualitySpec: true,
             palaySupplier: true,
-            farm: true,
-            buyingStation: true
+            farm: true
         }
     });
 }
@@ -107,9 +123,9 @@ export async function createPalayBatch(palayBatchCreate: PalayBatchCreate): Prom
     let palayBatch = new PalayBatch();
 
     palayBatch.palayVariety = palayBatchCreate.palayVariety;
-    palayBatch.dateBought = palayBatchCreate.dateBought;
+    palayBatch.dateBought = getCurrentPST();
 
-    // boughtAt
+    // buyingStation
 
     const buyingStation = await getBuyingStation(palayBatchCreate.qualitySpecId);
 
@@ -117,9 +133,11 @@ export async function createPalayBatch(palayBatchCreate: PalayBatchCreate): Prom
         throw new Error(``);
     }
 
-    palayBatch.boughtAt = buyingStation.id;
+    palayBatch.buyingStationId = buyingStation.id;
     
-    palayBatch.quantityKg = palayBatchCreate.quantityKg;
+    palayBatch.quantityBags = palayBatchCreate.quantityBags;
+    palayBatch.grossWeight = palayBatchCreate.grossWeight;
+    palayBatch.netWeight = palayBatchCreate.netWeight;
     palayBatch.qualityType = palayBatchCreate.qualityType;
 
     // qualitySpec
@@ -166,7 +184,9 @@ export async function updatePalayBatch(palayBatchUpdate: PalayBatchUpdate): Prom
     await PalayBatch.update(palayBatchUpdate.id, {
         palayVariety: palayBatchUpdate.palayVariety,
         dateBought: palayBatchUpdate.dateBought,
-        quantityKg: palayBatchUpdate.quantityKg,
+        quantityBags: palayBatchUpdate.quantityBags,
+        grossWeight: palayBatchUpdate.grossWeight,
+        netWeight: palayBatchUpdate.netWeight,
         qualityType: palayBatchUpdate.qualityType,
         price: palayBatchUpdate.price,
         plantedDate: palayBatchUpdate.plantedDate,

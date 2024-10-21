@@ -41,16 +41,17 @@ export function getRouter(): Router {
     router.post(
         '/',
         async (
-            req: Request<any, any, { dryerName: string; userId: number; location: string;  capacity: number; contactNumber: string; email: string; status: string }>,
+            req: Request<any, any, { dryerName: string; userId: number; location: string;  capacity: number; processing: number; contactNumber: string; email: string; status: string }>,
             res
         ) => {
-            const { dryerName, userId, location, capacity, contactNumber, email, status } = req.body;
+            const { dryerName, userId, location, capacity, processing, contactNumber, email, status } = req.body;
 
             const dryer = await createDryer({
                 dryerName,
                 userId,
                 location,
                 capacity,
+                processing,
                 contactNumber,
                 email,
                 status
@@ -66,10 +67,10 @@ export function getRouter(): Router {
 }
 
 async function updateHandler(
-    req: Request<any, any, { id: number; dryerName?: string; userId?: number; location?: string;  capacity?: number; contactNumber?: string; email?: string; status?: string }>,
+    req: Request<any, any, { id: number; dryerName?: string; userId?: number; location?: string;  capacity?: number; processing?: number; contactNumber?: string; email?: string; status?: string }>,
     res: Response
 ): Promise<void> {
-    const { id, dryerName, userId, location, capacity, contactNumber, email, status } = req.body;
+    const { id, dryerName, userId, location, capacity, processing, contactNumber, email, status } = req.body;
 
     const dryer = await updateDryer({
         id,
@@ -77,6 +78,7 @@ async function updateHandler(
         userId,
         location,
         capacity,
+        processing,
         contactNumber,
         email,
         status
