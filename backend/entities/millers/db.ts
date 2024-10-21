@@ -15,10 +15,16 @@ export class Miller extends BaseEntity {
     category: string;
 
     @Column()
+    type: string;
+
+    @Column()
     location: string;
 
     @Column()
     capacity: number;
+
+    @Column()
+    processing: number;
 
     @Column()
     contactNumber: string;
@@ -30,7 +36,7 @@ export class Miller extends BaseEntity {
     status: string;
 }
 
-export type MillerCreate = Pick<Miller, 'millerName' | 'userId' | 'category' | 'location' | 'capacity' | 'contactNumber' | 'email' | 'status'>;
+export type MillerCreate = Pick<Miller, 'millerName' | 'userId' | 'category' | 'type' | 'location' | 'capacity' | 'processing' | 'contactNumber' | 'email' | 'status'>;
 export type MillerUpdate = Pick<Miller, 'id'> & Partial<MillerCreate>;
 
 export async function getMillers(limit: number, offset: number): Promise<Miller[]> {
@@ -58,8 +64,10 @@ export async function createMiller(millerCreate: MillerCreate): Promise<Miller> 
     miller.millerName = millerCreate.millerName;
     miller.userId = millerCreate.userId;
     miller.category = millerCreate.category;
+    miller.type = millerCreate.type;
     miller.location = millerCreate.location;
     miller.capacity = millerCreate.capacity;
+    miller.processing = millerCreate.processing;
     miller.contactNumber = millerCreate.contactNumber;
     miller.email = millerCreate.email;
     miller.status = millerCreate.status;
@@ -72,8 +80,10 @@ export async function updateMiller(millerUpdate: MillerUpdate): Promise<Miller> 
         millerName: millerUpdate.millerName,
         userId: millerUpdate.userId,
         category: millerUpdate.category,
+        type: millerUpdate.type,
         location: millerUpdate.location,
         capacity: millerUpdate.capacity,
+        processing: millerUpdate.processing,
         contactNumber: millerUpdate.contactNumber,
         email: millerUpdate.email,
         status: millerUpdate.status

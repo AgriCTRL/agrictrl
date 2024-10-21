@@ -8,11 +8,8 @@ export class DryingBatch extends BaseEntity {
     @Column()
     palayBatchId: number;
 
-    @Column()
+    @Column({ nullable: true})
     dryingMethod: string;
-
-    @Column()
-    dryerType: string;
 
     @Column()
     dryerId: number;
@@ -20,27 +17,33 @@ export class DryingBatch extends BaseEntity {
     @Column()
     startDateTime: Date;
 
-    @Column()
+    @Column({ nullable: true })
     endDateTime: Date;
 
-    @Column()
+    @Column({ nullable: true })
     driedQuantityBags: number;
 
-    @Column()
+    @Column({ nullable: true })
     driedGrossWeight: number;
 
     @Column()
     driedNetWeight: number;
 
-    @Column()
+    @Column({ nullable: true })
     moistureContent: number;
 
-    @Column()
+    @Column({ default: 'in progress' })
     status: string;
 }
 
-export type DryingBatchCreate = Pick<DryingBatch, 'palayBatchId' | 'dryingMethod' | 'dryerType' | 'dryerId' | 'startDateTime' | 'endDateTime' | 'driedQuantityBags' | 'driedGrossWeight' | 'driedNetWeight' | 'moistureContent' | 'status' >;
+export type DryingBatchCreate = Pick<DryingBatch, 'palayBatchId' | 'dryingMethod' | 'dryerId' | 'startDateTime' | 'endDateTime' | 'driedQuantityBags' | 'driedGrossWeight' | 'driedNetWeight' | 'moistureContent' | 'status' >;
 export type DryingBatchUpdate = Pick<DryingBatch, 'id'> & Partial<DryingBatchCreate>;
+
+function getCurrentPST(): Date {
+    const now = new Date();
+    const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+    return new Date(utc + (3600000 * 8));
+}
 
 export async function getDryingBatches(limit: number, offset: number): Promise<DryingBatch[]> {
     return await DryingBatch.find({
@@ -66,9 +69,8 @@ export async function createDryingBatch(dryingBatchCreate: DryingBatchCreate): P
 
     dryingBatch.palayBatchId = dryingBatchCreate.palayBatchId;
     dryingBatch.dryingMethod = dryingBatchCreate.dryingMethod;
-    dryingBatch.dryerType = dryingBatchCreate.dryerType;
     dryingBatch.dryerId = dryingBatchCreate.dryerId;
-    dryingBatch.startDateTime = dryingBatchCreate.startDateTime;
+    dryingBatch.startDateTime = getCurrentPST();
     dryingBatch.endDateTime = dryingBatchCreate.endDateTime;
     dryingBatch.driedQuantityBags = dryingBatchCreate.driedQuantityBags;
     dryingBatch.driedGrossWeight = dryingBatchCreate.driedGrossWeight;
@@ -85,7 +87,6 @@ export async function updateDryingBatch(dryingBatchUpdate: DryingBatchUpdate): P
     await DryingBatch.update(dryingBatchUpdate.id, {
         palayBatchId: dryingBatchUpdate.palayBatchId,
         dryingMethod: dryingBatchUpdate.dryingMethod,
-        dryerType: dryingBatchUpdate.dryerType,
         dryerId: dryingBatchUpdate.dryerId,
         startDateTime: dryingBatchUpdate.startDateTime,
         endDateTime: dryingBatchUpdate.endDateTime,

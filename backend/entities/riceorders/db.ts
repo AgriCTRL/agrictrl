@@ -20,7 +20,7 @@ export class RiceOrder extends BaseEntity {
     @Column()
     riceQuantityBags: number;
 
-    @Column()
+    @Column({ nullable: true })
     description: string;
 
     @Column()
@@ -35,12 +35,18 @@ export class RiceOrder extends BaseEntity {
     @Column({ default: false })
     isAccepted: boolean;
 
-    @Column()
+    @Column({ nullable: true })
     remarks: string;
 }
 
 export type RiceOrderCreate = Pick<RiceOrder, 'riceRecipientId' | 'riceBatchId' | 'orderDate' | 'dropOffLocation' | 'riceQuantityBags' | 'description' | 'totalCost' | 'preferredDeliveryDate' | 'status' | 'isAccepted' | 'remarks'>;
 export type RiceOrderUpdate = Pick<RiceOrder, 'id'> & Partial<RiceOrderCreate>;
+
+function getCurrentPST(): Date {
+    const now = new Date();
+    const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+    return new Date(utc + (3600000 * 8));
+}
 
 export async function getRiceOrders(limit: number, offset: number): Promise<RiceOrder[]> {
     return await RiceOrder.find({
@@ -66,7 +72,7 @@ export async function createRiceOrder(riceOrderCreate: RiceOrderCreate): Promise
 
     riceOrder.riceRecipientId = riceOrderCreate.riceRecipientId;
     riceOrder.riceBatchId = riceOrderCreate.riceBatchId;
-    riceOrder.orderDate = riceOrderCreate.orderDate;
+    riceOrder.orderDate = getCurrentPST();
     riceOrder.dropOffLocation = riceOrderCreate.dropOffLocation;
     riceOrder.riceQuantityBags = riceOrderCreate.riceQuantityBags;
     riceOrder.description = riceOrderCreate.description;

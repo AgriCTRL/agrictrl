@@ -61,13 +61,13 @@ export class PalayBatch extends BaseEntity {
     @ManyToOne(() => Farm)
     farm: Farm;
 
-    @Column()
+    @Column({ nullable: true })
     plantedDate: Date;
 
-    @Column()
+    @Column({ nullable: true })
     harvestedDate: Date;
 
-    @Column()
+    @Column({ nullable: true })
     estimatedCapital: number;
 
     @Column()
@@ -81,6 +81,12 @@ export type PalayBatchCreate = Pick<PalayBatch, 'palayVariety' | 'dateBought' | 
     farmId: Farm['id'];
  };
 export type PalayBatchUpdate = Pick<PalayBatch, 'id'> & Partial<PalayBatchCreate>;
+
+function getCurrentPST(): Date {
+    const now = new Date();
+    const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+    return new Date(utc + (3600000 * 8));
+}
 
 export async function getPalayBatches(limit: number, offset: number): Promise<PalayBatch[]> {
     return await PalayBatch.find({
@@ -117,9 +123,9 @@ export async function createPalayBatch(palayBatchCreate: PalayBatchCreate): Prom
     let palayBatch = new PalayBatch();
 
     palayBatch.palayVariety = palayBatchCreate.palayVariety;
-    palayBatch.dateBought = palayBatchCreate.dateBought;
+    palayBatch.dateBought = getCurrentPST();
 
-    // boughtAt
+    // buyingStation
 
     const buyingStation = await getBuyingStation(palayBatchCreate.qualitySpecId);
 

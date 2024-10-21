@@ -6,22 +6,22 @@ export class RiceMillingBatch extends BaseEntity {
     id: number;
 
     @Column()
-    riceBatchesId: number;
+    riceBatchId: number;
 
     @Column()
-    millingBatchesId: number;
+    millingBatchId: number;
 
     @Column()
     riceQuantityBags: number;
 
-    @Column()
+    @Column({ nullable: true })
     riceGrossWeight: number;
 
-    @Column()
+    @Column({ nullable: true})
     riceNetWeight: number;
 }
 
-export type RiceMillingBatchCreate = Pick<RiceMillingBatch, 'riceBatchesId' | 'millingBatchesId' | 'riceQuantityBags' | 'riceGrossWeight' | 'riceNetWeight'>;
+export type RiceMillingBatchCreate = Pick<RiceMillingBatch, 'riceBatchId' | 'millingBatchId' | 'riceQuantityBags' | 'riceGrossWeight' | 'riceNetWeight'>;
 export type RiceMillingBatchUpdate = Pick<RiceMillingBatch, 'id'> & Partial<RiceMillingBatchCreate>;
 
 export async function getRiceMillingBatches(limit: number, offset: number): Promise<RiceMillingBatch[]> {
@@ -46,8 +46,8 @@ export async function countRiceMillingBatches(): Promise<number> {
 export async function createRiceMillingBatch(riceMillingBatchCreate: RiceMillingBatchCreate): Promise<RiceMillingBatch> {
     let riceMillingBatch = new RiceMillingBatch();
 
-    riceMillingBatch.riceBatchesId = riceMillingBatchCreate.riceBatchesId;
-    riceMillingBatch.millingBatchesId = riceMillingBatchCreate.millingBatchesId;
+    riceMillingBatch.riceBatchId = riceMillingBatchCreate.riceBatchId;
+    riceMillingBatch.millingBatchId = riceMillingBatchCreate.millingBatchId;
     riceMillingBatch.riceQuantityBags = riceMillingBatchCreate.riceQuantityBags;
     riceMillingBatch.riceGrossWeight = riceMillingBatchCreate.riceGrossWeight;
     riceMillingBatch.riceNetWeight = riceMillingBatchCreate.riceNetWeight;
@@ -57,8 +57,8 @@ export async function createRiceMillingBatch(riceMillingBatchCreate: RiceMilling
 
 export async function updateRiceMillingBatch(riceMillingBatchUpdate: RiceMillingBatchUpdate): Promise<RiceMillingBatch> {
     await RiceMillingBatch.update(riceMillingBatchUpdate.id, {
-        riceBatchesId: riceMillingBatchUpdate.riceBatchesId,
-        millingBatchesId: riceMillingBatchUpdate.millingBatchesId,
+        riceBatchId: riceMillingBatchUpdate.riceBatchId,
+        millingBatchId: riceMillingBatchUpdate.millingBatchId,
         riceQuantityBags: riceMillingBatchUpdate.riceQuantityBags,
         riceGrossWeight: riceMillingBatchUpdate.riceGrossWeight,
         riceNetWeight: riceMillingBatchUpdate.riceNetWeight

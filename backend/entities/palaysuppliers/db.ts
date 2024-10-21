@@ -34,10 +34,10 @@ export class PalaySupplier extends BaseEntity {
     @Column()
     email: string;
 
-    @Column()
+    @Column({ nullable: true })
     birthDate: Date;
 
-    @Column()
+    @Column({ nullable: true })
     gender: string;
 }
 

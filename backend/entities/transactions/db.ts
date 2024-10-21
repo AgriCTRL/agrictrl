@@ -36,10 +36,10 @@ export class Transaction extends BaseEntity {
     @ManyToOne(() => Transporter)
     transporter: Transporter;
 
-    @Column()
+    @Column({ nullable: true })
     receiverId: number;
 
-    @Column()
+    @Column({ nullable: true })
     receiveDateTime: Date;
 
     @Column()
@@ -48,10 +48,10 @@ export class Transaction extends BaseEntity {
     @Column()
     toLocationId: number;
 
-    @Column()
+    @Column({ default: 'pending' })
     status: string;
 
-    @Column()
+    @Column({ nullable: true })
     remarks: string;
 }
 

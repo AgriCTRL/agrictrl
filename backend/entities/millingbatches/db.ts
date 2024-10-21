@@ -20,27 +20,33 @@ export class MillingBatch extends BaseEntity {
     @Column()
     startDateTime: Date;
 
-    @Column()
+    @Column({ nullable: true })
     endDateTime: Date;
 
-    @Column()
+    @Column({ nullable: true })
     milledQuantityBags: number;
 
-    @Column()
+    @Column({ nullable: true })
     milledGrossWeight: number;
 
-    @Column()
+    @Column({ nullable: true })
     milledNetWeight: number;
 
-    @Column()
+    @Column({ nullable: true })
     millingEfficiency: number;
 
-    @Column()
+    @Column({ default: 'in progress'})
     status: string;
 }
 
 export type MillingBatchCreate = Pick<MillingBatch, 'dryingBatchId' | 'palayBatchId' | 'millerId' | 'millerType' | 'startDateTime' | 'endDateTime' | 'milledQuantityBags' | 'milledGrossWeight' | 'milledNetWeight' | 'millingEfficiency' | 'status' >;
 export type MillingBatchUpdate = Pick<MillingBatch, 'id'> & Partial<MillingBatchCreate>;
+
+function getCurrentPST(): Date {
+    const now = new Date();
+    const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+    return new Date(utc + (3600000 * 8));
+}
 
 export async function getMillingBatches(limit: number, offset: number): Promise<MillingBatch[]> {
     return await MillingBatch.find({
@@ -68,7 +74,7 @@ export async function createMillingBatch(millingBatchCreate: MillingBatchCreate)
     millingBatch.palayBatchId = millingBatchCreate.palayBatchId;
     millingBatch.millerId = millingBatchCreate.millerId;
     millingBatch.millerType = millingBatchCreate.millerType;
-    millingBatch.startDateTime = millingBatchCreate.startDateTime;
+    millingBatch.startDateTime = getCurrentPST();
     millingBatch.endDateTime = millingBatchCreate.endDateTime;
     millingBatch.milledQuantityBags = millingBatchCreate.milledQuantityBags;
     millingBatch.milledGrossWeight = millingBatchCreate.milledGrossWeight;

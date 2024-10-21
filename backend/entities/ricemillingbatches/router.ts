@@ -41,14 +41,14 @@ export function getRouter(): Router {
     router.post(
         '/',
         async (
-            req: Request<any, any, { riceBatchesId: number; millingBatchesId: number; riceQuantityBags: number, riceGrossWeight: number, riceNetWeight: number }>,
+            req: Request<any, any, { riceBatchId: number; millingBatchId: number; riceQuantityBags: number, riceGrossWeight: number, riceNetWeight: number }>,
             res
         ) => {
-            const { riceBatchesId, millingBatchesId, riceQuantityBags, riceGrossWeight, riceNetWeight } = req.body;
+            const { riceBatchId, millingBatchId, riceQuantityBags, riceGrossWeight, riceNetWeight } = req.body;
 
             const riceMillingBatch = await createRiceMillingBatch({
-                riceBatchesId,
-                millingBatchesId,
+                riceBatchId,
+                millingBatchId,
                 riceQuantityBags,
                 riceGrossWeight,
                 riceNetWeight
@@ -64,15 +64,15 @@ export function getRouter(): Router {
 }
 
 async function updateHandler(
-    req: Request<any, any, { id: number; riceBatchesId?: number; millingBatchesId?: number; riceQuantityBags?: number, riceGrossWeight?: number, riceNetWeight?: number }>,
+    req: Request<any, any, { id: number; riceBatchId?: number; millingBatchId?: number; riceQuantityBags?: number, riceGrossWeight?: number, riceNetWeight?: number }>,
     res: Response
 ): Promise<void> {
-    const { id, riceBatchesId, millingBatchesId, riceQuantityBags, riceGrossWeight, riceNetWeight } = req.body;
+    const { id, riceBatchId, millingBatchId, riceQuantityBags, riceGrossWeight, riceNetWeight } = req.body;
 
     const riceMillingBatch = await updateRiceMillingBatch({
         id,
-        riceBatchesId,
-        millingBatchesId,
+        riceBatchId,
+        millingBatchId,
         riceQuantityBags,
         riceGrossWeight,
         riceNetWeight

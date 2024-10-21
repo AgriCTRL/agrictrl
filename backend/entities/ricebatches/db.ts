@@ -24,6 +24,12 @@ export class RiceBatch extends BaseEntity {
 export type RiceBatchCreate = Pick<RiceBatch, 'name' | 'dateReceived' | 'riceType' | 'warehouseId' | 'price'>;
 export type RiceBatchUpdate = Pick<RiceBatch, 'id'> & Partial<RiceBatchCreate>;
 
+function getCurrentPST(): Date {
+    const now = new Date();
+    const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+    return new Date(utc + (3600000 * 8));
+}
+
 export async function getRiceBatches(limit: number, offset: number): Promise<RiceBatch[]> {
     return await RiceBatch.find({
         take: limit,
@@ -47,7 +53,7 @@ export async function createRiceBatch(riceBatchCreate: RiceBatchCreate): Promise
     let riceBatch = new RiceBatch();
 
     riceBatch.name = riceBatchCreate.name;
-    riceBatch.dateReceived = riceBatchCreate.dateReceived;
+    riceBatch.dateReceived = getCurrentPST();
     riceBatch.riceType = riceBatchCreate.riceType;
     riceBatch.warehouseId = riceBatchCreate.warehouseId;
     riceBatch.price = riceBatchCreate.price;

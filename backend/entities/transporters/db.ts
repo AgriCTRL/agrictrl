@@ -8,7 +8,7 @@ export class Transporter extends BaseEntity {
     @Column()
     transporterName: string;
 
-    @Column()
+    @Column({ nullable: true })
     description: string;
 }
 
