@@ -8,8 +8,8 @@ import { getRouter as getRouterDryers } from '../entities/dryers/router';
 import { getRouter as getRouterMillers } from '../entities/millers/router';
 import { getRouter as getRouterPalayBatches } from '../entities/palaybatches/router';
 import { getRouter as getRouterRiceBatches } from '../entities/ricebatches/router';
-import { getRouter as getRouterDryingProcess } from '../entities/dryingprocesses/router';
-import { getRouter as getRouterMillingProcess } from '../entities/millingprocesses/router';
+import { getRouter as getRouterDryingBatches } from '../entities/dryingbatches/router';
+import { getRouter as getRouterMillingBatches } from '../entities/millingbatches/router';
 import { getRouter as getRouterOfficeAddress } from '../entities/officeaddresses/router';
 import { getRouter as getRouterPalaySupplier} from '../entities/palaysuppliers/router';
 import { getRouter as getRouterRiceOrder} from '../entities/riceorders/router';
@@ -18,6 +18,7 @@ import { getRouter as getRouterTransaction} from '../entities/transactions/route
 import { getRouter as getRouterFarm } from '../entities/farms/router';
 import { getRouter as getRouterHouseOfficeAddress } from '../entities/houseofficeaddresses/router';
 import { getRouter as getRouterTransporters } from '../entities/transporters/router';
+import { getRouter as getRouterRiceMillingBatches } from '../entities/ricemillingbatches/router';
 
 
 // TODO make this function's return type explicit https://github.com/demergent-labs/azle/issues/1860
@@ -35,8 +36,8 @@ export function initServer() {
     app.use('/millers', getRouterMillers());
     app.use('/palaybatches', getRouterPalayBatches());
     app.use('/ricebatches', getRouterRiceBatches());
-    app.use('/dryingprocesses', getRouterDryingProcess());
-    app.use('/millingprocesses', getRouterMillingProcess());
+    app.use('/dryingbatches', getRouterDryingBatches());
+    app.use('/millingbatches', getRouterMillingBatches());
     app.use('/officeaddresses', getRouterOfficeAddress());
     app.use('/palaysuppliers', getRouterPalaySupplier());
     app.use('/riceorders', getRouterRiceOrder());
@@ -45,6 +46,7 @@ export function initServer() {
     app.use('/farms', getRouterFarm());
     app.use('/houseofficeaddresses', getRouterHouseOfficeAddress());
     app.use('/transporters', getRouterTransporters());
+    app.use('/ricemillingbatches', getRouterRiceMillingBatches());
 
 
     app.get('/init-called', (_req, res) => {

@@ -6,7 +6,7 @@ export class RiceOrder extends BaseEntity {
     id: number;
 
     @Column()
-    riceRecipient: string;
+    riceRecipientId: number;
 
     @Column()
     riceBatchId: number;
@@ -15,17 +15,38 @@ export class RiceOrder extends BaseEntity {
     orderDate: Date;
 
     @Column()
-    riceQuantity: number;
+    dropOffLocation: string;
 
     @Column()
-    cost: number;
+    riceQuantityBags: number;
+
+    @Column({ nullable: true })
+    description: string;
 
     @Column()
-    orderStatus: string;
+    totalCost: number;
+
+    @Column()
+    preferredDeliveryDate: Date;
+
+    @Column({ default: 'for approval'})
+    status: string;
+
+    @Column({ default: false })
+    isAccepted: boolean;
+
+    @Column({ nullable: true })
+    remarks: string;
 }
 
-export type RiceOrderCreate = Pick<RiceOrder, 'riceRecipient' | 'riceBatchId' | 'orderDate' | 'riceQuantity' | 'cost' | 'orderStatus'>;
+export type RiceOrderCreate = Pick<RiceOrder, 'riceRecipientId' | 'riceBatchId' | 'orderDate' | 'dropOffLocation' | 'riceQuantityBags' | 'description' | 'totalCost' | 'preferredDeliveryDate' | 'status' | 'isAccepted' | 'remarks'>;
 export type RiceOrderUpdate = Pick<RiceOrder, 'id'> & Partial<RiceOrderCreate>;
+
+function getCurrentPST(): Date {
+    const now = new Date();
+    const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+    return new Date(utc + (3600000 * 8));
+}
 
 export async function getRiceOrders(limit: number, offset: number): Promise<RiceOrder[]> {
     return await RiceOrder.find({
@@ -49,24 +70,34 @@ export async function countRiceOrders(): Promise<number> {
 export async function createRiceOrder(riceOrderCreate: RiceOrderCreate): Promise<RiceOrder> {
     let riceOrder = new RiceOrder();
 
-    riceOrder.riceRecipient = riceOrderCreate.riceRecipient;
+    riceOrder.riceRecipientId = riceOrderCreate.riceRecipientId;
     riceOrder.riceBatchId = riceOrderCreate.riceBatchId;
-    riceOrder.orderDate = riceOrderCreate.orderDate;
-    riceOrder.riceQuantity = riceOrderCreate.riceQuantity;
-    riceOrder.cost = riceOrderCreate.cost;
-    riceOrder.orderStatus = riceOrderCreate.orderStatus;
+    riceOrder.orderDate = getCurrentPST();
+    riceOrder.dropOffLocation = riceOrderCreate.dropOffLocation;
+    riceOrder.riceQuantityBags = riceOrderCreate.riceQuantityBags;
+    riceOrder.description = riceOrderCreate.description;
+    riceOrder.totalCost = riceOrderCreate.totalCost;
+    riceOrder.preferredDeliveryDate = riceOrderCreate.preferredDeliveryDate;
+    riceOrder.status = riceOrderCreate.status;
+    riceOrder.isAccepted = riceOrderCreate.isAccepted;
+    riceOrder.remarks = riceOrderCreate.remarks;
 
     return await riceOrder.save();
 }
 
 export async function updateRiceOrder(riceOrderUpdate: RiceOrderUpdate): Promise<RiceOrder> {
     await RiceOrder.update(riceOrderUpdate.id, {
-        riceRecipient: riceOrderUpdate.riceRecipient,
+        riceRecipientId: riceOrderUpdate.riceRecipientId,
         riceBatchId: riceOrderUpdate.riceBatchId,
         orderDate: riceOrderUpdate.orderDate,
-        riceQuantity: riceOrderUpdate.riceQuantity,
-        cost: riceOrderUpdate.cost,
-        orderStatus: riceOrderUpdate.orderStatus
+        dropOffLocation: riceOrderUpdate.dropOffLocation,
+        riceQuantityBags: riceOrderUpdate.riceQuantityBags,
+        description: riceOrderUpdate.description,
+        totalCost: riceOrderUpdate.totalCost,
+        preferredDeliveryDate: riceOrderUpdate.preferredDeliveryDate,
+        status: riceOrderUpdate.status,
+        isAccepted: riceOrderUpdate.isAccepted,
+        remarks: riceOrderUpdate.remarks
     });
 
     const riceOrder = await getRiceOrder(riceOrderUpdate.id);

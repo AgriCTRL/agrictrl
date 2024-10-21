@@ -41,17 +41,17 @@ export function getRouter(): Router {
     router.post(
         '/',
         async (
-            req: Request<any, any, { transactionId: number; dateReceived: Date; quantityKg: number; riceType: string; warehouseId: number }>,
+            req: Request<any, any, { name: string; dateReceived: Date; riceType: string; warehouseId: number; price: number }>,
             res
         ) => {
-            const { transactionId, dateReceived, quantityKg, riceType, warehouseId } = req.body;
+            const { name, dateReceived, riceType, warehouseId, price } = req.body;
 
             const riceBatch = await createRiceBatch({
-                transactionId,
+                name,
                 dateReceived,
-                quantityKg,
                 riceType,
-                warehouseId
+                warehouseId,
+                price
             });
 
             res.json(riceBatch);
@@ -64,18 +64,18 @@ export function getRouter(): Router {
 }
 
 async function updateHandler(
-    req: Request<any, any, { id: number; transactionId?: number; dateReceived?: Date; quantityKg?: number; riceType?: string; warehouseId?: number }>,
+    req: Request<any, any, { id: number; name?: string; dateReceived?: Date; riceType?: string; warehouseId?: number; price?: number }>,
     res: Response
 ): Promise<void> {
-    const { id, transactionId, dateReceived, quantityKg, riceType, warehouseId } = req.body;
+    const { id, name, dateReceived, riceType, warehouseId, price } = req.body;
 
     const riceBatch = await updateRiceBatch({
         id,
-        transactionId,
+        name,
         dateReceived,
-        quantityKg,
         riceType,
-        warehouseId
+        warehouseId,
+        price 
     });
 
     res.json(riceBatch);
