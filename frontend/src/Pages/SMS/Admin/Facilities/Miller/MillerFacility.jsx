@@ -1,31 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
-import { Search, Settings2, FileX } from 'lucide-react';
 import { Tag } from 'primereact/tag';
 import { InputText } from 'primereact/inputtext';
-import { FilterMatchMode } from 'primereact/api';
+import { Toast } from 'primereact/toast';
+
+import { Search, Settings2, FileX } from 'lucide-react';
 
 import MillerRegister from './MillerRegister';
 import MillerUpdate from './MillerUpdate';
 
 function MillerFacility() {
-    const [millerData, setMillerData] = useState([
-        { id: 1, millerName: 'Miller A', location: 'San Pedro', capacity: 1000, processing: 750, type:'In house', status: 'Active' },
-        { id: 2, millerName: 'Miller B', location: 'Biñan', capacity: 1500, processing: 1200, type:'Private', status: 'Active' },
-        { id: 3, millerName: 'Miller C', location: 'Sta. Rosa', capacity: 2000, processing: 1800, type:'In house', status: 'Inactive' },
-        { id: 4, millerName: 'Miller D', location: 'Cabuyao', capacity: 1800, processing: 900, type:'In house', status: 'Active' },
-        { id: 5, millerName: 'Miller E', location: 'Calamba', capacity: 2200, processing: 1100, type:'Private', status: 'Inactive' },
-        { id: 1, millerName: 'Miller A', location: 'San Pedro', capacity: 1000, processing: 750, type:'Private', status: 'Active' },
-        { id: 2, millerName: 'Miller B', location: 'Biñan', capacity: 1500, processing: 1200, type:'In house', status: 'Active' },
-        { id: 3, millerName: 'Miller C', location: 'Sta. Rosa', capacity: 2000, processing: 1800, type:'In house', status: 'Inactive' },
-        { id: 4, millerName: 'Miller D', location: 'Cabuyao', capacity: 1800, processing: 900, type:'Private', status: 'Active' },
-        { id: 5, millerName: 'Miller E', location: 'Calamba', capacity: 2200, processing: 1100, type:'Private', status: 'Inactive' },
-    ]);
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    const toast = useRef(null);
 
-    // const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    // const [millerData, setMillerData] = useState([]);
+    const [millerData, setMillerData] = useState([]);
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [filters, setFilters] = useState({
         global: { value: null, matchMode: 'contains' },
@@ -34,38 +25,48 @@ function MillerFacility() {
     const [displayMillerUpdate, setDisplayMillerUpdate] = useState(false);
     const [selectedMiller, setSelectedMiller] = useState(null);
 
-    // useEffect(() => {
-    //     setFilters({
-    //         global: { value: globalFilterValue, matchMode: 'contains' },
-    //     });
-    // }, [globalFilterValue]);
+    useEffect(() => {
+        fetchMillerData();
+    }, []);
 
-    // useEffect(() => {
-    //     const fetchData = async () => {
-    //         try {
-    //             const res = await fetch(`${apiUrl}/millers`, {
-    //                 method: 'GET',
-    //                 headers: {'Content-Type': 'application/json'}
-    //             });
-    //             const data = await res.json();
-    //             setMillerData(data);
-    //         }
-    //         catch (error) {
-    //             console.log(error.message);
-    //         }
-    //     };
-    //     fetchData();
-    // }, []);
+    const fetchMillerData = async () => {
+        try {
+            const res = await fetch(`${apiUrl}/millers`, {
+                method: 'GET',
+                headers: {'Content-Type': 'application/json'}
+            });
+            if (!res.ok) {
+                throw new Error('Failed to fetch millers data');
+            }
+            const data = await res.json();
+            setMillerData(data);
+        } catch (error) {
+            console.log(error.message);
+            toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to fetch warehouse data', life: 3000 });
+        }
+    };
 
     const handleMillerRegistered = (newMiller) => {
         setMillerData([...millerData, newMiller]);
         setDisplayMillerRegister(false);
+        toast.current.show({ 
+            severity: 'success', 
+            summary: 'Success', 
+            detail: 'Miller registered successfully', 
+            life: 5000 
+        });
     };
 
     const handleMillerUpdated = (updatedMiller) => {
         const updatedData = millerData.map(miller => miller.id === updatedMiller.id ? updatedMiller : miller);
         setMillerData(updatedData);
         setDisplayMillerUpdate(false);
+        toast.current.show({ 
+            severity: 'success', 
+            summary: 'Success', 
+            detail: 'Miller updated successfully', 
+            life: 5000 
+        });
     };
 
     const showDialog = () => {
@@ -114,6 +115,7 @@ function MillerFacility() {
 
     return (
         <div className="flex flex-col h-full">
+            <Toast ref={toast} />
             {/* top buttons */}
             <div className="flex items-center justify-between mb-5">
                 <span className="p-input-icon-left w-1/2">
@@ -148,42 +150,47 @@ function MillerFacility() {
             </div>
 
             {/* table */}
-                <div className="flex-grow flex flex-col overflow-hidden rounded-lg shadow">
-                    <div className="flex-grow overflow-auto bg-white">
-                        <DataTable 
-                            value={millerData}
-                            scrollable
-                            scrollHeight="flex"
-                            scrollDirection="both"
-                            className="p-datatable-sm px-5 pt-5"
-                            filters={filters}
-                            globalFilterFields={['id', 'millerName', 'location', 'status']}
-                            emptyMessage="No inventory found."
-                            paginator
-                            paginatorClassName="border-t-2 border-gray-300"
-                            rows={30}
-                        >
-                            <Column field="id" header="ID" className="text-center" headerClassName="text-center"/>
-                            <Column field="millerName" header="Miller Name" className="text-center" headerClassName="text-center"/>
-                            <Column field="location" header="Location" className="text-center" headerClassName="text-center"/>
-                            <Column field="capacity" header="Capacity (mt)" className="text-center" headerClassName="text-center"/>
-                            <Column field="processing" header="Processing" className="text-center" headerClassName="text-center"/>
-                            <Column field="type" header="Type" className="text-center" headerClassName="text-center"/>
-                            <Column field="status" header="Status" body={statusBodyTemplate} className="text-center" headerClassName="text-center"/>
-                            <Column body={actionBodyTemplate} exportable={false} className="text-center" headerClassName="text-center"/>
-                        </DataTable>
-                    </div>
+            <div className="flex-grow flex flex-col overflow-hidden rounded-lg shadow">
+                <div className="flex-grow overflow-auto bg-white">
+                    <DataTable 
+                        value={millerData}
+                        scrollable
+                        scrollHeight="flex"
+                        scrolldirection="both"
+                        className="p-datatable-sm px-5 pt-5"
+                        filters={filters}
+                        globalFilterFields={['id', 'millerName', 'location', 'status']}
+                        emptyMessage="No inventory found."
+                        paginator
+                        paginatorClassName="border-t-2 border-gray-300"
+                        rows={30}
+                    >
+                        <Column field="id" header="ID" className="text-center" headerClassName="text-center"/>
+                        <Column field="millerName" header="Miller Name" className="text-center" headerClassName="text-center"/>
+                        <Column field="location" header="Location" className="text-center" headerClassName="text-center"/>
+                        <Column field="capacity" header="Capacity (mt)" className="text-center" headerClassName="text-center"/>
+                        <Column field="processing" header="Processing" className="text-center" headerClassName="text-center"/>
+                        <Column field="type" header="Type" className="text-center" headerClassName="text-center"/>
+                        <Column field="status" header="Status" body={statusBodyTemplate} className="text-center" headerClassName="text-center"/>
+                        <Column body={actionBodyTemplate} exportable={false} className="text-center" headerClassName="text-center"/>
+                    </DataTable>
                 </div>
-
-                <MillerRegister visible={displayMillerRegister} onHide={hideRegisterDialog} onMillerRegistered={handleMillerRegistered} />
-                {selectedMiller && (
-                    <MillerUpdate 
-                        visible={displayMillerUpdate} 
-                        onHide={hideUpdateDialog} 
-                        selectedMiller={selectedMiller} 
-                        onUpdateMiller={handleMillerUpdated} 
-                    />
-                )}
+            </div>
+            
+            <MillerRegister 
+                visible={displayMillerRegister} 
+                onHide={hideRegisterDialog} 
+                onMillerRegistered={handleMillerRegistered} 
+            />
+            
+            {selectedMiller && (
+                <MillerUpdate 
+                    visible={displayMillerUpdate} 
+                    onHide={hideUpdateDialog} 
+                    selectedMiller={selectedMiller} 
+                    onUpdateMiller={handleMillerUpdated} 
+                />
+            )}
         </div>
     );
 }

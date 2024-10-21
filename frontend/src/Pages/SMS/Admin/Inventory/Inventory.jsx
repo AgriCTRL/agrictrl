@@ -165,7 +165,7 @@ function Inventory() {
                             value={inventoryData}
                             scrollable
                             scrollHeight="flex"
-                            scrollDirection="both"
+                            scrolldirection="both"
                             className="p-datatable-sm pt-5"
                             filters={filters}
                             globalFilterFields={['trackingId', 'qualityType', 'status', 'farmer', 'originFarm']}

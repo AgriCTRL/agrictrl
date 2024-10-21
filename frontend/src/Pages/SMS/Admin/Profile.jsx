@@ -1,16 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import AdminLayout from '@/Layouts/AdminLayout';
+
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { Calendar } from 'primereact/calendar';
 import { Button } from 'primereact/button';
 import { Password } from 'primereact/password';
 import { Divider } from 'primereact/divider';
+import { Toast } from 'primereact/toast';
 
 import { useAuth } from '../../Authentication/Login/AuthContext';
-
-import { Toast } from 'primereact/toast';
-import { useRef } from 'react';
 
 function Profile() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -328,6 +327,7 @@ function Profile() {
     const handleSave = async (e) => {
         e.preventDefault();
         if (!validateForm()) {
+            // Display individual error messages
             Object.values(errors).forEach(message => {
                 toast.current.show({severity:'error', summary: 'Validation Error', detail: message, life: 5000});
             });
@@ -395,7 +395,6 @@ function Profile() {
             }
     
             toast.current.show({severity:'success', summary: 'Success', detail:'Profile updated successfully!', life: 3000});
-            fetchData();
         } catch (error) {
             console.error('Error updating user data:', error);
             toast.current.show({severity:'error', summary: 'Error', detail:'Failed to update profile. Please try again.', life: 5000});

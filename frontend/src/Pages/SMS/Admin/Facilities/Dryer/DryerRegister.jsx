@@ -1,31 +1,50 @@
 import React, { useState } from 'react';
+
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { Button } from 'primereact/button';
+import { Toast } from 'primereact/toast';
+
 import { ThermometerSun } from 'lucide-react';
 
 function DryerRegister({ visible, onHide, onDryerRegistered }) {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    const toast = React.useRef(null);
 
     const [dryerName, setDryerName] = useState('');
+    const [userId, setUserId] = useState('0');
     const [capacity, setCapacity] = useState('');
     const [location, setLocation] = useState('');
     const [contactNumber, setContactNumber] = useState('');
     const [email, setEmail] = useState('');
-    const [status, setStatus] = useState('Active');
+    const [status, setStatus] = useState('active');
     
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const statusOptions = [
-        { label: 'Active', value: 'Active' },
-        { label: 'Inactive', value: 'Inactive' }
+        { label: 'Active', value: 'active' },
+        { label: 'Inactive', value: 'inactive' }
     ];
+
+    const resetForm = () => {
+        setDryerName('');
+        setCapacity('');
+        setLocation('');
+        setContactNumber('');
+        setEmail('');
+        setStatus('active');
+    };
 
     const handleRegister = async (e) => {
         e.preventDefault();
 
         if (!dryerName || !capacity || !location || !contactNumber || !email) {
-            alert('All fields are required.');
+            toast.current.show({ 
+                severity: 'error', 
+                summary: 'Error', 
+                detail: 'All fields are required.', 
+                life: 3000 
+            });
             return;
         }
 
@@ -33,8 +52,9 @@ function DryerRegister({ visible, onHide, onDryerRegistered }) {
 
         const newDryer = {
             dryerName,
-            capacity,
+            userId,
             location,
+            capacity,
             contactNumber,
             email,
             status
@@ -43,28 +63,29 @@ function DryerRegister({ visible, onHide, onDryerRegistered }) {
         try {
             const res = await fetch(`${apiUrl}/dryers`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { "Content-Type": 'application/json' },
                 body: JSON.stringify(newDryer)
             });
+            
             if (!res.ok) {
                 throw new Error('Error adding data');
             }
+            
+            const data = await res.json();
+            resetForm();
+            onDryerRegistered(data);
+            onHide();
         } catch (error) {
             console.log(error.message);
+            toast.current.show({ 
+                severity: 'error', 
+                summary: 'Error', 
+                detail: 'Failed to register warehouse. Please try again.', 
+                life: 3000 
+            });
+        } finally {
+            setIsSubmitting(false);
         }
-
-        onDryerRegistered(newDryer);
-
-        // Reset form fields
-        setDryerName('');
-        setCapacity('');
-        setLocation('');
-        setContactNumber('');
-        setContactEmail('');
-        setStatus('Active');
-
-        setIsSubmitting(false);
-        onHide();
     };
 
     if (!visible) {
@@ -73,6 +94,7 @@ function DryerRegister({ visible, onHide, onDryerRegistered }) {
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <Toast ref={toast} />
             <div className="bg-white rounded-lg p-5 w-1/3 shadow-lg relative">
                 {/* Close button */}
                 <button onClick={onHide} className="absolute top-5 right-5 text-gray-600 hover:text-gray-800">
@@ -103,6 +125,7 @@ function DryerRegister({ visible, onHide, onDryerRegistered }) {
                             <InputText
                                 id="capacity"
                                 value={capacity}
+                                type='number'
                                 onChange={(e) => setCapacity(e.target.value)}
                                 className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
                             />
@@ -123,6 +146,7 @@ function DryerRegister({ visible, onHide, onDryerRegistered }) {
                             <InputText
                                 id="contactNumber"
                                 value={contactNumber}
+                                type='number'
                                 onChange={(e) => setContactNumber(e.target.value)}
                                 className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
                             />

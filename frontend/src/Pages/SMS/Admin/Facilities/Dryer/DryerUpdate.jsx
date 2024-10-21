@@ -1,11 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { Button } from 'primereact/button';
+import { Toast } from 'primereact/toast';
+
 import { ThermometerSun } from 'lucide-react';
 
 function DryerUpdate({ visible, onHide, selectedDryer, onUpdateDryer }) {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    const toast = useRef(null);
 
     const [dryerName, setDryerName] = useState('');
     const [capacity, setCapacity] = useState('');
@@ -13,11 +17,12 @@ function DryerUpdate({ visible, onHide, selectedDryer, onUpdateDryer }) {
     const [contactNumber, setContactNumber] = useState('');
     const [email, setEmail] = useState('');
     const [status, setStatus] = useState(null);
+
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const statusOptions = [
-        { label: 'Active', value: 'Active' },
-        { label: 'Inactive', value: 'Inactive' }
+        { label: 'Active', value: 'active' },
+        { label: 'Inactive', value: 'inactive' }
     ];
 
     useEffect(() => {
@@ -34,8 +39,13 @@ function DryerUpdate({ visible, onHide, selectedDryer, onUpdateDryer }) {
     const handleUpdate = async (e) => {
         e.preventDefault();
 
-        if (!dryerName || !capacity || !location || !contactNumber || !email || !status) {
-            alert('All fields are required.');
+        if (!dryerName || !capacity || !location || !contactNumber || !email) {
+            toast.current.show({ 
+                severity: 'error', 
+                summary: 'Error', 
+                detail: 'All fields are required.', 
+                life: 3000 
+            });
             return;
         }
 
@@ -43,8 +53,8 @@ function DryerUpdate({ visible, onHide, selectedDryer, onUpdateDryer }) {
         const updatedDryer = {
             ...selectedDryer,
             dryerName,
-            capacity,
             location,
+            capacity,
             contactNumber,
             email,
             status
@@ -56,25 +66,27 @@ function DryerUpdate({ visible, onHide, selectedDryer, onUpdateDryer }) {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(updatedDryer)
             });
+            
             if (!res.ok) {
                 throw new Error('Error updating data');
             }
+            
+            const data = await res.json();
+            onUpdateDryer(data);
+            onHide();
+            
         } catch (error) {
             console.log(error.message);
+            toast.current.show({ 
+                severity: 'error', 
+                summary: 'Error', 
+                detail: 'Failed to update dryer. Please try again.', 
+                life: 3000 
+            });
+        } finally {
+            setIsSubmitting(false);
         }
 
-        onUpdateDryer(updatedDryer);
-
-        // Clear input fields
-        setDryerName('');
-        setCapacity('');
-        setLocation('');
-        setContactNumber('');
-        setEmail('');
-        setStatus(null);
-
-        setIsSubmitting(false);
-        onHide();
     };
 
     if (!visible) {
@@ -83,6 +95,7 @@ function DryerUpdate({ visible, onHide, selectedDryer, onUpdateDryer }) {
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <Toast ref={toast} />
             <div className="bg-white rounded-lg p-5 w-1/3 shadow-lg relative">
                 {/* Close button */}
                 <button onClick={onHide} className="absolute top-5 right-5 text-gray-600 hover:text-gray-800">
@@ -104,7 +117,7 @@ function DryerUpdate({ visible, onHide, selectedDryer, onUpdateDryer }) {
                                 id="dryerName"
                                 value={dryerName}
                                 onChange={(e) => setDryerName(e.target.value)}
-                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
                             />
                         </div>
 
@@ -113,8 +126,9 @@ function DryerUpdate({ visible, onHide, selectedDryer, onUpdateDryer }) {
                             <InputText
                                 id="capacity"
                                 value={capacity}
+                                type='number'
                                 onChange={(e) => setCapacity(e.target.value)}
-                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
                             />
                         </div>
 
@@ -124,7 +138,7 @@ function DryerUpdate({ visible, onHide, selectedDryer, onUpdateDryer }) {
                                 id="location"
                                 value={location}
                                 onChange={(e) => setLocation(e.target.value)}
-                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
                             />
                         </div>
 
@@ -133,8 +147,9 @@ function DryerUpdate({ visible, onHide, selectedDryer, onUpdateDryer }) {
                             <InputText
                                 id="contactNumber"
                                 value={contactNumber}
+                                type='number'
                                 onChange={(e) => setContactNumber(e.target.value)}
-                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
                             />
                         </div>
 
@@ -144,7 +159,7 @@ function DryerUpdate({ visible, onHide, selectedDryer, onUpdateDryer }) {
                                 id="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
                             />
                         </div>
 
