@@ -4,40 +4,15 @@ import { InputText } from 'primereact/inputtext';
 import { Calendar } from 'primereact/calendar';
 import { Button } from 'primereact/button';
 
-const UserDetails = ({ userType, visible, onHide }) => {
+const UserDetails = ({ userType, visible, onHide, selectedUser }) => {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (visible) {
       setActiveIndex(0);
     }
   }, [visible]);
-
-  // Static data for testing
-  const userData = {
-    personalInfo: {
-      firstName: 'John',
-      lastName: 'Doe',
-      gender: 'male',
-      birthDate: new Date('1990-01-01'),
-      contactNumber: '09123456789',
-    },
-    accountDetails: {
-      userType: 'NFA Branch Staff',
-      organizationName: 'NFA Branch Office',
-      jobTitle: 'Manager',
-      region: 'Region 1',
-      branchOffice: 'Office 1',
-    },
-    officeAddress: {
-      region: 'Region 1',
-      province: 'Province 1',
-      cityTown: 'City 1',
-      barangay: 'Barangay 1',
-      street: '123 Main St.',
-    },
-    validId: 'Valid ID Data',
-  };
 
   const tabs = [
     { header: 'Personal Information', key: 'personal' },
@@ -50,27 +25,31 @@ const UserDetails = ({ userType, visible, onHide }) => {
     <div className="grid grid-cols-2 gap-4 h-full">
         <div>
           <label className="block mb-2 text-md font-medium text-gray-700">First Name</label>
-          <InputText value={userData.personalInfo.firstName} disabled className="w-full" />
+          <InputText value={selectedUser.firstName} disabled className="w-full" />
         </div>
 
         <div>
           <label className="block mb-2 text-md font-medium text-gray-700">Last Name</label>
-          <InputText value={userData.personalInfo.lastName} disabled className="w-full" />
+          <InputText value={selectedUser.lastName} disabled className="w-full" />
         </div>
 
         <div>
           <label className="block mb-2 text-md font-medium text-gray-700">Gender</label>
-          <InputText value={userData.personalInfo.gender} disabled className="w-full" />
+          <InputText value={selectedUser.gender} disabled className="w-full" />
         </div>
 
         <div>
           <label className="block mb-2 text-md font-medium text-gray-700">Birth Date</label>
-          <Calendar value={userData.personalInfo.birthDate} disabled className="w-full" />
+          <InputText value={new Date(selectedUser.birthDate).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+        })} disabled className="w-full" />
         </div>
 
         <div>
           <label className="block mb-2 text-md font-medium text-gray-700">Contact Number</label>
-          <InputText value={userData.personalInfo.contactNumber} disabled className="w-full" />
+          <InputText value={selectedUser.contactNumber} disabled className="w-full" />
         </div>
     </div>
   );
@@ -79,24 +58,28 @@ const UserDetails = ({ userType, visible, onHide }) => {
     <div className="grid grid-cols-2 gap-4 h-full">
       <div>
         <label className="block mb-2 text-md font-medium text-gray-700">User Type</label>
-        <InputText value={userData.accountDetails.userType} disabled className="w-full" />
+        <InputText value={selectedUser.userType} disabled className="w-full" />
       </div>
       <div>
         <label className="block mb-2 text-md font-medium text-gray-700">Organization Name</label>
-        <InputText value={userData.accountDetails.organizationName} disabled className="w-full" />
+        <InputText value={selectedUser.organizationName} disabled className="w-full" />
       </div>
       <div>
         <label className="block mb-2 text-md font-medium text-gray-700">Job Title/Position</label>
-        <InputText value={userData.accountDetails.jobTitle} disabled className="w-full" />
+        <InputText value={selectedUser.jobTitlePosition} disabled className="w-full" />
       </div>
-      <div>
-        <label className="block mb-2 text-md font-medium text-gray-700">Region</label>
-        <InputText value={userData.accountDetails.region} disabled className="w-full" />
-      </div>
-      <div>
-        <label className="block mb-2 text-md font-medium text-gray-700">Branch Office</label>
-        <InputText value={userData.accountDetails.branchOffice} disabled className="w-full" />
-      </div>
+      { selectedUser.userType === 'NFA Branch Staff' && (
+        <div>
+          <label className="block mb-2 text-md font-medium text-gray-700">Region</label>
+          <InputText value={selectedUser.branchRegion} disabled className="w-full" />
+        </div>
+      )}
+      { selectedUser.userType === 'NFA Branch Staff' && (
+        <div>
+          <label className="block mb-2 text-md font-medium text-gray-700">Branch Office</label>
+          <InputText value={selectedUser.branchOffice} disabled className="w-full" />
+        </div>
+      )}
     </div>
   );
 
@@ -104,23 +87,25 @@ const UserDetails = ({ userType, visible, onHide }) => {
     <div className="grid grid-cols-2 gap-4 h-full">
       <div>
         <label className="block mb-2 text-md font-medium text-gray-700">Region</label>
-        <InputText value={userData.officeAddress.region} disabled className="w-full" />
+        <InputText value={selectedUser.officeAddress.region} disabled className="w-full" />
       </div>
-      <div>
-        <label className="block mb-2 text-md font-medium text-gray-700">Province</label>
-        <InputText value={userData.officeAddress.province} disabled className="w-full" />
-      </div>
+      { selectedUser.officeAddress.region !== 'National Capital Region' && (
+        <div>
+          <label className="block mb-2 text-md font-medium text-gray-700">Province</label>
+          <InputText value={selectedUser.officeAddress.province} disabled className="w-full" />
+        </div>
+      )}
       <div>
         <label className="block mb-2 text-md font-medium text-gray-700">City/Town</label>
-        <InputText value={userData.officeAddress.cityTown} disabled className="w-full" />
+        <InputText value={selectedUser.officeAddress.cityTown} disabled className="w-full" />
       </div>
       <div>
         <label className="block mb-2 text-md font-medium text-gray-700">Barangay</label>
-        <InputText value={userData.officeAddress.barangay} disabled className="w-full" />
+        <InputText value={selectedUser.officeAddress.barangay} disabled className="w-full" />
       </div>
       <div>
         <label className="block mb-2 text-md font-medium text-gray-700">Street</label>
-        <InputText value={userData.officeAddress.street} disabled className="w-full" />
+        <InputText value={selectedUser.officeAddress.street} disabled className="w-full" />
       </div>
     </div>
   );
@@ -129,43 +114,73 @@ const UserDetails = ({ userType, visible, onHide }) => {
     <div className='h-full'>
       <label className="block mb-2 text-md font-medium text-gray-700">Valid ID</label>
       <div className="w-full h-40 bg-green-200 flex items-center justify-center border rounded-md border-gray-300">
-        {userData.validId}
+        {/* {userData.validId} */}
       </div>
     </div>
   );
 
+  const updateUserStatus = async (newStatus) => {
+    setIsLoading(true);
+    try {
+      const apiUrl = import.meta.env.VITE_API_BASE_URL;
+      const newIsVerified = newStatus === 'Active';
+      const response = await fetch(`${apiUrl}/users/update`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id: selectedUser.id, status: newStatus, isVerified: newIsVerified }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update user status');
+      }
+      console.log(`User status updated to ${newStatus}`);
+      onHide();
+    } catch (error) {
+      console.error('Error updating user status:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const renderFooter = () => {
     const isLastTab = activeIndex === tabs.length - 1;
     const nextLabel = isLastTab
-      ? userType === 'pending'
+      ? userType === 'Pending'
         ? 'Verify'
-        : userType === 'active'
+        : selectedUser.status === 'Active'
         ? 'Make Inactive'
         : 'Make Active'
       : 'Next';
 
-      return (
-        <div className="flex justify-between mt-4">
-          <Button
-            label="Previous"
-            onClick={() => setActiveIndex((prev) => Math.max(0, prev - 1))}
-            disabled={activeIndex === 0}
-            className="px-6 py-2 rounded-md text-white bg-primary disabled:opacity-50"
-          />
-          <Button
-            label={nextLabel}
-            onClick={() => {
-              if (isLastTab) {
-                console.log(`Performing ${nextLabel} action for user:`, userData);
-                onHide();
+    return (
+      <div className="flex justify-between mt-4">
+        <Button
+          label="Previous"
+          onClick={() => setActiveIndex((prev) => Math.max(0, prev - 1))}
+          disabled={activeIndex === 0}
+          className="px-6 py-2 rounded-md text-white bg-primary disabled:opacity-50"
+        />
+        <Button
+          label={nextLabel}
+          onClick={() => {
+            if (isLastTab) {
+              if (userType === 'Pending') {
+                updateUserStatus('Active');
               } else {
-                setActiveIndex((prev) => Math.min(tabs.length - 1, prev + 1));
+                const newStatus = selectedUser.status === 'Active' ? 'Inactive' : 'Active';
+                updateUserStatus(newStatus);
               }
-            }}
-            className="px-10 py-2 rounded-md text-white bg-primary"
-          />
-        </div>
-      );
+            } else {
+              setActiveIndex((prev) => Math.min(tabs.length - 1, prev + 1));
+            }
+          }}
+          disabled={isLoading}
+          className="px-10 py-2 rounded-md text-white bg-primary disabled:opacity-50"
+        />
+      </div>
+    );
   };
 
   if (!visible) return null;
@@ -198,7 +213,6 @@ const UserDetails = ({ userType, visible, onHide }) => {
             </TabPanel>
           ))}
         </TabView>
-
 
         {renderFooter()}
       </div>

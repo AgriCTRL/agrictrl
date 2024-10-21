@@ -12,9 +12,9 @@ const AccountDetails = () => {
   const { userType, organizationName, jobTitlePosition, branchRegion, branchOffice, validId, validIdName } = registrationData.accountDetails;
 
   const userTypeOptions = [
-    { label: 'NFA Branch Staff', value: 'staff' },
-    { label: 'Private Miller', value: 'privateMiller' },
-    { label: 'Rice Recipient', value: 'recipient' }
+    { label: 'NFA Branch Staff', value: 'NFA Branch Staff' },
+    { label: 'Private Miller', value: 'Private Miller' },
+    { label: 'Rice Recipient', value: 'Rice Recipient' }
   ];
 
   const [branchRegionOptions, setBranchRegionOptions] = useState([]);
@@ -36,8 +36,8 @@ const AccountDetails = () => {
   }, [branchRegion, branchRegionOptions]);
 
   useEffect(() => {
-    // Reset branchRegion and branchOffice to null if userType is not staff
-    if (userType !== 'staff') {
+    // Reset branchRegion and branchOffice to null if userType is not NFA Branch Staff
+    if (userType !== 'NFA Branch Staff') {
       handleInputChange('branchRegion', null);
       handleInputChange('branchOffice', null);
     }
@@ -99,8 +99,8 @@ const AccountDetails = () => {
       updatedData.branchOffice = null;
     }
 
-    // If userType is changed and it's not staff, reset branchRegion and branchOffice
-    if (field === 'userType' && value !== 'staff') {
+    // If userType is changed and it's not NFA Branch Staff, reset branchRegion and branchOffice
+    if (field === 'userType' && value !== 'NFA Branch Staff') {
       updatedData.branchRegion = null;
       updatedData.branchOffice = null;
     }
@@ -167,7 +167,7 @@ const AccountDetails = () => {
         </div>
       </div>
 
-      {userType === 'staff' && (
+      {userType === 'NFA Branch Staff' && (
         <div className="grid grid-cols-2 gap-4 mb-2">
           <div>
             <label htmlFor="branchRegion" className="block mb-2 text-sm font-medium text-gray-700">Region</label>

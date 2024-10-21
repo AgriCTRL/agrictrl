@@ -52,11 +52,11 @@ const loginUser = async (email, password, userType) => {
       u.email === email && 
       u.password === password && 
       u.userType === userType
-      // && u.isVerified === true
+      && u.isVerified === true
     );
 
     if (user) {
-      if(userType === 'admin') {
+      if(userType === 'Admin') {
         await identityLogIn();
         const newPrincipal = await getPrincipal();
 
@@ -99,10 +99,10 @@ const LoginPage = () => {
   const { login } = useAuth();
 
   const userTypes = [
-    { label: 'Staff', value: 'staff' },
-    { label: 'Admin', value: 'admin' },
-    { label: 'Recipient', value: 'recipient' },
-    { label: 'Private Miller', value: 'privateMiller' }
+    { label: 'NFA Branch Staff', value: 'NFA Branch Staff' },
+    { label: 'Admin', value: 'Admin' },
+    { label: 'Rice Recipient', value: 'Rice Recipient' },
+    { label: 'Private Miller', value: 'Private Miller' }
   ];
 
   const loginButton = async () => {
@@ -119,16 +119,16 @@ const LoginPage = () => {
       login({ ...result.user, userType });
 
       switch (userType) {
-        case 'admin':
+        case 'Admin':
           navigate('/admin');
           break;
-        case 'staff':
+        case 'NFA Branch Staff':
           navigate('/staff');
           break;
-        case 'recipient':
+        case 'Rice Recipient':
           navigate('/recipient');
           break;
-        case 'privateMiller':
+        case 'Private Miller':
           navigate('/miller');
           break;
         default:

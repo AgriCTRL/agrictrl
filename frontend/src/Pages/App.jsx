@@ -64,13 +64,13 @@ const UnauthenticatedRoute = ({ children }) => {
     
     if (user) {
         switch (user.userType) {
-            case 'admin':
+            case 'Admin':
                 return <Navigate to="/admin" replace />;
-            case 'staff':
+            case 'NFA Branch Staff':
                 return <Navigate to="/staff" replace />;
-            case 'recipient':
+            case 'Rice Recipient':
                 return <Navigate to="/recipient" replace />;
-            case 'privateMiller':
+            case 'Private Miller':
                 return <Navigate to="/miller" replace />;
             default:
                 return <Navigate to="/" replace />;
@@ -85,13 +85,13 @@ const AuthenticatedRedirect = () => {
     
     if (user) {
         switch (user.userType) {
-            case 'admin':
+            case 'Admin':
                 return <Navigate to="/admin" replace />;
-            case 'staff':
+            case 'NFA Branch Staff':
                 return <Navigate to="/staff" replace />;
-            case 'recipient':
+            case 'Rice Recipient':
                 return <Navigate to="/recipient" replace />;
-            case 'privateMiller':
+            case 'Private Miller':
                 return <Navigate to="/miller" replace />;
             default:
                 return <Navigate to="/" replace />;
@@ -131,22 +131,22 @@ function App() {
 
                 {/* Protected routes */}
                 <Route path="/admin/*" element={
-                    <ProtectedRoute allowedUserTypes={['admin']}>
+                    <ProtectedRoute allowedUserTypes={['Admin']}>
                         <AdminRoutes />
                     </ProtectedRoute>
                 } />
                 <Route path="/staff/*" element={
-                    <ProtectedRoute allowedUserTypes={['staff']}>
+                    <ProtectedRoute allowedUserTypes={['NFA Branch Staff']}>
                         <StaffRoutes />
                     </ProtectedRoute>
                 } />
                 <Route path="/recipient/*" element={
-                    <ProtectedRoute allowedUserTypes={['recipient']}>
+                    <ProtectedRoute allowedUserTypes={['Rice Recipient']}>
                         <RecipientRoutes />
                     </ProtectedRoute>
                 } />
                 <Route path="/miller/*" element={
-                    <ProtectedRoute allowedUserTypes={['privateMiller']}>
+                    <ProtectedRoute allowedUserTypes={['Private Miller']}>
                         <PrivateMillerRoutes />
                     </ProtectedRoute>
                 } />
