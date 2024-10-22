@@ -70,10 +70,13 @@ export class PalayBatch extends BaseEntity {
     estimatedCapital: number;
 
     @Column()
+    currentlyAt: string;
+
+    @Column()
     status: string;
 }
 
-export type PalayBatchCreate = Pick<PalayBatch, 'palayVariety' | 'dateBought' | 'buyingStationName' | 'buyingStationLoc' | 'quantityBags' | 'grossWeight' | 'netWeight' | 'qualityType' | 'qualitySpecId' | 'price' | 'palaySupplierId' | 'farmId' | 'plantedDate' | 'harvestedDate' | 'estimatedCapital' | 'status'> &
+export type PalayBatchCreate = Pick<PalayBatch, 'palayVariety' | 'dateBought' | 'buyingStationName' | 'buyingStationLoc' | 'quantityBags' | 'grossWeight' | 'netWeight' | 'qualityType' | 'qualitySpecId' | 'price' | 'palaySupplierId' | 'farmId' | 'plantedDate' | 'harvestedDate' | 'estimatedCapital' | 'currentlyAt' | 'status'> &
 {  qualitySpecId: QualitySpec['id'];
     palaySupplierId: PalaySupplier['id'];
     farmId: Farm['id'];
@@ -162,6 +165,7 @@ export async function createPalayBatch(palayBatchCreate: PalayBatchCreate): Prom
     palayBatch.plantedDate = palayBatchCreate.plantedDate;
     palayBatch.harvestedDate = palayBatchCreate.harvestedDate;
     palayBatch.estimatedCapital = palayBatchCreate.estimatedCapital;
+    palayBatch.currentlyAt = palayBatchCreate.currentlyAt;
     palayBatch.status = palayBatchCreate.status;
 
     return await palayBatch.save();
@@ -181,6 +185,7 @@ export async function updatePalayBatch(palayBatchUpdate: PalayBatchUpdate): Prom
         plantedDate: palayBatchUpdate.plantedDate,
         harvestedDate: palayBatchUpdate.harvestedDate,
         estimatedCapital: palayBatchUpdate.estimatedCapital,
+        currentlyAt: palayBatchUpdate.currentlyAt,
         status: palayBatchUpdate.status
     });
 

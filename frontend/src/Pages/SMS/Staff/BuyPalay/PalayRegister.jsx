@@ -50,6 +50,7 @@ const initialPalayData = {
     plantedDate: null,
     harvestedDate: null,
     estimatedCapital: '',
+    currentlyAt: '',
     status: 'to be dry',
 };
 
@@ -114,6 +115,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
         plantedDate: null,
         harvestedDate: null,
         estimatedCapital: '',
+        currentlyAt: '',
         status: 'to be dry',
     });
     const [transactionData, setTransactionData] = useState({
@@ -209,13 +211,19 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
     };
     
     const handleLocationId = (e) => {
+        const selectedOption = locationIdOptions.find(option => option.value === e.value);
+    
         setTransactionData(prevState => ({
             ...prevState,
-            toLocationId: e.target.value,
-            [e.target.name]: e.target.value
+            toLocationId: e.value,
+        }));
+    
+        setPalayData(prevState => ({
+            ...prevState,
+            currentlyAt: selectedOption.label,
         }));
     };
-
+    
     const renderFarmerInfo = () => (
         <div className="flex flex-col gap-4 h-full">
             <div className="w-full">
