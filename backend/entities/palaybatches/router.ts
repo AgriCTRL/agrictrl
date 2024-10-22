@@ -1,6 +1,5 @@
 import express, { Request, Response, Router } from 'express';
 
-import { createBuyingStation } from '../buyingstations/db';
 import { createQualitySpec } from '../qualityspecs/db';
 import { createPalaySupplier } from '../palaysuppliers/db';
 import { createHouseOfficeAddress } from '../houseofficeaddresses/db';
@@ -49,7 +48,7 @@ export function getRouter(): Router {
             req: Request<any, any, { palayVariety: string;
                 dateBought: Date;
                 buyingStationName: string;
-                location: string;
+                buyingStationLoc: string;
                 quantityBags: number;
                 grossWeight: number;
                 netWeight: number;
@@ -85,7 +84,7 @@ export function getRouter(): Router {
             const { palayVariety,
                 dateBought,
                 buyingStationName,
-                location,
+                buyingStationLoc,
                 quantityBags,
                 grossWeight,
                 netWeight,
@@ -116,11 +115,6 @@ export function getRouter(): Router {
                 harvestedDate,
                 estimatedCapital,
                 status } = req.body;
-
-            const buyingStation = await createBuyingStation({
-                buyingStationName: buyingStationName,
-                location: location
-            })
 
             const qualitySpec = await createQualitySpec({
                 moistureContent: moistureContent,
@@ -160,7 +154,8 @@ export function getRouter(): Router {
             const palayBatch = await createPalayBatch({
                 palayVariety,
                 dateBought,
-                buyingStationId: buyingStation.id,
+                buyingStationName,
+                buyingStationLoc,
                 quantityBags,
                 grossWeight,
                 netWeight,
@@ -188,6 +183,8 @@ async function updateHandler(
     req: Request<any, any, { id: number;
         palayVariety?: string
         dateBought?: Date;
+        buyingStationName?: string;
+        buyingStationLoc?: string;
         quantityBags?: number;
         grossWeight?: number;
         netWeight?: number;
@@ -202,6 +199,8 @@ async function updateHandler(
     const { id,
         palayVariety,
         dateBought,
+        buyingStationName,
+        buyingStationLoc,
         quantityBags,
         grossWeight,
         netWeight,
@@ -216,6 +215,8 @@ async function updateHandler(
         id,
         palayVariety,
         dateBought,
+        buyingStationName,
+        buyingStationLoc,
         quantityBags,
         grossWeight,
         netWeight,

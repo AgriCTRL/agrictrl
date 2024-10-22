@@ -6,7 +6,6 @@ import {
     PrimaryGeneratedColumn
 } from 'typeorm';
 
-import { getBuyingStation, BuyingStation } from '../buyingstations/db';
 import { getQualitySpec, QualitySpec } from '../qualityspecs/db';
 import { getPalaySupplier, PalaySupplier } from '../palaysuppliers/db';
 import { getFarm, Farm } from '../farms/db';
@@ -23,10 +22,10 @@ export class PalayBatch extends BaseEntity {
     dateBought: Date;
 
     @Column()
-    buyingStationId: number;
+    buyingStationName: string;
 
-    @ManyToOne(() => BuyingStation)
-    buyingStation: BuyingStation;
+    @Column()
+    buyingStationLoc: string;
 
     @Column()
     quantityBags: number;
@@ -74,9 +73,8 @@ export class PalayBatch extends BaseEntity {
     status: string;
 }
 
-export type PalayBatchCreate = Pick<PalayBatch, 'palayVariety' | 'dateBought' | 'buyingStationId' | 'quantityBags' | 'grossWeight' | 'netWeight' | 'qualityType' | 'qualitySpecId' | 'price' | 'palaySupplierId' | 'farmId' | 'plantedDate' | 'harvestedDate' | 'estimatedCapital' | 'status'> &
-{  buyingStationId: BuyingStation['id'];
-    qualitySpecId: QualitySpec['id'];
+export type PalayBatchCreate = Pick<PalayBatch, 'palayVariety' | 'dateBought' | 'buyingStationName' | 'buyingStationLoc' | 'quantityBags' | 'grossWeight' | 'netWeight' | 'qualityType' | 'qualitySpecId' | 'price' | 'palaySupplierId' | 'farmId' | 'plantedDate' | 'harvestedDate' | 'estimatedCapital' | 'status'> &
+{  qualitySpecId: QualitySpec['id'];
     palaySupplierId: PalaySupplier['id'];
     farmId: Farm['id'];
  };
@@ -93,7 +91,6 @@ export async function getPalayBatches(limit: number, offset: number): Promise<Pa
         take: limit,
         skip: offset,
         relations: {
-            buyingStation: true,
             qualitySpec: true,
             palaySupplier: true,
             farm: true
@@ -107,7 +104,6 @@ export async function getPalayBatch(id: number): Promise<PalayBatch | null> {
             id
         },
         relations: {
-            buyingStation: true,
             qualitySpec: true,
             palaySupplier: true,
             farm: true
@@ -124,17 +120,8 @@ export async function createPalayBatch(palayBatchCreate: PalayBatchCreate): Prom
 
     palayBatch.palayVariety = palayBatchCreate.palayVariety;
     palayBatch.dateBought = getCurrentPST();
-
-    // buyingStation
-
-    const buyingStation = await getBuyingStation(palayBatchCreate.qualitySpecId);
-
-    if (buyingStation === null) {
-        throw new Error(``);
-    }
-
-    palayBatch.buyingStationId = buyingStation.id;
-    
+    palayBatch.buyingStationName = palayBatchCreate.buyingStationName;
+    palayBatch.buyingStationLoc = palayBatchCreate.buyingStationLoc;
     palayBatch.quantityBags = palayBatchCreate.quantityBags;
     palayBatch.grossWeight = palayBatchCreate.grossWeight;
     palayBatch.netWeight = palayBatchCreate.netWeight;
@@ -184,6 +171,8 @@ export async function updatePalayBatch(palayBatchUpdate: PalayBatchUpdate): Prom
     await PalayBatch.update(palayBatchUpdate.id, {
         palayVariety: palayBatchUpdate.palayVariety,
         dateBought: palayBatchUpdate.dateBought,
+        buyingStationName: palayBatchUpdate.buyingStationName,
+        buyingStationLoc: palayBatchUpdate.buyingStationLoc,
         quantityBags: palayBatchUpdate.quantityBags,
         grossWeight: palayBatchUpdate.grossWeight,
         netWeight: palayBatchUpdate.netWeight,

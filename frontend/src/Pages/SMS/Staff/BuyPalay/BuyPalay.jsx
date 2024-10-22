@@ -118,13 +118,12 @@ function BuyPalay() {
                             scrolldirection="both"
                             className="p-datatable-sm pt-5"
                             filters={filters}
-                            globalFilterFields={['trackingId', 'qualityType', 'status', 'farmer', 'originFarm']}
+                            globalFilterFields={['qualityType', 'status', 'farmer', 'originFarm']}
                             emptyMessage="No inventory found."
                             paginator
                             rows={30}
-                            tableStyle={{ minWidth: '2900px' }}
+                            tableStyle={{ minWidth: '2600px' }}
                         >
-                            <Column field="trackingId" header="Tracking ID" className="text-center" headerClassName="text-center" />
                             <Column field="id" header="Batch ID" className="text-center" headerClassName="text-center" />
                             <Column field="dateBought" header="Date Bought" className="text-center" headerClassName="text-center" />
                             <Column field="quantityInBags" header="Quantity in Bags" className="text-center" headerClassName="text-center" />

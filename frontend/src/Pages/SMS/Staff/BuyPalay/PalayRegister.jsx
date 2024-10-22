@@ -16,6 +16,9 @@ const initialPalayData = {
     // Farmer Info
     category: '',
     farmerName: '',
+    numOfFarmer: '',
+    birthDate: null,
+    gender: '',
     email: '',
     contactNumber : '',
     // House Address
@@ -28,7 +31,7 @@ const initialPalayData = {
     dateBought: '',
     palayVariety: '',
     buyingStationName: '',
-    location: '',
+    buyingStationLoc: '',
     quantityBags: '',
     grossWeight: '',
     netWeight: '',
@@ -50,6 +53,24 @@ const initialPalayData = {
     status: 'to be dry',
 };
 
+const initialTransactionData = {
+    item: 'asd',
+        itemId: 123,
+        senderId: 123,
+        sendDateTime: '123',
+        fromLocationType: 'procurement',
+        fromLocationId: 123,
+        transporterName: '',
+        transporterDesc: '',
+        receiverId: 123,
+        receiveDateTime: '123',
+        toLocationType: 'warehouse',
+        toLocationId: '',
+        status: 'pending',
+        sendToWarehouse: 'asd',
+        remarks: ''
+};
+
 function PalayRegister({ visible, onHide, onPalayRegistered }) {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const toast = useRef(null);
@@ -59,7 +80,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
         // Farmer Info
         category: '',
         farmerName: '',
-        numOfFarmer: '0',
+        numOfFarmer: '',
         birthDate: null,
         gender: '',
         email: '',
@@ -74,7 +95,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
         dateBought: '',
         palayVariety: '',
         buyingStationName: '',
-        location: '',
+        buyingStationLoc: '',
         quantityBags: '',
         grossWeight: '',
         netWeight: '',
@@ -96,11 +117,20 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
         status: 'to be dry',
     });
     const [transactionData, setTransactionData] = useState({
-        // Logistics
-        transportedBy: '',
-        description: '',
-        sendToWarehouse: '',
-        facility: '',
+        item: 'asd',
+        itemId: 123,
+        senderId: 123,
+        sendDateTime: '123',
+        fromLocationType: 'procurement',
+        fromLocationId: 123,
+        transporterName: '',
+        transporterDesc: '',
+        receiverId: 123,
+        receiveDateTime: '123',
+        toLocationType: 'warehouse',
+        toLocationId: '',
+        status: 'pending',
+        sendToWarehouse: 'asd',
         remarks: ''
     });
 
@@ -110,26 +140,79 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
         }
     }, [visible]);
 
+    const steps = [
+        { label: 'Farmer', icon: <UserIcon /> },
+        { label: 'Palay Info', icon: <CheckIcon /> },
+        { label: 'Logistics', icon: <TruckIcon /> }
+    ];
+
     const options = [
         { label: 'Station A', value: 'stationA', location: 'loc 1' }, 
         { label: 'Station B', value: 'stationB', location: 'loc 2' }, 
         { label: 'Station C', value: 'stationC', location: 'loc 3' }
     ];
 
-    const handleInputChange = (e) => {
+    const locationTypeOptions = [
+        { label: 'Warehouse', value: 'warehouse' }, 
+        { label: 'Dryer', value: 'dryer', }, 
+        { label: 'Miller', value: 'miller' }
+    ];
+
+    const locationIdOptions = [
+        { label: 'Facility A', value: 1 }, 
+        { label: 'Facility B', value: 2 },
+        { label: 'Facility C', value: 3 }
+    ];
+
+    const handlePalayInputChange = (e) => {
         const { name, value } = e.target;
         setPalayData(prevState => ({
             ...prevState,
             [name]: value
         }));
-    };  
+    }; 
 
+    const handleTransactionInputChange = (e) => {
+        const { name, value } = e.target;
+        setTransactionData(prevState => ({
+            ...prevState,
+            [name]: value
+        }));
+    }; 
+
+    const handleQualityTypeInputChange = (e) => {
+        const { name, value } = e.target;
+    
+        setPalayData((prevState) => ({
+            ...prevState,
+            [name]: value,
+            status: value === 'wet' ? 'To be Dry' : value === 'dry' ? 'To be Mill' : prevState.status
+        }));
+    };
+    
     const handleStationChange = (e) => {
         const selectedStation = options.find(option => option.value === e.target.value);
         setPalayData(prevState => ({
             ...prevState,
             buyingStationName: e.target.value,
             location: selectedStation ? selectedStation.location : ''
+        }));
+    };
+    
+    const handleLocationType = (e) => {
+        const selectedType = locationTypeOptions.find(option => option.value === e.target.value);
+        setTransactionData(prevState => ({
+            ...prevState,
+            toLocationType: selectedType ? selectedType.label : '',
+            [e.target.name]: e.target.value
+        }));
+    };
+    
+    const handleLocationId = (e) => {
+        setTransactionData(prevState => ({
+            ...prevState,
+            toLocationId: e.target.value,
+            [e.target.name]: e.target.value
         }));
     };
 
@@ -142,7 +225,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                     name="category"
                     value={palayData.category}
                     options={[{ label: 'Individual Farmer', value: 'individual' }, { label: 'Cooperative', value: 'coop' }]}
-                    onChange={handleInputChange}
+                    onChange={handlePalayInputChange}  
                     placeholder="Select category"
                     className="w-full ring-0"
                 />
@@ -155,7 +238,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                         id="farmerName" 
                         name="farmerName"
                         value={palayData.farmerName}
-                        onChange={handleInputChange}
+                        onChange={handlePalayInputChange} 
                         placeholder="Enter your name" 
                         className="w-full ring-0"
                     />
@@ -169,7 +252,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                                 id="birthDate"
                                 name="birthDate"
                                 value={palayData.birthDate}
-                                onChange={handleInputChange}
+                                onChange={handlePalayInputChange} 
                                 placeholder="Select birthdate"
                                 showIcon
                                 className="rig-0 w-full placeholder:text-gray-400 focus:shadow-none custom-calendar"
@@ -183,7 +266,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                                 name="gender"
                                 value={palayData.gender}
                                 options={[{ label: 'Male', value: 'male' }, { label: 'Female', value: 'female' }, { label: 'Others', value: 'others' }]}
-                                onChange={handleInputChange}
+                                onChange={handlePalayInputChange}  
                                 placeholder="gender"
                                 className="w-full ring-0"
                             />
@@ -196,7 +279,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                             id="numOfFarmer"
                             name="numOfFarmer"
                             value={palayData.numOfFarmer}
-                            onChange={handleInputChange}
+                            onChange={handlePalayInputChange} 
                             placeholder="Enter number of farmers"
                             className="w-full ring-0"
                         />
@@ -211,7 +294,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                         id="email"
                         name="email"
                         value={palayData.email}
-                        onChange={handleInputChange}
+                        onChange={handlePalayInputChange}  
                         placeholder="Enter your email"
                         className="w-full ring-0"
                     />
@@ -223,7 +306,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                         id="contactNumber"
                         name="contactNumber"
                         value={palayData.contactNumber}
-                        onChange={handleInputChange}
+                        onChange={handlePalayInputChange} 
                         placeholder="Enter your phone number"
                         className="w-full ring-0"
                     />
@@ -237,7 +320,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                         id="palaySupplierRegion"
                         name="palaySupplierRegion"
                         value={palayData.palaySupplierRegion}
-                        onChange={handleInputChange}
+                        onChange={handlePalayInputChange}  
                         placeholder="Region"
                         className="w-full ring-0"
                     />
@@ -245,7 +328,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                         id="palaySupplierProvince"
                         name="palaySupplierProvince"
                         value={palayData.palaySupplierProvince}
-                        onChange={handleInputChange}
+                        onChange={handlePalayInputChange}  
                         placeholder="Province"
                         className="w-full ring-0"
                     />
@@ -253,7 +336,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                         id="palaySupplierCityTown"
                         name="palaySupplierCityTown"
                         value={palayData.palaySupplierCityTown}
-                        onChange={handleInputChange}
+                        onChange={handlePalayInputChange}  
                         placeholder="City/Town"
                         className="w-full ring-0"
                     />
@@ -261,7 +344,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                         id="palaySupplierBarangay"
                         name="palaySupplierBarangay"
                         value={palayData.palaySupplierBarangay}
-                        onChange={handleInputChange}
+                        onChange={handlePalayInputChange}  
                         placeholder="Barangay"
                         className="w-full ring-0"
                     />
@@ -269,7 +352,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                         id="palaySupplierStreet"
                         name="palaySupplierStreet"
                         value={palayData.palaySupplierStreet}
-                        onChange={handleInputChange}
+                        onChange={handlePalayInputChange}  
                         placeholder="Street"
                         className="w-full ring-0"
                     />
@@ -288,7 +371,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                         id="palayVariety"
                         name="palayVariety"
                         value={palayData.palayVariety}
-                        onChange={handleInputChange}
+                        onChange={handlePalayInputChange}  
                         placeholder="Enter Palay Variety"
                         className="w-full ring-0"
                     />
@@ -300,7 +383,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                         id="price"
                         name="price"
                         value={palayData.price}
-                        onChange={handleInputChange}
+                        onChange={handlePalayInputChange}  
                         type="number"
                         placeholder="Enter price"
                         className="w-full ring-0"
@@ -313,7 +396,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                         id="dateBought"
                         name="dateBought"
                         value={palayData.dateBought}
-                        onChange={handleInputChange}
+                        onChange={handlePalayInputChange}  
                         showIcon
                         className="rig-0 w-full placeholder:text-gray-400 focus:shadow-none custom-calendar"
                     />
@@ -328,7 +411,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                         id="quantityBags"
                         name="quantityBags"
                         value={palayData.quantityBags}
-                        onChange={handleInputChange}
+                        onChange={handlePalayInputChange}  
                         type="number"
                         placeholder="Enter quantity"
                         className="w-full ring-0"
@@ -340,7 +423,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                         id="grossWeight"
                         name="grossWeight"
                         value={palayData.grossWeight}
-                        onChange={handleInputChange}
+                        onChange={handlePalayInputChange}  
                         type="number"
                         placeholder="Enter gross weight"
                         className="w-full ring-0"
@@ -352,7 +435,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                         id="netWeight"
                         name="netWeight"
                         value={palayData.netWeight}
-                        onChange={handleInputChange}
+                        onChange={handlePalayInputChange}  
                         type="number"
                         placeholder="Enter net weight"
                         className="w-full ring-0"
@@ -372,7 +455,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                             { label: 'Fresh/Wet', value: 'wet' },
                             { label: 'Clean/Dry', value: 'dry' },
                         ]}
-                        onChange={handleInputChange}
+                        onChange={handleQualityTypeInputChange}  
                         placeholder="Select quality"
                         className="w-full ring-0"
                     />
@@ -383,7 +466,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                         id="moistureContent"
                         name="moistureContent"
                         value={palayData.moistureContent}
-                        onChange={handleInputChange}
+                        onChange={handlePalayInputChange}  
                         type="number"
                         placeholder="Enter moisture %"
                         className="w-full ring-0"
@@ -395,7 +478,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                         id="purity"
                         name="purity"
                         value={palayData.purity}
-                        onChange={handleInputChange}
+                        onChange={handlePalayInputChange}  
                         type="number"
                         placeholder="Enter purity %"
                         className="w-full ring-0"
@@ -407,7 +490,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                         id="damaged"
                         name="damaged"
                         value={palayData.damaged}
-                        onChange={handleInputChange}
+                        onChange={handlePalayInputChange}  
                         type="number"
                         placeholder="Enter damaged %"
                         className="w-full ring-0"
@@ -423,7 +506,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                         id="farmSize"
                         name="farmSize"
                         value={palayData.farmSize}
-                        onChange={handleInputChange}
+                        onChange={handlePalayInputChange}  
                         type="number"
                         placeholder="Enter farm size"
                         className="w-full ring-0"
@@ -435,7 +518,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                         id="plantedDate"
                         name="plantedDate"
                         value={palayData.plantedDate}
-                        onChange={handleInputChange}
+                        onChange={handlePalayInputChange}  
                         showIcon
                         className="rig-0 w-full placeholder:text-gray-400 focus:shadow-none custom-calendar"
                     />
@@ -446,7 +529,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                         id="harvestedDate"
                         name="harvestedDate"
                         value={palayData.harvestedDate}
-                        onChange={handleInputChange}
+                        onChange={handlePalayInputChange}  
                         showIcon
                         className="rig-0 w-full placeholder:text-gray-400 focus:shadow-none custom-calendar"
                     />
@@ -461,7 +544,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                         id="farmRegion"
                         name="farmRegion"
                         value={palayData.farmRegion}
-                        onChange={handleInputChange}
+                        onChange={handlePalayInputChange}  
                         placeholder="Region"
                         className="w-full ring-0"
                     />
@@ -469,7 +552,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                         id="farmProvince"
                         name="farmProvince"
                         value={palayData.farmProvince}
-                        onChange={handleInputChange}
+                        onChange={handlePalayInputChange}  
                         placeholder="Province"
                         className="w-full ring-0"
                     />
@@ -477,7 +560,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                         id="farmCityTown"
                         name="farmCityTown"
                         value={palayData.farmCityTown}
-                        onChange={handleInputChange}
+                        onChange={handlePalayInputChange}  
                         placeholder="City/Town"
                         className="w-full ring-0"
                     />
@@ -485,7 +568,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                         id="farmBarangay"
                         name="farmBarangay"
                         value={palayData.farmBarangay}
-                        onChange={handleInputChange}
+                        onChange={handlePalayInputChange}  
                         placeholder="Barangay"
                         className="w-full ring-0"
                     />
@@ -493,7 +576,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                         id="farmStreet"
                         name="farmStreet"
                         value={palayData.farmStreet}
-                        onChange={handleInputChange}
+                        onChange={handlePalayInputChange}  
                         placeholder="Street"
                         className="w-full ring-0"
                     />
@@ -509,7 +592,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                     id="estimatedCapital"
                     name="estimatedCapital"
                     value={palayData.estimatedCapital}
-                    onChange={handleInputChange}
+                    onChange={handlePalayInputChange}  
                     type="number"
                     placeholder="Enter estimated capital"
                     className="w-full ring-0"
@@ -535,38 +618,36 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                 </div>
 
                 <div className="w-full">
-                    <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                    <label htmlFor="buyingStationLoc" className="block text-sm font-medium text-gray-700 mb-1">Location</label>
                     <InputText
-                        id="location"
-                        name="location"
-                        value={palayData.location}
-                        onChange={handleInputChange}
+                        id="buyingStationLoc"
+                        name="buyingStationLoc"
+                        value={palayData.buyingStationLoc}
+                        onChange={handlePalayInputChange}  
                         className='w-full focus:ring-0'
-                        disabled
                     />
                 </div>
             </div>
             
             <div className="w-full">
-                <label htmlFor="transportedBy" className="block text-sm font-medium text-gray-700 mb-1">Transported by</label>
+                <label htmlFor="transporterName" className="block text-sm font-medium text-gray-700 mb-1">Transported by</label>
                 <InputText
-                    label="Transported by"
-                    id="transportedBy"
-                    name="transportedBy"
-                    value={transactionData.transportedBy}
-                    onChange={handleInputChange}
+                    id="transporterName"
+                    name="transporterName"
+                    value={transactionData.transporterName}
+                    onChange={handleTransactionInputChange}  
                     placeholder="Enter transport"
                     className='w-full focus:ring-0'
                 />
             </div>
 
             <div className="w-full">
-                <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">Transport Description</label>
+                <label htmlFor="transporterDesc" className="block text-sm font-medium text-gray-700 mb-1">Transport Description</label>
                 <InputTextarea
-                    id="description"
-                    name="description"
-                    value={transactionData.description}
-                    onChange={handleInputChange}
+                    id="transporterDesc"
+                    name="transporterDesc"
+                    value={transactionData.transporterDesc}
+                    onChange={handleTransactionInputChange}  
                     placeholder="Enter description"
                     className="w-full ring-0"
                 />
@@ -578,19 +659,20 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                     <Dropdown
                         id="sendToWarehouse"
                         name="sendToWarehouse"
-                        value={transactionData.sendToWarehouse}
-                        options={[{ label: 'Warehouse', value: 'warehouse' }, { label: 'Dryer', value: 'dryer' }, { label: 'Miller', value: 'miller' }]}
-                        onChange={handleInputChange}
+                        value={transactionData.toLocationType}
+                        options={locationTypeOptions}
+                        onChange={handleLocationType} 
                         placeholder="Select location"
                         className="ring-0 w-full placeholder:text-gray-400"
+                        disabled
                     />
 
                     <Dropdown
                         id="facility"
                         name="facility"
-                        value={transactionData.facility}
-                        options={[{ label: 'Facility A', value: 'facilityA' }, { label: 'Facility B', value: 'facilityB' }, { label: 'Facility C', value: 'facilityC' }]}
-                        onChange={handleInputChange}
+                        value={transactionData.toLocationId}
+                        options={locationIdOptions}
+                        onChange={handleLocationId}
                         placeholder="Select facility"
                         className="ring-0 w-full placeholder:text-gray-400"
                     />
@@ -603,19 +685,13 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                     id="remarks"
                     name="remarks"
                     value={transactionData.remarks}
-                    onChange={handleInputChange}
+                    onChange={handleTransactionInputChange} 
                     placeholder="Enter Remarks"
                     className="w-full ring-0"
                 />
             </div>
         </div>
     );  
-
-    const steps = [
-        { label: 'Farmer', icon: <UserIcon /> },
-        { label: 'Palay Info', icon: <CheckIcon /> },
-        { label: 'Logistics', icon: <TruckIcon /> }
-    ];
 
     const CustomStepIcon = ({ icon, active }) => {
         return (
@@ -654,9 +730,12 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
         }
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        
+    const handleSubmit = () => {
+        palaySubmit();
+        transactionSubmit();
+    };
+    
+    const palaySubmit = async () => {
         const transformedData = {
             ...palayData,
             dateBought: palayData.dateBought ? palayData.dateBought.toISOString().split('T')[0] : null,
@@ -664,7 +743,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
             plantedDate: palayData.plantedDate ? palayData.plantedDate.toISOString().split('T')[0] : null,
             harvestedDate: palayData.harvestedDate ? palayData.harvestedDate.toISOString().split('T')[0] : null,
         };
-
+    
         console.log(transformedData);
     
         try {
@@ -691,13 +770,57 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
             onPalayRegistered(result);
             setPalayData(initialPalayData);
             onHide();
-            
+    
         } catch (error) {
             console.error('Error:', error);
             toast.current.show({
                 severity: 'error',
                 summary: 'Error',
                 detail: 'Failed to create palay record',
+                life: 3000
+            });
+        }
+    };
+
+    const transactionSubmit = async () => {
+        const transformedData = {
+            ...transactionData
+        };
+    
+        console.log(transformedData);
+    
+        try {
+            const response = await fetch(`${apiUrl}/transactions`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(transformedData)
+            });
+    
+            if (!response.ok) {
+                throw new Error('Failed to submit transaction data');
+            }
+    
+            const result = await response.json();
+
+            toast.current.show({
+                severity: 'success',
+                summary: 'Success',
+                detail: 'Transaction record successfully created',
+                life: 3000
+            });
+    
+            onPalayRegistered(result);
+            setTransactionData(initialTransactionData);
+            onHide();
+    
+        } catch (error) {
+            console.error('Error:', error);
+            toast.current.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Failed to create transaction record',
                 life: 3000
             });
         }

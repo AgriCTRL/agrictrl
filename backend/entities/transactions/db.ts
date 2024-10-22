@@ -2,10 +2,8 @@ import {
     BaseEntity,
     Column,
     Entity,
-    ManyToOne,
     PrimaryGeneratedColumn
 } from 'typeorm';
-import { getTransporter, Transporter } from '../transporters/db';
 
 @Entity()
 export class Transaction extends BaseEntity {
@@ -15,8 +13,8 @@ export class Transaction extends BaseEntity {
     @Column()
     item: string;
 
-    @Column('simple-array')
-    itemIds: number[];
+    @Column()
+    itemId: number;
 
     @Column()
     senderId: number;
@@ -31,10 +29,10 @@ export class Transaction extends BaseEntity {
     fromLocationId: number;
 
     @Column()
-    transporterId: number;
+    transporterName: string;
 
-    @ManyToOne(() => Transporter)
-    transporter: Transporter;
+    @Column()
+    transporterDesc: string;
 
     @Column({ nullable: true })
     receiverId: number;
@@ -55,16 +53,13 @@ export class Transaction extends BaseEntity {
     remarks: string;
 }
 
-export type TransactionCreate = Pick<Transaction, 'item' | 'itemIds' | 'senderId' | 'sendDateTime' | 'fromLocationType' | 'fromLocationId' | 'transporterId' | 'receiverId' | 'receiveDateTime' | 'toLocationType' | 'toLocationId' | 'status' | 'remarks'>;
+export type TransactionCreate = Pick<Transaction, 'item' | 'itemId' | 'senderId' | 'sendDateTime' | 'fromLocationType' | 'fromLocationId' | 'transporterName' | 'transporterDesc' | 'receiverId' | 'receiveDateTime' | 'toLocationType' | 'toLocationId' | 'status' | 'remarks'>;
 export type TransactionUpdate = Pick<Transaction, 'id'> & Partial<TransactionCreate>;
 
 export async function getTransactions(limit: number, offset: number): Promise<Transaction[]> {
     return await Transaction.find({
         take: limit,
-        skip: offset,
-        relations: {
-            transporter: true
-        }
+        skip: offset
     });
 }
 
@@ -72,9 +67,6 @@ export async function getTransaction(id: number): Promise<Transaction | null> {
     return await Transaction.findOne({
         where: {
             id
-        },
-        relations: {
-            transporter: true
         }
     });
 }
@@ -87,22 +79,13 @@ export async function createTransaction(transactionCreate: TransactionCreate): P
     let transaction = new Transaction();
 
     transaction.item = transactionCreate.item;
-    transaction.itemIds = transactionCreate.itemIds;
+    transaction.itemId = transactionCreate.itemId;
     transaction.senderId = transactionCreate.senderId;
     transaction.sendDateTime = transactionCreate.sendDateTime;
     transaction.fromLocationType = transactionCreate.fromLocationType;
     transaction.fromLocationId = transactionCreate.fromLocationId;
-
-    // transporters
-
-    const transporter = await getTransporter(transactionCreate.transporterId);
-
-    if (transporter === null) {
-        throw new Error(``);
-    }
-
-    transaction.transporterId = transporter.id;
-
+    transaction.transporterName = transactionCreate.transporterName;
+    transaction.transporterDesc = transactionCreate.transporterDesc;
     transaction.receiverId = transactionCreate.receiverId;
     transaction.receiveDateTime = transactionCreate.receiveDateTime;
     transaction.toLocationType = transactionCreate.toLocationType;
@@ -116,11 +99,13 @@ export async function createTransaction(transactionCreate: TransactionCreate): P
 export async function updateTransaction(transactionUpdate: TransactionUpdate): Promise<Transaction> {
     await Transaction.update(transactionUpdate.id, {
         item: transactionUpdate.item,
-        itemIds: transactionUpdate.itemIds,
+        itemId: transactionUpdate.itemId,
         senderId: transactionUpdate.senderId,
         sendDateTime: transactionUpdate.sendDateTime,
         fromLocationType: transactionUpdate.fromLocationType,
         fromLocationId: transactionUpdate.fromLocationId,
+        transporterName: transactionUpdate.transporterName,
+        transporterDesc: transactionUpdate.transporterDesc,
         receiverId: transactionUpdate.receiverId,
         receiveDateTime: transactionUpdate.receiveDateTime,
         toLocationType: transactionUpdate.toLocationType,
