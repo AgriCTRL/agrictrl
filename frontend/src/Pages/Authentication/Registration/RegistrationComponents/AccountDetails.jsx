@@ -3,11 +3,8 @@ import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { FileUpload } from 'primereact/fileupload';
 import { useRegistration } from '../RegistrationContext';
-import { storage } from '../firebase';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { v4 as uuidv4 } from 'uuid';
 
-const AccountDetails = () => {
+const AccountDetails = ({ setSelectedFile }) => {
   const { registrationData, updateRegistrationData } = useRegistration();
   const { userType, organizationName, jobTitlePosition, branchRegion, branchOffice, validId, validIdName } = registrationData.accountDetails;
 
@@ -108,21 +105,10 @@ const AccountDetails = () => {
     updateRegistrationData('accountDetails', updatedData);
   };
 
-  const handleFileUpload = async (event) => {
+  const handleFileSelect = (event) => {
     const file = event.files[0];
-    const fileName = `${uuidv4()}_${file.name}`;
-    const storageRef = ref(storage, `validIds/${fileName}`);
-
-    try {
-      const snapshot = await uploadBytes(storageRef, file);
-      const downloadURL = await getDownloadURL(snapshot.ref);
-
-      handleInputChange('validId', downloadURL);
-      handleInputChange('validIdName', file.name);
-    } catch (error) {
-      console.error('Error uploading file:', error);
-      console.log(error)
-    }
+    setSelectedFile(file);
+    handleInputChange('validIdName', file.name);
   };
 
   return (
@@ -206,7 +192,7 @@ const AccountDetails = () => {
 				chooseOptions={{
 				className: 'bg-transparent text-primary flex flex-col items-center ring-0'
 				}}
-				onSelect={handleFileUpload}
+				onSelect={handleFileSelect}
 			/>
 		</div>
     </form>

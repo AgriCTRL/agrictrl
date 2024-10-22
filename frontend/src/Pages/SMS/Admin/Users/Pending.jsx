@@ -23,9 +23,7 @@ function Pending() {
                 throw new Error('Failed to fetch pending users');
             }
             const users = await res.json();
-            const formattedUsers = users
-            .filter(user => user.userType !== 'Admin')
-            .map(user => ({
+            const formattedUsers = users.map(user => ({
                 ...user,
                 name: `${user.firstName} ${user.lastName}`,
             }));

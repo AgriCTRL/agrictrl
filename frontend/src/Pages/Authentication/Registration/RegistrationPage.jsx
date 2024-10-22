@@ -4,12 +4,16 @@ import { useNavigate } from 'react-router-dom';
 import { Stepper, Step, StepLabel } from '@mui/material';
 import { CircleUserRound, Contact, SlidersVertical, CircleCheckBig } from 'lucide-react';
 import { Toast } from 'primereact/toast';
+import { storage } from './firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { v4 as uuidv4 } from 'uuid';
 
 import PersonalInformation from './RegistrationComponents/PersonalInformation';
 import AccountDetails from './RegistrationComponents/AccountDetails';
 import OfficeAddress from './RegistrationComponents/OfficeAddress';
 import Finishing from './RegistrationComponents/Finishing';
 import { RegistrationProvider, useRegistration } from './RegistrationContext';
+
 
 // Step configuration
 const steps = [
@@ -44,36 +48,68 @@ const RegistrationPageContent = () => {
   const { registrationData } = useRegistration();
   const toast = useRef(null);
   const [confirmPasswordValid, setConfirmPasswordValid] = useState(false);
+  const [selectedFile, setSelectedFile ] = useState(null);
 
-  const handleRegister = async (e) => {
-    e.preventDefault();
+  const handleFileUpload = async () => {
+    if (!selectedFile) return null;
 
-    if (!confirmPasswordValid) {
-      toast.current.show({ severity: 'error', summary: 'Error', detail: 'Passwords do not match.', life: 3000 });
-      return;
-    }
+    const fileName = `${uuidv4()}_${selectedFile.name}`;
+    const storageRef = ref(storage, `validIds/${fileName}`);
 
     try {
-      const res = await fetch(`${apiUrl}/users`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...registrationData.personalInfo,
-          ...registrationData.accountDetails,
-          ...registrationData.officeAddress,
-          ...registrationData.finishingDetails
-        }),
-      });
-      if (!res.ok) {
-        throw new Error('Error registering user');
-      }
-      navigate('/login');
-      localStorage.removeItem('registrationData');
+      const snapshot = await uploadBytes(storageRef, selectedFile);
+      const downloadURL = await getDownloadURL(snapshot.ref);
+
+      return { downloadURL };
     } catch (error) {
-      console.log(error.message);
-      toast.current.show({ severity: 'error', summary: 'Error', detail: 'Registration failed. Please try again.', life: 3000 });
+      console.error('Error uploading file:', error);
+      return null;
     }
   };
+
+  const handleRegister = async (e) => {
+  e.preventDefault();
+
+  if (!confirmPasswordValid) {
+    toast.current.show({ severity: 'error', summary: 'Error', detail: 'Passwords do not match.', life: 3000 });
+    return;
+  }
+
+  try {
+    const fileData = await handleFileUpload();
+    let updatedAccountDetails = { ...registrationData.accountDetails };
+
+    if (fileData) {
+      updatedAccountDetails = {
+        ...updatedAccountDetails,
+        validId: fileData.downloadURL
+      };
+    }
+
+    const registrationPayload = {
+      ...registrationData.personalInfo,
+      ...updatedAccountDetails,
+      ...registrationData.officeAddress,
+      ...registrationData.finishingDetails,
+    };
+
+    const res = await fetch(`${apiUrl}/users`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(registrationPayload),
+    });
+
+    if (!res.ok) {
+      throw new Error('Error registering user');
+    }
+
+    navigate('/login');
+    localStorage.removeItem('registrationData');
+  } catch (error) {
+    console.log(error.message);
+    toast.current.show({ severity: 'error', summary: 'Error', detail: 'Registration failed. Please try again.', life: 3000 });
+  }
+};
 
   const LoginButton = (e) => {  
     localStorage.removeItem('registrationData'); 
@@ -94,7 +130,7 @@ const RegistrationPageContent = () => {
       case 0:
         return <PersonalInformation />;
       case 1:
-        return <AccountDetails />;
+        return <AccountDetails setSelectedFile={setSelectedFile}/>;
       case 2:
         return <OfficeAddress />;
       case 3:

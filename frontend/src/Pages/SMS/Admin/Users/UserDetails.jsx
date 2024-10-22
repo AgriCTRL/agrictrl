@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { TabView, TabPanel } from 'primereact/tabview';
 import { InputText } from 'primereact/inputtext';
-import { Calendar } from 'primereact/calendar';
 import { Button } from 'primereact/button';
 
 const UserDetails = ({ userType, visible, onHide, selectedUser }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
     if (visible) {
       setActiveIndex(0);
+      setImageError(false);
     }
   }, [visible]);
 
@@ -112,9 +113,23 @@ const UserDetails = ({ userType, visible, onHide, selectedUser }) => {
 
   const renderVerify = () => (
     <div className='h-full'>
-      <label className="block mb-2 text-md font-medium text-gray-700">Valid ID</label>
-      <div className="w-full h-40 bg-green-200 flex items-center justify-center border rounded-md border-gray-300">
-        {/* {userData.validId} */}
+      <div className="space-y-2">
+        <label className="block text-md font-medium text-gray-700">Valid ID</label>
+        <p className="text-sm text-gray-500">{selectedUser.validIdName}</p>
+        <div className="relative w-full h-96 border rounded-lg overflow-hidden bg-gray-50">
+          {imageError ? (
+            <div className="absolute inset-0 flex items-center justify-center text-gray-500">
+              Failed to load image
+            </div>
+          ) : (
+            <img
+              src={selectedUser.validId}
+              alt="Valid ID"
+              className="w-full h-full object-contain"
+              onError={() => setImageError(true)}
+            />
+          )}
+        </div>
       </div>
     </div>
   );
@@ -135,7 +150,6 @@ const UserDetails = ({ userType, visible, onHide, selectedUser }) => {
       if (!response.ok) {
         throw new Error('Failed to update user status');
       }
-      console.log(`User status updated to ${newStatus}`);
       onHide();
     } catch (error) {
       console.error('Error updating user status:', error);
