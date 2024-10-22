@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
@@ -9,17 +9,36 @@ import { InputText } from 'primereact/inputtext';
 import UserDetails from './UserDetails';
 
 function Active() {
-    const [activeUsers, setActiveUsers] = useState([
-      { userId: 'NFAI3NE001', name: 'Jose Pablito', organization: 'NFA Nueva Ecija', position: 'Procurement II', userType: 'NFA Staff', status: 'Active' },
-      { userId: 'PMINE001', name: 'Miguel Salazar', organization: 'Millingan Inc.', position: 'Milling Manager', userType: 'Private Miller', status: 'Active' },
-      { userId: 'NFAI3NE002', name: 'Juan Cruz', organization: 'NFA Nueva Ecija', position: 'Warehouse Operator', userType: 'NFA Staff', status: 'Active' },
-      { userId: 'RRI3NE001', name: 'Fathima Garcia', organization: 'DSWD', position: 'Asst. Manager', userType: 'Rice Recipient', status: 'Active' },
-      { userId: 'RRI3NE002', name: 'Paula Bautista', organization: 'Zaragoza LGU', position: 'Procurement I', userType: 'Rice Recipient', status: 'Active' },
-    ]);
-
+    
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [selectedUser, setSelectedUser] = useState(null);
     const [userDetailsVisible, setUserDetailsVisible] = useState(false);
+    const [activeUsers, setActiveUsers] = useState([]);
+
+    const fetchActiveUsers = async () => {
+        try {
+            const res = await fetch(`${apiUrl}/users?status=Active`);
+            if(!res.ok) {
+                throw new Error('Failed to fetch active users');
+            }
+            const users = await res.json();
+            const formattedUsers = users
+            .filter(user => user.userType !== 'Admin')
+            .map(user => ({
+                ...user,
+                name: `${user.firstName} ${user.lastName}`,
+            }));
+            setActiveUsers(formattedUsers);
+        }
+        catch(error) {
+            console.error(error.message);
+        }
+    }
+
+    useEffect(() => {
+        fetchActiveUsers();
+    }, [activeUsers]);
 
     const actionBodyTemplate = (rowData) => {
         return (
@@ -85,10 +104,10 @@ function Active() {
                         paginatorClassName="border-t-2 border-gray-300"
                         rows={10}
                     >
-                        <Column field="userId" header="User ID" className="text-center" headerClassName="text-center"/>
+                        <Column field="id" header="User ID" className="text-center" headerClassName="text-center"/>
                         <Column field="name" header="Name" className="text-center" headerClassName="text-center"/>
-                        <Column field="organization" header="Organization" className="text-center" headerClassName="text-center"/>
-                        <Column field="position" header="Position" className="text-center" headerClassName="text-center"/>
+                        <Column field="organizationName" header="Organization" className="text-center" headerClassName="text-center"/>
+                        <Column field="jobTitlePosition" header="Position" className="text-center" headerClassName="text-center"/>
                         <Column field="userType" header="User Type" className="text-center" headerClassName="text-center"/>
                         <Column field="status" header="Status" body={statusBodyTemplate} className="text-center" headerClassName="text-center"/>
                         <Column header="" body={actionBodyTemplate} className="text-center" headerClassName="text-center"/>
@@ -97,9 +116,10 @@ function Active() {
             </div>
 
             <UserDetails
-                userType="active"
+                userType="Active"
                 visible={userDetailsVisible}
                 onHide={() => setUserDetailsVisible(false)}
+                selectedUser={selectedUser}
             />
         </div>
     );

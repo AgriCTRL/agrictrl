@@ -15,13 +15,14 @@ export function getRouter(): Router {
     router.get(
         '/',
         async (
-            req: Request<any, any, any, { limit?: string; offset?: string }>,
+            req: Request<any, any, any, { limit?: string; offset?: string; status?: string }>,
             res
         ) => {
             const limit = Number(req.query.limit ?? -1);
             const offset = Number(req.query.offset ?? 0);
+            const status = req.query.status;
 
-            const users = await getUsers(limit, offset);
+            const users = await getUsers(limit, offset, status);
 
             res.json(users);
         }
@@ -63,7 +64,8 @@ export function getRouter(): Router {
                 email: string;
                 password: string;
                 status: string;
-                isVerified: boolean }>,
+                isVerified: boolean;
+                dateCreated: Date }>,
             res
         ) => {
             const { principal,
@@ -87,7 +89,8 @@ export function getRouter(): Router {
                 email,
                 password,
                 status,
-                isVerified } = req.body;
+                isVerified,
+                dateCreated } = req.body;
 
             const officeAddress = await createOfficeAddress({
                 region: region,
@@ -115,7 +118,8 @@ export function getRouter(): Router {
                 email,
                 password,
                 status,
-                isVerified
+                isVerified,
+                dateCreated
             });
 
             res.json(user);
@@ -145,7 +149,8 @@ async function updateHandler(
         email?: string;
         password?: string;
         status?: string;
-        isVerified?: boolean  }>,
+        isVerified?: boolean;
+        dateCreated?: Date }>,
     res: Response
 ): Promise<void> {
     const { id,
@@ -165,7 +170,8 @@ async function updateHandler(
         email,
         password,
         status,
-        isVerified } = req.body;
+        isVerified,
+        dateCreated } = req.body;
 
     const user = await updateUser({
         id,
@@ -185,7 +191,8 @@ async function updateHandler(
         email,
         password,
         status,
-        isVerified
+        isVerified,
+        dateCreated
     });
 
     res.json(user);

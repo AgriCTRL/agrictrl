@@ -9,9 +9,9 @@ const PersonalInformation = () => {
   const { firstName, lastName, gender, birthDate, contactNumber } = registrationData.personalInfo;
 
   const genderOptions = [
-    { label: 'Male', value: 'male' },
-    { label: 'Female', value: 'female' },
-    { label: 'Other', value: 'other' }
+    { label: 'Male', value: 'Male' },
+    { label: 'Female', value: 'Female' },
+    { label: 'Other', value: 'Other' }
   ];
 
   const handleInputChange = (field, value) => {

@@ -3,18 +3,15 @@ import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { FileUpload } from 'primereact/fileupload';
 import { useRegistration } from '../RegistrationContext';
-import { storage } from '../firebase';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { v4 as uuidv4 } from 'uuid';
 
-const AccountDetails = () => {
+const AccountDetails = ({ setSelectedFile }) => {
   const { registrationData, updateRegistrationData } = useRegistration();
   const { userType, organizationName, jobTitlePosition, branchRegion, branchOffice, validId, validIdName } = registrationData.accountDetails;
 
   const userTypeOptions = [
-    { label: 'NFA Branch Staff', value: 'staff' },
-    { label: 'Private Miller', value: 'privateMiller' },
-    { label: 'Rice Recipient', value: 'recipient' }
+    { label: 'NFA Branch Staff', value: 'NFA Branch Staff' },
+    { label: 'Private Miller', value: 'Private Miller' },
+    { label: 'Rice Recipient', value: 'Rice Recipient' }
   ];
 
   const [branchRegionOptions, setBranchRegionOptions] = useState([]);
@@ -36,8 +33,8 @@ const AccountDetails = () => {
   }, [branchRegion, branchRegionOptions]);
 
   useEffect(() => {
-    // Reset branchRegion and branchOffice to null if userType is not staff
-    if (userType !== 'staff') {
+    // Reset branchRegion and branchOffice to null if userType is not NFA Branch Staff
+    if (userType !== 'NFA Branch Staff') {
       handleInputChange('branchRegion', null);
       handleInputChange('branchOffice', null);
     }
@@ -99,8 +96,8 @@ const AccountDetails = () => {
       updatedData.branchOffice = null;
     }
 
-    // If userType is changed and it's not staff, reset branchRegion and branchOffice
-    if (field === 'userType' && value !== 'staff') {
+    // If userType is changed and it's not NFA Branch Staff, reset branchRegion and branchOffice
+    if (field === 'userType' && value !== 'NFA Branch Staff') {
       updatedData.branchRegion = null;
       updatedData.branchOffice = null;
     }
@@ -108,21 +105,10 @@ const AccountDetails = () => {
     updateRegistrationData('accountDetails', updatedData);
   };
 
-  const handleFileUpload = async (event) => {
+  const handleFileSelect = (event) => {
     const file = event.files[0];
-    const fileName = `${uuidv4()}_${file.name}`;
-    const storageRef = ref(storage, `validIds/${fileName}`);
-
-    try {
-      const snapshot = await uploadBytes(storageRef, file);
-      const downloadURL = await getDownloadURL(snapshot.ref);
-
-      handleInputChange('validId', downloadURL);
-      handleInputChange('validIdName', file.name);
-    } catch (error) {
-      console.error('Error uploading file:', error);
-      console.log(error)
-    }
+    setSelectedFile(file);
+    handleInputChange('validIdName', file.name);
   };
 
   return (
@@ -167,7 +153,7 @@ const AccountDetails = () => {
         </div>
       </div>
 
-      {userType === 'staff' && (
+      {userType === 'NFA Branch Staff' && (
         <div className="grid grid-cols-2 gap-4 mb-2">
           <div>
             <label htmlFor="branchRegion" className="block mb-2 text-sm font-medium text-gray-700">Region</label>
@@ -206,7 +192,7 @@ const AccountDetails = () => {
 				chooseOptions={{
 				className: 'bg-transparent text-primary flex flex-col items-center ring-0'
 				}}
-				onSelect={handleFileUpload}
+				onSelect={handleFileSelect}
 			/>
 		</div>
     </form>

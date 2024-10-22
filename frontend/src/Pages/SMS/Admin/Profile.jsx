@@ -498,13 +498,13 @@ function Profile() {
     };
 
     const genderOptions = [
-        { label: 'Male', value: 'male' },
-        { label: 'Female', value: 'female' },
-        { label: 'Other', value: 'other' }
+        { label: 'Male', value: 'Male' },
+        { label: 'Female', value: 'Female' },
+        { label: 'Other', value: 'Other' }
     ];
 
     const userTypeOptions = [
-        { label: 'Admin', value: 'admin' },
+        { label: 'Admin', value: 'Admin' },
     ];
 
     const getUserTypeLabel = (value) => {
