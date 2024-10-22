@@ -1,31 +1,36 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { Button } from 'primereact/button';
+import { Toast } from 'primereact/toast';
+
 import { Wheat } from 'lucide-react';
 
 function WarehouseUpdate({ visible, onHide, selectedWarehouse, onUpdateWarehouse }) {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    const toast = useRef(null);
 
-    const [warehouseName, setWarehouseName] = useState('');
-    const [branch, setBranch] = useState('');
-    const [capacity, setCapacity] = useState('');
+    const [facilityName, setFacilityName] = useState('');
+    const [nfaBranch, setNfaBranch] = useState('');
+    const [totalCapacity, setTotalCapacity] = useState('');
     const [location, setLocation] = useState('');
     const [contactNumber, setContactNumber] = useState('');
     const [email, setEmail] = useState('');
     const [status, setStatus] = useState(null);
-    const [isSubmitting, setIsSubmitting] = useState(false);
 
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    
     const statusOptions = [
-        { label: 'Active', value: 'Active' },
-        { label: 'Inactive', value: 'Inactive' }
+        { label: 'Active', value: 'active' },
+        { label: 'Inactive', value: 'inactive' }
     ];
 
     useEffect(() => {
         if (selectedWarehouse) {
-            setWarehouseName(selectedWarehouse.warehouseName);
-            setBranch(selectedWarehouse.branch);
-            setCapacity(selectedWarehouse.capacity);
+            setFacilityName(selectedWarehouse.facilityName);
+            setNfaBranch(selectedWarehouse.nfaBranch);
+            setTotalCapacity(selectedWarehouse.totalCapacity);
             setLocation(selectedWarehouse.location);
             setContactNumber(selectedWarehouse.contactNumber);
             setEmail(selectedWarehouse.email);
@@ -36,17 +41,22 @@ function WarehouseUpdate({ visible, onHide, selectedWarehouse, onUpdateWarehouse
     const handleUpdate = async (e) => {
         e.preventDefault();
 
-        if (!warehouseName || !branch || !capacity || !location || !contactNumber || !email || !status) {
-            alert('All fields are required.');
+        if (!facilityName || !nfaBranch || !totalCapacity || !location || !contactNumber || !email) {
+            toast.current.show({ 
+                severity: 'error', 
+                summary: 'Error', 
+                detail: 'All fields are required.', 
+                life: 3000 
+            });
             return;
         }
 
         setIsSubmitting(true);
         const updatedWarehouse = {
             ...selectedWarehouse,
-            warehouseName,
-            branch,
-            capacity,
+            facilityName,
+            nfaBranch,
+            totalCapacity,
             location,
             contactNumber,
             email,
@@ -59,26 +69,26 @@ function WarehouseUpdate({ visible, onHide, selectedWarehouse, onUpdateWarehouse
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(updatedWarehouse)
             });
+            
             if (!res.ok) {
                 throw new Error('Error updating data');
             }
+            
+            const data = await res.json();
+            onUpdateWarehouse(data);
+            onHide();
+            
         } catch (error) {
-            console.log(error.message);
+            console.error(error.message);
+            toast.current.show({ 
+                severity: 'error', 
+                summary: 'Error', 
+                detail: 'Failed to update warehouse. Please try again.', 
+                life: 3000 
+            });
+        } finally {
+            setIsSubmitting(false);
         }
-
-        onUpdateWarehouse(updatedWarehouse);
-
-        // Clear input fields
-        setWarehouseName('');
-        setBranch('');
-        setCapacity('');
-        setLocation('');
-        setContactNumber('');
-        setEmail('');
-        setStatus(null);
-
-        setIsSubmitting(false);
-        onHide();
     };
 
     if (!visible) {
@@ -87,6 +97,7 @@ function WarehouseUpdate({ visible, onHide, selectedWarehouse, onUpdateWarehouse
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <Toast ref={toast} />
             <div className="bg-white rounded-lg p-5 w-1/3 shadow-lg relative">
                 {/* Close button */}
                 <button onClick={onHide} className="absolute top-5 right-5 text-gray-600 hover:text-gray-800">
@@ -103,32 +114,33 @@ function WarehouseUpdate({ visible, onHide, selectedWarehouse, onUpdateWarehouse
                 <form onSubmit={handleUpdate}>
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label htmlFor="warehouseName" className="block text-sm font-medium text-gray-700">Warehouse Name</label>
+                            <label htmlFor="facilityName" className="block text-sm font-medium text-gray-700">Warehouse Name</label>
                             <InputText
-                                id="warehouseName"
-                                value={warehouseName}
-                                onChange={(e) => setWarehouseName(e.target.value)}
-                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                id="facilityName"
+                                value={facilityName}
+                                onChange={(e) => setFacilityName(e.target.value)}
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
                             />
                         </div>
 
                         <div>
-                            <label htmlFor="branch" className="block text-sm font-medium text-gray-700">Branch</label>
+                            <label htmlFor="nfaBranch" className="block text-sm font-medium text-gray-700">Branch</label>
                             <InputText
-                                id="branch"
-                                value={branch}
-                                onChange={(e) => setBranch(e.target.value)}
-                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                id="nfaBranch"
+                                value={nfaBranch}
+                                onChange={(e) => setNfaBranch(e.target.value)}
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
                             />
                         </div>
 
                         <div>
-                            <label htmlFor="capacity" className="block text-sm font-medium text-gray-700">Capacity</label>
+                            <label htmlFor="totalCapacity" className="block text-sm font-medium text-gray-700">Capacity</label>
                             <InputText
-                                id="capacity"
-                                value={capacity}
-                                onChange={(e) => setCapacity(e.target.value)}
-                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                id="totalCapacity"
+                                value={totalCapacity}
+                                type='number'
+                                onChange={(e) => setTotalCapacity(e.target.value)}
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
                             />
                         </div>
 
@@ -138,7 +150,7 @@ function WarehouseUpdate({ visible, onHide, selectedWarehouse, onUpdateWarehouse
                                 id="location"
                                 value={location}
                                 onChange={(e) => setLocation(e.target.value)}
-                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0" 
                             />
                         </div>
 
@@ -148,7 +160,7 @@ function WarehouseUpdate({ visible, onHide, selectedWarehouse, onUpdateWarehouse
                                 id="contactNumber"
                                 value={contactNumber}
                                 onChange={(e) => setContactNumber(e.target.value)}
-                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
                             />
                         </div>
 
@@ -158,11 +170,11 @@ function WarehouseUpdate({ visible, onHide, selectedWarehouse, onUpdateWarehouse
                                 id="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
                             />
                         </div>
 
-                        <div>
+                        <div className='col-span-2'>
                             <label htmlFor="status" className="block text-sm font-medium text-gray-700">Status</label>
                             <Dropdown
                                 id="status"
@@ -170,7 +182,7 @@ function WarehouseUpdate({ visible, onHide, selectedWarehouse, onUpdateWarehouse
                                 options={statusOptions}
                                 onChange={(e) => setStatus(e.value)}
                                 placeholder="Select Status"
-                                className="w-full rounded-md border border-gray-300"
+                                className="w-full rounded-md border border-gray-300 ring-0"
                             />
                         </div>
 
@@ -178,14 +190,14 @@ function WarehouseUpdate({ visible, onHide, selectedWarehouse, onUpdateWarehouse
                         <Button
                             label="Cancel"
                             onClick={onHide}
-                            className="col-start-1 row-start-7 bg-transparent border border-primary text-primary py-2 rounded-md"
+                            className="col-start-1 row-start-7 bg-transparent border border-primary text-primary py-2 rounded-md ring-0"
                         />
 
                         {/* Update Button */}
                         <Button
                             label="Update"
                             disabled={isSubmitting}
-                            className="col-start-2 row-start-7 bg-primary text-white py-2 rounded-md"
+                            className="col-start-2 row-start-7 bg-primary text-white py-2 rounded-md ring-0"
                         />
                     </div>
                 </form>

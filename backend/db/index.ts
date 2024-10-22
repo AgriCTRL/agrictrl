@@ -13,11 +13,9 @@ import { MillingBatch } from '../entities/millingbatches/db';
 import { OfficeAddress } from '../entities/officeaddresses/db';
 import { PalaySupplier } from '../entities/palaysuppliers/db';
 import { RiceOrder } from '../entities/riceorders/db';
-import { BuyingStation } from '../entities/buyingstations/db';
 import { Transaction } from '../entities/transactions/db';
 import { Farm } from '../entities/farms/db';
 import { HouseOfficeAddress } from '../entities/houseofficeaddresses/db';
-import { Transporter } from '../entities/transporters/db';
 import { RiceMillingBatch } from '../entities/ricemillingbatches/db';
 
 // TODO figure out migrations
@@ -27,7 +25,7 @@ export async function initDb(
     const AppDataSource = new DataSource({
         type: 'sqljs',
         synchronize: true, // TODO we should figure out real migrations for people
-        entities: [ User, QualitySpec, Warehouse, Dryer, Miller, PalayBatch, RiceBatch, DryingBatch, MillingBatch, OfficeAddress, PalaySupplier, RiceOrder, BuyingStation, Transaction, Farm, HouseOfficeAddress, Transporter, RiceMillingBatch ],
+        entities: [ User, QualitySpec, Warehouse, Dryer, Miller, PalayBatch, RiceBatch, DryingBatch, MillingBatch, OfficeAddress, PalaySupplier, RiceOrder, Transaction, Farm, HouseOfficeAddress, RiceMillingBatch ],
         driver: await initSqlJs({}),
         database: bytes
     });
