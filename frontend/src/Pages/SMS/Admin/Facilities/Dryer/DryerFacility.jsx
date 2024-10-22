@@ -1,31 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
-import { Search, Settings2, FileX } from 'lucide-react';
 import { Tag } from 'primereact/tag';
 import { InputText } from 'primereact/inputtext';
-import { FilterMatchMode } from 'primereact/api';
+import { Toast } from 'primereact/toast';
+
+import { Search, Settings2, FileX } from 'lucide-react';
 
 import DryerRegister from './DryerRegister';
 import DryerUpdate from './DryerUpdate';
 
 function DryerFacility() {
-    const [dryerData, setDryerData] = useState([
-        { id: 1, dryerName: 'Dryer A', location: 'San Pedro', capacity: 1000, processing: 750, type:'In house', status: 'Active' },
-        { id: 2, dryerName: 'Dryer B', location: 'Biñan', capacity: 1500, processing: 1200, type:'Private', status: 'Active' },
-        { id: 3, dryerName: 'Dryer C', location: 'Sta. Rosa', capacity: 2000, processing: 1800, type:'Private', status: 'Inactive' },
-        { id: 4, dryerName: 'Dryer D', location: 'Cabuyao', capacity: 1800, processing: 900, type:'In house', status: 'Active' },
-        { id: 5, dryerName: 'Dryer E', location: 'Calamba', capacity: 2200, processing: 1100, type:'In house', status: 'Inactive' },
-        { id: 1, dryerName: 'Dryer A', location: 'San Pedro', capacity: 1000, processing: 750, type:'In house', status: 'Active' },
-        { id: 2, dryerName: 'Dryer B', location: 'Biñan', capacity: 1500, processing: 1200, type:'In house', status: 'Active' },
-        { id: 3, dryerName: 'Dryer C', location: 'Sta. Rosa', capacity: 2000, processing: 1800, type:'Private', status: 'Inactive' },
-        { id: 4, dryerName: 'Dryer D', location: 'Cabuyao', capacity: 1800, processing: 900, type:'In house', status: 'Active' },
-        { id: 5, dryerName: 'Dryer E', location: 'Calamba', capacity: 2200, processing: 1100, type:'In house', status: 'Inactive' },
-    ]);
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    const toast = useRef(null);
 
-    // const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    // const [dryerData, setDryerData] = useState([]);
+    const [dryerData, setDryerData] = useState([]);
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [filters, setFilters] = useState({
         global: { value: null, matchMode: 'contains' },
@@ -34,38 +25,48 @@ function DryerFacility() {
     const [displayDryerUpdate, setDisplayDryerUpdate] = useState(false);
     const [selectedDryer, setSelectedDryer] = useState(null);
 
-    // useEffect(() => {
-    //     setFilters({
-    //         global: { value: globalFilterValue, matchMode: 'contains' },
-    //     });
-    // }, [globalFilterValue]);
+    useEffect(() => {
+        fetchDryerData();
+    }, []);
 
-    // useEffect(() => {
-    //     const fetchData = async () => {
-    //         try {
-    //             const res = await fetch(`${apiUrl}/dryers`, {
-    //                 method: 'GET',
-    //                 headers: {'Content-Type': 'application/json'}
-    //             });
-    //             const data = await res.json();
-    //             setDryerData(data);
-    //         }
-    //         catch (error) {
-    //             console.log(error.message);
-    //         }
-    //     };
-    //     fetchData();
-    // }, []);
+    const fetchDryerData = async () => {
+        try {
+            const res = await fetch(`${apiUrl}/dryers`, {
+                method: 'GET',
+                headers: {'Content-Type': 'application/json'}
+            });
+            if (!res.ok) {
+                throw new Error('Failed to fetch dryers data');
+            }
+            const data = await res.json();
+            setDryerData(data);
+        } catch (error) {
+            console.log(error.message);
+            toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to fetch dryers data', life: 3000 });
+        }
+    };
 
     const handleDryerRegistered = (newDryer) => {
         setDryerData([...dryerData, newDryer]);
         setDisplayDryerRegister(false);
+        toast.current.show({ 
+            severity: 'success', 
+            summary: 'Success', 
+            detail: 'Dryer registered successfully', 
+            life: 5000 
+        });
     };
 
     const handleDryerUpdated = (updatedDryer) => {
         const updatedData = dryerData.map(dryer => dryer.id === updatedDryer.id ? updatedDryer : dryer);
         setDryerData(updatedData);
         setDisplayDryerUpdate(false);
+        toast.current.show({ 
+            severity: 'success', 
+            summary: 'Success', 
+            detail: 'Dryer updated successfully', 
+            life: 5000 
+        });
     };
 
     const showDialog = () => {
@@ -114,6 +115,7 @@ function DryerFacility() {
 
     return (
         <div className="flex flex-col h-full">
+            <Toast ref={toast} />
             {/* top buttons */}
             <div className="flex items-center justify-between mb-5">
                 <span className="p-input-icon-left w-1/2">
@@ -148,42 +150,46 @@ function DryerFacility() {
             </div>
 
             {/* table */}
-                <div className="flex-grow flex flex-col overflow-hidden rounded-lg shadow">
-                    <div className="flex-grow overflow-auto bg-white">
-                        <DataTable 
-                            value={dryerData}
-                            scrollable
-                            scrollHeight="flex"
-                            scrollDirection="both"
-                            className="p-datatable-sm px-5 pt-5"
-                            filters={filters}
-                            globalFilterFields={['id', 'facilityName', 'location', 'status']}
-                            emptyMessage="No inventory found."
-                            paginator
-                            paginatorClassName="border-t-2 border-gray-300"
-                            rows={30}
-                        >
-                            <Column field="id" header="ID" className="text-center" headerClassName="text-center"/>
-                            <Column field="dryerName" header="Dryer Name" className="text-center" headerClassName="text-center"/>
-                            <Column field="location" header="Location" className="text-center" headerClassName="text-center"/>
-                            <Column field="capacity" header="Capacity (mt/hrs)" className="text-center" headerClassName="text-center"/>
-                            <Column field="processing" header="Processing" className="text-center" headerClassName="text-center"/>
-                            <Column field="type" header="Type" className="text-center" headerClassName="text-center"/>
-                            <Column field="status" header="Status" body={statusBodyTemplate} className="text-center" headerClassName="text-center"/>
-                            <Column body={actionBodyTemplate} exportable={false} className="text-center" headerClassName="text-center"/>
-                        </DataTable>
-                    </div>
+            <div className="flex-grow flex flex-col overflow-hidden rounded-lg shadow">
+                <div className="flex-grow overflow-auto bg-white">
+                    <DataTable 
+                        value={dryerData}
+                        scrollable
+                        scrollHeight="flex"
+                        scrolldirection="both"
+                        className="p-datatable-sm px-5 pt-5"
+                        filters={filters}
+                        globalFilterFields={['id', 'facilityName', 'location', 'status']}
+                        emptyMessage="No inventory found."
+                        paginator
+                        paginatorClassName="border-t-2 border-gray-300"
+                        rows={30}
+                    >
+                        <Column field="id" header="ID" className="text-center" headerClassName="text-center"/>
+                        <Column field="dryerName" header="Dryer Name" className="text-center" headerClassName="text-center"/>
+                        <Column field="location" header="Location" className="text-center" headerClassName="text-center"/>
+                        <Column field="capacity" header="Capacity (mt/hrs)" className="text-center" headerClassName="text-center"/>
+                        <Column field="processing" header="Processing" className="text-center" headerClassName="text-center"/>
+                        <Column field="status" header="Status" body={statusBodyTemplate} className="text-center" headerClassName="text-center"/>
+                        <Column body={actionBodyTemplate} exportable={false} className="text-center" headerClassName="text-center"/>
+                    </DataTable>
                 </div>
+            </div>
 
-                <DryerRegister visible={displayDryerRegister} onHide={hideRegisterDialog} onDryerRegistered={handleDryerRegistered} />
-                {selectedDryer && (
-                    <DryerUpdate 
-                        visible={displayDryerUpdate} 
-                        onHide={hideUpdateDialog} 
-                        selectedDryer={selectedDryer} 
-                        onUpdateDryer={handleDryerUpdated} 
-                    />
-                )}
+            <DryerRegister 
+                visible={displayDryerRegister} 
+                onHide={hideRegisterDialog} 
+                onDryerRegistered={handleDryerRegistered} 
+            />
+            
+            {selectedDryer && (
+                <DryerUpdate 
+                    visible={displayDryerUpdate} 
+                    onHide={hideUpdateDialog} 
+                    selectedDryer={selectedDryer} 
+                    onUpdateDryer={handleDryerUpdated} 
+                />
+            )}
         </div>
     );
 }

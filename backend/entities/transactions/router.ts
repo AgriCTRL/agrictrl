@@ -7,7 +7,6 @@ import {
     getTransactions,
     updateTransaction
 } from './db';
-import { createTransporter } from '../transporters/db';
 
 export function getRouter(): Router {
     const router = express.Router();
@@ -42,24 +41,20 @@ export function getRouter(): Router {
     router.post(
         '/',
         async (
-            req: Request<any, any, { item: string; itemIds: number[]; senderId: number; sendDateTime: Date; fromLocationType: string; fromLocationId: number; transporterName: string; description: string; receiverId: number; receiveDateTime: Date; toLocationType: string; toLocationId: number; status: string; remarks: string }>,
+            req: Request<any, any, { item: string; itemId: number; senderId: number; sendDateTime: Date; fromLocationType: string; fromLocationId: number; transporterName: string; transporterDesc: string; receiverId: number; receiveDateTime: Date; toLocationType: string; toLocationId: number; status: string; remarks: string }>,
             res
         ) => {
-            const { item, itemIds, senderId, sendDateTime, fromLocationType, fromLocationId, transporterName, description, receiverId, receiveDateTime, toLocationType, toLocationId, status, remarks } = req.body;
-
-            const transporter = await createTransporter({
-                transporterName: transporterName,
-                description: description,
-            });
+            const { item, itemId, senderId, sendDateTime, fromLocationType, fromLocationId, transporterName, transporterDesc, receiverId, receiveDateTime, toLocationType, toLocationId, status, remarks } = req.body;
             
             const transaction = await createTransaction({
                 item,
-                itemIds,
+                itemId,
                 senderId,
                 sendDateTime,
                 fromLocationType,
                 fromLocationId,
-                transporterId: transporter.id,
+                transporterName,
+                transporterDesc,
                 receiverId,
                 receiveDateTime,
                 toLocationType,
@@ -78,19 +73,21 @@ export function getRouter(): Router {
 }
 
 async function updateHandler(
-    req: Request<any, any, { id: number; item?: string; itemIds?: number[]; senderId?: number; sendDateTime?: Date; fromLocationType?: string; fromLocationId?: number; receiverId?: number; receiveDateTime?: Date; toLocationType?: string; toLocationId?: number; status?: string; remarks?: string }>,
+    req: Request<any, any, { id: number; item?: string; itemId?: number; senderId?: number; sendDateTime?: Date; fromLocationType?: string; fromLocationId?: number; transporterName?: string; transporterDesc?: string; receiverId?: number; receiveDateTime?: Date; toLocationType?: string; toLocationId?: number; status?: string; remarks?: string }>,
     res: Response
 ): Promise<void> {
-    const { id, item, itemIds, senderId, sendDateTime, fromLocationType, fromLocationId, receiverId, receiveDateTime, toLocationType, toLocationId, status, remarks } = req.body;
+    const { id, item, itemId, senderId, sendDateTime, fromLocationType, fromLocationId, transporterName, transporterDesc, receiverId, receiveDateTime, toLocationType, toLocationId, status, remarks } = req.body;
 
     const transaction = await updateTransaction({
         id,
         item,
-        itemIds,
+        itemId,
         senderId,
         sendDateTime,
         fromLocationType,
         fromLocationId,
+        transporterName,
+        transporterDesc,
         receiverId,
         receiveDateTime,
         toLocationType,

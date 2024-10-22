@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef  } from 'react';
-import StaffLayout from '@/Layouts/StaffLayout';
 
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -7,29 +6,26 @@ import { Tag } from 'primereact/tag';
 import { FilterMatchMode } from 'primereact/api';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
-import { Toast } from 'primereact/toast';
 
-import { Settings2, Search, CircleAlert, FileX } from "lucide-react";
+import { Search, CircleAlert, Settings2, FileX } from 'lucide-react';
 
-import PalayRegister from './PalayRegister';
+import AdminLayout from '@/Layouts/AdminLayout';
+import pdfExport from '../../../Components/pdfExport';
 
-function BuyPalay() {
+function Inventory() { 
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const toast = useRef(null);
 
+    const [inventoryData, setInventoryData] = useState([]);
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [filters, setFilters] = useState({
         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     });
 
-    const [showRegisterPalay, setShowRegisterPalay] = useState(false);
-    const [inventoryData, setInventoryData] = useState([]);
-
     useEffect(() => {
-        fetchPalayData();
+        fetchInventoryData();
     }, []);
 
-    const fetchPalayData = async () => {
+    const fetchInventoryData = async () => {
         try {
             const response = await fetch(`${apiUrl}/palaybatches`, {
                 method: 'GET',
@@ -39,7 +35,7 @@ function BuyPalay() {
             });
 
             if (!response.ok) {
-                throw new Error('Failed to fetch palay data');
+                throw new Error('Failed to fetch inventory data');
             }
 
             const data = await response.json();
@@ -49,7 +45,7 @@ function BuyPalay() {
             toast.current.show({
                 severity: 'error',
                 summary: 'Error',
-                detail: 'Failed to fetch palay data',
+                detail: 'Failed to fetch inventory data',
                 life: 3000
             });
         }
@@ -58,7 +54,10 @@ function BuyPalay() {
     const getSeverity = (status) => {
         switch (status.toLowerCase()) {
           case 'to be dry': return 'success';
+          case 'in drying': return 'success';
           case 'to be mill': return 'info';
+          case 'in milling': return 'info';
+          case 'milled': return 'primary';
           default: return 'danger';
         }
         // sucess - green
@@ -66,7 +65,7 @@ function BuyPalay() {
         // warning - orange
         // danger - red 
         // primary - cyan
-    };
+      };
     
     const statusBodyTemplate = (rowData) => (
         <Tag 
@@ -84,15 +83,6 @@ function BuyPalay() {
         />
     );
 
-    const handleAddPalay = () => {
-        setShowRegisterPalay(true);
-    };
-
-    const handlePalayRegistered = (newPalay) => {
-        fetchPalayData();
-        setShowRegisterPalay(false);
-    };
-
     const dateBodyTemplate = (rowData) => {
         return new Date(rowData.dateBought).toLocaleDateString('en-US', {
             year: 'numeric',
@@ -101,44 +91,64 @@ function BuyPalay() {
         });
     };
 
+    const exportPdf = () => {
+        const columns = ['ID', 'Date Planted', 'Date Harvested', 'Date Bought', 'Quantity in Bags', 'Gross Weight', 'Net Weight', 'Quality Type', 'Moisture Content', 'Purity', 'Damaged', 'Price', 'Farmer', 'Origin Farm', 'Current Location', 'Status'];
+        const data = inventoryData.map(inventory => [
+            inventory.id,
+            inventory.plantedDate,
+            inventory.harvestedDate,
+            inventory.dateBought,
+            inventory.quantityBags,
+            inventory.grossWeight,
+            inventory.netWeight,
+            inventory.qualityType,
+            inventory.qualitySpec.moistureContent,
+            inventory.qualitySpec.purity,
+            inventory.price,
+            inventory.palaySupplier.farmerName,
+            inventory.farm.region,
+            inventory.currentlyAt,
+            inventory.status,
+            
+        ]);
+
+        pdfExport('Inventory Data Export', columns, data);
+    };
+
     return (
-        <StaffLayout activePage="Procurement">
-            <Toast ref={toast} />
-            <div className="flex flex-col px-10 py-2 h-full bg-[#F1F5F9]">
-                <div className="flex flex-col justify-center items-center p-10 h-1/4 rounded-lg bg-gradient-to-r from-primary to-secondary mb-2">
-                    <h1 className="text-5xl text-white font-bold mb-2">Palay Procurement</h1>
-                    <span className="p-input-icon-left w-1/2 mr-4 mb-4">
-                        <Search className="text-white ml-2 -translate-y-1"/>
-                        <InputText 
-                            type="search"
-                            value={globalFilterValue} 
-                            onChange={(e) => setGlobalFilterValue(e.target.value)} 
-                            placeholder="Tap to Search" 
-                            className="w-full pl-10 pr-4 py-2 rounded-full text-white bg-transparent border border-white placeholder:text-white"
-                        />
-                    </span>
-                </div>
+        <AdminLayout activePage="Inventory">
+            <div className="flex flex-col h-full px-4 py-2">
+                {/* Header */}
+                <div className="mb-4">
+                    <div className="flex items-center justify-between">
+                        <span className="p-input-icon-left w-1/2 mr-4">
+                            <Search className="text-primary ml-2 -translate-y-1"/>
+                            <InputText 
+                                type="search"
+                                value={globalFilterValue} 
+                                onChange={(e) => setGlobalFilterValue(e.target.value)} 
+                                placeholder="Tap to Search" 
+                                className="w-full pl-10 pr-4 py-2 rounded-lg placeholder-gray-500 text-primary border border-gray-300 ring-0 placeholder:text-primary"
+                            />
+                        </span>
 
-                {/* Buttons & Search bar */}
-                <div className="flex items-center space-x-2 justify-between mb-2 py-2">
-                    <div className="flex flex-row space-x-2 items-center w-1/2 drop-shadow-md">
-                        <Button className="p-2 px-3 rounded-lg text-md font-medium text-white bg-primary ring-0">All</Button>
-                        <Button 
-                            icon={<Settings2 className="mr-2 text-primary" />}
-                            label="Filters" 
-                            className="p-button-success text-primary border border-gray-300 rounded-full bg-white p-2 w-1/16 ring-0" />
-                    </div>
-                    
+                        <div className="flex flex-row w-1/2 justify-between">
+                            <Button 
+                                icon={<Settings2 className="mr-2 text-primary" />}
+                                label="Filters" 
+                                className="p-button-success text-primary border border-gray-300 rounded-md bg-white p-2 w-1/16" />
 
-                    <div className="flex flex-row w-1/2 justify-end">
-                        <Button 
-                            label="Buy Palay +" 
-                            className="w-1/16 p-2 rounded-md p-button-success text-white bg-gradient-to-r from-primary to-secondary ring-0"
-                            onClick={handleAddPalay} />
+                            <Button 
+                                icon={<FileX className="mr-2" />} 
+                                label="Export" 
+                                onClick={exportPdf}
+                                className="p-button-success text-primary border border-primary rounded-md bg-transparent p-2 w-1/16" />
+                        </div>
+
                     </div>
                 </div>
 
-                {/* Data Table */}
+                {/* DataTable Container */}
                 <div className="flex-grow flex flex-col overflow-hidden rounded-lg shadow">
                     <div className="flex-grow overflow-hidden bg-white">
                         <DataTable 
@@ -148,13 +158,15 @@ function BuyPalay() {
                             scrolldirection="both"
                             className="p-datatable-sm pt-5"
                             filters={filters}
-                            globalFilterFields={['qualityType', 'status', 'farmer', 'originFarm']}
+                            globalFilterFields={['trackingId', 'qualityType', 'status', 'farmer', 'originFarm']}
                             emptyMessage="No inventory found."
                             paginator
                             rows={30}
-                            tableStyle={{ minWidth: '2350px' }}
+                            tableStyle={{ minWidth: '3100px' }}
                         >
                             <Column field="id" header="Batch ID" className="text-center" headerClassName="text-center" />
+                            <Column field="plantedDate" body={dateBodyTemplate} header="Date Planted" className="text-center" headerClassName="text-center" />
+                            <Column field="harvestedDate" body={dateBodyTemplate} header="Date Harvested" className="text-center" headerClassName="text-center" />
                             <Column field="dateBought" body={dateBodyTemplate} header="Date Bought" className="text-center" headerClassName="text-center" />
                             <Column field="quantityBags" header="Quantity in Bags" className="text-center" headerClassName="text-center" />
                             <Column field="grossWeight" header="Gross Weight" className="text-center" headerClassName="text-center" />
@@ -179,14 +191,8 @@ function BuyPalay() {
                     </div>
                 </div>
             </div>
-
-            <PalayRegister
-                    visible={showRegisterPalay}
-                    onHide={() => setShowRegisterPalay(false)}
-                    onPalayRegistered={handlePalayRegistered}
-                />
-        </StaffLayout> 
+        </AdminLayout>
     );
 }
 
-export default BuyPalay;
+export default Inventory;

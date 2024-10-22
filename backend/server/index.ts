@@ -14,11 +14,9 @@ import { getRouter as getRouterMillingBatches } from '../entities/millingbatches
 import { getRouter as getRouterOfficeAddress } from '../entities/officeaddresses/router';
 import { getRouter as getRouterPalaySupplier} from '../entities/palaysuppliers/router';
 import { getRouter as getRouterRiceOrder} from '../entities/riceorders/router';
-import { getRouter as getRouterBuyingStation} from '../entities/buyingstations/router';
 import { getRouter as getRouterTransaction} from '../entities/transactions/router';
 import { getRouter as getRouterFarm } from '../entities/farms/router';
 import { getRouter as getRouterHouseOfficeAddress } from '../entities/houseofficeaddresses/router';
-import { getRouter as getRouterTransporters } from '../entities/transporters/router';
 import { getRouter as getRouterRiceMillingBatches } from '../entities/ricemillingbatches/router';
 
 
@@ -44,11 +42,9 @@ export function initServer() {
     app.use('/officeaddresses', requireAuth, getRouterOfficeAddress());
     app.use('/palaysuppliers', requireAuth, getRouterPalaySupplier());
     app.use('/riceorders', requireAuth, getRouterRiceOrder());
-    app.use('/buyingstations', requireAuth, getRouterBuyingStation());
     app.use('/transactions', requireAuth, getRouterTransaction());
     app.use('/farms', requireAuth, getRouterFarm());
     app.use('/houseofficeaddresses', requireAuth, getRouterHouseOfficeAddress());
-    app.use('/transporters', requireAuth, getRouterTransporters());
     app.use('/ricemillingbatches', requireAuth, getRouterRiceMillingBatches());
 
 

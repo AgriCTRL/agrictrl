@@ -1,6 +1,5 @@
 import express, { Request, Response, Router } from 'express';
 
-import { createBuyingStation } from '../buyingstations/db';
 import { createQualitySpec } from '../qualityspecs/db';
 import { createPalaySupplier } from '../palaysuppliers/db';
 import { createHouseOfficeAddress } from '../houseofficeaddresses/db';
@@ -49,7 +48,7 @@ export function getRouter(): Router {
             req: Request<any, any, { palayVariety: string;
                 dateBought: Date;
                 buyingStationName: string;
-                location: string;
+                buyingStationLoc: string;
                 quantityBags: number;
                 grossWeight: number;
                 netWeight: number;
@@ -79,13 +78,14 @@ export function getRouter(): Router {
                 plantedDate: Date;
                 harvestedDate: Date;
                 estimatedCapital: number;
+                currentlyAt: string;
                 status: string }>,
             res
         ) => {
             const { palayVariety,
                 dateBought,
                 buyingStationName,
-                location,
+                buyingStationLoc,
                 quantityBags,
                 grossWeight,
                 netWeight,
@@ -115,12 +115,8 @@ export function getRouter(): Router {
                 plantedDate,
                 harvestedDate,
                 estimatedCapital,
+                currentlyAt,
                 status } = req.body;
-
-            const buyingStation = await createBuyingStation({
-                buyingStationName: buyingStationName,
-                location: location
-            })
 
             const qualitySpec = await createQualitySpec({
                 moistureContent: moistureContent,
@@ -160,7 +156,8 @@ export function getRouter(): Router {
             const palayBatch = await createPalayBatch({
                 palayVariety,
                 dateBought,
-                buyingStationId: buyingStation.id,
+                buyingStationName,
+                buyingStationLoc,
                 quantityBags,
                 grossWeight,
                 netWeight,
@@ -172,6 +169,7 @@ export function getRouter(): Router {
                 plantedDate,
                 harvestedDate,
                 estimatedCapital,
+                currentlyAt,
                 status
             });
 
@@ -188,6 +186,8 @@ async function updateHandler(
     req: Request<any, any, { id: number;
         palayVariety?: string
         dateBought?: Date;
+        buyingStationName?: string;
+        buyingStationLoc?: string;
         quantityBags?: number;
         grossWeight?: number;
         netWeight?: number;
@@ -196,12 +196,15 @@ async function updateHandler(
         plantedDate?: Date;
         harvestedDate?: Date;
         estimatedCapital?: number;
+        currentlyAt?: string;
         status?: string }>,
     res: Response
 ): Promise<void> {
     const { id,
         palayVariety,
         dateBought,
+        buyingStationName,
+        buyingStationLoc,
         quantityBags,
         grossWeight,
         netWeight,
@@ -210,12 +213,15 @@ async function updateHandler(
         plantedDate,
         harvestedDate,
         estimatedCapital,
+        currentlyAt,
         status } = req.body;
 
     const palayBatch = await updatePalayBatch({
         id,
         palayVariety,
         dateBought,
+        buyingStationName,
+        buyingStationLoc,
         quantityBags,
         grossWeight,
         netWeight,
@@ -224,6 +230,7 @@ async function updateHandler(
         plantedDate,
         harvestedDate,
         estimatedCapital,
+        currentlyAt,
         status
     });
 
