@@ -8,6 +8,7 @@ import {
     getUsers,
     updateUser
 } from './db';
+import { User } from './db';
 
 export function getRouter(): Router {
     const router = express.Router();
@@ -127,6 +128,24 @@ export function getRouter(): Router {
     );
 
     router.post('/update', updateHandler);
+
+    router.post('/login', async (req, res) => {
+        const { email, password, userType } = req.body;
+
+        try {
+            const user = await User.findOne({ 
+            where: { email, password, userType, isVerified: true } 
+            });
+
+            if (user) {
+            res.json(user);
+            } else {
+            res.status(404).json({ message: 'Invalid credentials' });
+            }
+        } catch (error) {
+            res.status(500).json({ message: 'An error occurred during login' });
+        }
+    });
 
     return router;
 }

@@ -42,18 +42,15 @@ const loginUser = async (email, password, userType) => {
   };
   
   try {
-    const response = await fetch(`${apiUrl}/users`);
+    const response = await fetch(`${apiUrl}/users/login`, {
+      method: "POST",
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, userType })
+    });
     if (!response.ok) {
       throw new Error('Failed to fetch users');
     }
-    const users = await response.json();
-    
-    const user = users.find(u => 
-      u.email === email && 
-      u.password === password && 
-      u.userType === userType
-      && u.isVerified === true
-    );
+    const user = await response.json();
 
     if (user) {
       if(userType === 'Admin') {
