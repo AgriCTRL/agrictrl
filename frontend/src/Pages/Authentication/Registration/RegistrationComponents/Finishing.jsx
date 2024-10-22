@@ -41,7 +41,7 @@ const Finishing = ({ setConfirmPasswordValid }) => {
           value={email} 
           onChange={(e) => handleInputChange('email', e.target.value)}  
           placeholder="Enter your email" 
-          className="w-full focus:ring-0"
+          className="w-full ring-0"
         />
       </div>
 
@@ -67,7 +67,7 @@ const Finishing = ({ setConfirmPasswordValid }) => {
           feedback={false}
           onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
           placeholder="Confirm your password"
-          inputClassName="w-full p-3"
+          inputClassName="w-full p-3 ring-0"
         />
       </div>
     </form>

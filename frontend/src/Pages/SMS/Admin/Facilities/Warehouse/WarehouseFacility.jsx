@@ -11,6 +11,7 @@ import { Search, Settings2, FileX } from 'lucide-react';
 
 import WarehouseRegister from './WarehouseRegister';
 import WarehouseUpdate from './WarehouseUpdate';
+import pdfExport from '../../../../../Components/pdfExport';
 
 function Warehouse() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -113,6 +114,21 @@ function Warehouse() {
         />
     );
 
+    const exportPdf = () => {
+        const columns = ['ID', 'Warehouse Name', 'Location', 'Branch', 'Capacity (mt)', 'Current Stock (mt)', 'Status'];
+        const data = warehouseData.map(warehouse => [
+            warehouse.id,
+            warehouse.facilityName,
+            warehouse.location,
+            warehouse.nfaBranch,
+            warehouse.totalCapacity,
+            warehouse.currentStock,
+            warehouse.status
+        ]);
+
+        pdfExport('Warehouse Data Export', columns, data);
+    };
+
     return (
         <div className="flex flex-col h-full">
             <Toast ref={toast} />
@@ -139,6 +155,7 @@ function Warehouse() {
                         <Button 
                             icon={<FileX className="mr-2" />} 
                             label="Export" 
+                            onClick={exportPdf}
                             className="p-button-success ring-0 text-primary border border-primary rounded-md bg-transparent p-2 mr-1 w-1/16" />
                         
                         <Button 
