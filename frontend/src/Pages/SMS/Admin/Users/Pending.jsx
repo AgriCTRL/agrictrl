@@ -11,6 +11,7 @@ import UserDetails from './UserDetails';
 function Pending() {
 
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    const apiKey = import.meta.env.VITE_API_KEY;
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [selectedUser, setSelectedUser] = useState(null);
     const [userDetailsVisible, setUserDetailsVisible] = useState(false);
@@ -18,7 +19,9 @@ function Pending() {
 
     const fetchPendingUsers = async () => {
         try {
-            const res = await fetch(`${apiUrl}/users?status=Pending`);
+            const res = await fetch(`${apiUrl}/users?status=Pending`, {
+                headers: { 'Content-Type': 'application/json', 'auth-api-key': `${apiKey}` }
+            });
             if(!res.ok) {
                 throw new Error('Failed to fetch pending users');
             }

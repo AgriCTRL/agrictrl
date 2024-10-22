@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import { apiKeyAuth, requireAuth } from '../middleware/auth';
 
 import { getRouter as getRouterUsers } from '../entities/users/router';
 import { getRouter as getRouterQualitySpecs } from '../entities/qualityspecs/router';
@@ -29,24 +30,26 @@ export function initServer() {
     app.use(cors());
     app.use(express.json());
 
-    app.use('/users', getRouterUsers());
-    app.use('/qualityspecs', getRouterQualitySpecs());
-    app.use('/warehouses', getRouterWarehouses());
-    app.use('/dryers', getRouterDryers());
-    app.use('/millers', getRouterMillers());
-    app.use('/palaybatches', getRouterPalayBatches());
-    app.use('/ricebatches', getRouterRiceBatches());
-    app.use('/dryingbatches', getRouterDryingBatches());
-    app.use('/millingbatches', getRouterMillingBatches());
-    app.use('/officeaddresses', getRouterOfficeAddress());
-    app.use('/palaysuppliers', getRouterPalaySupplier());
-    app.use('/riceorders', getRouterRiceOrder());
-    app.use('/buyingstations', getRouterBuyingStation());
-    app.use('/transactions', getRouterTransaction());
-    app.use('/farms', getRouterFarm());
-    app.use('/houseofficeaddresses', getRouterHouseOfficeAddress());
-    app.use('/transporters', getRouterTransporters());
-    app.use('/ricemillingbatches', getRouterRiceMillingBatches());
+    app.use(apiKeyAuth);
+
+    app.use('/users', requireAuth, getRouterUsers());
+    app.use('/qualityspecs', requireAuth, getRouterQualitySpecs());
+    app.use('/warehouses', requireAuth, getRouterWarehouses());
+    app.use('/dryers', requireAuth, getRouterDryers());
+    app.use('/millers', requireAuth, getRouterMillers());
+    app.use('/palaybatches', requireAuth, getRouterPalayBatches());
+    app.use('/ricebatches', requireAuth, getRouterRiceBatches());
+    app.use('/dryingbatches', requireAuth, getRouterDryingBatches());
+    app.use('/millingbatches', requireAuth, getRouterMillingBatches());
+    app.use('/officeaddresses', requireAuth, getRouterOfficeAddress());
+    app.use('/palaysuppliers', requireAuth, getRouterPalaySupplier());
+    app.use('/riceorders', requireAuth, getRouterRiceOrder());
+    app.use('/buyingstations', requireAuth, getRouterBuyingStation());
+    app.use('/transactions', requireAuth, getRouterTransaction());
+    app.use('/farms', requireAuth, getRouterFarm());
+    app.use('/houseofficeaddresses', requireAuth, getRouterHouseOfficeAddress());
+    app.use('/transporters', requireAuth, getRouterTransporters());
+    app.use('/ricemillingbatches', requireAuth, getRouterRiceMillingBatches());
 
 
     app.get('/init-called', (_req, res) => {

@@ -43,6 +43,7 @@ const CustomStepLabel = ({ icon, isActive }) => {
 
 const RegistrationPageContent = () => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
+  const apiKey = import.meta.env.VITE_API_KEY;
   const [activeStep, setActiveStep] = useState(0);
   const navigate = useNavigate();
   const { registrationData } = useRegistration();
@@ -95,7 +96,7 @@ const RegistrationPageContent = () => {
 
     const res = await fetch(`${apiUrl}/users`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { 'Content-Type': 'application/json', 'auth-api-key': `${apiKey}` },
       body: JSON.stringify(registrationPayload),
     });
 
