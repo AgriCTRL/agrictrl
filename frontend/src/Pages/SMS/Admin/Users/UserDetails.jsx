@@ -138,11 +138,13 @@ const UserDetails = ({ userType, visible, onHide, selectedUser }) => {
     setIsLoading(true);
     try {
       const apiUrl = import.meta.env.VITE_API_BASE_URL;
+      const apiKey = import.meta.env.VITE_API_KEY;
       const newIsVerified = newStatus === 'Active';
       const response = await fetch(`${apiUrl}/users/update`, {
         method: 'POST',
-        headers: {
+        headers: { 
           'Content-Type': 'application/json',
+          'API-Key': `${apiKey}`
         },
         body: JSON.stringify({ id: selectedUser.id, status: newStatus, isVerified: newIsVerified }),
       });

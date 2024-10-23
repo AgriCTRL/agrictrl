@@ -20,7 +20,7 @@ function Pending() {
     const fetchPendingUsers = async () => {
         try {
             const res = await fetch(`${apiUrl}/users?status=Pending`, {
-                headers: { 'Content-Type': 'application/json', 'auth-api-key': `${apiKey}` }
+                headers: { 'API-Key': `${apiKey}` },
             });
             if(!res.ok) {
                 throw new Error('Failed to fetch pending users');

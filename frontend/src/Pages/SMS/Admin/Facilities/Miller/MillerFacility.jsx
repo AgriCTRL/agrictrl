@@ -14,6 +14,7 @@ import MillerUpdate from './MillerUpdate';
 
 function MillerFacility() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    const apiKey = import.meta.env.VITE_API_KEY;
     const toast = useRef(null);
 
     const [millerData, setMillerData] = useState([]);
@@ -32,8 +33,7 @@ function MillerFacility() {
     const fetchMillerData = async () => {
         try {
             const res = await fetch(`${apiUrl}/millers`, {
-                method: 'GET',
-                headers: {'Content-Type': 'application/json'}
+                headers: { 'API-Key': `${apiKey}` }
             });
             if (!res.ok) {
                 throw new Error('Failed to fetch millers data');

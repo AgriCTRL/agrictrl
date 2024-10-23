@@ -12,7 +12,7 @@ export interface AuthenticatedRequest extends Request {
 }
 
 export const apiKeyAuth = (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
-    const apiKey = req.headers['auth-api-key'];
+    const apiKey = req.headers['api-key'];
 
     if (!apiKey) {
         res.status(401).json({

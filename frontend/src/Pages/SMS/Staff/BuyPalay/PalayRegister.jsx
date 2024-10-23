@@ -74,6 +74,7 @@ const initialTransactionData = {
 
 function PalayRegister({ visible, onHide, onPalayRegistered }) {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    const apiKey = import.meta.env.VITE_API_KEY;
     const toast = useRef(null);
     
     const [activeStep, setActiveStep] = useState(0);
@@ -759,6 +760,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'API-Key': `${apiKey}`
                 },
                 body: JSON.stringify(transformedData)
             });
@@ -802,6 +804,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'API-Key': `${apiKey}`
                 },
                 body: JSON.stringify(transformedData)
             });

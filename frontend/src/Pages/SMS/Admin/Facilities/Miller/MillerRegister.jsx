@@ -9,6 +9,7 @@ import { Factory } from 'lucide-react';
 
 function MillerRegister({ visible, onHide, onMillerRegistered }) {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    const apiKey = import.meta.env.VITE_API_KEY;
     const toast = React.useRef(null);
 
     const [millerName, setMillerName] = useState('');
@@ -76,7 +77,10 @@ function MillerRegister({ visible, onHide, onMillerRegistered }) {
         try {
             const res = await fetch(`${apiUrl}/millers`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'API-Key': `${apiKey}`
+                },
                 body: JSON.stringify(newMiller)
             });
             if (!res.ok) {

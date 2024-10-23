@@ -14,6 +14,7 @@ const loginUser = async (email, password, userType) => {
   const authClient = await AuthClient.create();
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const apiKey = import.meta.env.VITE_API_KEY;
+  const internetIdentityUrl = import.meta.env.VITE_INTERNET_IDENTITY_URL;
   
   const identityLogIn = async () => {
     const width = 500;
@@ -22,7 +23,7 @@ const loginUser = async (email, password, userType) => {
     const top = (window.screen.height / 2) - (height / 2) - 25;
     await new Promise((resolve, reject) => {
       authClient.login({
-          identityProvider: 'http://be2us-64aaa-aaaaa-qaabq-cai.localhost:4943/',
+          identityProvider: `${internetIdentityUrl}`,
           onSuccess: resolve,
           onError: reject,
           windowOpenerFeatures: `width=${width},height=${height},left=${left},top=${top}`
@@ -45,7 +46,10 @@ const loginUser = async (email, password, userType) => {
   try {
     const response = await fetch(`${apiUrl}/users/login`, {
       method: "POST",
-      headers: { 'Content-Type': 'application/json', 'auth-api-key': `${apiKey}` },
+      headers: { 
+        'Content-Type': 'application/json',
+        'API-Key': `${apiKey}`
+      },
       body: JSON.stringify({ email, password, userType })
     });
     if (!response.ok) {
@@ -62,7 +66,10 @@ const loginUser = async (email, password, userType) => {
           if (user.principal === null) {
             const res = await fetch(`${apiUrl}/users/update`, {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json', 'auth-api-key': `${apiKey}` },
+              headers: { 
+                'Content-Type': 'application/json',
+                'API-Key': `${apiKey}`
+              },
               body: JSON.stringify({ id: user.id, principal: newPrincipal })
             });
 

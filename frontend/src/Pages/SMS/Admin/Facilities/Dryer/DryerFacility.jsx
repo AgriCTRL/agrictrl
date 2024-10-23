@@ -14,6 +14,7 @@ import DryerUpdate from './DryerUpdate';
 
 function DryerFacility() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    const apiKey = import.meta.env.VITE_API_KEY;
     const toast = useRef(null);
 
     const [dryerData, setDryerData] = useState([]);
@@ -32,8 +33,7 @@ function DryerFacility() {
     const fetchDryerData = async () => {
         try {
             const res = await fetch(`${apiUrl}/dryers`, {
-                method: 'GET',
-                headers: {'Content-Type': 'application/json'}
+                headers: { 'API-Key': `${apiKey}` }
             });
             if (!res.ok) {
                 throw new Error('Failed to fetch dryers data');

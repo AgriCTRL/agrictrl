@@ -96,7 +96,10 @@ const RegistrationPageContent = () => {
 
     const res = await fetch(`${apiUrl}/users`, {
       method: "POST",
-      headers: { 'Content-Type': 'application/json', 'auth-api-key': `${apiKey}` },
+      headers: { 
+        'Content-Type': 'application/json',
+        'API-Key': `${apiKey}`
+      },
       body: JSON.stringify(registrationPayload),
     });
 

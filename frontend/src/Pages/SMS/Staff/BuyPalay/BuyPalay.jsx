@@ -15,6 +15,7 @@ import PalayRegister from './PalayRegister';
 
 function BuyPalay() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    const apiKey = import.meta.env.VITE_API_KEY;
     const toast = useRef(null);
 
     const [globalFilterValue, setGlobalFilterValue] = useState('');
@@ -32,10 +33,7 @@ function BuyPalay() {
     const fetchPalayData = async () => {
         try {
             const response = await fetch(`${apiUrl}/palaybatches`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
+                headers: { 'API-Key': `${apiKey}` }
             });
 
             if (!response.ok) {
