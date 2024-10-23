@@ -2,290 +2,318 @@ import React, { useState, useEffect } from 'react';
 import PrivateMillerLayout from '../../../Layouts/PrivateMillerLayout';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
-import { Calendar } from 'primereact/calendar';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
+import { Toast } from 'primereact/toast';
+import { useAuth } from '../../Authentication/Login/AuthContext';
 
 function ManageMiller() {
-    const [activeTab, setActiveTab] = useState('personal');
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    const apiKey = import.meta.env.VITE_API_KEY;
+    const { user } = useAuth();
+    const toast = React.useRef(null);
+
+    const [millerData, setMillerData] = useState({
+        millerName: '',
+        userId: '',
+        category: 'Private',
+        type: '',
+        capacity: '',
+        processing: '0',
+        contactNumber: '',
+        email: '',
+        status: 'inactive',
+        location: ''
+    });
+    const [userData, setUserData] = useState(null);
+
     const [editing, setEditing] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [showRegistrationDialog, setShowRegistrationDialog] = useState(false);
     const [isRegistered, setIsRegistered] = useState(false);
 
-    const [millerData, setMillerData] = useState({
-        personalInfo: {
-            firstName: '',
-            lastName: '',
-            gender: '',
-            birthDate: null,
-            contactNumber: ''
-        },
-        millerDetails: {
-            millerName: '',
-            capacity: '',
-            millerType: ''
-        },
-        millerLocation: {
-            region: '',
-            province: '',
-            cityTown: '',
-            barangay: '',
-            street: ''
-        }
-    });
-
     useEffect(() => {
-        const storedMillerData = localStorage.getItem('millerData');
-
-
-        if (storedMillerData) {
-            setMillerData(JSON.parse(storedMillerData));
-            setIsRegistered(true);
-        } else {
-            setShowRegistrationDialog(true);
-        }
-
-        localStorage.removeItem('millerData');
-        setShowRegistrationDialog(true);
-        setIsRegistered(false);
+        fetchUserAndMillerData();
     }, []);
 
-    const genderOptions = [
-        { label: 'Male', value: 'Male' },
-        { label: 'Female', value: 'Female' }
-    ];
+    useEffect(() => {
+        if (userData) {
+            setMillerData(prev => ({
+                ...prev,
+                userId: user.id,
+                contactNumber: userData.personalInfo.contactNumber,
+                email: userData.passwordInfo.email
+            }));
+        }
+    }, [userData]);
 
-    const millerTypeOptions = [
+    const fetchUserAndMillerData = async () => {
+        try {
+            setIsLoading(true);
+            
+            const userRes = await fetch(`${apiUrl}/users/${user.id}`, {
+                headers: { 'API-Key': apiKey },
+            });
+            
+            if (!userRes.ok) throw new Error('Failed to fetch user data');
+            const userData = await userRes.json();
+            
+            const millersRes = await fetch(`${apiUrl}/millers`, {
+                headers: { 'API-Key': apiKey },
+            });
+            
+            if (!millersRes.ok) throw new Error('Failed to fetch millers data');
+            const millersData = await millersRes.json();
+            
+            const userMiller = millersData.find(miller => miller.userId === user.id);
+            
+            setUserData({
+                personalInfo: {
+                    contactNumber: userData.contactNumber,
+                },
+                passwordInfo: {
+                    email: userData.email,
+                }
+            });
+
+            if (userMiller) {
+                setMillerData(userMiller);
+                setIsRegistered(true);
+            } else {
+                setShowRegistrationDialog(true);
+            }
+            
+        } catch (error) {
+            toast.current.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: error.message,
+                life: 3000
+            });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const typeOptions = [
         { label: 'Small', value: 'Small' },
         { label: 'Medium', value: 'Medium' },
         { label: 'Large', value: 'Large' }
     ];
 
-    const regionOptions = [
-        { label: 'Region 3', value: 'Region 3' },
-        // Add more regions as needed
-    ];
-
-    const provinceOptions = [
-        { label: 'Nueva Ecija', value: 'Nueva Ecija' },
-        // Add more provinces as needed
-    ];
-
-    const barangayOptions = [
-        { label: 'Brgy. Masagan', value: 'Brgy. Masagan' },
-        // Add more barangays as needed
-    ];
-
     const handleToggleEdit = () => {
         if (isRegistered) {
-            setEditing(prevState => !prevState);
+            setEditing(prev => !prev);
+        }
+    };
+
+    const validateForm = () => {
+        const requiredFields = ['millerName', 'type', 'capacity', 'location'];
+        const missingFields = requiredFields.filter(field => !millerData[field]);
+        
+        if (missingFields.length > 0) {
+            toast.current.show({
+                severity: 'error',
+                summary: 'Validation Error',
+                detail: `Please fill in all required fields: ${missingFields.join(', ')}`,
+                life: 3000
+            });
+            return false;
+        }
+        return true;
+    };
+
+    const handleRegistration = async (e) => {
+        e.preventDefault();
+        if (!validateForm()) return;
+        
+        setIsSubmitting(true);
+        console.log(millerData);
+        try {
+            const res = await fetch(`${apiUrl}/millers`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'API-Key': apiKey
+                },
+                body: JSON.stringify(millerData)
+            });
+            
+            if (!res.ok) throw new Error('Error registering miller');
+            
+            const registeredMiller = await res.json();
+            setMillerData(registeredMiller);
+            setIsRegistered(true);
+            setShowRegistrationDialog(false);
+            
+            toast.current.show({
+                severity: 'success',
+                summary: 'Success',
+                detail: 'Miller registered successfully',
+                life: 3000
+            });
+        } catch (error) {
+            toast.current.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: error.message,
+                life: 3000
+            });
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
     const handleSave = async (e) => {
         e.preventDefault();
+        if (!validateForm()) return;
+        
         setIsSubmitting(true);
-
+        console.log(millerData)
         try {
-            console.log('Saving miller data:', millerData);
-            // localStorage.setItem('millerData', JSON.stringify(millerData));
+            const res = await fetch(`${apiUrl}/millers/update`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'API-Key': `${apiKey}`
+                },
+                body: JSON.stringify(millerData)
+            });
+            
+            if (!res.ok) throw new Error('Error updating data');
+            
+            toast.current.show({
+                severity: 'success',
+                summary: 'Success',
+                detail: 'Miller data updated successfully',
+                life: 3000
+            });
+            
             setEditing(false);
-            setIsRegistered(true);
-            setShowRegistrationDialog(false);
         } catch (error) {
-            console.log(error);
+            toast.current.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: error.message,
+                life: 3000
+            });
         } finally {
             setIsSubmitting(false);
         }
     };
 
-    const handleRegistration = (e) => {
-        e.preventDefault();
-        setIsSubmitting(true);
-
-        try {
-            console.log('Registering miller data:', millerData);
-            // localStorage.setItem('millerData', JSON.stringify(millerData));
-            setIsRegistered(true);
-            setShowRegistrationDialog(false);
-        } catch (error) {
-            console.log(error);
-        } finally {
-            setIsSubmitting(false);
-        }
+    const handleChange = (field, value) => {
+        setMillerData(prev => ({
+            ...prev,
+            [field]: value
+        }));
     };
-
-    const renderPersonalInformation = (isRegistrationForm = false) => (
-        <div className="grid grid-cols-2 gap-4">
-            <div>
-                <label className="block mb-2 text-sm font-medium text-gray-700">First Name</label>
-                <InputText
-                    value={millerData.personalInfo.firstName}
-                    onChange={(e) => setMillerData(prev => ({...prev, personalInfo: {...prev.personalInfo, firstName: e.target.value}}))}
-                    disabled={!editing && !isRegistrationForm}
-                    className="w-full focus:ring-0"
-                />
-            </div>
-            <div>
-                <label className="block mb-2 text-sm font-medium text-gray-700">Last Name</label>
-                <InputText
-                    value={millerData.personalInfo.lastName}
-                    onChange={(e) => setMillerData(prev => ({...prev, personalInfo: {...prev.personalInfo, lastName: e.target.value}}))}
-                    disabled={!editing && !isRegistrationForm}
-                    className="w-full focus:ring-0"
-                />
-            </div>
-            <div>
-                <label className="block mb-2 text-sm font-medium text-gray-700">Gender</label>
-                <Dropdown
-                    value={millerData.personalInfo.gender}
-                    options={genderOptions}
-                    onChange={(e) => setMillerData(prev => ({...prev, personalInfo: {...prev.personalInfo, gender: e.value}}))}
-                    disabled={!editing && !isRegistrationForm}
-                    className="ring-0 w-full placeholder:text-gray-400"
-                />
-            </div>
-            <div>
-                <label className="block mb-2 text-sm font-medium text-gray-700">Birth Date</label>
-                <Calendar
-                    value={millerData.personalInfo.birthDate}
-                    onChange={(e) => setMillerData(prev => ({...prev, personalInfo: {...prev.personalInfo, birthDate: e.value}}))}
-                    disabled={!editing && !isRegistrationForm}
-                    className="w-full rounded-md"
-                />
-            </div>
-            <div>
-                <label className="block mb-2 text-sm font-medium text-gray-700">Contact Number</label>
-                <InputText
-                    value={millerData.personalInfo.contactNumber}
-                    onChange={(e) => setMillerData(prev => ({...prev, personalInfo: {...prev.personalInfo, contactNumber: e.target.value}}))}
-                    disabled={!editing && !isRegistrationForm}
-                    className="w-full focus:ring-0"
-                />
-            </div>
-        </div>
-    );
 
     const renderMillerDetails = (isRegistrationForm = false) => (
-        <div className="grid grid-cols-2 gap-4">
-            <div className="col-span-2">
+        <div className="flex flex-col gap-4">
+            <div className="w-full">
                 <label className="block mb-2 text-sm font-medium text-gray-700">Miller Name</label>
                 <InputText
-                    value={millerData.millerDetails.millerName}
-                    onChange={(e) => setMillerData(prev => ({...prev, millerDetails: {...prev.millerDetails, millerName: e.target.value}}))}
+                    value={millerData.millerName}
+                    onChange={(e) => handleChange('millerName', e.target.value)}
                     disabled={!editing && !isRegistrationForm}
-                    className="w-full focus:ring-0"
+                    className="w-full ring-0"
                 />
             </div>
+            <div className="flex gap-4 w-full">
+                <div className="w-full">
+                    <label className="block mb-2 text-sm font-medium text-gray-700">Category</label>
+                    <Dropdown
+                        value={millerData.category}
+                        options={typeOptions}
+                        onChange={(e) => handleChange('category', e.value)}
+                        disabled={!editing && !isRegistrationForm}
+                        className="ring-0 w-full placeholder:text-gray-400"
+                    />
+                </div>
+                <div className="w-full">
+                    <label className="block mb-2 text-sm font-medium text-gray-700">Type</label>
+                    <InputText
+                        value={millerData.type}
+                        disabled
+                        className="ring-0 w-full placeholder:text-gray-400"
+                    />
+                </div>
+            </div>
+            <div className="flex gap-4 w-full">
+                <div className="w-full">
+                    <label className="block mb-2 text-sm font-medium text-gray-700">Location</label>
+                    <InputText
+                        value={millerData.location}
+                        onChange={(e) => handleChange('location', e.target.value)}
+                        disabled={!editing && !isRegistrationForm}
+                        className="w-full ring-0"
+                    />
+                </div>
+                <div className="w-full">
+                    <label className="block mb-2 text-sm font-medium text-gray-700">Capacity</label>
+                    <InputText
+                        value={millerData.capacity}
+                        onChange={(e) => handleChange('capacity', e.target.value)}
+                        disabled={!editing && !isRegistrationForm}
+                        className="w-full ring-0"
+                    />
+                </div>
+            </div>
+            <div className="flex gap-4 w-full">
+                <div className="w-full">
+                    <label className="block mb-2 text-sm font-medium text-gray-700">Contact Number</label>
+                    <InputText
+                        value={userData.personalInfo.contactNumber}
+                        disabled
+                        className="w-full ring-0"
+                    />
+                </div>
+                <div className="w-full">
+                    <label className="block mb-2 text-sm font-medium text-gray-700">Email</label>
+                    <InputText
+                        value={userData.passwordInfo.email}
+                        disabled
+                        className="w-full ring-0"
+                    />
+                </div>
+            </div>
+            
             <div className="col-span-2">
-                <label className="block mb-2 text-sm font-medium text-gray-700">Capacity</label>
+                <label className="block mb-2 text-sm font-medium text-gray-700">Status</label>
                 <InputText
-                    value={millerData.millerDetails.capacity}
-                    onChange={(e) => setMillerData(prev => ({...prev, millerDetails: {...prev.millerDetails, capacity: e.target.value}}))}
-                    disabled={!editing && !isRegistrationForm}
-                    className="w-full focus:ring-0"
+                    value={millerData.status}
+                    disabled
+                    className={`w-full text-gray-950 ring-0 bg-${millerData.status === "active" ? "primary" : "red-500"}`}
                 />
             </div>
-            <div className="col-span-2">
-                <label className="block mb-2 text-sm font-medium text-gray-700">Miller Type</label>
-                <Dropdown
-                    value={millerData.millerDetails.millerType}
-                    options={millerTypeOptions}
-                    onChange={(e) => setMillerData(prev => ({...prev, millerDetails: {...prev.millerDetails, millerType: e.value}}))}
-                    disabled={!editing && !isRegistrationForm}
-                    className="ring-0 w-full placeholder:text-gray-400"
-                />
-            </div>
+            
         </div>
     );
 
-    const renderMillerLocation = (isRegistrationForm = false) => (
-        <div className="grid grid-cols-2 gap-4">
-            <div className="col-span-2">
-                <label className="block mb-2 text-sm font-medium text-gray-700">Region</label>
-                <Dropdown
-                    value={millerData.millerLocation.region}
-                    options={regionOptions}
-                    onChange={(e) => setMillerData(prev => ({...prev, millerLocation: {...prev.millerLocation, region: e.value}}))}
-                    disabled={!editing && !isRegistrationForm}
-                    className="ring-0 w-full placeholder:text-gray-400"
-                />
-            </div>
-            <div>
-                <label className="block mb-2 text-sm font-medium text-gray-700">Province</label>
-                <Dropdown
-                    value={millerData.millerLocation.province}
-                    options={provinceOptions}
-                    onChange={(e) => setMillerData(prev => ({...prev, millerLocation: {...prev.millerLocation, province: e.value}}))}
-                    disabled={!editing && !isRegistrationForm}
-                    className="ring-0 w-full placeholder:text-gray-400"
-                />
-            </div>
-            <div>
-                <label className="block mb-2 text-sm font-medium text-gray-700">City/Town</label>
-                <InputText
-                    value={millerData.millerLocation.cityTown}
-                    onChange={(e) => setMillerData(prev => ({...prev, millerLocation: {...prev.millerLocation, cityTown: e.target.value}}))}
-                    disabled={!editing && !isRegistrationForm}
-                    className="w-full focus:ring-0"
-                />
-            </div>
-            <div>
-                <label className="block mb-2 text-sm font-medium text-gray-700">Barangay</label>
-                <Dropdown
-                    value={millerData.millerLocation.barangay}
-                    options={barangayOptions}
-                    onChange={(e) => setMillerData(prev => ({...prev, millerLocation: {...prev.millerLocation, barangay: e.value}}))}
-                    disabled={!editing && !isRegistrationForm}
-                    className="ring-0 w-full placeholder:text-gray-400"
-                />
-            </div>
-            <div>
-                <label className="block mb-2 text-sm font-medium text-gray-700">Street</label>
-                <InputText
-                    value={millerData.millerLocation.street}
-                    onChange={(e) => setMillerData(prev => ({...prev, millerLocation: {...prev.millerLocation, street: e.target.value}}))}
-                    disabled={!editing && !isRegistrationForm}
-                    className="w-full focus:ring-0"
-                />
-            </div>
-        </div>
-    );
-
-    const tabs = [
-        { id: 'personal', label: 'Owner Information', content: renderPersonalInformation },
-        { id: 'details', label: 'Miller Details', content: renderMillerDetails },
-        { id: 'location', label: 'Miller Location', content: renderMillerLocation },
-    ];
+    if (isLoading) {
+        return (
+            <PrivateMillerLayout activePage="Manage Miller">
+                <div className="flex items-center justify-center h-full">
+                    <i className="pi pi-spin pi-spinner text-4xl"></i>
+                </div>
+            </PrivateMillerLayout>
+        );
+    }
 
     return (
         <PrivateMillerLayout activePage="Manage Miller">
+            <Toast ref={toast} />
             <div className='flex flex-col h-full w-full py-2 bg-white rounded-xl px-4'>
                 <div className="flex flex-col justify-center items-center p-10 h-1/4 rounded-lg bg-gradient-to-r from-primary to-secondary">
                     <h1 className="text-6xl text-white font-bold">Manage Miller</h1>
                 </div>
 
                 <div className='flex justify-between flex-col w-full h-full px-24 py-10'>
-                    <div className="flex justify-between mb-4">
-                        {tabs.map((tab) => (
-                            <button
-                                key={tab.id}
-                                onClick={() => setActiveTab(tab.id)}
-                                className={`px-4 py-2 w-full font-medium ${
-                                    activeTab === tab.id
-                                        ? 'text-green-500 border-b-2 border-green-500'
-                                        : 'text-gray-500 border-b-2 border-gray-300 hover:text-green-500'
-                                }`}
-                            >
-                                {tab.label}
-                            </button>
-                        ))}
-                    </div>
-
                     <form onSubmit={handleSave} className="flex flex-col justify-between h-full">
                         <div className="mt-4">
-                            {tabs.find(tab => tab.id === activeTab).content()}
+                            {renderMillerDetails()}
                         </div>
                         
                         <div className='flex justify-end'>
@@ -318,6 +346,7 @@ function ManageMiller() {
                 header="Miller Registration"
                 visible={showRegistrationDialog}
                 style={{ width: '50vw' }}
+                closable={isRegistered}
                 onHide={() => {
                     if (!isRegistered) {
                         return;
@@ -336,13 +365,8 @@ function ManageMiller() {
                     </div>
                 }
             >
-                <form onSubmit={handleRegistration} className="flex flex-col space-y-4">
-                    <h1 className='text-3xl'>Personal Information</h1>
-                    {renderPersonalInformation(true)}
-                    <h1 className='text-3xl'>Miller Details</h1>
+                <form onSubmit={handleRegistration}>
                     {renderMillerDetails(true)}
-                    <h1 className='text-3xl'>Miller Location</h1>
-                    {renderMillerLocation(true)}
                 </form>
             </Dialog>
         </PrivateMillerLayout>

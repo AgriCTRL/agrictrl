@@ -15,6 +15,7 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
     const [millerName, setMillerName] = useState('');
     const [userId, setUserId] = useState('0');
     const [category, setCategory] = useState('');
+    const [type, setType] = useState('');
     const [location, setLocation] = useState('');
     const [capacity, setCapacity] = useState('');
     const [contactNumber, setContactNumber] = useState('');
@@ -29,15 +30,16 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
     ];
 
     const categoryOptions = [
-        { label: 'Small', value: 'small' },
-        { label: 'Medium', value: 'medium' },
-        { label: 'Large', value: 'large' }
+        { label: 'Small', value: 'Small' },
+        { label: 'Medium', value: 'Medium' },
+        { label: 'Large', value: 'Large' }
     ];
 
     useEffect(() => {
         if (selectedMiller) {
             setMillerName(selectedMiller.millerName);
             setCategory(selectedMiller.category);
+            setType(selectedMiller.type);
             setCapacity(selectedMiller.capacity);
             setLocation(selectedMiller.location);
             setContactNumber(selectedMiller.contactNumber);
@@ -70,6 +72,8 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
             email,
             status
         };
+
+        console.log(updatedMiller);
 
         try {
             const res = await fetch(`${apiUrl}/millers/update`, {
@@ -129,6 +133,7 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
                                 value={millerName}
                                 onChange={(e) => setMillerName(e.target.value)}
                                 className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
+                                disabled={type === "Private"}
                             />
                         </div>
 
@@ -140,6 +145,7 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
                                 options={categoryOptions}
                                 onChange={(e) => setCategory(e.value)}
                                 className="w-full rounded-md border border-gray-300 ring-0"
+                                disabled={type === "Private"}
                             />
                         </div>
 
@@ -150,6 +156,7 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
                                 value={capacity}
                                 onChange={(e) => setCapacity(e.target.value)}
                                 className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
+                                disabled={type === "Private"}
                             />
                         </div>
 
@@ -160,6 +167,7 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
                                 value={location}
                                 onChange={(e) => setLocation(e.target.value)}
                                 className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
+                                disabled={type === "Private"}
                             />
                         </div>
 
@@ -170,6 +178,7 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
                                 value={contactNumber}
                                 onChange={(e) => setContactNumber(e.target.value)}
                                 className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
+                                disabled={type === "Private"}
                             />
                         </div>
 
@@ -180,6 +189,7 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
+                                disabled={type === "Private"}
                             />
                         </div>
 
