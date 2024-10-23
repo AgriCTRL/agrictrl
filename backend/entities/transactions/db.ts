@@ -56,6 +56,12 @@ export class Transaction extends BaseEntity {
 export type TransactionCreate = Pick<Transaction, 'item' | 'itemId' | 'senderId' | 'sendDateTime' | 'fromLocationType' | 'fromLocationId' | 'transporterName' | 'transporterDesc' | 'receiverId' | 'receiveDateTime' | 'toLocationType' | 'toLocationId' | 'status' | 'remarks'>;
 export type TransactionUpdate = Pick<Transaction, 'id'> & Partial<TransactionCreate>;
 
+function getCurrentPST(): Date {
+    const now = new Date();
+    const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+    return new Date(utc + (3600000 * 8));
+}
+
 export async function getTransactions(limit: number, offset: number): Promise<Transaction[]> {
     return await Transaction.find({
         take: limit,
@@ -81,7 +87,7 @@ export async function createTransaction(transactionCreate: TransactionCreate): P
     transaction.item = transactionCreate.item;
     transaction.itemId = transactionCreate.itemId;
     transaction.senderId = transactionCreate.senderId;
-    transaction.sendDateTime = transactionCreate.sendDateTime;
+    transaction.sendDateTime = getCurrentPST();
     transaction.fromLocationType = transactionCreate.fromLocationType;
     transaction.fromLocationId = transactionCreate.fromLocationId;
     transaction.transporterName = transactionCreate.transporterName;

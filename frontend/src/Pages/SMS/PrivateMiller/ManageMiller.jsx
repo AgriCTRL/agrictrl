@@ -16,8 +16,8 @@ function ManageMiller() {
     const [millerData, setMillerData] = useState({
         millerName: '',
         userId: '',
-        category: 'Private',
-        type: '',
+        category: '',
+        type: 'Private',
         capacity: '',
         processing: '0',
         contactNumber: '',
