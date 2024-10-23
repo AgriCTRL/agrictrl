@@ -8,19 +8,23 @@ import { Calendar } from 'primereact/calendar';
 import { Wheat } from 'lucide-react';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Divider } from 'primereact/divider';
+import { useAuth } from '../../../Authentication/Login/AuthContext';
 
 const initialFormData = {
-    riceType: '',
+    riceType: 'NFA Rice',
     quantity: '',
     description: '',
     date: null,
-    ricePrice: '',
+    ricePrice: '30',
     weightInKilo: '',
     totalPrice: '₱ 0'
 };
 
 function PalayRegister({ visible, onHide, onPalayRegistered }) {
     const [formData, setFormData] = useState(initialFormData);
+    const { user } = useAuth();
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    const apiKey = import.meta.env.VITE_API_KEY;
 
     useEffect(() => {
         if (visible) {
@@ -35,39 +39,34 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
             [name]: value
         }));
 
-        if (name === 'riceType') {
-            updateRicePrice(value);
-        } else if (name === 'quantity') {
-            updateWeightAndPrice(value, formData.riceType);
+        if (name === 'quantity') {
+            updateWeightAndPrice(value);
         }
     };
 
-    const updateRicePrice = (riceType) => {
-        let pricePerKilo = 0;
-        if (riceType === 'sinandomeng') {
-            pricePerKilo = 30;
-        } else if (riceType === 'angelica') {
-            pricePerKilo = 40;
-        } else if (riceType === 'jasmine') {
-            pricePerKilo = 50;
-        }
+    // const updateRicePrice = (riceType) => {
+    //     let pricePerKilo = 0;
+    //     if (riceType === 'sinandomeng') {
+    //         pricePerKilo = 30;
+    //     } else if (riceType === 'angelica') {
+    //         pricePerKilo = 40;
+    //     } else if (riceType === 'jasmine') {
+    //         pricePerKilo = 50;
+    //     }
         
-        setFormData(prevState => ({
-            ...prevState,
-            ricePrice: `₱ ${pricePerKilo}`
-        }));
+    //     setFormData(prevState => ({
+    //         ...prevState,
+    //         ricePrice: `₱ ${pricePerKilo}`
+    //     }));
 
-        updateWeightAndPrice(formData.quantity, riceType);
-    };
+    //     updateWeightAndPrice(formData.quantity, riceType);
+    // };
 
-    const updateWeightAndPrice = (quantity, riceType) => {
+    const updateWeightAndPrice = (quantity) => {
         const bags = parseInt(quantity) || 0;
         const weightInKilo = bags * 50;
         
-        let pricePerKilo = 0;
-        if (riceType === 'sinandomeng') pricePerKilo = 30;
-        else if (riceType === 'angelica') pricePerKilo = 40;
-        else if (riceType === 'jasmine') pricePerKilo = 50;
+        let pricePerKilo = 30;
 
         const totalPrice = weightInKilo * pricePerKilo;
 
@@ -78,11 +77,55 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
         }));
     };
 
-    const handleSubmit = () => {
-        console.log(formData);
-        onPalayRegistered(formData);
-        setFormData(initialFormData);
-        onHide();
+    const handleDateChange = (e) => {
+        const selectedDate = e.value;
+        if (selectedDate) {
+            const offset = selectedDate.getTimezoneOffset();
+            const adjustedDate = new Date(selectedDate.getTime() - (offset * 60 * 1000));
+    
+            const formattedDate = adjustedDate.toISOString().split('T')[0];
+            setFormData(prevState => ({
+                ...prevState,
+                date: formattedDate
+            }));
+        } else {
+            setFormData(prevState => ({
+                ...prevState,
+                date: null
+            }));
+        }
+    };
+
+    const handleSubmit = async () => {
+        const riceOrder = {
+            riceRecipientId: user.id,
+            dropOffLocation: '',
+            riceQuantityBags: formData.quantity,
+            description: formData.description,
+            totalCost: formData.totalPrice,
+            preferredDeliveryDate: formData.date
+        }
+
+        try {
+            const res = await fetch(`${apiUrl}/riceorders`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'API-Key': `${apiKey}`
+                },
+                body: JSON.stringify(riceOrder)
+            })
+            if(!res.ok) {
+                throw new Error('failed rice order')
+            }
+
+            onPalayRegistered(formData);
+            setFormData(initialFormData);
+            onHide();
+        }
+        catch(error) {
+            console.error(error.message)
+        }
     };
 
     const handleClose = () => {
@@ -124,14 +167,12 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                     <div className="flex flex-col gap-2 w-full">
                         <div className="w-full">
                             <label htmlFor="riceType" className="block text-sm font-medium text-gray-700 mb-1">Rice Type</label>
-                            <Dropdown
+                            <InputText
                                 id="riceType"
                                 name="riceType"
                                 value={formData.riceType}
-                                options={[{ label: 'Sinandomeng', value: 'sinandomeng' }, { label: 'Angelica', value: 'angelica' }, { label: 'Jasmine', value: 'jasmine' }]}
-                                onChange={handleInputChange}
-                                placeholder="Select rice type"
                                 className="ring-0 w-full placeholder:text-gray-400"
+                                disabled
                             />
                         </div>
 
@@ -152,8 +193,8 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                             <Calendar
                                 id="date"
                                 name="date"
-                                value={formData.date}
-                                onChange={handleInputChange}
+                                value={formData.date ? new Date(formData.date) : null}
+                                onChange={handleDateChange}
                                 placeholder="Select date"
                                 className="rig-0 w-full placeholder:text-gray-400 focus:shadow-none custom-calendar"
                             />

@@ -21,13 +21,14 @@ function DeclinedDetails({ visible, onHide, data }) {
     useEffect(() => {
         if (visible) {
             setFormData({
-                riceType: data.riceType || '',
+                riceType: 'NFA Rice',
                 orderId: data.id || '',
-                quantity: data.quantity || '',
+                quantity: data.riceQuantityBags || '',
                 description: data.description || '',
-                date: data.dateBought || null,
+                date: data.orderDate ? new Date(data.orderDate) : null,
                 price: data.price || '₱ 0'
             });
+            console.log(formData);
         }
     }, [visible]);
 
@@ -69,9 +70,17 @@ function DeclinedDetails({ visible, onHide, data }) {
     const customDialogHeader = (
         <div className="flex items-center space-x-2">
             <Wheat size={22} className="text-black" />
-            <h3 className="text-md font-bold text-black">Order Rice</h3>
+            <h3 className="text-md font-bold text-black">Order Details</h3>
         </div>
     );
+
+    const formatDate = (date) => {
+        return new Date(date).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        });
+    };
 
     return (
         <Dialog 
@@ -132,13 +141,11 @@ function DeclinedDetails({ visible, onHide, data }) {
 
                     <div className="w-1/2">
                         <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">Order Date</label>
-                        <Calendar
+                        <InputText
                             id="date"
                             name="date"
-                            value={formData.date}
-                            onChange={handleInputChange}
+                            value={formatDate(formData.date)}
                             disabled
-                            dateFormat="yy-mm-dd"
                             className="rig-0 w-full placeholder:text-gray-400 focus:shadow-none custom-calendar"
                         />
                     </div>

@@ -15,6 +15,8 @@ import DeclinedDetails from './DeclineDetails';
 
 
 function RiceOrder() {
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    const apiKey = import.meta.env.VITE_API_KEY;
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [filters, setFilters] = useState({
         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -23,28 +25,35 @@ function RiceOrder() {
     const [showRegisterPalay, setShowRegisterPalay] = useState(false);
     const [showDeclinedDetails, setShowDeclinedDetails] = useState(false);
     const [selectedDeclinedData, setSelectedDeclinedData] = useState(null);
+    const [inventoryData, setInventoryData] = useState([]);
 
-
-    const [inventoryData, setInventoryData] = useState([
-        { id: 1, trackingId: '001', dateBought: '2024-03-01', quantity: 1000, price: 100, riceType: 'Premium', status: 'UNPROCESSED'},
-        { id: 2, trackingId: '002', dateBought: '2024-03-02', quantity: 1500, price: 100, riceType: 'Standard', status: 'TRANSPORTED'},
-        { id: 3, trackingId: '003', dateBought: '2024-03-03', quantity: 2000, price: 100, riceType: 'Premium', status: 'UNPROCESSED'},
-        { id: 4, trackingId: '004', dateBought: '2024-03-04', quantity: 1800, price: 100, riceType: 'Standard', status: 'DECLINED'},
-        { id: 5, trackingId: '005', dateBought: '2024-03-05', quantity: 2200, price: 100, riceType: 'Premium', status: 'TRANSPORTED'},
-        { id: 6, trackingId: '001', dateBought: '2024-03-01', quantity: 1000, price: 100, riceType: 'Premium', status: 'TRANSPORTED'},
-        { id: 7, trackingId: '002', dateBought: '2024-03-02', quantity: 1500, price: 100, riceType: 'Standard', status: 'UNPROCESSED'},
-        { id: 8, trackingId: '003', dateBought: '2024-03-03', quantity: 2000, price: 100, riceType: 'Premium', status: 'UNPROCESSED'},
-        { id: 9, trackingId: '004', dateBought: '2024-03-04', quantity: 1800, price: 100, riceType: 'Standard', status: 'DECLINED'},
-        { id: 10, trackingId: '005', dateBought: '2024-03-05', quantity: 2200, price: 100, riceType: 'Premium', status: 'DECLINED'},
-    ]);
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const res = await fetch(`${apiUrl}/riceorders`, {
+                    headers: { 'API-Key': `${apiKey}` }
+                });
+                if(!res.ok) {
+                    throw new Error('Failed to fetch rice orders')
+                }
+                const data = await res.json();
+                setInventoryData(data);
+            }
+            catch (error) {
+                console.error(error.message)
+            }
+        }
+        fetchData();
+    }, [inventoryData]);
 
     const [selectedFilter, setSelectedFilter] = useState('riceOrders');
 
     const getSeverity = (status) => {
         switch (status.toLowerCase()) {
-            case 'transported': return 'success';
-            case 'unprocessed': return 'warning';
+            case 'received': return 'success';
+            case 'for approval': return 'warning';
             case 'declined': return 'danger';
+            case 'in transit': return 'info';
             default: return 'secondary';
         }
     };
@@ -59,7 +68,7 @@ function RiceOrder() {
     );
     
     const actionBodyTemplate = (rowData) => {
-        if (rowData.status === 'DECLINED') {
+        if (rowData.status === 'Declined') {
             return (
                 <CircleAlert 
                     className="text-red-500 cursor-pointer"
@@ -81,14 +90,24 @@ function RiceOrder() {
 
     const handleDeclinedClick = (rowData) => {
         setSelectedDeclinedData({
-            ...rowData,
-            dateBought: new Date(rowData.dateBought)
+            ...rowData
         });
         setShowDeclinedDetails(true);
     };
 
+    const dateBodyTemplate = (rowData, field) => {
+        const date = rowData[field];
+        if (!date) return '';
+
+        return new Date(date).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        });
+    };
+
     const filteredData = inventoryData.filter(item => 
-        selectedFilter === 'riceOrders' ? item.status !== 'DECLINED' : item.status === 'DECLINED'
+        selectedFilter === 'riceOrders' ? item.status !== 'Declined' : item.status === 'Declined'
     );
 
     const buttonStyle = (isSelected) => isSelected
@@ -153,11 +172,11 @@ function RiceOrder() {
                         paginator
                         rows={30}
                     > 
-                        <Column field="trackingId" header="Tracking ID" className="text-center" headerClassName="text-center" />
-                        <Column field="dateBought" header="Date Bought" className="text-center" headerClassName="text-center" />
-                        <Column field="quantity" header="Quantity" className="text-center" headerClassName="text-center" />
-                        <Column field="price" header="Price" className="text-center" headerClassName="text-center" />
-                        <Column field="riceType" header="Quality Type" className="text-center" headerClassName="text-center" />
+                        <Column field="id" header="Order ID" className="text-center" headerClassName="text-center" />
+                        <Column field="orderDate" header="Order Date" body={(rowData) => dateBodyTemplate(rowData, 'orderDate')} className="text-center" headerClassName="text-center" />
+                        <Column field="riceQuantityBags" header="Quantity" className="text-center" headerClassName="text-center" />
+                        <Column field="totalCost" header="Price" className="text-center" headerClassName="text-center" />
+                        <Column field="preferredDeliveryDate" header="Delivery Date" body={(rowData) => dateBodyTemplate(rowData, 'preferredDeliveryDate')} className="text-center" headerClassName="text-center" />
                         <Column field="status" header="Status" body={statusBodyTemplate} className="text-center" headerClassName="text-center"/>
                         <Column body={actionBodyTemplate} exportable={false} className="text-center" headerClassName="text-center"/>
                     </DataTable>

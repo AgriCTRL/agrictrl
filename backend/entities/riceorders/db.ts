@@ -8,7 +8,7 @@ export class RiceOrder extends BaseEntity {
     @Column()
     riceRecipientId: number;
 
-    @Column()
+    @Column({ nullable: true})
     riceBatchId: number;
 
     @Column()
@@ -29,7 +29,7 @@ export class RiceOrder extends BaseEntity {
     @Column()
     preferredDeliveryDate: Date;
 
-    @Column({ default: 'for approval'})
+    @Column({ default: 'For Approval'})
     status: string;
 
     @Column({ default: false })
