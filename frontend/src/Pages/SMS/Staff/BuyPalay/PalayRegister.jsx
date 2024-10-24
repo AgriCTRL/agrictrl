@@ -56,24 +56,22 @@ const initialPalayData = {
     harvestedDate: null,
     estimatedCapital: '',
     currentlyAt: '',
-    status: 'to be dry',
+    status: '',
 };
 
 const initialTransactionData = {
     item: 'Palay',
     itemId: '',
-    senderId: 123,
-    sendDateTime: '123',
+    senderId: '',
     fromLocationType: 'Procurement',
-    fromLocationId: 123,
+    fromLocationId: 0,
     transporterName: '',
     transporterDesc: '',
-    receiverId: 123,
-    receiveDateTime: '123',
-    toLocationType: 'warehouse',
+    receiverId: 0,
+    receiveDateTime: '0',
+    toLocationType: 'Warehouse',
     toLocationId: '',
-    status: 'pending',
-    sendToWarehouse: 'asd',
+    status: 'Pending',
     remarks: ''
 };
 
@@ -127,7 +125,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
         harvestedDate: null,
         estimatedCapital: '',
         currentlyAt: '',
-        status: 'to be dry',
+        status: '',
     });
     const [transactionData, setTransactionData] = useState({
         item: 'Palay',
@@ -142,7 +140,6 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
         toLocationType: 'Warehouse',
         toLocationId: '',
         status: 'Pending',
-        sendToWarehouse: 'asd',
         remarks: ''
     });
 
@@ -167,7 +164,9 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
         { label: 'Miller', value: 'miller' }
     ];
 
-    const locationOptions = warehouseData.map(warehouse => ({
+    const locationOptions = warehouseData
+    .filter(warehouse => warehouse.status === 'active')
+    .map(warehouse => ({
         label: warehouse.facilityName,
         value: warehouse.id
     }));
@@ -272,7 +271,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
         setPalayData((prevState) => ({
             ...prevState,
             [name]: value,
-            status: value === 'wet' ? 'To be Dry' : value === 'dry' ? 'To be Mill' : prevState.status
+            status: value === 'Wet' ? 'To be Dry' : value === 'Dry' ? 'To be Mill' : prevState.status
         }));
     };
     
@@ -306,6 +305,99 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
             ...prevState,
             currentlyAt: selectedOption.label,
         }));
+    };
+
+    const handleNext = () => {
+        if (activeStep < steps.length - 1) {
+            setActiveStep(activeStep + 1);
+        } else {
+            // Submit the form
+            console.log(palayData);
+            onPalayRegistered(palayData);
+            setActiveStep(0);
+            onHide();
+        }
+    };
+
+    const handlePrevious = () => {
+        if (activeStep > 0) {
+            setActiveStep(activeStep - 1);
+        }
+    };
+
+    const handleSubmit = async () => {
+        try {
+            const palayResponse = await fetch(`${apiUrl}/palaybatches`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'API-Key': `${apiKey}`
+                },
+                body: JSON.stringify({
+                    ...palayData,
+                    dateBought: palayData.dateBought ? palayData.dateBought.toISOString().split('T')[0] : null,
+                    birthDate: palayData.birthDate ? palayData.birthDate.toISOString().split('T')[0] : null,
+                    plantedDate: palayData.plantedDate ? palayData.plantedDate.toISOString().split('T')[0] : null,
+                    harvestedDate: palayData.harvestedDate ? palayData.harvestedDate.toISOString().split('T')[0] : null,
+                })
+            });
+    
+            if (!palayResponse.ok) {
+                throw new Error('Failed to submit palay data');
+            }
+    
+            const palayResult = await palayResponse.json();
+            const newPalayId = palayResult.id;
+
+            console.log("newPalayId is " + newPalayId);
+            
+            setPalayId(newPalayId);
+            palayIdRef.current = newPalayId;
+            setPalayData(initialPalayData);
+    
+            const transactionDataWithId = {
+                ...transactionData,
+                itemId: newPalayId
+            };
+
+            const transactionResponse = await fetch(`${apiUrl}/transactions`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'API-Key': `${apiKey}`
+                },
+                body: JSON.stringify(transactionDataWithId)
+            });
+    
+            if (!transactionResponse.ok) {
+                throw new Error('Failed to submit transaction data');
+            }
+    
+            const transactionResult = await transactionResponse.json();
+            setTransactionData(initialTransactionData);
+    
+            // Show success message
+            toast.current.show({
+                severity: 'success',
+                summary: 'Success',
+                detail: 'Records successfully created',
+                life: 3000
+            });
+    
+            onPalayRegistered(palayResult);
+            setPalayId(null);
+            palayIdRef.current = null;
+            onHide();
+    
+        } catch (error) {
+            console.error('Error:', error);
+            toast.current.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Failed to create records',
+                life: 3000
+            });
+        }
     };
     
     const renderFarmerInfo = () => (
@@ -353,103 +445,6 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                 })}
             </div>
         );
-    };
-
-    const handleNext = () => {
-        if (activeStep < steps.length - 1) {
-            setActiveStep(activeStep + 1);
-        } else {
-            // Submit the form
-            console.log(palayData);
-            onPalayRegistered(palayData);
-            setActiveStep(0);
-            onHide();
-        }
-    };
-
-    const handlePrevious = () => {
-        if (activeStep > 0) {
-            setActiveStep(activeStep - 1);
-        }
-    };
-
-    const handleSubmit = async () => {
-        try {
-            const palayResponse = await fetch(`${apiUrl}/palaybatches`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': `${apiKey}`
-                },
-                body: JSON.stringify({
-                    ...palayData,
-                    dateBought: palayData.dateBought ? palayData.dateBought.toISOString().split('T')[0] : null,
-                    birthDate: palayData.birthDate ? palayData.birthDate.toISOString().split('T')[0] : null,
-                    plantedDate: palayData.plantedDate ? palayData.plantedDate.toISOString().split('T')[0] : null,
-                    harvestedDate: palayData.harvestedDate ? palayData.harvestedDate.toISOString().split('T')[0] : null,
-                })
-            });
-    
-            if (!palayResponse.ok) {
-                throw new Error('Failed to submit palay data');
-            }
-    
-            const palayResult = await palayResponse.json();
-            const newPalayId = palayResult.id;
-
-            console.log("newPalayId is " + newPalayId);
-            
-            // Store ID in both state and ref
-            setPalayId(newPalayId);
-            palayIdRef.current = newPalayId;
-    
-            // Create transaction data with the new ID
-            const transactionDataWithId = {
-                ...transactionData,
-                itemId: newPalayId
-            };
-
-            console.log("transactionData itemId is " + transactionData.itemId);
-    
-            // Submit transaction immediately with the new ID
-            const transactionResponse = await fetch(`${apiUrl}/transactions`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': `${apiKey}`
-                },
-                body: JSON.stringify(transactionDataWithId)
-            });
-    
-            if (!transactionResponse.ok) {
-                throw new Error('Failed to submit transaction data');
-            }
-    
-            const transactionResult = await transactionResponse.json();
-    
-            // Show success message
-            toast.current.show({
-                severity: 'success',
-                summary: 'Success',
-                detail: 'Records successfully created',
-                life: 3000
-            });
-    
-            // Clean up and close
-            onPalayRegistered(palayResult);
-            setPalayId(null);
-            palayIdRef.current = null;
-            onHide();
-    
-        } catch (error) {
-            console.error('Error:', error);
-            toast.current.show({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'Failed to create records',
-                life: 3000
-            });
-        }
     };
 
     const customDialogHeader = (

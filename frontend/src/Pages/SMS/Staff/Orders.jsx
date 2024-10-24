@@ -306,7 +306,7 @@ function Orders() {
                         value={filteredData}
                         scrollable
                         scrollHeight="flex"
-                        scrollDirection="both"
+                        scrolldirection="both"
                         className="p-datatable-sm pt-5" 
                         filters={filters}
                         globalFilterFields={['orderID', 'toBeDeliverAt', 'orderDate', 'orderedBy', 'status']}

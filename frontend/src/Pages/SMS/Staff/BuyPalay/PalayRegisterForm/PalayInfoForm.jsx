@@ -95,8 +95,8 @@ const PalayInfoForm = ({ palayData, handlePalayInputChange, handleQualityTypeInp
                         name="qualityType"
                         value={palayData.qualityType}
                         options={[
-                            { label: 'Fresh/Wet', value: 'wet' },
-                            { label: 'Clean/Dry', value: 'dry' },
+                            { label: 'Fresh/Wet', value: 'Wet' },
+                            { label: 'Clean/Dry', value: 'Dry' },
                         ]}
                         onChange={handleQualityTypeInputChange}  
                         placeholder="Select quality"

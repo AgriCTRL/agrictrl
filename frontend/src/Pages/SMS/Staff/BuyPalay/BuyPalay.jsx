@@ -150,7 +150,7 @@ function BuyPalay() {
                             emptyMessage="No inventory found."
                             paginator
                             rows={30}
-                            tableStyle={{ minWidth: '2350px' }}
+                            tableStyle={{ minWidth: '2450px' }}
                         >
                             <Column field="id" header="Batch ID" className="text-center" headerClassName="text-center" />
                             <Column field="dateBought" body={dateBodyTemplate} header="Date Bought" className="text-center" headerClassName="text-center" />
@@ -162,7 +162,7 @@ function BuyPalay() {
                             <Column field="qualitySpec.purity" header="Purity" className="text-center" headerClassName="text-center" />
                             <Column field="qualitySpec.damaged" header="Damage" className="text-center" headerClassName="text-center" />
                             <Column field="price" header="Price/Kg" className="text-center" headerClassName="text-center" />
-                            <Column field="palaySupplier.farmerName" header="Farmer" className="text-center" headerClassName="text-center" />
+                            <Column field="palaySupplier.farmerName" header="Supplier" className="text-center" headerClassName="text-center" />
                             <Column 
                                 field=""
                                 header="Farm Origin" 

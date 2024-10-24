@@ -407,8 +407,12 @@ function Profile() {
                     </div>
 
                     <div className="flex justify-center items-center w-full z-10">
-                        <Button onClick={logoutButton} variant="secondary" className='text-lg text-primary bg-white p-4 px-32'>
-                        Logout
+                        <Button 
+                            onClick={logoutButton} 
+                            variant="secondary" 
+                            className='text-lg text-primary bg-white p-4 flex justify-center items-center w-full'
+                        >
+                            Logout
                         </Button>
                     </div>
                 </div>

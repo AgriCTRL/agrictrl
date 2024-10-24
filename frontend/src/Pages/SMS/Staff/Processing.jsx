@@ -261,7 +261,7 @@ function Processing() {
                             value={getFilteredData()}
                             scrollable
                             scrollHeight="flex"
-                            scrollDirection="both"
+                            scrolldirection="both"
                             className="p-datatable-sm pt-5" 
                             filters={filters}
                             globalFilterFields={['from', 'toBeDryAt', 'requestDate', 'startDate', 'endDate', 'transportedBy', 'status', 'dryingStatus']}
