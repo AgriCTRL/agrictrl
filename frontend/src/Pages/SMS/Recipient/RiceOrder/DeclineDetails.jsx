@@ -2,68 +2,28 @@ import React, { useState, useEffect } from 'react';
 import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
-import { Calendar } from 'primereact/calendar';
 
 import { Wheat } from 'lucide-react';
 import { InputTextarea } from 'primereact/inputtextarea';
 
-const initialFormData = {
-    riceType: '',
-    quantity: '',
-    description: '',
-    date: null,
-    price: '₱ 0'
-};
-
 function DeclinedDetails({ visible, onHide, data }) {
-    const [formData, setFormData] = useState(initialFormData);
+    const [formData, setFormData] = useState([]);
 
     useEffect(() => {
         if (visible) {
             setFormData({
                 riceType: 'NFA Rice',
-                orderId: data.id || '',
-                quantity: data.riceQuantityBags || '',
-                description: data.description || '',
-                date: data.orderDate ? new Date(data.orderDate) : null,
-                price: data.price || '₱ 0'
+                orderId: data.id,
+                quantity: data.riceQuantityBags,
+                reason: data.remarks,
+                date: new Date(data.orderDate).toISOString().split('T')[0]
             });
             console.log(formData);
         }
     }, [visible]);
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prevState => ({
-            ...prevState,
-            [name]: value
-        }));
-
-        if (name === 'riceType' || name === 'quantity') {
-            calculatePrice(name === 'quantity' ? value : formData.quantity, name === 'riceType' ? value : formData.riceType);
-        }
-    };
-
-    const calculatePrice = (quantity, riceType) => {
-        let pricePerKilo = 0;
-
-        if (riceType === 'sinandomeng') {
-            pricePerKilo = 30;
-        } else if (riceType === 'angelica') {
-            pricePerKilo = 40;
-        } else if (riceType === 'jasmine') {
-            pricePerKilo = 50;
-        }
-
-        const calculatedPrice = quantity ? `₱ ${(pricePerKilo * parseInt(quantity) || 0).toLocaleString()}` : '₱ 0';
-        setFormData(prevState => ({
-            ...prevState,
-            price: calculatedPrice
-        }));
-    };
 
     const handleClose = () => {
-        setFormData(initialFormData);
         onHide();
     };
 
@@ -107,7 +67,6 @@ function DeclinedDetails({ visible, onHide, data }) {
                             id="riceType"
                             name="riceType"
                             value={formData.riceType}
-                            onChange={handleInputChange}
                             disabled
                             className='w-full focus:ring-0'
                         />
@@ -119,7 +78,6 @@ function DeclinedDetails({ visible, onHide, data }) {
                             id="orderId"
                             name="orderId"
                             value={formData.orderId}
-                            onChange={handleInputChange}
                             disabled
                             className='w-full focus:ring-0'
                         />
@@ -128,19 +86,18 @@ function DeclinedDetails({ visible, onHide, data }) {
 
                 <div className="flex flex-row w-full gap-4">
                     <div className="w-1/2">
-                        <label htmlFor="quantity" className="block text-sm font-medium text-gray-700 mb-1">Quantity (kg)</label>
+                        <label htmlFor="quantity" className="block text-sm font-medium text-gray-700 mb-1">Quantity in Bags</label>
                         <InputText
                             id="quantity"
                             name="quantity"
                             value={formData.quantity}
-                            onChange={handleInputChange}
                             disabled
                             className='w-full focus:ring-0'
                         />
                     </div>
 
                     <div className="w-1/2">
-                        <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">Order Date</label>
+                        <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">Date Ordered</label>
                         <InputText
                             id="date"
                             name="date"
@@ -157,8 +114,7 @@ function DeclinedDetails({ visible, onHide, data }) {
                     <InputTextarea
                         id="description"
                         name="description"
-                        value={formData.description}
-                        onChange={handleInputChange}
+                        value={formData.reason}
                         disabled
                         className="w-full"
                     />

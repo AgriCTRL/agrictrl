@@ -3,7 +3,7 @@ import { TabView, TabPanel } from 'primereact/tabview';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 
-const UserDetails = ({ userType, visible, onHide, selectedUser }) => {
+const UserDetails = ({ userType, visible, onHide, selectedUser, onUserUpdated }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [imageError, setImageError] = useState(false);
@@ -152,6 +152,7 @@ const UserDetails = ({ userType, visible, onHide, selectedUser }) => {
       if (!response.ok) {
         throw new Error('Failed to update user status');
       }
+      onUserUpdated();
       onHide();
     } catch (error) {
       console.error('Error updating user status:', error);

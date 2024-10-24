@@ -10,41 +10,44 @@ import { FilterMatchMode } from 'primereact/api';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 
-import PalayRegister from './PalayRegister';
+import BuyRice from './BuyRice';
 import DeclinedDetails from './DeclineDetails';
+import { useAuth } from '../../../Authentication/Login/AuthContext';
 
 
 function RiceOrder() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const apiKey = import.meta.env.VITE_API_KEY;
+    const { user } = useAuth();
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [filters, setFilters] = useState({
         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     });
 
-    const [showRegisterPalay, setShowRegisterPalay] = useState(false);
+    const [showBuyRice, setShowBuyRice] = useState(false);
     const [showDeclinedDetails, setShowDeclinedDetails] = useState(false);
     const [selectedDeclinedData, setSelectedDeclinedData] = useState(null);
     const [inventoryData, setInventoryData] = useState([]);
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const res = await fetch(`${apiUrl}/riceorders`, {
-                    headers: { 'API-Key': `${apiKey}` }
-                });
-                if(!res.ok) {
-                    throw new Error('Failed to fetch rice orders')
-                }
-                const data = await res.json();
-                setInventoryData(data);
-            }
-            catch (error) {
-                console.error(error.message)
-            }
-        }
         fetchData();
-    }, [inventoryData]);
+    }, []);
+
+    const fetchData = async () => {
+        try {
+            const res = await fetch(`${apiUrl}/riceorders?riceRecipientId=${user.id}`, {
+                headers: { 'API-Key': `${apiKey}` }
+            });
+            if(!res.ok) {
+                throw new Error('Failed to fetch rice orders')
+            }
+            const data = await res.json();
+            setInventoryData(data);
+        }
+        catch (error) {
+            console.error(error.message)
+        }
+    }
 
     const [selectedFilter, setSelectedFilter] = useState('riceOrders');
 
@@ -79,13 +82,8 @@ function RiceOrder() {
         return null;
     };
 
-    const handleAddPalay = () => {
-        setShowRegisterPalay(true);
-    };
-
-    const handlePalayRegistered = (newPalay) => {
-        console.log('New Palay registered:', newPalay);
-        setShowRegisterPalay(false);
+    const handleBuyRice = () => {
+        setShowBuyRice(true);
     };
 
     const handleDeclinedClick = (rowData) => {
@@ -96,13 +94,12 @@ function RiceOrder() {
     };
 
     const dateBodyTemplate = (rowData, field) => {
-        const date = rowData[field];
-        if (!date) return '';
+        const date = new Date(rowData[field]).toISOString().split('T')[0];
 
         return new Date(date).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit'
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
         });
     };
 
@@ -153,7 +150,7 @@ function RiceOrder() {
                         <Button 
                             label="New Order + " 
                             className="w-1/16 p-2 rounded-md p-button-success text-white bg-gradient-to-r from-primary to-secondary ring-0"
-                            onClick={handleAddPalay} />
+                            onClick={handleBuyRice} />
                     </div>
                 </div>
 
@@ -173,8 +170,8 @@ function RiceOrder() {
                         rows={30}
                     > 
                         <Column field="id" header="Order ID" className="text-center" headerClassName="text-center" />
-                        <Column field="orderDate" header="Order Date" body={(rowData) => dateBodyTemplate(rowData, 'orderDate')} className="text-center" headerClassName="text-center" />
-                        <Column field="riceQuantityBags" header="Quantity" className="text-center" headerClassName="text-center" />
+                        <Column field="orderDate" header="Date Ordered" body={(rowData) => dateBodyTemplate(rowData, 'orderDate')} className="text-center" headerClassName="text-center" />
+                        <Column field="riceQuantityBags" header="Quantity in Bags" className="text-center" headerClassName="text-center" />
                         <Column field="totalCost" header="Price" className="text-center" headerClassName="text-center" />
                         <Column field="preferredDeliveryDate" header="Delivery Date" body={(rowData) => dateBodyTemplate(rowData, 'preferredDeliveryDate')} className="text-center" headerClassName="text-center" />
                         <Column field="status" header="Status" body={statusBodyTemplate} className="text-center" headerClassName="text-center"/>
@@ -185,10 +182,10 @@ function RiceOrder() {
                 </div>
             </div>
 
-            <PalayRegister
-                visible={showRegisterPalay}
-                onHide={() => setShowRegisterPalay(false)}
-                onPalayRegistered={handlePalayRegistered}
+            <BuyRice
+                visible={showBuyRice}
+                onHide={() => setShowBuyRice(false)}
+                onRiceOrdered={fetchData}
             />
 
             <DeclinedDetails

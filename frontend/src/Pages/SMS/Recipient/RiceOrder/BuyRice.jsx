@@ -20,7 +20,7 @@ const initialFormData = {
     totalPrice: '₱ 0'
 };
 
-function PalayRegister({ visible, onHide, onPalayRegistered }) {
+function BuyRice({ visible, onHide, onRiceOrdered }) {
     const [formData, setFormData] = useState(initialFormData);
     const { user } = useAuth();
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -118,8 +118,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
             if(!res.ok) {
                 throw new Error('failed rice order')
             }
-
-            onPalayRegistered(formData);
+            onRiceOrdered();
             setFormData(initialFormData);
             onHide();
         }
@@ -260,4 +259,4 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
     );
 }
 
-export default PalayRegister;
+export default BuyRice;

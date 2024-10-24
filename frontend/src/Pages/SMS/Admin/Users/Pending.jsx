@@ -39,7 +39,7 @@ function Pending() {
 
     useEffect(() => {
         fetchPendingUsers();
-    }, [pendingUsers]);
+    }, []);
 
     const actionBodyTemplate = (rowData) => {
         return (
@@ -66,10 +66,12 @@ function Pending() {
     );
 
     const dateBodyTemplate = (rowData) => {
-        return new Date(rowData.dateCreated).toLocaleDateString('en-US', {
+        const date = new Date(rowData.dateCreated).toISOString().split('T')[0];
+
+        return new Date(date).toLocaleDateString('en-US', {
             year: 'numeric',
             month: '2-digit',
-            day: '2-digit',
+            day: '2-digit'
         });
     };
 
@@ -129,6 +131,7 @@ function Pending() {
                 visible={userDetailsVisible}
                 onHide={() => setUserDetailsVisible(false)}
                 selectedUser={selectedUser}
+                onUserUpdated={fetchPendingUsers}
             />
         </div>
     );

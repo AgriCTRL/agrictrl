@@ -41,7 +41,7 @@ function Active() {
 
     useEffect(() => {
         fetchActiveUsers();
-    }, [activeUsers]);
+    }, []);
 
     const actionBodyTemplate = (rowData) => {
         return (
@@ -123,6 +123,7 @@ function Active() {
                 visible={userDetailsVisible}
                 onHide={() => setUserDetailsVisible(false)}
                 selectedUser={selectedUser}
+                onUserUpdated={fetchActiveUsers}
             />
         </div>
     );

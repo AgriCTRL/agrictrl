@@ -38,7 +38,7 @@ function Inactive() {
 
     useEffect(() => {
         fetchInactiveUsers();
-    }, [inactiveUsers]);
+    }, []);
 
     const actionBodyTemplate = (rowData) => {
         return (
@@ -121,6 +121,7 @@ function Inactive() {
                 visible={userDetailsVisible}
                 onHide={() => setUserDetailsVisible(false)}
                 selectedUser={selectedUser}
+                onUserUpdated={fetchInactiveUsers}
             />
         </div>
     );

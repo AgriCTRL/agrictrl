@@ -14,13 +14,14 @@ export function getRouter(): Router {
     router.get(
         '/',
         async (
-            req: Request<any, any, any, { limit?: string; offset?: string }>,
+            req: Request<any, any, any, { limit?: string; offset?: string; riceRecipientId?: number }>,
             res
         ) => {
             const limit = Number(req.query.limit ?? -1);
             const offset = Number(req.query.offset ?? 0);
+            const riceRecipientId = req.query.riceRecipientId;
 
-            const riceOrders = await getRiceOrders(limit, offset);
+            const riceOrders = await getRiceOrders(limit, offset, riceRecipientId);
 
             res.json(riceOrders);
         }
