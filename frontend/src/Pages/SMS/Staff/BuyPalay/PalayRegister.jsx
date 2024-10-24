@@ -145,6 +145,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
 
     const [activeStep, setActiveStep] = useState(0);
     const [loading, setIsLoading] = useState(false);
+    const [errors, setErrors] = useState({});
 
     const steps = [
         { label: 'Farmer', icon: <UserIcon /> },
@@ -153,10 +154,10 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
     ];
 
     const options = [
-        { label: 'Station A', value: 'stationA', location: 'loc 1' }, 
-        { label: 'Station B', value: 'stationB', location: 'loc 2' }, 
-        { label: 'Station C', value: 'stationC', location: 'loc 3' }
-    ];
+        { label: 'Station A', value: 'stationA', location: 'Location A' }, 
+        { label: 'Station B', value: 'stationB', location: 'Location B' }, 
+        { label: 'Station C', value: 'stationC', location: 'Location C' }
+    ]; 
 
     const locationTypeOptions = [
         { label: 'Warehouse', value: 'warehouse' }, 
@@ -276,13 +277,14 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
     };
     
     const handleStationChange = (e) => {
-        const selectedStation = options.find(option => option.value === e.target.value);
+        const selectedStation = options.find(option => option.value === e.value);
         setPalayData(prevState => ({
             ...prevState,
-            buyingStationName: e.target.value,
-            location: selectedStation ? selectedStation.location : ''
+            buyingStationName: selectedStation ? selectedStation.label : '',
+            buyingStationLoc: selectedStation ? selectedStation.location : ''
         }));
     };
+    
     
     const handleLocationType = (e) => {
         const selectedType = locationTypeOptions.find(option => option.value === e.target.value);
@@ -308,17 +310,13 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
     };
 
     const handleNext = () => {
-        if (activeStep < steps.length - 1) {
+        const isValid = validateForm(activeStep);
+        
+        if (isValid && activeStep < steps.length - 1) {
             setActiveStep(activeStep + 1);
-        } else {
-            // Submit the form
-            console.log(palayData);
-            onPalayRegistered(palayData);
-            setActiveStep(0);
-            onHide();
         }
     };
-
+    
     const handlePrevious = () => {
         if (activeStep > 0) {
             setActiveStep(activeStep - 1);
@@ -326,6 +324,9 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
     };
 
     const handleSubmit = async () => {
+        const isValid = validateForm(activeStep);
+        if (!isValid) return;
+
         try {
             const palayResponse = await fetch(`${apiUrl}/palaybatches`, {
                 method: 'POST',
@@ -404,6 +405,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
         <FarmerInfoForm 
             palayData={palayData}
             handlePalayInputChange={handlePalayInputChange}
+            errors={errors}
         />
     );
 
@@ -412,6 +414,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
             palayData={palayData}
             handlePalayInputChange={handlePalayInputChange}
             handleQualityTypeInputChange={handleQualityTypeInputChange}
+            errors={errors}
         />
     );
 
@@ -426,6 +429,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
             handleLocationId={handleLocationId}
             options={options}
             locationOptions={locationOptions}
+            errors={errors}
         />
     );  
 
@@ -453,6 +457,191 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
             <h3 className="text-md font-bold text-black">Buy Palay</h3>
         </div>
     );
+
+    const validateForm = (step) => {
+        let newErrors = {};
+        // Only validate the fields relevant to the current step
+        if (step === 0) {
+            // Farmer Info Validation
+            if (!palayData.category.trim()) {
+                newErrors.category = "Category is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Category is required', life: 5000});
+            }
+            if (!palayData.farmerName.trim()) {
+                newErrors.farmerName = "Farmer name is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Farmer name is required', life: 5000});
+            }
+            if (palayData.category === 'individual') {
+                if (!palayData.birthDate) {
+                    newErrors.birthDate = "Birth date is required";
+                    toast.current.show({severity:'error', summary: 'Error', detail:'Birth date is required', life: 5000});
+                }
+                if (!palayData.gender) {
+                    newErrors.gender = "Gender is required";
+                    toast.current.show({severity:'error', summary: 'Error', detail:'Gender is required', life: 5000});
+                }
+            } else {
+                if (!palayData.numOfFarmer.trim()) {
+                    newErrors.numOfFarmer = "Number of farmers is required";
+                    toast.current.show({severity:'error', summary: 'Error', detail:'Number of farmers is required', life: 5000});
+                }
+            }
+            if (!palayData.email) {
+                newErrors.email = "Email is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Email is required', life: 5000});
+            }
+            if (!palayData.contactNumber.trim()) {
+                newErrors.contactNumber = "Contact number is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Contact number is required', life: 5000});
+            } else if (!/^\d{10,}$/.test(palayData.contactNumber)) {
+                newErrors.contactNumber = "Invalid contact number format";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Invalid contact number format', life: 5000});
+            }
+            if (!palayData.palaySupplierRegion) {
+                newErrors.palaySupplierRegion = "Region is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Region is required', life: 5000});
+            }
+            if (!palayData.palaySupplierProvince) {
+                newErrors.palaySupplierProvince = "Province is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Province is required', life: 5000});
+            }
+            if (!palayData.palaySupplierCityTown) {
+                newErrors.palaySupplierCityTown = "City/Town is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'City/Town is required', life: 5000});
+            }
+            if (!palayData.palaySupplierBarangay) {
+                newErrors.palaySupplierBarangay = "Barangay is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Barangay is required', life: 5000});
+            }
+            if (!palayData.palaySupplierStreet) {
+                newErrors.palaySupplierStreet = "Street is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Street is required', life: 5000});
+            }
+        }
+    
+        else if (step === 1) {
+            // Palay Info Validation
+            if (!palayData.palayVariety) {
+                newErrors.palayVariety = "Palay Variety is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Palay Variety is required', life: 5000});
+            }
+            if (!palayData.price) {
+                newErrors.price = "Price is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Price is required', life: 5000});
+            }
+            if (!palayData.dateBought) {
+                newErrors.dateBought = "Date bought is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Date bought is required', life: 5000});
+            }
+            if (!palayData.palayVariety.trim()) {
+                newErrors.palayVariety = "Palay variety is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Palay variety is required', life: 5000});
+            }
+            if (!palayData.quantityBags.trim()) {
+                newErrors.quantityBags = "Quantity in bags is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Quantity in bags is required', life: 5000});
+            }
+            if (!palayData.grossWeight.trim()) {
+                newErrors.grossWeight = "Gross weight is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Gross weight is required', life: 5000});
+            }
+            if (!palayData.netWeight.trim()) {
+                newErrors.netWeight = "Net weight is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Net weight is required', life: 5000});
+            }
+            if (!palayData.qualityType) {
+                newErrors.qualityType = "Quality type is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Quality type is required', life: 5000});
+            }
+            if (!palayData.moistureContent) {
+                newErrors.moistureContent = "Moisture Content is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Moisture Content is required', life: 5000});
+            }
+            if (!palayData.purity) {
+                newErrors.purity = "Purity is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Purity is required', life: 5000});
+            }
+            if (!palayData.damaged) {
+                newErrors.damaged = "Damaged is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Damaged is required', life: 5000});
+            }
+            if (!palayData.farmSize.trim()) {
+                newErrors.farmSize = "Farm size is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Farm size is required', life: 5000});
+            }
+            if (!palayData.plantedDate) {
+                newErrors.plantedDate = "Date planted is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Date planted is required', life: 5000});
+            }
+            if (!palayData.harvestedDate) {
+                newErrors.harvestedDate = "Date harvested is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Date harvested is required', life: 5000});
+            }
+            
+        
+            // Farm Origin Validation
+            if (!palayData.farmRegion) {
+                newErrors.farmRegion = "Farm region is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Farm region is required', life: 5000});
+            }
+            if (!palayData.farmProvince) {
+                newErrors.farmProvince = "Farm province is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Farm province is required', life: 5000});
+            }
+            if (!palayData.farmCityTown) {
+                newErrors.farmCityTown = "Farm city/town is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Farm city/town is required', life: 5000});
+            }
+            if (!palayData.farmBarangay) {
+                newErrors.farmBarangay = "Farm barangay is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Farm barangay is required', life: 5000});
+            }
+            if (!palayData.farmStreet) {
+                newErrors.farmStreet = "Farm street is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Farm street is required', life: 5000});
+            }
+            
+            if (!palayData.estimatedCapital) {
+                newErrors.estimatedCapital = "Estimated Capital is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Estimated Capital is required', life: 5000});
+            }
+        }
+    
+        else if (step === 2) {
+            // Logistics Validation
+            // if (!transactionData.buyingStationName) {
+            //     newErrors.buyingStationName = "Buying Station is required";
+            //     toast.current.show({severity:'error', summary: 'Error', detail:'Buying Station is required', life: 5000});
+            // }
+            // if (!transactionData.buyingStationLoc) {
+            //     newErrors.buyingStationLoc = "Buying Station Location is required";
+            //     toast.current.show({severity:'error', summary: 'Error', detail:'Buying Station Location is required', life: 5000});
+            // }
+            if (!transactionData.transporterName) {
+                newErrors.transporterName = "Transporter is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Transporter is required', life: 5000});
+            }
+            if (!transactionData.transporterDesc) {
+                newErrors.transporterDesc = "Transporter Description is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Transporter Description is required', life: 5000});
+            }
+            if (!transactionData.toLocationType) {
+                newErrors.toLocationType = "Location type is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Location type is required', life: 5000});
+            }
+            if (!transactionData.toLocationId) {
+                newErrors.toLocationId = "Destination location is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Destination location is required', life: 5000});
+            }
+            if (!transactionData.remarks.trim()) {
+                newErrors.remarks = "Remarks is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Remarks is required', life: 5000});
+            }
+        }
+    
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
 
     return (
         <Dialog 

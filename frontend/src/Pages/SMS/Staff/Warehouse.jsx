@@ -12,7 +12,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Toast } from 'primereact/toast';
 
-import { Search, Wheat } from "lucide-react";
+import { Search, Wheat, CheckCircle } from "lucide-react";
 
 import { useAuth } from '../../Authentication/Login/AuthContext';
 
@@ -28,6 +28,7 @@ const initialTransactionData = {
     receiveDateTime: '0',
     toLocationType: 'Warehouse',
     toLocationId: '',
+    toLocationName: '',
     status: 'Pending',
     remarks: ''
 };
@@ -43,6 +44,7 @@ function Warehouse() {
         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     });
     const [loading, setIsLoading] = useState(false);
+    const [errors, setErrors] = useState({});
 
     const [viewMode, setViewMode] = useState('requests');
     const [selectedFilter, setSelectedFilter] = useState('all');
@@ -71,6 +73,7 @@ function Warehouse() {
         receiveDateTime: '0',
         toLocationType: '',
         toLocationId: '',
+        toLocationName: '',
         status: 'Pending',
         remarks: ''
     });
@@ -91,14 +94,6 @@ function Warehouse() {
     //     { id: 4, quantityInBags: '100', from: 'Cebu', toBeStoreAt: 'Warehouse 005', dateRequest: '5/15/12', transportedBy: 'Fast Logistics', status: 'Rice' },
     // ];
 
-    const [formData, setFormData] = useState({
-        sendTo: '',
-        facility: '',
-        transportedBy: '',
-        description: '',
-        remarks: ''
-    });
-
     const [acceptFormData, setAcceptFormData] = useState({
         riceBatchName: '',
         riceType: '',
@@ -112,17 +107,20 @@ function Warehouse() {
             return dryerData
                 .filter(dryer => dryer.status === 'active')
                 .map(dryer => ({
-                    label: dryer.dryerName,
-                    value: dryer.id.toString()
-                }));
+                    label: dryer.dryerName.toString(),
+                    value: dryer.id,
+                    name: dryer.dryerName.toString()
+                }));  
         }
         
         if (selectedItem.palayStatus === 'To be Mill') {
+            console.log()
             return millerData
                 .filter(miller => miller.status === 'active')
                 .map(miller => ({
-                    label: miller.millerName,
-                    value: miller.id.toString()
+                    label: miller.millerName.toString(),
+                    value: miller.id,
+                    name: miller.millerName.toString()
                 }));
         }
         
@@ -229,9 +227,14 @@ function Warehouse() {
     };
 
     const handleSendTo = async () => {
+        if (!validateForm()) {
+            return;
+        }
+
         try {
-            // First update the palay batch status
             const newStatus = selectedItem.palayStatus === 'To be Dry' ? 'In Drying' : 'In Milling';
+
+            console.log()
             
             const response = await fetch(`${apiUrl}/palaybatches/update`, {
                 method: 'POST',
@@ -241,7 +244,8 @@ function Warehouse() {
                 },
                 body: JSON.stringify({
                     id: selectedItem.id,
-                    status: newStatus
+                    status: newStatus,
+                    currentlyAt: newTransactionData.toLocationName
                 })
             });
     
@@ -252,11 +256,9 @@ function Warehouse() {
             // Then submit the transaction data
             await newTransactionSubmit();
     
-            // Refresh the data
             await fetchPalayBatches();
             setShowSendToDialog(false);
     
-            // Reset transaction data
             setNewTransactionData(initialTransactionData);
     
             toast.current.show({
@@ -338,6 +340,8 @@ function Warehouse() {
         const transformedData = {
             ...newTransactionData
         };
+
+        console.log(transformedData)
     
         try {
             const response = await fetch(`${apiUrl}/transactions`, {
@@ -448,9 +452,10 @@ function Warehouse() {
         const isAccepted = item.transactionStatus === 'Accepted';
         if (!isAccepted) return false;
         
-        // Define allowed statuses for inWarehouse view
         const allowedStatuses = ['To be Mill', 'To be Dry', 'Milled'];
         if (!allowedStatuses.includes(item.palayStatus)) return false;
+        
+        if (['In Milling', 'In Drying'].includes(item.palayStatus)) return false;
         
         switch (selectedFilter) {
             case 'palay':
@@ -463,9 +468,14 @@ function Warehouse() {
     });
 
     const getFilterCount = (filter) => {
+        const excludedStatuses = ['In Milling', 'In Drying'];
+        
         const baseData = viewMode === 'requests' 
             ? combinedData.filter(item => item.transactionStatus === 'Pending')
-            : combinedData.filter(item => item.transactionStatus === 'Accepted');
+            : combinedData.filter(item => {
+                return item.transactionStatus === 'Accepted' && 
+                       !excludedStatuses.includes(item.palayStatus);
+            });
 
         switch (filter) {
             case 'palay':
@@ -497,6 +507,33 @@ function Warehouse() {
             </span>
         </Button>
     );
+
+    const validateForm = () => {
+        let newErrors = {};
+        
+        if (!newTransactionData.toLocationId) {
+            newErrors.toLocationId = "Please select a facility";
+            toast.current.show({severity:'error', summary: 'Error', detail:'Please select a facility', life: 3000});
+        }
+        
+        if (!newTransactionData.transporterName.trim()) {
+            newErrors.transporterName = "Transporter name is required";
+            toast.current.show({severity:'error', summary: 'Error', detail:'Transporter name is required', life: 3000});
+        }
+        
+        if (!newTransactionData.transporterDesc.trim()) {
+            newErrors.transporterDesc = "Transport description is required";
+            toast.current.show({severity:'error', summary: 'Error', detail:'Transport description is required', life: 3000});
+        }
+        
+        if (!newTransactionData.remarks.trim()) {
+            newErrors.remarks = "Remarks are required";
+            toast.current.show({severity:'error', summary: 'Error', detail:'Remarks are required', life: 3000});
+        }
+        
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
 
     return (
         <StaffLayout activePage="Warehouse">
@@ -584,7 +621,7 @@ function Warehouse() {
                             className="text-center" headerClassName="text-center" />
                         <Column field="transportedBy" header="Transported By" className="text-center" headerClassName="text-center" />
                         <Column field="item" header="Item Type" className="text-center" headerClassName="text-center" />
-                        <Column field="qualityType" header="Quality Type" className="text-center" headerClassName="text-center" />
+                        {/* <Column field="qualityType" header="Quality Type" className="text-center" headerClassName="text-center" /> */}
                         <Column 
                             field={viewMode === 'requests' ? 'transactionStatus' : 'palayStatus'} 
                             header="Status" 
@@ -612,52 +649,63 @@ function Warehouse() {
 
                     <div className="mb-4">
                         <label className="block mb-2">Facility</label>
-                        <Dropdown
+                        <Dropdown 
                             value={newTransactionData.toLocationId}
                             options={getAvailableFacilities()}
-                            onChange={(e) => setNewTransactionData(prev => ({ 
-                                ...prev, 
-                                toLocationId: e.value 
-                            }))}
+                            onChange={(e) => {
+                                const selectedOption = getAvailableFacilities().find(opt => opt.value === e.value);
+                                if (selectedOption) {
+                                    setNewTransactionData(prev => ({
+                                        ...prev,
+                                        toLocationId: selectedOption.value,
+                                        toLocationName: selectedOption.label
+                                    }));
+                                    setErrors(prev => ({...prev, toLocationId: ''}));
+                                }
+                            }}
                             placeholder="Select a facility"
-                            className="w-full"
+                            className={`w-full ${errors.toLocationId ? 'p-invalid' : ''}`}
                         />
+                        {errors.toLocationId && <p className="text-red-500 text-xs mt-1">{errors.toLocationId}</p>}
                     </div>
 
                     <div className="w-full mb-4">
                         <label htmlFor="transportedBy" className="block text-sm font-medium text-gray-700 mb-1">Transported by</label>
                         <InputText 
                             value={newTransactionData.transporterName}
-                            onChange={(e) => setNewTransactionData(prev => ({ 
-                                ...prev, 
-                                transporterName: e.target.value 
-                            }))}
-                            className="w-full ring-0" 
+                            onChange={(e) => {
+                                setNewTransactionData(prev => ({ ...prev, transporterName: e.target.value }));
+                                setErrors(prev => ({...prev, transporterName: ''}));
+                            }}
+                            className={`w-full ring-0 ${errors.transporterName ? 'p-invalid' : ''}`}
                         />
+                        {errors.transporterName && <p className="text-red-500 text-xs mt-1">{errors.transporterName}</p>}
                     </div>
 
                     <div className="w-full mb-4">
                         <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">Transport Description</label>
                         <InputTextarea 
                             value={newTransactionData.transporterDesc}
-                            onChange={(e) => setNewTransactionData(prev => ({ 
-                                ...prev, 
-                                transporterDesc: e.target.value 
-                            }))}
-                            className="w-full ring-0" 
+                            onChange={(e) => {
+                                setNewTransactionData(prev => ({ ...prev, transporterDesc: e.target.value }));
+                                setErrors(prev => ({...prev, transporterDesc: ''}));
+                            }}
+                            className={`w-full ring-0 ${errors.transporterDesc ? 'p-invalid' : ''}`}
                         />
+                        {errors.transporterDesc && <p className="text-red-500 text-xs mt-1">{errors.transporterDesc}</p>}
                     </div>
 
                     <div className="w-full mb-4">
                         <label htmlFor="remarks" className="block text-sm font-medium text-gray-700 mb-1">Remarks</label>
                         <InputTextarea 
                             value={newTransactionData.remarks}
-                            onChange={(e) => setNewTransactionData(prev => ({ 
-                                ...prev, 
-                                remarks: e.target.value 
-                            }))}
-                            className="w-full ring-0" 
+                            onChange={(e) => {
+                                setNewTransactionData(prev => ({ ...prev, remarks: e.target.value }));
+                                setErrors(prev => ({...prev, remarks: ''}));
+                            }}
+                            className={`w-full ring-0 ${errors.remarks ? 'p-invalid' : ''}`}
                         />
+                        {errors.remarks && <p className="text-red-500 text-xs mt-1">{errors.remarks}</p>}
                     </div>
 
                     <div className="flex justify-between w-full gap-4 mt-4">
@@ -713,7 +761,8 @@ function Warehouse() {
             {/* Accept Palay Dialog */}
             <Dialog header="Receive palay" visible={showPalayAcceptDialog} onHide={() => setShowPalayAcceptDialog(false)} className="w-1/3">
                 <div className="flex flex-col items-center gap-2">
-                    <div>PALAY</div>
+                    <CheckCircle size={32} className="text-primary"/>
+                    <p>Are you sure you want to receive this Palay?</p>
                     
                     <div className="flex justify-between w-full mt-5">
                         <Button 

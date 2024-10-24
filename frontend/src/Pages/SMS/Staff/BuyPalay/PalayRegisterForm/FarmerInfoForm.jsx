@@ -3,7 +3,7 @@ import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { Calendar } from 'primereact/calendar';
 
-const FarmerInfoForm = ({ palayData, handlePalayInputChange }) => {
+const FarmerInfoForm = ({ palayData, handlePalayInputChange, errors }) => {
   return (
     <div className="flex flex-col gap-4 h-full">
       <div className="w-full">
@@ -17,6 +17,7 @@ const FarmerInfoForm = ({ palayData, handlePalayInputChange }) => {
           placeholder="Select category"
           className="w-full ring-0"
         />
+        {errors.category && <p className="text-red-500 text-xs mt-1">{errors.category}</p>}
       </div>
 
       <div className="flex flex-row w-full gap-4">
@@ -30,6 +31,7 @@ const FarmerInfoForm = ({ palayData, handlePalayInputChange }) => {
             placeholder="Enter your name" 
             className="w-full ring-0"
           />
+          {errors.farmerName && <p className="text-red-500 text-xs mt-1">{errors.farmerName}</p>}
         </div>
 
         {palayData.category === 'individual' ? (
@@ -45,6 +47,7 @@ const FarmerInfoForm = ({ palayData, handlePalayInputChange }) => {
                 showIcon
                 className="ring-0 w-full placeholder:text-gray-400 focus:shadow-none custom-calendar"
               />
+              {errors.birthDate && <p className="text-red-500 text-xs mt-1">{errors.birthDate}</p>}
             </div>
 
             <div className="w-2/5">
@@ -58,6 +61,7 @@ const FarmerInfoForm = ({ palayData, handlePalayInputChange }) => {
                 placeholder="gender"
                 className="w-full ring-0"
               />
+              {errors.gender && <p className="text-red-500 text-xs mt-1">{errors.gender}</p>}
             </div>
           </div>
         ) : (
@@ -71,6 +75,7 @@ const FarmerInfoForm = ({ palayData, handlePalayInputChange }) => {
               placeholder="Enter number of farmers"
               className="w-full ring-0"
             />
+            {errors.numOfFarmer && <p className="text-red-500 text-xs mt-1">{errors.numOfFarmer}</p>}
           </div>
         )}
       </div>
@@ -86,6 +91,7 @@ const FarmerInfoForm = ({ palayData, handlePalayInputChange }) => {
             placeholder="Enter your email"
             className="w-full ring-0"
           />
+          {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
         </div>
 
         <div className="w-1/2">
@@ -98,6 +104,7 @@ const FarmerInfoForm = ({ palayData, handlePalayInputChange }) => {
             placeholder="Enter your phone number"
             className="w-full ring-0"
           />
+          {errors.contactNumber && <p className="text-red-500 text-xs mt-1">{errors.contactNumber}</p>}
         </div>
       </div>
 
@@ -106,46 +113,61 @@ const FarmerInfoForm = ({ palayData, handlePalayInputChange }) => {
           {palayData.category === 'individual' ? 'Home Address' : 'Office Address'}
         </label>
         <div className="flex gap-4">
-          <InputText
-            id="palaySupplierRegion"
-            name="palaySupplierRegion"
-            value={palayData.palaySupplierRegion}
-            onChange={handlePalayInputChange}  
-            placeholder="Region"
-            className="w-full ring-0"
-          />
-          <InputText
-            id="palaySupplierProvince"
-            name="palaySupplierProvince"
-            value={palayData.palaySupplierProvince}
-            onChange={handlePalayInputChange}  
-            placeholder="Province"
-            className="w-full ring-0"
-          />
-          <InputText
-            id="palaySupplierCityTown"
-            name="palaySupplierCityTown"
-            value={palayData.palaySupplierCityTown}
-            onChange={handlePalayInputChange}  
-            placeholder="City/Town"
-            className="w-full ring-0"
-          />
-          <InputText
-            id="palaySupplierBarangay"
-            name="palaySupplierBarangay"
-            value={palayData.palaySupplierBarangay}
-            onChange={handlePalayInputChange}  
-            placeholder="Barangay"
-            className="w-full ring-0"
-          />
-          <InputText
-            id="palaySupplierStreet"
-            name="palaySupplierStreet"
-            value={palayData.palaySupplierStreet}
-            onChange={handlePalayInputChange}  
-            placeholder="Street"
-            className="w-full ring-0"
-          />
+          <div className="flex flex-col w-full">
+            <InputText
+              id="palaySupplierRegion"
+              name="palaySupplierRegion"
+              value={palayData.palaySupplierRegion}
+              onChange={handlePalayInputChange}  
+              placeholder="Region"
+              className="w-full ring-0"
+            />
+            {errors.palaySupplierRegion && <p className="text-red-500 text-xs mt-1">{errors.palaySupplierRegion}</p>}
+          </div>
+          <div className="flex flex-col w-full">
+            <InputText
+              id="palaySupplierProvince"
+              name="palaySupplierProvince"
+              value={palayData.palaySupplierProvince}
+              onChange={handlePalayInputChange}  
+              placeholder="Province"
+              className="w-full ring-0"
+            />
+            {errors.palaySupplierProvince && <p className="text-red-500 text-xs mt-1">{errors.palaySupplierProvince}</p>}
+          </div>
+          <div className="flex flex-col w-full">
+            <InputText
+              id="palaySupplierCityTown"
+              name="palaySupplierCityTown"
+              value={palayData.palaySupplierCityTown}
+              onChange={handlePalayInputChange}  
+              placeholder="City/Town"
+              className="w-full ring-0"
+            />
+            {errors.palaySupplierCityTown && <p className="text-red-500 text-xs mt-1">{errors.palaySupplierCityTown}</p>}
+          </div>
+          <div className="flex flex-col w-full">
+            <InputText
+              id="palaySupplierBarangay"
+              name="palaySupplierBarangay"
+              value={palayData.palaySupplierBarangay}
+              onChange={handlePalayInputChange}  
+              placeholder="Barangay"
+              className="w-full ring-0"
+            />
+            {errors.palaySupplierBarangay && <p className="text-red-500 text-xs mt-1">{errors.palaySupplierBarangay}</p>}
+          </div>
+          <div className="flex flex-col w-full">
+            <InputText
+              id="palaySupplierStreet"
+              name="palaySupplierStreet"
+              value={palayData.palaySupplierStreet}
+              onChange={handlePalayInputChange}  
+              placeholder="Street"
+              className="w-full ring-0"
+            />
+            {errors.palaySupplierStreet && <p className="text-red-500 text-xs mt-1">{errors.palaySupplierStreet}</p>}
+          </div>
         </div>
       </div>
     </div>

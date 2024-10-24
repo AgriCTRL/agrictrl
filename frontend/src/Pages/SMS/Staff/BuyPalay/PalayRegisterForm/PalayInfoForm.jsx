@@ -3,7 +3,7 @@ import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { Calendar } from 'primereact/calendar';
 
-const PalayInfoForm = ({ palayData, handlePalayInputChange, handleQualityTypeInputChange }) => {
+const PalayInfoForm = ({ palayData, handlePalayInputChange, handleQualityTypeInputChange, errors  }) => {
     return (  
         <div className="flex flex-col gap-4">
             {/* Purchase Details */}
@@ -18,6 +18,7 @@ const PalayInfoForm = ({ palayData, handlePalayInputChange, handleQualityTypeInp
                         placeholder="Enter Palay Variety"
                         className="w-full ring-0"
                     />
+                    {errors.palayVariety && <p className="text-red-500 text-xs mt-1">{errors.palayVariety}</p>}
                 </div>
 
                 <div className="w-full">
@@ -31,6 +32,7 @@ const PalayInfoForm = ({ palayData, handlePalayInputChange, handleQualityTypeInp
                         placeholder="Enter price"
                         className="w-full ring-0"
                     />
+                    {errors.price && <p className="text-red-500 text-xs mt-1">{errors.price}</p>}
                 </div>
 
                 <div className="w-full">
@@ -43,6 +45,7 @@ const PalayInfoForm = ({ palayData, handlePalayInputChange, handleQualityTypeInp
                         showIcon
                         className="rig-0 w-full placeholder:text-gray-400 focus:shadow-none custom-calendar"
                     />
+                    {errors.dateBought && <p className="text-red-500 text-xs mt-1">{errors.dateBought}</p>}
                 </div>
             </div>
     
@@ -59,6 +62,7 @@ const PalayInfoForm = ({ palayData, handlePalayInputChange, handleQualityTypeInp
                         placeholder="Enter quantity"
                         className="w-full ring-0"
                     />
+                    {errors.quantityBags && <p className="text-red-500 text-xs mt-1">{errors.quantityBags}</p>}
                 </div>
                 <div className="w-full">
                     <label htmlFor="grossWeight" className="block text-sm font-medium text-gray-700 mb-1">Gross Weight (kg)</label>
@@ -71,6 +75,7 @@ const PalayInfoForm = ({ palayData, handlePalayInputChange, handleQualityTypeInp
                         placeholder="Enter gross weight"
                         className="w-full ring-0"
                     />
+                    {errors.grossWeight && <p className="text-red-500 text-xs mt-1">{errors.grossWeight}</p>}
                 </div>
                 <div className="w-full">
                     <label htmlFor="netWeight" className="block text-sm font-medium text-gray-700 mb-1">Net Weight (kg)</label>
@@ -83,6 +88,7 @@ const PalayInfoForm = ({ palayData, handlePalayInputChange, handleQualityTypeInp
                         placeholder="Enter net weight"
                         className="w-full ring-0"
                     />
+                    {errors.netWeight && <p className="text-red-500 text-xs mt-1">{errors.netWeight}</p>}
                 </div>
             </div>
     
@@ -102,6 +108,7 @@ const PalayInfoForm = ({ palayData, handlePalayInputChange, handleQualityTypeInp
                         placeholder="Select quality"
                         className="w-full ring-0"
                     />
+                    {errors.qualityType && <p className="text-red-500 text-xs mt-1">{errors.qualityType}</p>}
                 </div>
                 <div className="w-full">
                     <label htmlFor="moistureContent" className="block text-sm font-medium text-gray-700 mb-1">Moisture Content (%)</label>
@@ -114,6 +121,7 @@ const PalayInfoForm = ({ palayData, handlePalayInputChange, handleQualityTypeInp
                         placeholder="Enter moisture %"
                         className="w-full ring-0"
                     />
+                    {errors.moistureContent && <p className="text-red-500 text-xs mt-1">{errors.moistureContent}</p>}
                 </div>
                 <div className="w-full">
                     <label htmlFor="purity" className="block text-sm font-medium text-gray-700 mb-1">Purity (%)</label>
@@ -126,6 +134,7 @@ const PalayInfoForm = ({ palayData, handlePalayInputChange, handleQualityTypeInp
                         placeholder="Enter purity %"
                         className="w-full ring-0"
                     />
+                    {errors.purity && <p className="text-red-500 text-xs mt-1">{errors.purity}</p>}
                 </div>
                 <div className="w-full">
                     <label htmlFor="damaged" className="block text-sm font-medium text-gray-700 mb-1">Damaged (%)</label>
@@ -138,6 +147,7 @@ const PalayInfoForm = ({ palayData, handlePalayInputChange, handleQualityTypeInp
                         placeholder="Enter damaged %"
                         className="w-full ring-0"
                     />
+                    {errors.damaged && <p className="text-red-500 text-xs mt-1">{errors.damaged}</p>}
                 </div>
             </div>
     
@@ -154,6 +164,7 @@ const PalayInfoForm = ({ palayData, handlePalayInputChange, handleQualityTypeInp
                         placeholder="Enter farm size"
                         className="w-full ring-0"
                     />
+                    {errors.farmSize && <p className="text-red-500 text-xs mt-1">{errors.farmSize}</p>}
                 </div>
                 <div className="w-full">
                     <label htmlFor="plantedDate" className="block text-sm font-medium text-gray-700 mb-1">Date Planted</label>
@@ -165,6 +176,7 @@ const PalayInfoForm = ({ palayData, handlePalayInputChange, handleQualityTypeInp
                         showIcon
                         className="rig-0 w-full placeholder:text-gray-400 focus:shadow-none custom-calendar"
                     />
+                    {errors.plantedDate && <p className="text-red-500 text-xs mt-1">{errors.plantedDate}</p>}
                 </div>
                 <div className="w-full">
                     <label htmlFor="harvestedDate" className="block text-sm font-medium text-gray-700 mb-1">Date Harvested</label>
@@ -176,6 +188,7 @@ const PalayInfoForm = ({ palayData, handlePalayInputChange, handleQualityTypeInp
                         showIcon
                         className="rig-0 w-full placeholder:text-gray-400 focus:shadow-none custom-calendar"
                     />
+                    {errors.harvestedDate && <p className="text-red-500 text-xs mt-1">{errors.harvestedDate}</p>}
                 </div>
             </div>
     
@@ -183,46 +196,61 @@ const PalayInfoForm = ({ palayData, handlePalayInputChange, handleQualityTypeInp
             <div className="w-full">
                 <label className="block text-sm font-medium text-gray-700 mb-1">Farm Address</label>
                 <div className="grid grid-cols-5 gap-4">
-                    <InputText
-                        id="farmRegion"
-                        name="farmRegion"
-                        value={palayData.farmRegion}
-                        onChange={handlePalayInputChange}  
-                        placeholder="Region"
-                        className="w-full ring-0"
-                    />
-                    <InputText
-                        id="farmProvince"
-                        name="farmProvince"
-                        value={palayData.farmProvince}
-                        onChange={handlePalayInputChange}  
-                        placeholder="Province"
-                        className="w-full ring-0"
-                    />
-                    <InputText
-                        id="farmCityTown"
-                        name="farmCityTown"
-                        value={palayData.farmCityTown}
-                        onChange={handlePalayInputChange}  
-                        placeholder="City/Town"
-                        className="w-full ring-0"
-                    />
-                    <InputText
-                        id="farmBarangay"
-                        name="farmBarangay"
-                        value={palayData.farmBarangay}
-                        onChange={handlePalayInputChange}  
-                        placeholder="Barangay"
-                        className="w-full ring-0"
-                    />
-                    <InputText
-                        id="farmStreet"
-                        name="farmStreet"
-                        value={palayData.farmStreet}
-                        onChange={handlePalayInputChange}  
-                        placeholder="Street"
-                        className="w-full ring-0"
-                    />
+                    <div className="flex flex-col w-full">
+                        <InputText
+                            id="farmRegion"
+                            name="farmRegion"
+                            value={palayData.farmRegion}
+                            onChange={handlePalayInputChange}  
+                            placeholder="Region"
+                            className="w-full ring-0"
+                        />
+                        {errors.farmRegion && <p className="text-red-500 text-xs mt-1">{errors.farmRegion}</p>}
+                    </div>
+                    <div className="flex flex-col w-full">
+                        <InputText
+                            id="farmProvince"
+                            name="farmProvince"
+                            value={palayData.farmProvince}
+                            onChange={handlePalayInputChange}  
+                            placeholder="Province"
+                            className="w-full ring-0"
+                        />
+                        {errors.farmProvince && <p className="text-red-500 text-xs mt-1">{errors.farmProvince}</p>}
+                    </div>
+                    <div className="flex flex-col w-full">
+                        <InputText
+                            id="farmCityTown"
+                            name="farmCityTown"
+                            value={palayData.farmCityTown}
+                            onChange={handlePalayInputChange}  
+                            placeholder="City/Town"
+                            className="w-full ring-0"
+                        />
+                        {errors.farmCityTown && <p className="text-red-500 text-xs mt-1">{errors.farmCityTown}</p>}
+                    </div>
+                    <div className="flex flex-col w-full">
+                        <InputText
+                            id="farmBarangay"
+                            name="farmBarangay"
+                            value={palayData.farmBarangay}
+                            onChange={handlePalayInputChange}  
+                            placeholder="Barangay"
+                            className="w-full ring-0"
+                        />
+                        {errors.farmBarangay && <p className="text-red-500 text-xs mt-1">{errors.farmBarangay}</p>}
+                    </div>
+                    <div className="flex flex-col w-full">
+                        <InputText
+                            id="farmStreet"
+                            name="farmStreet"
+                            value={palayData.farmStreet}
+                            onChange={handlePalayInputChange}  
+                            placeholder="Street"
+                            className="w-full ring-0"
+                        />
+                        {errors.farmStreet && <p className="text-red-500 text-xs mt-1">{errors.farmStreet}</p>}
+                    </div>
                 </div>
             </div>
     
@@ -240,6 +268,7 @@ const PalayInfoForm = ({ palayData, handlePalayInputChange, handleQualityTypeInp
                     placeholder="Enter estimated capital"
                     className="w-full ring-0"
                 />
+                {errors.estimatedCapital && <p className="text-red-500 text-xs mt-1">{errors.estimatedCapital}</p>}
             </div>
         </div>
     );
