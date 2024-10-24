@@ -35,7 +35,7 @@ function RiceOrder() {
 
     const fetchData = async () => {
         try {
-            const res = await fetch(`${apiUrl}/riceorders?riceRecipientId=${user.id}`, {
+            const res = await fetch(`${apiUrl}/riceorders?riceRecipientId=${user.id}&status=For%20Approval&status=Declined`, {
                 headers: { 'API-Key': `${apiKey}` }
             });
             if(!res.ok) {
@@ -53,10 +53,8 @@ function RiceOrder() {
 
     const getSeverity = (status) => {
         switch (status.toLowerCase()) {
-            case 'received': return 'success';
             case 'for approval': return 'warning';
             case 'declined': return 'danger';
-            case 'in transit': return 'info';
             default: return 'secondary';
         }
     };
