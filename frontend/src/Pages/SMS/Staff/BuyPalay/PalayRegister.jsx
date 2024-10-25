@@ -6,11 +6,16 @@ import { InputTextarea } from 'primereact/inputtextarea';
 import { Dropdown } from 'primereact/dropdown';
 import { Calendar } from 'primereact/calendar';
 import { Toast } from 'primereact/toast';
+import { InputText } from 'primereact/inputtext';
 
 import { Wheat, UserIcon, CheckIcon, TruckIcon } from 'lucide-react';
 
 import { Stepper, Step, StepLabel } from '@mui/material';
-import { InputText } from 'primereact/inputtext';
+
+import { useAuth } from '../../../Authentication/Login/AuthContext';
+import { FarmerInfoForm } from './PalayRegisterForm/FarmerInfoForm';
+import { PalayInfoForm } from './PalayRegisterForm/PalayInfoForm';
+import { LogisticsInfoForm } from './PalayRegisterForm/LogisticsInfoForm';
 
 const initialPalayData = {
     // Farmer Info
@@ -51,33 +56,37 @@ const initialPalayData = {
     harvestedDate: null,
     estimatedCapital: '',
     currentlyAt: '',
-    status: 'to be dry',
+    currentTransaction: '',
+    status: '',
 };
 
 const initialTransactionData = {
-    item: 'asd',
-        itemId: 123,
-        senderId: 123,
-        sendDateTime: '123',
-        fromLocationType: 'procurement',
-        fromLocationId: 123,
-        transporterName: '',
-        transporterDesc: '',
-        receiverId: 123,
-        receiveDateTime: '123',
-        toLocationType: 'warehouse',
-        toLocationId: '',
-        status: 'pending',
-        sendToWarehouse: 'asd',
-        remarks: ''
+    item: 'Palay',
+    itemId: '',
+    senderId: '',
+    fromLocationType: 'Procurement',
+    fromLocationId: 0,
+    transporterName: '',
+    transporterDesc: '',
+    receiverId: 0,
+    receiveDateTime: '0',
+    toLocationType: 'Warehouse',
+    toLocationId: '',
+    status: 'Pending',
+    remarks: ''
 };
 
 function PalayRegister({ visible, onHide, onPalayRegistered }) {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const apiKey = import.meta.env.VITE_API_KEY;
     const toast = useRef(null);
-    
-    const [activeStep, setActiveStep] = useState(0);
+    const { user } = useAuth();
+
+    const [palayId, setPalayId] = useState(null);
+    const palayIdRef = useRef(null); 
+
+    const [userData, setUserData] = useState(null);
+    const [warehouseData, setWarehouseData] = useState([]);
     const [palayData, setPalayData] = useState({
         // Farmer Info
         category: '',
@@ -117,31 +126,28 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
         harvestedDate: null,
         estimatedCapital: '',
         currentlyAt: '',
-        status: 'to be dry',
+        currentTransaction: '',
+        status: '',
     });
     const [transactionData, setTransactionData] = useState({
-        item: 'asd',
-        itemId: 123,
-        senderId: 123,
-        sendDateTime: '123',
-        fromLocationType: 'procurement',
-        fromLocationId: 123,
+        item: 'Palay',
+        itemId: '',
+        senderId: '',
+        fromLocationType: 'Procurement',
+        fromLocationId: 0,
         transporterName: '',
         transporterDesc: '',
-        receiverId: 123,
-        receiveDateTime: '123',
-        toLocationType: 'warehouse',
+        receiverId: 0,
+        receiveDateTime: '0',
+        toLocationType: 'Warehouse',
         toLocationId: '',
-        status: 'pending',
-        sendToWarehouse: 'asd',
+        status: 'Pending',
         remarks: ''
     });
 
-    useEffect(() => {
-        if (visible) {
-            setActiveStep(0);
-        }
-    }, [visible]);
+    const [activeStep, setActiveStep] = useState(0);
+    const [loading, setIsLoading] = useState(false);
+    const [errors, setErrors] = useState({});
 
     const steps = [
         { label: 'Farmer', icon: <UserIcon /> },
@@ -150,10 +156,10 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
     ];
 
     const options = [
-        { label: 'Station A', value: 'stationA', location: 'loc 1' }, 
-        { label: 'Station B', value: 'stationB', location: 'loc 2' }, 
-        { label: 'Station C', value: 'stationC', location: 'loc 3' }
-    ];
+        { label: 'Station A', value: 'stationA', location: 'Location A' }, 
+        { label: 'Station B', value: 'stationB', location: 'Location B' }, 
+        { label: 'Station C', value: 'stationC', location: 'Location C' }
+    ]; 
 
     const locationTypeOptions = [
         { label: 'Warehouse', value: 'warehouse' }, 
@@ -161,11 +167,90 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
         { label: 'Miller', value: 'miller' }
     ];
 
-    const locationIdOptions = [
-        { label: 'Facility A', value: 1 }, 
-        { label: 'Facility B', value: 2 },
-        { label: 'Facility C', value: 3 }
-    ];
+    const locationOptions = warehouseData
+    .filter(warehouse => warehouse.status === 'active')
+    .map(warehouse => ({
+        label: warehouse.facilityName,
+        value: warehouse.id
+    }));
+
+    useEffect(() => {
+        if (visible) {
+            setActiveStep(0);
+        }
+    }, [visible]);
+
+    useEffect(() => {
+        fetchUserData();
+        fetchWarehouseData();
+    }, []);
+
+    useEffect(() => {
+        if (userData) {
+            setTransactionData(prev => ({
+                ...prev,
+                senderId: user.id,
+            }));
+        }
+    }, [userData]);
+
+    const fetchUserData = async () => {
+        try {
+            const res = await fetch(`${apiUrl}/users/${user.id}`, {
+                headers: { 'API-Key': `${apiKey}` },
+            });
+            const data = await res.json();
+            setUserData({
+                personalInfo: {
+                    firstName: data.firstName,
+                    lastName: data.lastName,
+                    gender: data.gender,
+                    birthDate: data.birthDate ? new Date(data.birthDate) : null,
+                    contactNumber: data.contactNumber,
+                    validId: data.validId
+                },
+                accountDetails: {
+                    userType: data.userType,
+                    organizationName: data.organizationName,
+                    jobTitlePosition: data.jobTitlePosition,
+                    branchRegion: data.branchRegion,
+                    branchOffice: data.branchOffice,
+                },
+                officeAddress: {
+                    region: data.officeAddress.region,
+                    province: data.officeAddress.province,
+                    cityTown: data.officeAddress.cityTown,
+                    barangay: data.officeAddress.barangay,
+                    street: data.officeAddress.street,
+                },
+                passwordInfo: {
+                    email: data.email,
+                    password: null,
+                    confirmPassword: null
+                }
+            });
+        } catch (error) {
+            console.error(error.message);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const fetchWarehouseData = async () => {
+        try {
+            const res = await fetch(`${apiUrl}/warehouses`, {
+                headers: { 'API-Key': `${apiKey}` }
+            });
+            if (!res.ok) {
+                throw new Error('Failed to fetch warehouse data');
+            }
+            const data = await res.json();
+            setWarehouseData(data);
+        } catch (error) {
+            console.log(error.message);
+            toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to fetch warehouse data', life: 3000 });
+        }
+    };
 
     const handlePalayInputChange = (e) => {
         const { name, value } = e.target;
@@ -189,16 +274,16 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
         setPalayData((prevState) => ({
             ...prevState,
             [name]: value,
-            status: value === 'wet' ? 'To be Dry' : value === 'dry' ? 'To be Mill' : prevState.status
+            status: value === 'Wet' ? 'To be Dry' : value === 'Dry' ? 'To be Mill' : prevState.status
         }));
     };
     
     const handleStationChange = (e) => {
-        const selectedStation = options.find(option => option.value === e.target.value);
+        const selectedStation = options.find(option => option.value === e.value);
         setPalayData(prevState => ({
             ...prevState,
-            buyingStationName: e.target.value,
-            location: selectedStation ? selectedStation.location : ''
+            buyingStationName: selectedStation ? selectedStation.label : '',
+            buyingStationLoc: selectedStation ? selectedStation.location : ''
         }));
     };
     
@@ -212,7 +297,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
     };
     
     const handleLocationId = (e) => {
-        const selectedOption = locationIdOptions.find(option => option.value === e.value);
+        const selectedOption = locationOptions.find(option => option.value === e.value);
     
         setTransactionData(prevState => ({
             ...prevState,
@@ -224,482 +309,141 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
             currentlyAt: selectedOption.label,
         }));
     };
+
+    const handleNext = () => {
+        const isValid = validateForm(activeStep);
+        
+        if (isValid && activeStep < steps.length - 1) {
+            setActiveStep(activeStep + 1);
+        }
+    };
+    
+    const handlePrevious = () => {
+        if (activeStep > 0) {
+            setActiveStep(activeStep - 1);
+        }
+    };
+
+    const handleSubmit = async () => {
+        const isValid = validateForm(activeStep);
+        if (!isValid) return;
+    
+        try {
+            // Step 1: Create the transaction first
+            const transactionResponse = await fetch(`${apiUrl}/transactions`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'API-Key': `${apiKey}`
+                },
+                body: JSON.stringify(transactionData)
+            });
+    
+            if (!transactionResponse.ok) {
+                throw new Error('Failed to submit transaction data');
+            }
+
+            const transactionResult = await transactionResponse.json();
+            const transactionId = transactionResult.id;
+    
+            // Step 2: Create palay data with the transaction ID
+            const palayResponse = await fetch(`${apiUrl}/palaybatches`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'API-Key': `${apiKey}`
+                },
+                body: JSON.stringify({
+                    ...palayData,
+                    currentTransaction: transactionId,
+                    dateBought: palayData.dateBought ? palayData.dateBought.toISOString().split('T')[0] : null,
+                    birthDate: palayData.birthDate ? palayData.birthDate.toISOString().split('T')[0] : null,
+                    plantedDate: palayData.plantedDate ? palayData.plantedDate.toISOString().split('T')[0] : null,
+                    harvestedDate: palayData.harvestedDate ? palayData.harvestedDate.toISOString().split('T')[0] : null,
+                })
+            });
+    
+            if (!palayResponse.ok) {
+                throw new Error('Failed to submit palay data');
+            }
+    
+            const palayResult = await palayResponse.json();
+            const palayId = palayResult.id;
+            
+            // Step 3: Update the transaction with the palay ID
+            const updateTransactionResponse = await fetch(`${apiUrl}/transactions/update`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'API-Key': `${apiKey}`
+                },
+                body: JSON.stringify({
+                    ...transactionResult,
+                    itemId: palayId
+                })
+            });
+    
+            if (!updateTransactionResponse.ok) {
+                throw new Error('Failed to update transaction with palay ID');
+            }
+
+            const newTransactionResult = await updateTransactionResponse.json();
+    
+            // Reset states and show success message
+            setPalayData(initialPalayData);
+            setTransactionData(initialTransactionData);
+            
+            toast.current.show({
+                severity: 'success',
+                summary: 'Success',
+                detail: 'Records successfully created',
+                life: 3000
+            });
+    
+            onPalayRegistered(palayResult);
+            onHide();
+    
+        } catch (error) {
+            console.error('Error:', error);
+            toast.current.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Failed to create records',
+                life: 3000
+            });
+        }
+    };
     
     const renderFarmerInfo = () => (
-        <div className="flex flex-col gap-4 h-full">
-            <div className="w-full">
-                <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                <Dropdown
-                    id="category"
-                    name="category"
-                    value={palayData.category}
-                    options={[{ label: 'Individual Farmer', value: 'individual' }, { label: 'Cooperative', value: 'coop' }]}
-                    onChange={handlePalayInputChange}  
-                    placeholder="Select category"
-                    className="w-full ring-0"
-                />
-            </div>
-
-            <div className="flex flex-row w-full gap-4">
-                <div className="w-1/2">
-                    <label htmlFor="farmerName" className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                    <InputText
-                        id="farmerName" 
-                        name="farmerName"
-                        value={palayData.farmerName}
-                        onChange={handlePalayInputChange} 
-                        placeholder="Enter your name" 
-                        className="w-full ring-0"
-                    />
-                </div>
-
-                {palayData.category === 'individual' ? (
-                    <div className="flex flex-row w-1/2 gap-4">
-                        <div className="w-3/5">
-                            <label htmlFor="birthDate" className="block text-sm font-medium text-gray-700 mb-1">Birthdate</label>
-                            <Calendar
-                                id="birthDate"
-                                name="birthDate"
-                                value={palayData.birthDate}
-                                onChange={handlePalayInputChange} 
-                                placeholder="Select birthdate"
-                                showIcon
-                                className="rig-0 w-full placeholder:text-gray-400 focus:shadow-none custom-calendar"
-                            />
-                        </div>
-
-                        <div className="w-2/5">
-                            <label htmlFor="gender" className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
-                            <Dropdown
-                                id="gender"
-                                name="gender"
-                                value={palayData.gender}
-                                options={[{ label: 'Male', value: 'male' }, { label: 'Female', value: 'female' }, { label: 'Others', value: 'others' }]}
-                                onChange={handlePalayInputChange}  
-                                placeholder="gender"
-                                className="w-full ring-0"
-                            />
-                        </div>
-                    </div>
-                ) : (
-                    <div className="w-1/2">
-                        <label htmlFor="numOfFarmer" className="block text-sm font-medium text-gray-700 mb-1">Number of Farmers</label>
-                        <InputText
-                            id="numOfFarmer"
-                            name="numOfFarmer"
-                            value={palayData.numOfFarmer}
-                            onChange={handlePalayInputChange} 
-                            placeholder="Enter number of farmers"
-                            className="w-full ring-0"
-                        />
-                    </div>
-                )}
-            </div>
-            
-            <div className="flex flex-row w-full gap-4">
-                <div className="w-1/2">
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                    <InputText
-                        id="email"
-                        name="email"
-                        value={palayData.email}
-                        onChange={handlePalayInputChange}  
-                        placeholder="Enter your email"
-                        className="w-full ring-0"
-                    />
-                </div>
-
-                <div className="w-1/2">
-                    <label htmlFor="number" className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-                    <InputText
-                        id="contactNumber"
-                        name="contactNumber"
-                        value={palayData.contactNumber}
-                        onChange={handlePalayInputChange} 
-                        placeholder="Enter your phone number"
-                        className="w-full ring-0"
-                    />
-                </div>
-            </div>
-
-            <div className="w-full">
-                <label className="block text-sm font-medium text-gray-700 mb-1">{palayData.category === 'individual' ? 'Home Address' : 'Office Address'}</label>
-                <div className="flex gap-4">
-                    <InputText
-                        id="palaySupplierRegion"
-                        name="palaySupplierRegion"
-                        value={palayData.palaySupplierRegion}
-                        onChange={handlePalayInputChange}  
-                        placeholder="Region"
-                        className="w-full ring-0"
-                    />
-                    <InputText
-                        id="palaySupplierProvince"
-                        name="palaySupplierProvince"
-                        value={palayData.palaySupplierProvince}
-                        onChange={handlePalayInputChange}  
-                        placeholder="Province"
-                        className="w-full ring-0"
-                    />
-                    <InputText
-                        id="palaySupplierCityTown"
-                        name="palaySupplierCityTown"
-                        value={palayData.palaySupplierCityTown}
-                        onChange={handlePalayInputChange}  
-                        placeholder="City/Town"
-                        className="w-full ring-0"
-                    />
-                    <InputText
-                        id="palaySupplierBarangay"
-                        name="palaySupplierBarangay"
-                        value={palayData.palaySupplierBarangay}
-                        onChange={handlePalayInputChange}  
-                        placeholder="Barangay"
-                        className="w-full ring-0"
-                    />
-                    <InputText
-                        id="palaySupplierStreet"
-                        name="palaySupplierStreet"
-                        value={palayData.palaySupplierStreet}
-                        onChange={handlePalayInputChange}  
-                        placeholder="Street"
-                        className="w-full ring-0"
-                    />
-                </div>
-            </div>
-        </div>
+        <FarmerInfoForm 
+            palayData={palayData}
+            handlePalayInputChange={handlePalayInputChange}
+            errors={errors}
+        />
     );
 
     const renderPalayInfo = () => (
-        <div className="flex flex-col gap-4">
-            {/* Purchase Details */}
-            <div className="flex gap-4">
-                <div className="w-full">
-                    <label htmlFor="palayVariety" className="block text-sm font-medium text-gray-700 mb-1">Variety</label>
-                    <InputText
-                        id="palayVariety"
-                        name="palayVariety"
-                        value={palayData.palayVariety}
-                        onChange={handlePalayInputChange}  
-                        placeholder="Enter Palay Variety"
-                        className="w-full ring-0"
-                    />
-                </div>
-
-                <div className="w-full">
-                    <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">Price per kg</label>
-                    <InputText
-                        id="price"
-                        name="price"
-                        value={palayData.price}
-                        onChange={handlePalayInputChange}  
-                        type="number"
-                        placeholder="Enter price"
-                        className="w-full ring-0"
-                    />
-                </div>
-
-                <div className="w-full">
-                    <label htmlFor="dateBought" className="block text-sm font-medium text-gray-700 mb-1">Date Bought</label>
-                    <Calendar
-                        id="dateBought"
-                        name="dateBought"
-                        value={palayData.dateBought}
-                        onChange={handlePalayInputChange}  
-                        showIcon
-                        className="rig-0 w-full placeholder:text-gray-400 focus:shadow-none custom-calendar"
-                    />
-                </div>
-            </div>
-    
-            {/* Quantity and Weight */}
-            <div className="flex gap-4">
-                <div className="w-full">
-                    <label htmlFor="quantityBags" className="block text-sm font-medium text-gray-700 mb-1">Quantity (Bags)</label>
-                    <InputText
-                        id="quantityBags"
-                        name="quantityBags"
-                        value={palayData.quantityBags}
-                        onChange={handlePalayInputChange}  
-                        type="number"
-                        placeholder="Enter quantity"
-                        className="w-full ring-0"
-                    />
-                </div>
-                <div className="w-full">
-                    <label htmlFor="grossWeight" className="block text-sm font-medium text-gray-700 mb-1">Gross Weight (kg)</label>
-                    <InputText
-                        id="grossWeight"
-                        name="grossWeight"
-                        value={palayData.grossWeight}
-                        onChange={handlePalayInputChange}  
-                        type="number"
-                        placeholder="Enter gross weight"
-                        className="w-full ring-0"
-                    />
-                </div>
-                <div className="w-full">
-                    <label htmlFor="netWeight" className="block text-sm font-medium text-gray-700 mb-1">Net Weight (kg)</label>
-                    <InputText
-                        id="netWeight"
-                        name="netWeight"
-                        value={palayData.netWeight}
-                        onChange={handlePalayInputChange}  
-                        type="number"
-                        placeholder="Enter net weight"
-                        className="w-full ring-0"
-                    />
-                </div>
-            </div>
-    
-            {/* Quality Information */}
-            <div className="flex gap-4">
-                <div className="w-full">
-                    <label htmlFor="qualityType" className="block text-sm font-medium text-gray-700 mb-1">Quality Type</label>
-                    <Dropdown
-                        id="qualityType"
-                        name="qualityType"
-                        value={palayData.qualityType}
-                        options={[
-                            { label: 'Fresh/Wet', value: 'wet' },
-                            { label: 'Clean/Dry', value: 'dry' },
-                        ]}
-                        onChange={handleQualityTypeInputChange}  
-                        placeholder="Select quality"
-                        className="w-full ring-0"
-                    />
-                </div>
-                <div className="w-full">
-                    <label htmlFor="moistureContent" className="block text-sm font-medium text-gray-700 mb-1">Moisture Content (%)</label>
-                    <InputText
-                        id="moistureContent"
-                        name="moistureContent"
-                        value={palayData.moistureContent}
-                        onChange={handlePalayInputChange}  
-                        type="number"
-                        placeholder="Enter moisture %"
-                        className="w-full ring-0"
-                    />
-                </div>
-                <div className="w-full">
-                    <label htmlFor="purity" className="block text-sm font-medium text-gray-700 mb-1">Purity (%)</label>
-                    <InputText
-                        id="purity"
-                        name="purity"
-                        value={palayData.purity}
-                        onChange={handlePalayInputChange}  
-                        type="number"
-                        placeholder="Enter purity %"
-                        className="w-full ring-0"
-                    />
-                </div>
-                <div className="w-full">
-                    <label htmlFor="damaged" className="block text-sm font-medium text-gray-700 mb-1">Damaged (%)</label>
-                    <InputText
-                        id="damaged"
-                        name="damaged"
-                        value={palayData.damaged}
-                        onChange={handlePalayInputChange}  
-                        type="number"
-                        placeholder="Enter damaged %"
-                        className="w-full ring-0"
-                    />
-                </div>
-            </div>
-    
-            {/* Price and Farm Details */}
-            <div className="flex gap-4">
-                <div className="w-full">
-                    <label htmlFor="farmSize" className="block text-sm font-medium text-gray-700 mb-1">Farm Size (hectares)</label>
-                    <InputText
-                        id="farmSize"
-                        name="farmSize"
-                        value={palayData.farmSize}
-                        onChange={handlePalayInputChange}  
-                        type="number"
-                        placeholder="Enter farm size"
-                        className="w-full ring-0"
-                    />
-                </div>
-                <div className="w-full">
-                    <label htmlFor="plantedDate" className="block text-sm font-medium text-gray-700 mb-1">Date Planted</label>
-                    <Calendar
-                        id="plantedDate"
-                        name="plantedDate"
-                        value={palayData.plantedDate}
-                        onChange={handlePalayInputChange}  
-                        showIcon
-                        className="rig-0 w-full placeholder:text-gray-400 focus:shadow-none custom-calendar"
-                    />
-                </div>
-                <div className="w-full">
-                    <label htmlFor="harvestedDate" className="block text-sm font-medium text-gray-700 mb-1">Date Harvested</label>
-                    <Calendar
-                        id="harvestedDate"
-                        name="harvestedDate"
-                        value={palayData.harvestedDate}
-                        onChange={handlePalayInputChange}  
-                        showIcon
-                        className="rig-0 w-full placeholder:text-gray-400 focus:shadow-none custom-calendar"
-                    />
-                </div>
-            </div>
-    
-            {/* Farm Location */}
-            <div className="w-full">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Farm Address</label>
-                <div className="grid grid-cols-5 gap-4">
-                    <InputText
-                        id="farmRegion"
-                        name="farmRegion"
-                        value={palayData.farmRegion}
-                        onChange={handlePalayInputChange}  
-                        placeholder="Region"
-                        className="w-full ring-0"
-                    />
-                    <InputText
-                        id="farmProvince"
-                        name="farmProvince"
-                        value={palayData.farmProvince}
-                        onChange={handlePalayInputChange}  
-                        placeholder="Province"
-                        className="w-full ring-0"
-                    />
-                    <InputText
-                        id="farmCityTown"
-                        name="farmCityTown"
-                        value={palayData.farmCityTown}
-                        onChange={handlePalayInputChange}  
-                        placeholder="City/Town"
-                        className="w-full ring-0"
-                    />
-                    <InputText
-                        id="farmBarangay"
-                        name="farmBarangay"
-                        value={palayData.farmBarangay}
-                        onChange={handlePalayInputChange}  
-                        placeholder="Barangay"
-                        className="w-full ring-0"
-                    />
-                    <InputText
-                        id="farmStreet"
-                        name="farmStreet"
-                        value={palayData.farmStreet}
-                        onChange={handlePalayInputChange}  
-                        placeholder="Street"
-                        className="w-full ring-0"
-                    />
-                </div>
-            </div>
-    
-            {/* Estimated Capital */}
-            <div className="w-full">
-                <label htmlFor="estimatedCapital" className="block text-sm font-medium text-gray-700 mb-1">
-                    Estimated Capital
-                </label>
-                <InputText
-                    id="estimatedCapital"
-                    name="estimatedCapital"
-                    value={palayData.estimatedCapital}
-                    onChange={handlePalayInputChange}  
-                    type="number"
-                    placeholder="Enter estimated capital"
-                    className="w-full ring-0"
-                />
-            </div>
-        </div>
+        <PalayInfoForm
+            palayData={palayData}
+            handlePalayInputChange={handlePalayInputChange}
+            handleQualityTypeInputChange={handleQualityTypeInputChange}
+            errors={errors}
+        />
     );
 
     const renderLogistics = () => (
-        <div className="flex flex-col h-full w-full gap-2">
-            <div className="flex w-full gap-4">
-                <div className="w-full">
-                    <label htmlFor="buyingStationName" className="block text-sm font-medium text-gray-700 mb-1">Bought at</label>
-                    <Dropdown
-                        id="buyingStationName"
-                        name="buyingStationName"
-                        value={palayData.buyingStationName}
-                        options={options}
-                        onChange={handleStationChange}
-                        placeholder="Select buying station"
-                        className="ring-0 w-full placeholder:text-gray-400"
-                    />
-                </div>
-
-                <div className="w-full">
-                    <label htmlFor="buyingStationLoc" className="block text-sm font-medium text-gray-700 mb-1">Location</label>
-                    <InputText
-                        id="buyingStationLoc"
-                        name="buyingStationLoc"
-                        value={palayData.buyingStationLoc}
-                        onChange={handlePalayInputChange}  
-                        className='w-full focus:ring-0'
-                    />
-                </div>
-            </div>
-            
-            <div className="w-full">
-                <label htmlFor="transporterName" className="block text-sm font-medium text-gray-700 mb-1">Transported by</label>
-                <InputText
-                    id="transporterName"
-                    name="transporterName"
-                    value={transactionData.transporterName}
-                    onChange={handleTransactionInputChange}  
-                    placeholder="Enter transport"
-                    className='w-full focus:ring-0'
-                />
-            </div>
-
-            <div className="w-full">
-                <label htmlFor="transporterDesc" className="block text-sm font-medium text-gray-700 mb-1">Transport Description</label>
-                <InputTextarea
-                    id="transporterDesc"
-                    name="transporterDesc"
-                    value={transactionData.transporterDesc}
-                    onChange={handleTransactionInputChange}  
-                    placeholder="Enter description"
-                    className="w-full ring-0"
-                />
-            </div>
-
-            <div className="w-full">
-                <label htmlFor="sendToWarehouse" className="block text-sm font-medium text-gray-700 mb-1">Send to</label>
-                <div className="flex flex-row w-full space-x-2">
-                    <Dropdown
-                        id="sendToWarehouse"
-                        name="sendToWarehouse"
-                        value={transactionData.toLocationType}
-                        options={locationTypeOptions}
-                        onChange={handleLocationType} 
-                        placeholder="Select location"
-                        className="ring-0 w-full placeholder:text-gray-400"
-                        disabled
-                    />
-
-                    <Dropdown
-                        id="facility"
-                        name="facility"
-                        value={transactionData.toLocationId}
-                        options={locationIdOptions}
-                        onChange={handleLocationId}
-                        placeholder="Select facility"
-                        className="ring-0 w-full placeholder:text-gray-400"
-                    />
-                </div>
-            </div>
-
-            <div className="w-full">
-                <label htmlFor="remarks" className="block text-sm font-medium text-gray-700 mb-1">Remarks</label>
-                <InputTextarea
-                    id="remarks"
-                    name="remarks"
-                    value={transactionData.remarks}
-                    onChange={handleTransactionInputChange} 
-                    placeholder="Enter Remarks"
-                    className="w-full ring-0"
-                />
-            </div>
-        </div>
+        <LogisticsInfoForm
+            palayData={palayData}
+            transactionData={transactionData}
+            handlePalayInputChange={handlePalayInputChange}
+            handleTransactionInputChange={handleTransactionInputChange}
+            handleStationChange={handleStationChange}
+            handleLocationType={handleLocationType}
+            handleLocationId={handleLocationId}
+            options={options}
+            locationOptions={locationOptions}
+            errors={errors}
+        />
     );  
 
     const CustomStepIcon = ({ icon, active }) => {
@@ -720,129 +464,196 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
         );
     };
 
-    const handleNext = () => {
-        if (activeStep < steps.length - 1) {
-            setActiveStep(activeStep + 1);
-        } else {
-            // Submit the form
-            console.log(palayData);
-            onPalayRegistered(palayData);
-            setPalayData(initialPalayData);
-            setActiveStep(0);
-            onHide();
-        }
-    };
-
-    const handlePrevious = () => {
-        if (activeStep > 0) {
-            setActiveStep(activeStep - 1);
-        }
-    };
-
-    const handleSubmit = () => {
-        palaySubmit();
-        transactionSubmit();
-    };
-    
-    const palaySubmit = async () => {
-        const transformedData = {
-            ...palayData,
-            dateBought: palayData.dateBought ? palayData.dateBought.toISOString().split('T')[0] : null,
-            birthDate: palayData.birthDate ? palayData.birthDate.toISOString().split('T')[0] : null,
-            plantedDate: palayData.plantedDate ? palayData.plantedDate.toISOString().split('T')[0] : null,
-            harvestedDate: palayData.harvestedDate ? palayData.harvestedDate.toISOString().split('T')[0] : null,
-        };
-    
-        console.log(transformedData);
-    
-        try {
-            const response = await fetch(`${apiUrl}/palaybatches`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': `${apiKey}`
-                },
-                body: JSON.stringify(transformedData)
-            });
-    
-            if (!response.ok) {
-                throw new Error('Failed to submit palay data');
-            }
-    
-            const result = await response.json();
-            toast.current.show({
-                severity: 'success',
-                summary: 'Success',
-                detail: 'Palay record successfully created',
-                life: 3000
-            });
-    
-            onPalayRegistered(result);
-            setPalayData(initialPalayData);
-            onHide();
-    
-        } catch (error) {
-            console.error('Error:', error);
-            toast.current.show({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'Failed to create palay record',
-                life: 3000
-            });
-        }
-    };
-
-    const transactionSubmit = async () => {
-        const transformedData = {
-            ...transactionData
-        };
-    
-        console.log(transformedData);
-    
-        try {
-            const response = await fetch(`${apiUrl}/transactions`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': `${apiKey}`
-                },
-                body: JSON.stringify(transformedData)
-            });
-    
-            if (!response.ok) {
-                throw new Error('Failed to submit transaction data');
-            }
-    
-            const result = await response.json();
-
-            toast.current.show({
-                severity: 'success',
-                summary: 'Success',
-                detail: 'Transaction record successfully created',
-                life: 3000
-            });
-    
-            onPalayRegistered(result);
-            setTransactionData(initialTransactionData);
-            onHide();
-    
-        } catch (error) {
-            console.error('Error:', error);
-            toast.current.show({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'Failed to create transaction record',
-                life: 3000
-            });
-        }
-    };
-
     const customDialogHeader = (
         <div className="flex items-center space-x-2">
             <Wheat size={22} className="text-black" />
-            <h3 className="text-md font-bold text-black">Add new</h3>
+            <h3 className="text-md font-bold text-black">Buy Palay</h3>
         </div>
     );
+
+    const validateForm = (step) => {
+        let newErrors = {};
+        if (step === 0) {
+            // Farmer Info Validation
+            if (!palayData.category.trim()) {
+                newErrors.category = "Category is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Category is required', life: 5000});
+            }
+            if (!palayData.farmerName.trim()) {
+                newErrors.farmerName = "Farmer name is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Farmer name is required', life: 5000});
+            }
+            if (palayData.category === 'individual') {
+                if (!palayData.birthDate) {
+                    newErrors.birthDate = "Birth date is required";
+                    toast.current.show({severity:'error', summary: 'Error', detail:'Birth date is required', life: 5000});
+                }
+                if (!palayData.gender) {
+                    newErrors.gender = "Gender is required";
+                    toast.current.show({severity:'error', summary: 'Error', detail:'Gender is required', life: 5000});
+                }
+            } else {
+                if (!palayData.numOfFarmer.trim()) {
+                    newErrors.numOfFarmer = "Number of farmers is required";
+                    toast.current.show({severity:'error', summary: 'Error', detail:'Number of farmers is required', life: 5000});
+                }
+            }
+            if (!palayData.email) {
+                newErrors.email = "Email is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Email is required', life: 5000});
+            }
+            if (!palayData.contactNumber.trim()) {
+                newErrors.contactNumber = "Contact number is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Contact number is required', life: 5000});
+            } else if (!/^\d{10,}$/.test(palayData.contactNumber)) {
+                newErrors.contactNumber = "Invalid contact number format";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Invalid contact number format', life: 5000});
+            }
+            if (!palayData.palaySupplierRegion) {
+                newErrors.palaySupplierRegion = "Region is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Region is required', life: 5000});
+            }
+            if (!palayData.palaySupplierProvince) {
+                newErrors.palaySupplierProvince = "Province is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Province is required', life: 5000});
+            }
+            if (!palayData.palaySupplierCityTown) {
+                newErrors.palaySupplierCityTown = "City/Town is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'City/Town is required', life: 5000});
+            }
+            if (!palayData.palaySupplierBarangay) {
+                newErrors.palaySupplierBarangay = "Barangay is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Barangay is required', life: 5000});
+            }
+            if (!palayData.palaySupplierStreet) {
+                newErrors.palaySupplierStreet = "Street is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Street is required', life: 5000});
+            }
+        }
+    
+        else if (step === 1) {
+            // Palay Info Validation
+            if (!palayData.palayVariety) {
+                newErrors.palayVariety = "Palay Variety is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Palay Variety is required', life: 5000});
+            }
+            if (!palayData.price) {
+                newErrors.price = "Price is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Price is required', life: 5000});
+            }
+            if (!palayData.dateBought) {
+                newErrors.dateBought = "Date bought is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Date bought is required', life: 5000});
+            }
+            if (!palayData.palayVariety.trim()) {
+                newErrors.palayVariety = "Palay variety is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Palay variety is required', life: 5000});
+            }
+            if (!palayData.quantityBags.trim()) {
+                newErrors.quantityBags = "Quantity in bags is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Quantity in bags is required', life: 5000});
+            }
+            if (!palayData.grossWeight.trim()) {
+                newErrors.grossWeight = "Gross weight is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Gross weight is required', life: 5000});
+            }
+            if (!palayData.netWeight.trim()) {
+                newErrors.netWeight = "Net weight is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Net weight is required', life: 5000});
+            }
+            if (!palayData.qualityType) {
+                newErrors.qualityType = "Quality type is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Quality type is required', life: 5000});
+            }
+            if (!palayData.moistureContent) {
+                newErrors.moistureContent = "Moisture Content is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Moisture Content is required', life: 5000});
+            }
+            if (!palayData.purity) {
+                newErrors.purity = "Purity is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Purity is required', life: 5000});
+            }
+            if (!palayData.damaged) {
+                newErrors.damaged = "Damaged is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Damaged is required', life: 5000});
+            }
+            if (!palayData.farmSize.trim()) {
+                newErrors.farmSize = "Farm size is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Farm size is required', life: 5000});
+            }
+            if (!palayData.plantedDate) {
+                newErrors.plantedDate = "Date planted is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Date planted is required', life: 5000});
+            }
+            if (!palayData.harvestedDate) {
+                newErrors.harvestedDate = "Date harvested is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Date harvested is required', life: 5000});
+            }
+            
+        
+            // Farm Origin Validation
+            if (!palayData.farmRegion) {
+                newErrors.farmRegion = "Farm region is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Farm region is required', life: 5000});
+            }
+            if (!palayData.farmProvince) {
+                newErrors.farmProvince = "Farm province is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Farm province is required', life: 5000});
+            }
+            if (!palayData.farmCityTown) {
+                newErrors.farmCityTown = "Farm city/town is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Farm city/town is required', life: 5000});
+            }
+            if (!palayData.farmBarangay) {
+                newErrors.farmBarangay = "Farm barangay is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Farm barangay is required', life: 5000});
+            }
+            if (!palayData.farmStreet) {
+                newErrors.farmStreet = "Farm street is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Farm street is required', life: 5000});
+            }
+            
+            if (!palayData.estimatedCapital) {
+                newErrors.estimatedCapital = "Estimated Capital is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Estimated Capital is required', life: 5000});
+            }
+        }
+    
+        else if (step === 2) {
+            // Logistics Validation
+            // if (!transactionData.buyingStationName) {
+            //     newErrors.buyingStationName = "Buying Station is required";
+            //     toast.current.show({severity:'error', summary: 'Error', detail:'Buying Station is required', life: 5000});
+            // }
+            // if (!transactionData.buyingStationLoc) {
+            //     newErrors.buyingStationLoc = "Buying Station Location is required";
+            //     toast.current.show({severity:'error', summary: 'Error', detail:'Buying Station Location is required', life: 5000});
+            // }
+            if (!transactionData.transporterName) {
+                newErrors.transporterName = "Transporter is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Transporter is required', life: 5000});
+            }
+            if (!transactionData.transporterDesc) {
+                newErrors.transporterDesc = "Transporter Description is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Transporter Description is required', life: 5000});
+            }
+            if (!transactionData.toLocationType) {
+                newErrors.toLocationType = "Location type is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Location type is required', life: 5000});
+            }
+            if (!transactionData.toLocationId) {
+                newErrors.toLocationId = "Destination location is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Destination location is required', life: 5000});
+            }
+            if (!transactionData.remarks.trim()) {
+                newErrors.remarks = "Remarks is required";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Remarks is required', life: 5000});
+            }
+        }
+    
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
 
     return (
         <Dialog 
@@ -860,7 +671,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                         className="py-2 px-14 bg-primary"
                     />
                     <Button 
-                        label={activeStep === steps.length - 1 ? 'Submit' : 'Next'} 
+                        label={activeStep === steps.length - 1 ? 'Buy Palay' : 'Next'} 
                         onClick={activeStep === steps.length - 1 ? handleSubmit : handleNext} 
                         className="py-2 px-14 bg-primary"
                     />

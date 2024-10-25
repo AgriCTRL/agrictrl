@@ -31,9 +31,9 @@ function MillerRegister({ visible, onHide, onMillerRegistered }) {
     ];
 
     const categoryOptions = [
-        { label: 'Small', value: 'small' },
-        { label: 'Medium', value: 'medium' },
-        { label: 'Large', value: 'large' }
+        { label: 'Small', value: 'Small' },
+        { label: 'Medium', value: 'Medium' },
+        { label: 'Large', value: 'Large' }
     ];
 
     const resetForm = () => {
