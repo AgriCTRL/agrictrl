@@ -19,6 +19,7 @@ const config: Config = {
                 primary: '#00C261',
                 primaryHover: '#009E4F',
                 secondary: '#005155',
+                secondaryHover: '#003B3D',
                 black: '#444444',
                 background: '#F1F5F9',
                 'light-grey': '#A5A5A5',

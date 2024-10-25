@@ -6,6 +6,7 @@ import { AuthClient } from "@dfinity/auth-client";
 import { Button } from 'primereact/button';
 import { Image } from 'primereact/image';
 import AppMobileNav from './AppMobileNav';
+import { Divider } from 'primereact/divider';
         
 const AppNavbar = () => {
     const identityUrl = import.meta.env.VITE_INTERNET_IDENTITY_URL;
@@ -58,7 +59,7 @@ const AppNavbar = () => {
     }, []);
 
     return (
-        <nav className={`flex-between fixed z-50 w-screen px-6 sm:px-12 lg:px-24 py-4 transition-all duration-500 ${isScrolled ? 'bg-[#000000]/40 backdrop-blur-sm shadow-lg' : ''}`}>
+        <nav className={`flex-between fixed z-50 w-screen px-6 sm:px-12 lg:px-24 py-4 transition-all duration-500 border-b border-white/20 ${isScrolled ? 'bg-[#000000]/40 backdrop-blur-sm shadow-lg' : ''}`}>
             <ScrollLink href='/' className='flex items-center gap-4'>
                 <Image 
                     src='favicon.ico' 
@@ -76,10 +77,11 @@ const AppNavbar = () => {
                     className='hidden sm:block'
                 >
                     <Button
-                        className="border-0 ring-0 text-white border-b-4 border-transparent hover:text-primary hover:border-primary hover:rounded-none"
+                        className="border-0 ring-0 text-white border-transparent hover:text-primary hover:rounded-none font-medium"
                         label='Services'
                         text
-                    ></Button>
+                    >
+                    </Button>
                 </ScrollLink>
 
                 <ScrollLink 
@@ -89,12 +91,16 @@ const AppNavbar = () => {
                     className='hidden sm:block'
                 >
                     <Button
-                        className="border-0 ring-0 text-white border-b-4 border-transparent hover:text-primary hover:border-primary hover:rounded-none"
+                        className="border-0 ring-0 text-white border-transparent hover:text-primary hover:rounded-none"
                         label='About Us'
                         text
                     ></Button>
                 </ScrollLink>
 
+                <Divider 
+                    layout="vertical"
+                    className='bg-primary m-0 py-3 opacity-30 hidden sm:block' 
+                />
                 <Button 
                     className='text-white hover:text-primary ring-0'
                     onClick={handleTnTClick}
@@ -107,7 +113,7 @@ const AppNavbar = () => {
                 <AppMobileNav />
 
                 <Button 
-                    className="font-medium bg-gradient-to-r from-secondary to-primary px-6 sm:px-12 border-0"
+                    className="font bg-gradient-to-r from-secondary to-primary px-6 sm:px-12 border-0"
                     onClick={ loginButton1 } 
                     label="Login" 
                 />

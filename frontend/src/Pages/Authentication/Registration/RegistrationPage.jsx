@@ -1,37 +1,46 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Button } from 'primereact/button';
-import { useNavigate } from 'react-router-dom';
-import { Stepper, Step, StepLabel } from '@mui/material';
-import { CircleUserRound, Contact, SlidersVertical, CircleCheckBig } from 'lucide-react';
-import { Toast } from 'primereact/toast';
+import React, { useState, useEffect, useRef } from "react";
+import { Button } from "primereact/button";
+import { useNavigate } from "react-router-dom";
+import { Stepper, Step, StepLabel, StepConnector } from "@mui/material";
+import {
+  CircleUserRound,
+  Contact,
+  SlidersVertical,
+  CircleCheckBig,
+  ArrowLeft,
+  ArrowRight,
+} from "lucide-react";
+import { Toast } from "primereact/toast";
 
-import PersonalInformation from './RegistrationComponents/PersonalInformation';
-import AccountDetails from './RegistrationComponents/AccountDetails';
-import OfficeAddress from './RegistrationComponents/OfficeAddress';
-import Finishing from './RegistrationComponents/Finishing';
-import { RegistrationProvider, useRegistration } from './RegistrationContext';
+import PersonalInformation from "./RegistrationComponents/PersonalInformation";
+import AccountDetails from "./RegistrationComponents/AccountDetails";
+import OfficeAddress from "./RegistrationComponents/OfficeAddress";
+import Finishing from "./RegistrationComponents/Finishing";
+import { RegistrationProvider, useRegistration } from "./RegistrationContext";
+import { Divider } from "primereact/divider";
 
 // Step configuration
 const steps = [
-  { number: 1, label: 'Personal Information', icon: <CircleUserRound /> },
-  { number: 2, label: 'Account Details', icon: <Contact /> },
-  { number: 3, label: 'Office Address', icon: <SlidersVertical /> },
-  { number: 4, label: 'Finishing', icon: <CircleCheckBig /> },
+  { number: 0, label: "Personal Information", icon: <CircleUserRound /> },
+  { number: 1, label: "Account Details", icon: <Contact /> },
+  { number: 2, label: "Office Address", icon: <SlidersVertical /> },
+  { number: 3, label: "Finishing", icon: <CircleCheckBig /> },
 ];
 
 const CustomStepLabel = ({ icon, isActive }) => {
   return (
-    <div 
-      className={`flex items-center justify-center -translate-x-3
-                  w-12 h-12 rounded-full transition-all
-                  ${isActive 
-                    ? 'bg-white text-secondary scale-110' 
-                    : 'bg-transparent text-white border-2 border-white'
+    <div
+      className={`flex items-center justify-center
+                  p-4 rounded-full transition-all
+                  ${
+                    isActive
+                      ? "bg-white text-secondary scale-110"
+                      : "bg-transparent text-white border-2 border-white"
                   }`}
     >
-      {React.cloneElement(icon, { 
-        size: isActive ? 28 : 24,
-        className: 'transition-all'
+      {React.cloneElement(icon, {
+        size: 20,
+        className: "transition-all",
       })}
     </div>
   );
@@ -40,24 +49,68 @@ const CustomStepLabel = ({ icon, isActive }) => {
 const RegistrationPageContent = ({ onRegisterSuccess }) => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const [activeStep, setActiveStep] = useState(0);
+  const [prevStep, setPrevStep] = useState(null);
+  const [nextStep, setNextStep] = useState(null);
+  const [completedSteps] = useState([])
   const navigate = useNavigate();
   const { registrationData } = useRegistration();
   const toast = useRef(null);
   const [confirmPasswordValid, setConfirmPasswordValid] = useState(false);
 
+  const [personalInfo] = useState({
+    firstName: '',
+    lastName: '',
+    gender: '',
+    birthDate: null,
+    contactNumber: null,
+  });
+
+  const [contactInfo] = useState({
+    userType: '',
+    organizationName: '',
+    jobTitlePosition: '',
+    validIdName: null,
+  });
+
+  const [addressInfo] = useState({
+    region: null,
+    province: null,
+    cityTown: null,
+    barangay: null,
+    street: null,
+  });
+
+  const [credsInfo] = useState({
+    email: null,
+    password: null,
+    confirmPassword: null,
+  });
+
+  const [isValidating, setIsValidating] = useState(false);
+
   const handleRegister1 = (e) => {
     e.preventDefault();
-    toast.current.show({ severity: 'success', summary: 'Success', detail: 'Registration Successful!', life: 3000 });
-    console.log('Registration Data:', registrationData);
-    navigate('/login');
-    localStorage.removeItem('registrationData');
+    toast.current.show({
+      severity: "success",
+      summary: "Success",
+      detail: "Registration Successful!",
+      life: 3000,
+    });
+    console.log("Registration Data:", registrationData);
+    navigate("/login");
+    localStorage.removeItem("registrationData");
   };
 
   const handleRegister = async (e) => {
     e.preventDefault();
 
     if (!confirmPasswordValid) {
-      toast.current.show({ severity: 'error', summary: 'Error', detail: 'Passwords do not match.', life: 3000 });
+      toast.current.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Passwords do not match.",
+        life: 3000,
+      });
       return;
     }
 
@@ -69,107 +122,194 @@ const RegistrationPageContent = ({ onRegisterSuccess }) => {
           ...registrationData.personalInfo,
           ...registrationData.accountDetails,
           ...registrationData.officeAddress,
-          ...registrationData.finishingDetails
+          ...registrationData.finishingDetails,
         }),
       });
       if (!res.ok) {
-        throw new Error('Error registering user');
+        throw new Error("Error registering user");
       }
       onRegisterSuccess();
-      navigate('/staff');
-      localStorage.removeItem('registrationData');
+      navigate("/staff");
+      localStorage.removeItem("registrationData");
     } catch (error) {
       console.log(error.message);
-      toast.current.show({ severity: 'error', summary: 'Error', detail: 'Registration failed. Please try again.', life: 3000 });
+      toast.current.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Registration failed. Please try again.",
+        life: 3000,
+      });
     }
   };
 
-  const LoginButton = (e) => {  
-    localStorage.removeItem('registrationData'); 
+  const LoginButton = (e) => {
+    localStorage.removeItem("registrationData");
     e.preventDefault();
-    navigate('/login');
-  }
+    navigate("/login");
+  };
 
   const handleNext = () => {
-    setActiveStep((prev) => Math.min(prev + 1, steps.length - 1));
+    setIsValidating(true);
+    const isValidated = validateInputs();
+    if (isValidated) {
+      setActiveStep((prev) => Math.min(prev + 1, steps.length - 1));
+    }
+    setIsValidating(false);
   };
 
   const handleBack = () => {
     setActiveStep((prev) => Math.max(prev - 1, 0));
   };
 
+  const validateInputs = () => {
+    if (activeStep === 0) {
+      if (!personalInfo.firstName || !personalInfo.lastName || !personalInfo.gender || !personalInfo.birthDate || !personalInfo.contactNumber) {
+        return false;
+      }
+    } 
+    if (activeStep === 1) {
+      if (!contactInfo.userType || !contactInfo.organizationName || !contactInfo.jobTitlePosition || !contactInfo.validIdName) {
+        return false;
+      }
+    }
+    if (activeStep === 2) {
+      if (!addressInfo.region || !addressInfo.province || !addressInfo.cityTown || !addressInfo.barangay || !addressInfo.street) {
+        return false;
+      }
+    }
+    if (activeStep === 3) {
+      if (!credsInfo.email || !credsInfo.password || !credsInfo.confirmPassword) {
+        return false;
+      }
+    }
+
+    completedSteps.push(activeStep)
+    return true;
+  }
+
   const renderStep = () => {
     switch (activeStep) {
       case 0:
-        return <PersonalInformation />;
+        return <PersonalInformation personalInfo={personalInfo} />;
       case 1:
-        return <AccountDetails />;
+        return <AccountDetails contactInfo={contactInfo} />;
       case 2:
-        return <OfficeAddress />;
+        return <OfficeAddress addressInfo={addressInfo} />;
       case 3:
-        return <Finishing setConfirmPasswordValid={setConfirmPasswordValid}/>;
+        return <Finishing setConfirmPasswordValid={setConfirmPasswordValid} credsInfo={credsInfo} />;
       default:
         return null;
     }
   };
 
+  useEffect(() => {
+    const nextStepIndex = steps.findIndex((step) => step.number === activeStep + 1);
+    const prevStepIndex = steps.findIndex((step) => step.number === activeStep - 1);
+  
+    setNextStep(nextStepIndex !== -1 ? steps[nextStepIndex].label : "");
+    setPrevStep(prevStepIndex !== -1 ? steps[prevStepIndex].label : "");
+  }, [activeStep]);
+
   return (
-    <div className="font-poppins flex h-screen w-screen bg-gray-100">
+    <div className="font-poppins flex flex-col md:flex-row h-fit md:h-screen w-screen p-0 md:p-10 md:gap-10">
       <Toast ref={toast} />
 
       {/* Left Side */}
-      <div className="md:flex md:w-[40%] relative">
-        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('Registration-leftBG.png')" }}>
-          <div className="absolute inset-0 bg-gradient-to-t from-secondary via-[#00c26170] to-transparent"></div>
+      <div className="md:flex md:w-[40%] relative md:rounded-2xl">
+        <div
+          className="absolute inset-0 bg-cover bg-center md:rounded-2xl"
+          style={{ backgroundImage: "url('Registration-leftBG.png')" }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0b373a] via-[#00c2617b] to-[#00c26100] md:rounded-2xl"></div>
         </div>
 
-        <div className="flex flex-col justify-between w-full z-10 p-8 text-white">
-          <div>
-            <h2 className="text-3xl font-bold mb-6 flex justify-center items-center drop-shadow-lg">Registration</h2>
-            
-            <Stepper orientation="vertical" activeStep={activeStep} className="mb-8 mt-12 ml-8">
-              {steps.map(({ label, icon }, index) => (
-                <Step key={label}>
-                  <StepLabel StepIconComponent={() => <CustomStepLabel icon={icon} isActive={index === activeStep} />}>
-                    <div className={`text-white transition-all ${index === activeStep ? 'text-lg font-semibold' : 'text-base'}`}>
-                      <span>Step {index + 1}</span><br />
-                      {label}
-                    </div>
-                  </StepLabel>
-                </Step>
-              ))}
-            </Stepper>
-          </div>
-          
+        <div className="flex flex-col justify-between w-full p-4 sm:p-6 md:p-10 text-white">
+          <h2 className="text-2xl md:text-4xl font-medium mb-6 flex justify-center items-center z-30">
+            Registration
+          </h2>
 
-          <div className="flex justify-center items-center pt-24">
-            <img src="favicon.ico" alt="AgriCTRL+ Logo" className="h-16 mr-2" />
-            <span className="text-4xl font-bold">AgriCTRL+</span>
+          <Stepper
+            orientation="vertical"
+            activeStep={activeStep}
+            connector
+            className="z-30"
+          >
+            {steps.map(({ label, icon }, index) => (
+              <Step key={label}>
+                <StepLabel
+                  StepIconComponent={() => (
+                    <CustomStepLabel
+                      icon={icon}
+                      isActive={index === activeStep}
+                    />
+                  )}
+                >
+                  <div
+                    className={`text-white transition-all pl-4 ${
+                      index === activeStep
+                        ? "font-semibold"
+                        : "text-base"
+                    }`}
+                  >
+                    <span className="text-sm">STEP {index + 1}</span>
+                    <br />
+                    <p className={`${index === activeStep ? 'text-xl' : ''}`}>{label.toLocaleUpperCase()}</p>
+                  </div>
+                </StepLabel>
+                { index === steps.length - 1 ?  
+                    null :
+                    <StepConnector style={{ borderLeftWidth: 2, marginLeft: "1.5rem" }} />
+                }
+              </Step>
+            ))}
+          </Stepper>
+
+          <div className="flex items-center justify-center cursor-pointer z-30">
+						<img src="favicon.ico" alt="AgriCTRL+ Logo" className="h-12 mr-4" onClick={() => navigate('/') } />
+            <span className="text-2xl font-medium">AgriCTRL+</span>
           </div>
         </div>
       </div>
 
       {/* Right Side */}
-      <div className="w-full md:w-2/3 p-8 flex flex-col justify-between relative">
-        <div className="flex-grow">
+      <div className="w-full md:w-2/3 flex flex-col justify-between relative p-10 gap-4">
+        <div className="flex flex-col gap-4 sm:gap-6">
           {renderStep()}
+          <Divider className='m-0'/>
+
+          <div className="flex gap-4 justify-between">
+            <Button
+              className="transition ring-0 border-lightest-grey hover:border-primary w-1/2 flex-col items-start"
+              onClick={handleBack}
+              disabled={activeStep === 0}
+              outlined
+            >
+              <small className="text-black">Previous step</small>
+              <p className="font-semibold text-primary">{prevStep}</p>
+            </Button>
+            <Button
+              className="transition ring-0 border-lightest-grey hover:border-primary w-1/2 flex-col items-end"
+              onClick={
+                activeStep === steps.length - 1 ? handleRegister : handleNext
+              }
+              outlined
+            >
+              <small className="text-black">{activeStep === steps.length - 1 ? "Done!" : "Next step"}</small>
+              <p className="font-semibold text-primary">{activeStep === steps.length - 1 ? "Submit" : nextStep}</p>
+            </Button>
+          </div>
         </div>
 
-        <div className="absolute bottom-16 left-32 right-24 flex justify-between m-2 p-2">
-          <Button 
-            className='border-2 border-secondary bg-transparent py-1 px-16 text-secondary transition duration-200 hover:bg-secondary hover:text-white ring-0' 
-            label="Previous" 
-            onClick={handleBack} disabled={activeStep === 0} />
-          <Button
-            className='border-2 border-secondary bg-transparent py-1 px-16 text-secondary transition duration-200 hover:bg-secondary hover:text-white ring-0'
-            label={activeStep === steps.length - 1 ? "Submit" : "Next"}
-            onClick={activeStep === steps.length - 1 ? handleRegister : handleNext}
-          />
-        </div>
-
-        <div className="mt-6 text-center">
-          <span className="text-sm text-gray-600">Already have an account? </span>
-          <a onClick={LoginButton} className="text-sm text-primary hover:underline">Login here</a>
+        <div className="text-center">
+          <span className="text-gray-600">
+            Already have an account?{" "}
+          </span>
+          <a
+            onClick={LoginButton}
+            className="font-medium text-primary hover:underline cursor-pointer"
+          >
+            Login here
+          </a>
         </div>
       </div>
     </div>

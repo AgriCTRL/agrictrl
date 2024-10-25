@@ -3,8 +3,9 @@ import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { Calendar } from 'primereact/calendar';
 import { useRegistration } from '../RegistrationContext';
+import { Divider } from 'primereact/divider';
 
-const PersonalInformation = () => {
+const PersonalInformation = ({ personalInfo }) => {
   const { registrationData, updateRegistrationData } = useRegistration();
   const { firstName, lastName, gender, birthDate, contactNumber } = registrationData.personalInfo;
 
@@ -15,6 +16,7 @@ const PersonalInformation = () => {
   ];
 
   const handleInputChange = (field, value) => {
+    personalInfo[field] = value;
     updateRegistrationData('personalInfo', { [field]: value });
   };
 
@@ -26,65 +28,91 @@ const PersonalInformation = () => {
   };
 
   return (
-    <form className="h-full w-full px-16">
-      <h2 className="text-4xl font-medium mb-6 text-secondary">Personal Information</h2>
-      <p className="mb-10 font-medium text-black">Please provide your basic details to get started.</p>
+    <form className="h-fit w-full flex flex-col gap-4">
+      <h2 className="font-medium text-black text-2xl sm:text-4xl">Personal Information</h2>
+      <p className="text-md text-black">Please provide your basic details to get started.</p>
       
-      <div className="flex flex-row space-x-2 mb-4">
-        <div className="w-1/2">
-          <label htmlFor="firstName" className="block mb-2 text-sm font-medium text-gray-700">First Name</label>
-          <InputText 
-            id="firstName" 
-            value={firstName} 
-            onChange={(e) => handleInputChange('firstName', e.target.value)} 
-            className="w-full focus:ring-0" 
-            placeholder="First name" />
+      <div className="flex flex-col gap-4 pt-4">
+        <div className="flex gap-4">
+          <div className="flex flex-col gap-2 w-1/2">
+            <label htmlFor="firstName" className="block text-sm text-black">First Name</label>
+            <InputText 
+              id="firstName" 
+              value={firstName} 
+              onChange={(e) => handleInputChange('firstName', e.target.value)} 
+              className="w-full focus:ring-0 focus:border-primary hover:border-primary"
+              placeholder="First name"
+              invalid={!personalInfo.firstName}
+            />
+            {(!personalInfo.firstName) &&
+              <small className='p-error'>Please input your first name.</small>
+            }
+          </div>
+          
+          <div className="flex flex-col gap-2 w-1/2">
+            <label htmlFor="lastName" className="block text-sm text-black">Last Name</label>
+            <InputText 
+              id="lastName" 
+              value={lastName} 
+              onChange={(e) => handleInputChange('lastName', e.target.value)} 
+              className="w-full focus:ring-0 focus:border-primary hover:border-primary" 
+              placeholder="Last name"
+              invalid={!personalInfo.lastName} 
+            />
+            {(!personalInfo.lastName) &&
+              <small className='p-error'>Please input your last name.</small>
+            }
+          </div>
         </div>
-        
-        <div className="w-1/2">
-          <label htmlFor="lastName" className="block mb-2 text-sm font-medium text-gray-700">Last Name</label>
-          <InputText 
-            id="lastName" 
-            value={lastName} 
-            onChange={(e) => handleInputChange('lastName', e.target.value)} 
-            className="w-full focus:ring-0" 
-            placeholder="Last name" />
-        </div>
-      </div>
 
-      <div className="flex flex-row w-full space-x-2 mb-4">
-        <div className="w-1/2">
-          <label htmlFor="gender" className="block mb-2 text-sm font-medium text-gray-700">Gender</label>
-          <Dropdown 
-            id="gender" 
-            value={gender} 
-            options={genderOptions} 
-            onChange={(e) => handleInputChange('gender', e.value)}
-            placeholder="Select Gender"
-            className="ring-0 w-full placeholder:text-gray-400" 
+        <div className="flex gap-4">
+          <div className="flex flex-col gap-2 w-1/2">
+            <label htmlFor="gender" className="block text-sm text-black">Gender</label>
+            <Dropdown 
+              id="gender" 
+              value={gender} 
+              options={genderOptions} 
+              onChange={(e) => handleInputChange('gender', e.value)}
+              placeholder="Select Gender"
+              className="ring-0 w-full focus:border-primary hover:border-primary" 
+              invalid={!personalInfo.gender}
+            />
+            {(!personalInfo.gender) &&
+              <small className='p-error'>Please input your gender.</small>
+            }
+          </div>
+          <div className="flex flex-col gap-2 w-1/2">
+            <label htmlFor="birthDate" className="block text-sm text-black">Birth Date</label>
+            <Calendar 
+              id="birthDate" 
+              value={birthDate} 
+              onChange={(e) => handleInputChange('birthDate', e.value)}
+              placeholder="MM/DD/YYYY" 
+              className="ring-0 w-full focus:shadow-none custom-calendar focus:border-primary hover:border-primary" 
+              showIcon
+              invalid={!personalInfo.birthDate}
+            />
+            {(!personalInfo.birthDate) &&
+              <small className='p-error'>Please input your birthdate.</small>
+            }
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-2 w-full">
+          <label htmlFor="contactNumber" className="block text-sm text-black">Contact Number</label>
+          <InputText 
+            id="contactNumber" 
+            value={contactNumber} 
+            onChange={handleContactNumberChange} 
+            className="w-full focus:ring-0 focus:border-primary hover:border-primary" 
+            placeholder="+63 9" 
+            type="tel"
+            invalid={!personalInfo.contactNumber}
           />
+          {(!personalInfo.contactNumber) &&
+              <small className='p-error'>Please input your contact number.</small>
+          }
         </div>
-        <div className="w-1/2">
-          <label htmlFor="birthDate" className="block mb-2 text-sm font-medium text-gray-700">Birth Date</label>
-          <Calendar 
-            id="birthDate" 
-            value={birthDate} 
-            onChange={(e) => handleInputChange('birthDate', e.value)}
-            placeholder="MM/DD/YYYY" 
-            className="rig-0 w-full placeholder:text-gray-400 focus:shadow-none custom-calendar" 
-            showIcon/>
-        </div>
-      </div>
-
-      <div className="mb-4 w-full">
-        <label htmlFor="contactNumber" className="block mb-2 text-sm font-medium text-gray-700">Contact Number</label>
-        <InputText 
-          id="contactNumber" 
-          value={contactNumber} 
-          onChange={handleContactNumberChange} 
-          className="w-1/2 focus:ring-0" 
-          placeholder="+63 9" 
-          type="tel"/>
       </div>
     </form>
   );

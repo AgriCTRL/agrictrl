@@ -185,4 +185,41 @@
     .custom-dropdown .p-dropdown-label {
         color: white !important;
     }
+
+    .p-password {
+        .p-icon-field,
+        input {
+            width: 100%;
+        }
+
+        .p-input-icon {
+            display: flex;
+        }
+    }
+
+    .p-inputtext {
+        &:hover,
+        &:focus,
+        &:enabled:hover {
+            border: 1px solid #00C261;
+        }
+    }
+
+    .p-selectbutton {
+        .p-button.p-highlight {
+            background: #ffffff !important;
+            color: #444444 !important;
+            font-weight: 600;
+        }
+    }
+
+    .p-calendar-w-btn {
+        button {
+            background-color: #00C261;
+
+            &:hover {
+                background-color: #009E4F !important;
+            }
+        }
+    }
 }
