@@ -56,6 +56,7 @@ const initialPalayData = {
     harvestedDate: null,
     estimatedCapital: '',
     currentlyAt: '',
+    currentTransaction: '',
     status: '',
 };
 
@@ -125,6 +126,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
         harvestedDate: null,
         estimatedCapital: '',
         currentlyAt: '',
+        currentTransaction: '',
         status: '',
     });
     const [transactionData, setTransactionData] = useState({
@@ -285,7 +287,6 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
         }));
     };
     
-    
     const handleLocationType = (e) => {
         const selectedType = locationTypeOptions.find(option => option.value === e.target.value);
         setTransactionData(prevState => ({
@@ -326,8 +327,26 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
     const handleSubmit = async () => {
         const isValid = validateForm(activeStep);
         if (!isValid) return;
-
+    
         try {
+            // Step 1: Create the transaction first
+            const transactionResponse = await fetch(`${apiUrl}/transactions`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'API-Key': `${apiKey}`
+                },
+                body: JSON.stringify(transactionData)
+            });
+    
+            if (!transactionResponse.ok) {
+                throw new Error('Failed to submit transaction data');
+            }
+
+            const transactionResult = await transactionResponse.json();
+            const transactionId = transactionResult.id;
+    
+            // Step 2: Create palay data with the transaction ID
             const palayResponse = await fetch(`${apiUrl}/palaybatches`, {
                 method: 'POST',
                 headers: {
@@ -336,6 +355,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                 },
                 body: JSON.stringify({
                     ...palayData,
+                    currentTransaction: transactionId,
                     dateBought: palayData.dateBought ? palayData.dateBought.toISOString().split('T')[0] : null,
                     birthDate: palayData.birthDate ? palayData.birthDate.toISOString().split('T')[0] : null,
                     plantedDate: palayData.plantedDate ? palayData.plantedDate.toISOString().split('T')[0] : null,
@@ -348,36 +368,31 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
             }
     
             const palayResult = await palayResponse.json();
-            const newPalayId = palayResult.id;
-
-            console.log("newPalayId is " + newPalayId);
+            const palayId = palayResult.id;
             
-            setPalayId(newPalayId);
-            palayIdRef.current = newPalayId;
-            setPalayData(initialPalayData);
-    
-            const transactionDataWithId = {
-                ...transactionData,
-                itemId: newPalayId
-            };
-
-            const transactionResponse = await fetch(`${apiUrl}/transactions`, {
+            // Step 3: Update the transaction with the palay ID
+            const updateTransactionResponse = await fetch(`${apiUrl}/transactions/update`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'API-Key': `${apiKey}`
                 },
-                body: JSON.stringify(transactionDataWithId)
+                body: JSON.stringify({
+                    ...transactionResult,
+                    itemId: palayId
+                })
             });
     
-            if (!transactionResponse.ok) {
-                throw new Error('Failed to submit transaction data');
+            if (!updateTransactionResponse.ok) {
+                throw new Error('Failed to update transaction with palay ID');
             }
+
+            const newTransactionResult = await updateTransactionResponse.json();
     
-            const transactionResult = await transactionResponse.json();
+            // Reset states and show success message
+            setPalayData(initialPalayData);
             setTransactionData(initialTransactionData);
-    
-            // Show success message
+            
             toast.current.show({
                 severity: 'success',
                 summary: 'Success',
@@ -386,8 +401,6 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
             });
     
             onPalayRegistered(palayResult);
-            setPalayId(null);
-            palayIdRef.current = null;
             onHide();
     
         } catch (error) {
@@ -460,7 +473,6 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
 
     const validateForm = (step) => {
         let newErrors = {};
-        // Only validate the fields relevant to the current step
         if (step === 0) {
             // Farmer Info Validation
             if (!palayData.category.trim()) {

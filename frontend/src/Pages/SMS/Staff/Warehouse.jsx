@@ -24,13 +24,39 @@ const initialTransactionData = {
     fromLocationId: 0,
     transporterName: '',
     transporterDesc: '',
-    receiverId: 0,
+    receiverId: '',
     receiveDateTime: '0',
     toLocationType: 'Warehouse',
     toLocationId: '',
     toLocationName: '',
     status: 'Pending',
     remarks: ''
+};
+
+const initialDryingData = {
+    palayBatchId: '',
+    dryingMethod: '',
+    dryerId : '',
+    startDateTime: '',
+    endDateTime: '',
+    driedQuantityBags: '',
+    driedGrossWeight: '',
+    driedNetWeight: '',
+    moistureContent: '',
+    status: 'In Progress',
+};
+
+const initialMillingData = {
+    dryingBatchId: '0',
+    palayBatchId: '',
+    millerId: '',
+    millerType: '',
+    startDateTime: '',
+    endDateTime: '',
+    milledQuantityBags: '',
+    milledNetWeight: '',
+    millingEfficiency: '',
+    status: 'In Progress',
 };
 
 function Warehouse() {
@@ -69,7 +95,7 @@ function Warehouse() {
         fromLocationId: '',
         transporterName: '',
         transporterDesc: '',
-        receiverId: 0,
+        receiverId: '',
         receiveDateTime: '0',
         toLocationType: '',
         toLocationId: '',
@@ -77,22 +103,30 @@ function Warehouse() {
         status: 'Pending',
         remarks: ''
     });
-
-    // const inWarehouseData = [
-    //     { id: 1, quantityInBags: '100', from: 'Farm 001', currentlyAt: 'Warehouse 003', receivedOn: '2/11/12', transportedBy: 'Bills Trucking Inc.', status: 'To Mill' },
-    //     { id: 2, quantityInBags: '100', from: 'Pune', currentlyAt: 'Warehouse 002', receivedOn: '7/11/19', transportedBy: 'Mobilis Services', status: 'Rice' },
-    //     { id: 3, quantityInBags: '100', from: 'Augusta', currentlyAt: 'Warehouse 002', receivedOn: '4/21/12', transportedBy: 'NFA Trucking', status: 'To Dry' },
-    //     { id: 4, quantityInBags: '100', from: 'Augusta', currentlyAt: 'Warehouse 004', receivedOn: '10/28/12', transportedBy: 'N/A', status: 'Rice' },
-    //     { id: 5, quantityInBags: '100', from: 'Augusta', currentlyAt: 'Warehouse 004', receivedOn: '12/10/13', transportedBy: 'N/A', status: 'Rice' },
-    //     { id: 6, quantityInBags: '100', from: 'Augusta', currentlyAt: 'Warehouse 004', receivedOn: '12/10/13', transportedBy: 'Zaragoza Trucks', status: 'To Mill' },
-    // ];
-
-    // const requestData = [
-    //     { id: 1, quantityInBags: '100', from: 'Farm 001', toBeStoreAt: 'Warehouse 003', dateRequest: '2/11/12', transportedBy: 'Bills Trucking Inc.', status: 'To Mill' },
-    //     { id: 2, quantityInBags: '100', from: 'Pune', toBeStoreAt: 'Warehouse 002', dateRequest: '7/11/19', transportedBy: 'Mobilis Services', status: 'To Dry' },
-    //     { id: 3, quantityInBags: '100', from: 'Augusta', toBeStoreAt: 'Warehouse 002', dateRequest: '4/21/12', transportedBy: 'NFA Trucking', status: 'To Mill' },
-    //     { id: 4, quantityInBags: '100', from: 'Cebu', toBeStoreAt: 'Warehouse 005', dateRequest: '5/15/12', transportedBy: 'Fast Logistics', status: 'Rice' },
-    // ];
+    const [newDryingData, setNewDryingData] = useState({
+        palayBatchId: '',
+        dryingMethod: '',
+        dryerId : '',
+        startDateTime: '',
+        endDateTime: '',
+        driedQuantityBags: '',
+        driedGrossWeight: '',
+        driedNetWeight: '',
+        moistureContent: '',
+        status: 'In Progress',
+    });
+    const [newMillingData, setNewMillingData] = useState({
+        dryingBatchId: '0',
+        palayBatchId: '',
+        millerId: '',
+        millerType: '',
+        startDateTime: '',
+        endDateTime: '',
+        milledQuantityBags: '',
+        milledNetWeight: '',
+        millingEfficiency: '',
+        status: 'In Progress',
+    });
 
     const [acceptFormData, setAcceptFormData] = useState({
         riceBatchName: '',
@@ -198,7 +232,8 @@ function Warehouse() {
 
     const processCombinedData = () => {
         const combined = palayBatches.map(batch => {
-            const relatedTransaction = transactions.find(t => t.itemId === batch.id);
+            // Find transaction using currentTransaction field
+            const relatedTransaction = transactions.find(t => t.id === batch.currentTransaction);
             if (relatedTransaction) {
                 return {
                     id: batch.id,
@@ -213,7 +248,8 @@ function Warehouse() {
                     palayStatus: batch.status,
                     transactionId: relatedTransaction.id,
                     item: relatedTransaction.item,
-                    qualityType: batch.qualityType
+                    qualityType: batch.qualityType,
+                    currentTransaction: batch.currentTransaction
                 };
             }
             return null;
@@ -222,21 +258,36 @@ function Warehouse() {
         setCombinedData(combined);
     };
 
-    const handleInputChange = (e) => {
-        
+    const handleInputChange = (e) => {  
     };
 
     const handleSendTo = async () => {
         if (!validateForm()) {
             return;
         }
-
+    
         try {
             const newStatus = selectedItem.palayStatus === 'To be Dry' ? 'In Drying' : 'In Milling';
-
-            console.log()
             
-            const response = await fetch(`${apiUrl}/palaybatches/update`, {
+            // Create new transaction first
+            const transactionResponse = await fetch(`${apiUrl}/transactions`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'API-Key': apiKey
+                },
+                body: JSON.stringify(newTransactionData)
+            });
+    
+            if (!transactionResponse.ok) {
+                throw new Error('Failed to create transaction');
+            }
+    
+            const transactionResult = await transactionResponse.json();
+            const transactionResultId = transactionResult.id;
+            
+            // Update palay batch with new status and new transaction ID
+            const palayResponse = await fetch(`${apiUrl}/palaybatches/update`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -245,20 +296,24 @@ function Warehouse() {
                 body: JSON.stringify({
                     id: selectedItem.id,
                     status: newStatus,
-                    currentlyAt: newTransactionData.toLocationName
+                    currentlyAt: newTransactionData.toLocationName,
+                    currentTransaction: transactionResultId
                 })
             });
     
-            if (!response.ok) {
-                throw new Error('Failed to update palay batch status');
+            if (!palayResponse.ok) {
+                throw new Error('Failed to update palay batch');
             }
     
-            // Then submit the transaction data
-            await newTransactionSubmit();
+            // Submit other data (drying/milling)
+            if (selectedItem.palayStatus === 'To be Dry') {
+                await newDryingSubmit();
+            } else if (selectedItem.palayStatus === 'To be Mill') {
+                await newMillingSubmit();
+            }
     
             await fetchPalayBatches();
             setShowSendToDialog(false);
-    
             setNewTransactionData(initialTransactionData);
     
             toast.current.show({
@@ -281,12 +336,12 @@ function Warehouse() {
 
     const handleConfirmReceive = async () => {
         try {
-            const transactionToUpdate = transactions.find(t => 
-                t.itemId === selectedItem.id && t.status === 'Pending'
-            );
+            // Find transaction using currentTransaction field
+            const transactionToUpdate = transactions.find(t => t.id === selectedItem.currentTransaction);
     
             if (transactionToUpdate) {
-                const response = await fetch(`${apiUrl}/transactions/update`, {
+                // Update transaction
+                const transactionResponse = await fetch(`${apiUrl}/transactions/update`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -295,22 +350,32 @@ function Warehouse() {
                     body: JSON.stringify({
                         ...transactionToUpdate,
                         status: 'Accepted',
-                        receiveDateTime: new Date().toISOString()
+                        receiveDateTime: new Date().toISOString(),
+                        receiverId: user.id
                     })
                 });
-                
-                if (response.ok) {
-                    await fetchTransactions();
-                    setShowPalayAcceptDialog(false);
+    
+                if (!transactionResponse.ok) {
+                    throw new Error('Failed to update transaction');
                 }
+    
+                await fetchTransactions();
+                setShowPalayAcceptDialog(false);
             }
         } catch (error) {
             console.error('Error updating transaction:', error);
+            toast.current.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Failed to update transaction',
+                life: 3000
+            });
         }
     };
 
     const handleActionClick = (item, rowData) => {
         if (viewMode === 'requests') {
+            console.log("rowData is ", rowData)
             setSelectedItem(rowData);
             if (item === 'Palay') {
                 setShowPalayAcceptDialog(true);
@@ -319,32 +384,95 @@ function Warehouse() {
             }
         } else if (viewMode === 'inWarehouse') {
             setSelectedItem(rowData);
-            const previousTransaction = transactions.find(t => t.itemId === rowData.id);
-            setNewTransactionData({
+            // Find the current transaction using currentTransaction field
+            const currentTransaction = transactions.find(t => t.id === rowData.currentTransaction);
+
+            const toLocationType = rowData.palayStatus === 'To be Dry' ? 'Dryer' : 
+                                 rowData.palayStatus === 'To be Mill' ? 'Miller' : '';
+            
+            const newTransaction = {
                 ...initialTransactionData,
                 item: rowData.item,
                 itemId: rowData.id,
                 senderId: user.id,
                 fromLocationType: 'Warehouse',
+                fromLocationId: currentTransaction?.toLocationId, // Use current transaction's location
                 receiverId: 0,
                 receiveDateTime: '0',
-                fromLocationId: previousTransaction.toLocationId,
-                toLocationType: rowData.palayStatus === 'To be Dry' ? 'Dryer' : 'Miller',
+                toLocationType: toLocationType,
                 status: 'Pending'
-            });
+            };
+            
+            setNewTransactionData(newTransaction);
+    
+            if (rowData.palayStatus === 'To be Dry') {
+                setNewDryingData({
+                    ...initialDryingData,
+                    palayBatchId: rowData.id,
+                });
+            } else if (rowData.palayStatus === 'To be Mill') {
+                setNewMillingData({
+                    ...initialMillingData,
+                    palayBatchId: rowData.id,
+                });
+            }
+            
             setShowSendToDialog(true);
         }
     };
 
-    const newTransactionSubmit = async () => {
+    // const newTransactionSubmit = async () => {
+    //     const transformedData = {
+    //         ...newTransactionData
+    //     };
+
+    //     console.log(transformedData)
+    
+    //     try {
+    //         const response = await fetch(`${apiUrl}/transactions`, {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //                 'API-Key': `${apiKey}`
+    //             },
+    //             body: JSON.stringify(transformedData)
+    //         });
+    
+    //         if (!response.ok) {
+    //             throw new Error('Failed to submit transaction data');
+    //         }
+    
+    //         const result = await response.json();
+
+    //         toast.current.show({
+    //             severity: 'success',
+    //             summary: 'Success',
+    //             detail: 'Transaction record successfully created',
+    //             life: 3000
+    //         });
+    
+    //         setNewTransactionData(initialTransactionData);
+    
+    //     } catch (error) {
+    //         console.error('Error:', error);
+    //         toast.current.show({
+    //             severity: 'error',
+    //             summary: 'Error',
+    //             detail: 'Failed to create transaction record',
+    //             life: 3000
+    //         });
+    //     }
+    // };
+
+    const newDryingSubmit = async () => {
         const transformedData = {
-            ...newTransactionData
+            ...newDryingData
         };
 
         console.log(transformedData)
     
         try {
-            const response = await fetch(`${apiUrl}/transactions`, {
+            const response = await fetch(`${apiUrl}/dryingbatches`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -354,7 +482,7 @@ function Warehouse() {
             });
     
             if (!response.ok) {
-                throw new Error('Failed to submit transaction data');
+                throw new Error('Failed to submit drying batches data');
             }
     
             const result = await response.json();
@@ -362,18 +490,61 @@ function Warehouse() {
             toast.current.show({
                 severity: 'success',
                 summary: 'Success',
-                detail: 'Transaction record successfully created',
+                detail: 'drying batches successfully created',
                 life: 3000
             });
     
-            setNewTransactionData(initialTransactionData);
+            setNewDryingData(initialDryingData);
     
         } catch (error) {
             console.error('Error:', error);
             toast.current.show({
                 severity: 'error',
                 summary: 'Error',
-                detail: 'Failed to create transaction record',
+                detail: 'Failed to create drying batches record',
+                life: 3000
+            });
+        }
+    };
+
+    const newMillingSubmit = async () => {
+        const transformedData = {
+            ...newMillingData
+        };
+
+        console.log(transformedData)
+    
+        try {
+            const response = await fetch(`${apiUrl}/millingbatches`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'API-Key': `${apiKey}`
+                },
+                body: JSON.stringify(transformedData)
+            });
+    
+            if (!response.ok) {
+                throw new Error('Failed to submit milling batches data');
+            }
+    
+            const result = await response.json();
+
+            toast.current.show({
+                severity: 'success',
+                summary: 'Success',
+                detail: 'milling batches successfully created',
+                life: 3000
+            });
+    
+            setNewMillingData(initialMillingData);
+    
+        } catch (error) {
+            console.error('Error:', error);
+            toast.current.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Failed to create milling batches record',
                 life: 3000
             });
         }
@@ -659,6 +830,14 @@ function Warehouse() {
                                         ...prev,
                                         toLocationId: selectedOption.value,
                                         toLocationName: selectedOption.label
+                                    }));
+                                    setNewDryingData(prev => ({
+                                        ...prev,
+                                        dryerId: selectedOption.value,
+                                    }));
+                                    setNewMillingData(prev => ({
+                                        ...prev,
+                                        millerId: selectedOption.value,
                                     }));
                                     setErrors(prev => ({...prev, toLocationId: ''}));
                                 }
