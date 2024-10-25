@@ -11,7 +11,7 @@ import { useAuth } from '../../Authentication/Login/AuthContext';
 
 function Profile() {
     // const apiUrl = import.meta.env.VITE_API_BASE_URL;
-
+    const { user } = useAuth();
     const [activeTab, setActiveTab] = useState('personal');
     const [editing, setEditing] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -391,7 +391,7 @@ function Profile() {
     ];
 
     return (
-        <RecipientLayout activePage="Profile">
+        <RecipientLayout activePage="Profile" user={user}>
             <div className='flex flex-row h-full w-full px-4 py-2 bg-[#F1F5F9] rounded-xl'>
                 <div className='relative flex flex-col items-center justify-between h-full w-1/4 p-5 rounded-lg overflow-hidden'>
                     <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('/Registration-leftBG.png')" }}>
