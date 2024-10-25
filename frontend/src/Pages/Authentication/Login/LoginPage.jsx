@@ -2,11 +2,24 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { InputText } from 'primereact/inputtext';
-import { Dropdown } from 'primereact/dropdown';
 import { Button } from 'primereact/button';
-import { Wheat, Link, Map, FileStack, MapPinned, Facebook, Mail, Linkedin} from 'lucide-react';
 import { Password } from 'primereact/password';
 import { Divider } from 'primereact/divider';
+import { SelectButton } from 'primereact/selectbutton';
+
+import { 
+	Wheat, 
+	Link, 
+	Map, 
+	FileStack, 
+	MapPinned, 
+	Facebook, 
+	Mail, 
+	Linkedin, 
+	ArrowDown,
+	ArrowRight
+} from 'lucide-react';
+
 import { useAuth } from './AuthContext';
 import { AuthClient } from "@dfinity/auth-client";
 
@@ -207,7 +220,7 @@ const LoginPage = () => {
 								options={userTypes}
 								className={`login-select-button w-full bg-tag-grey/50 
 									grid sm:grid-rows-1 grid-flow-col-2
-									sm:grid-cols-3 grid-cols-2
+									sm:grid-cols-4 grid-cols-2
 								p-1 rounded-lg items-center justify-between gap-1 ${userTypeError && 'ring-1 ring-[#e24c4c]'}`}
 								optionValue="value" 
 								itemTemplate={(item) => (
