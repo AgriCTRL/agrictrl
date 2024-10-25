@@ -14,13 +14,17 @@ export function getRouter(): Router {
     router.get(
         '/',
         async (
-            req: Request<any, any, any, { limit?: string; offset?: string }>,
+            req: Request<any, any, any, { limit?: string; offset?: string; riceRecipientId?: number; status?: string | string[] }>,
             res
         ) => {
             const limit = Number(req.query.limit ?? -1);
             const offset = Number(req.query.offset ?? 0);
+            const riceRecipientId = req.query.riceRecipientId;
+            const status = Array.isArray(req.query.status) 
+                ? req.query.status 
+                : req.query.status ? [req.query.status] : undefined;
 
-            const riceOrders = await getRiceOrders(limit, offset);
+            const riceOrders = await getRiceOrders(limit, offset, riceRecipientId, status);
 
             res.json(riceOrders);
         }
@@ -41,18 +45,23 @@ export function getRouter(): Router {
     router.post(
         '/',
         async (
-            req: Request<any, any, { riceRecipient: string; riceBatchId: number; orderDate: Date; riceQuantity: number; cost: number; orderStatus: string }>,
+            req: Request<any, any, { riceRecipientId: number; riceBatchId: number; orderDate: Date; dropOffLocation: string; riceQuantityBags: number; description: string; totalCost: number; preferredDeliveryDate: Date; status: string; isAccepted: boolean; remarks: string }>,
             res
         ) => {
-            const { riceRecipient, riceBatchId, orderDate, riceQuantity, cost, orderStatus } = req.body;
+            const { riceRecipientId, riceBatchId, orderDate, dropOffLocation, riceQuantityBags, description, totalCost, preferredDeliveryDate, status, isAccepted, remarks } = req.body;
 
             const riceOrder = await createRiceOrder({
-                riceRecipient,
+                riceRecipientId,
                 riceBatchId,
                 orderDate,
-                riceQuantity,
-                cost,
-                orderStatus
+                dropOffLocation,
+                riceQuantityBags,
+                description,
+                totalCost,
+                preferredDeliveryDate,
+                status,
+                isAccepted,
+                remarks
             });
 
             res.json(riceOrder);
@@ -65,19 +74,24 @@ export function getRouter(): Router {
 }
 
 async function updateHandler(
-    req: Request<any, any, { id: number; riceRecipient?: string; riceBatchId?: number; orderDate?: Date; riceQuantity?: number; cost?: number; orderStatus?: string }>,
+    req: Request<any, any, { id: number; riceRecipientId?: number; riceBatchId?: number; orderDate?: Date; dropOffLocation?: string; riceQuantityBags?: number; description?: string; totalCost?: number; preferredDeliveryDate?: Date; status?: string; isAccepted?: boolean; remarks?: string }>,
     res: Response
 ): Promise<void> {
-    const { id, riceRecipient, riceBatchId, orderDate, riceQuantity, cost, orderStatus } = req.body;
+    const { id, riceRecipientId, riceBatchId, orderDate, dropOffLocation, riceQuantityBags, description, totalCost, preferredDeliveryDate, status, isAccepted, remarks } = req.body;
 
     const riceOrder = await updateRiceOrder({
         id,
-        riceRecipient,
+        riceRecipientId,
         riceBatchId,
         orderDate,
-        riceQuantity,
-        cost,
-        orderStatus
+        dropOffLocation,
+        riceQuantityBags,
+        description,
+        totalCost,
+        preferredDeliveryDate,
+        status,
+        isAccepted,
+        remarks
     });
 
     res.json(riceOrder);

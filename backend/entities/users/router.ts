@@ -8,6 +8,7 @@ import {
     getUsers,
     updateUser
 } from './db';
+import { User } from './db';
 
 export function getRouter(): Router {
     const router = express.Router();
@@ -15,13 +16,14 @@ export function getRouter(): Router {
     router.get(
         '/',
         async (
-            req: Request<any, any, any, { limit?: string; offset?: string }>,
+            req: Request<any, any, any, { limit?: string; offset?: string; status?: string }>,
             res
         ) => {
             const limit = Number(req.query.limit ?? -1);
             const offset = Number(req.query.offset ?? 0);
+            const status = req.query.status;
 
-            const users = await getUsers(limit, offset);
+            const users = await getUsers(limit, offset, status);
 
             res.json(users);
         }
@@ -63,7 +65,8 @@ export function getRouter(): Router {
                 email: string;
                 password: string;
                 status: string;
-                isVerified: boolean }>,
+                isVerified: boolean;
+                dateCreated: Date }>,
             res
         ) => {
             const { principal,
@@ -87,7 +90,8 @@ export function getRouter(): Router {
                 email,
                 password,
                 status,
-                isVerified } = req.body;
+                isVerified,
+                dateCreated } = req.body;
 
             const officeAddress = await createOfficeAddress({
                 region: region,
@@ -115,7 +119,8 @@ export function getRouter(): Router {
                 email,
                 password,
                 status,
-                isVerified
+                isVerified,
+                dateCreated
             });
 
             res.json(user);
@@ -123,6 +128,24 @@ export function getRouter(): Router {
     );
 
     router.post('/update', updateHandler);
+
+    router.post('/login', async (req, res) => {
+        const { email, password, userType } = req.body;
+
+        try {
+            const user = await User.findOne({ 
+            where: { email, password, userType, isVerified: true } 
+            });
+
+            if (user) {
+            res.json(user);
+            } else {
+            res.status(404).json({ message: 'Invalid credentials' });
+            }
+        } catch (error) {
+            res.status(500).json({ message: 'An error occurred during login' });
+        }
+    });
 
     return router;
 }
@@ -145,7 +168,8 @@ async function updateHandler(
         email?: string;
         password?: string;
         status?: string;
-        isVerified?: boolean  }>,
+        isVerified?: boolean;
+        dateCreated?: Date }>,
     res: Response
 ): Promise<void> {
     const { id,
@@ -165,7 +189,8 @@ async function updateHandler(
         email,
         password,
         status,
-        isVerified } = req.body;
+        isVerified,
+        dateCreated } = req.body;
 
     const user = await updateUser({
         id,
@@ -185,7 +210,8 @@ async function updateHandler(
         email,
         password,
         status,
-        isVerified
+        isVerified,
+        dateCreated
     });
 
     res.json(user);

@@ -1,24 +1,33 @@
 import React from 'react';
 import { InputText } from 'primereact/inputtext';
-import CustomPasswordInput from '../../../../Components/Form/PasswordComponent';
 import { useRegistration } from '../RegistrationContext';
+import { Password } from 'primereact/password';
+import { Divider } from 'primereact/divider';
 
 const Finishing = ({ setConfirmPasswordValid, credsInfo }) => {
-  const { registrationData, updateRegistrationData, confirmPassword, updateConfirmPassword } = useRegistration();
-  const { email, password } = registrationData.finishingDetails;
+  const { registrationData, updateRegistrationData } = useRegistration();
+  const { email, password, confirmPassword } = registrationData.finishingDetails;
 
   const handleInputChange = (field, value) => {
     credsInfo[field] = value;
     updateRegistrationData('finishingDetails', { [field]: value });
-    if (field === 'password') {
-      setConfirmPasswordValid(value === confirmPassword);
+    if (field === 'password' || field === 'confirmPassword') {
+      setConfirmPasswordValid(registrationData.finishingDetails.password === value);
     }
   };
 
-  const handleConfirmPasswordChange = (value) => {
-    updateConfirmPassword(value);
-    setConfirmPasswordValid(value === registrationData.finishingDetails.password); // Check if passwords match
-  };
+  const footer = (
+    <>
+      <Divider />
+      <p className="mt-2">Suggestions</p>
+      <ul className="pl-2 ml-2 mt-0 line-height-3">
+        <li>At least one lowercase</li>
+        <li>At least one uppercase</li>
+        <li>At least one numeric</li>
+        <li>Minimum 8 characters</li>
+      </ul>
+    </>
+  );
 
   return (
     <form className="h-fit w-full flex flex-col gap-4">
@@ -47,6 +56,7 @@ const Finishing = ({ setConfirmPasswordValid, credsInfo }) => {
           <CustomPasswordInput 
             id="password" 
             value={password} 
+            footer={footer}
             onChange={(e) => handleInputChange('password', e.target.value)} 
             placeholder="Enter your password" 
             className="focus:border-[#14b8a6] hover:border-[#14b8a6] w-full p-inputtext-sm p-3 rounded-md border placeholder:text-gray-400 placeholder:font-normal"
@@ -62,7 +72,7 @@ const Finishing = ({ setConfirmPasswordValid, credsInfo }) => {
           <CustomPasswordInput 
             id="confirmPassword" 
             value={confirmPassword} 
-            onChange={(e) => handleConfirmPasswordChange(e.target.value)}  
+            onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
             placeholder="Confirm your password" 
             className="focus:border-[#14b8a6] hover:border-[#14b8a6] w-full p-inputtext-sm p-3 rounded-md border border-gray-300 placeholder:text-gray-400 placeholder:font-normal"
             invalid={!credsInfo.confirmPassword}

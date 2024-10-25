@@ -11,6 +11,9 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { Toast } from "primereact/toast";
+import { storage } from './firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { v4 as uuidv4 } from 'uuid';
 
 import PersonalInformation from "./RegistrationComponents/PersonalInformation";
 import AccountDetails from "./RegistrationComponents/AccountDetails";
@@ -18,6 +21,7 @@ import OfficeAddress from "./RegistrationComponents/OfficeAddress";
 import Finishing from "./RegistrationComponents/Finishing";
 import { RegistrationProvider, useRegistration } from "./RegistrationContext";
 import { Divider } from "primereact/divider";
+
 
 // Step configuration
 const steps = [
@@ -46,8 +50,9 @@ const CustomStepLabel = ({ icon, isActive }) => {
   );
 };
 
-const RegistrationPageContent = ({ onRegisterSuccess }) => {
+const RegistrationPageContent = () => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
+  const apiKey = import.meta.env.VITE_API_KEY;
   const [activeStep, setActiveStep] = useState(0);
   const [prevStep, setPrevStep] = useState(null);
   const [nextStep, setNextStep] = useState(null);
@@ -99,6 +104,25 @@ const RegistrationPageContent = ({ onRegisterSuccess }) => {
     console.log("Registration Data:", registrationData);
     navigate("/login");
     localStorage.removeItem("registrationData");
+  }
+
+  const [selectedFile, setSelectedFile ] = useState(null);
+
+  const handleFileUpload = async () => {
+    if (!selectedFile) return null;
+
+    const fileName = `${uuidv4()}_${selectedFile.name}`;
+    const storageRef = ref(storage, `validIds/${fileName}`);
+
+    try {
+      const snapshot = await uploadBytes(storageRef, selectedFile);
+      const downloadURL = await getDownloadURL(snapshot.ref);
+
+      return { downloadURL };
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      return null;
+    }
   };
 
   const handleRegister = async (e) => {
@@ -115,30 +139,41 @@ const RegistrationPageContent = ({ onRegisterSuccess }) => {
     }
 
     try {
+      const fileData = await handleFileUpload();
+      let updatedAccountDetails = { ...registrationData.accountDetails };
+
+      if (fileData) {
+        updatedAccountDetails = {
+          ...updatedAccountDetails,
+          validId: fileData.downloadURL
+        };
+      }
+
+      const registrationPayload = {
+        ...registrationData.personalInfo,
+        ...updatedAccountDetails,
+        ...registrationData.officeAddress,
+        ...registrationData.finishingDetails,
+      };
+
       const res = await fetch(`${apiUrl}/users`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...registrationData.personalInfo,
-          ...registrationData.accountDetails,
-          ...registrationData.officeAddress,
-          ...registrationData.finishingDetails,
-        }),
+        headers: { 
+          'Content-Type': 'application/json',
+          'API-Key': `${apiKey}`
+        },
+        body: JSON.stringify(registrationPayload),
       });
+
       if (!res.ok) {
-        throw new Error("Error registering user");
+        throw new Error('Error registering user');
       }
-      onRegisterSuccess();
-      navigate("/staff");
-      localStorage.removeItem("registrationData");
+
+      navigate('/login');
+      localStorage.removeItem('registrationData');
     } catch (error) {
       console.log(error.message);
-      toast.current.show({
-        severity: "error",
-        summary: "Error",
-        detail: "Registration failed. Please try again.",
-        life: 3000,
-      });
+      toast.current.show({ severity: 'error', summary: 'Error', detail: 'Registration failed. Please try again.', life: 3000 });
     }
   };
 
@@ -192,7 +227,7 @@ const RegistrationPageContent = ({ onRegisterSuccess }) => {
       case 0:
         return <PersonalInformation personalInfo={personalInfo} />;
       case 1:
-        return <AccountDetails contactInfo={contactInfo} />;
+        return <AccountDetails setSelectedFile={setSelectedFile} contactInfo={contactInfo} />;
       case 2:
         return <OfficeAddress addressInfo={addressInfo} />;
       case 3:

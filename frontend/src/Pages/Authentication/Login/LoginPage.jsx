@@ -4,11 +4,97 @@ import { useNavigate } from 'react-router-dom';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { Button } from 'primereact/button';
+import { Wheat, Link, Map, FileStack, MapPinned, Facebook, Mail, Linkedin} from 'lucide-react';
 import { Password } from 'primereact/password';
-import { SelectButton } from 'primereact/selectbutton';
 import { Divider } from 'primereact/divider';
-          
-import { Wheat, Link, Map, FileStack, MapPinned, Facebook, Mail, Linkedin, ArrowDown, ArrowRight} from 'lucide-react';
+import { useAuth } from './AuthContext';
+import { AuthClient } from "@dfinity/auth-client";
+
+// Login function
+const loginUser = async (email, password, userType) => {
+  const authClient = await AuthClient.create();
+  const apiUrl = import.meta.env.VITE_API_BASE_URL;
+  const apiKey = import.meta.env.VITE_API_KEY;
+  const internetIdentityUrl = import.meta.env.VITE_INTERNET_IDENTITY_URL;
+  
+  const identityLogIn = async () => {
+    const width = 500;
+    const height = 500;
+    const left = (window.screen.width / 2) - (width / 2);
+    const top = (window.screen.height / 2) - (height / 2) - 25;
+    await new Promise((resolve, reject) => {
+      authClient.login({
+          identityProvider: `${internetIdentityUrl}`,
+          onSuccess: resolve,
+          onError: reject,
+          windowOpenerFeatures: `width=${width},height=${height},left=${left},top=${top}`
+      });
+    });
+  }
+
+  const getPrincipal = async () => {
+    try {
+        const isAuthenticated = await authClient.isAuthenticated();
+        if (isAuthenticated) {
+            const identity = authClient.getIdentity();
+            return identity.getPrincipal().toText();
+        }
+    } catch (error) {
+        console.log(error.message);
+    }
+  };
+  
+  try {
+    const response = await fetch(`${apiUrl}/users/login`, {
+      method: "POST",
+      headers: { 
+        'Content-Type': 'application/json',
+        'API-Key': `${apiKey}`
+      },
+      body: JSON.stringify({ email, password, userType })
+    });
+    if (!response.ok) {
+      throw new Error('Failed to fetch users');
+    }
+    const user = await response.json();
+
+    if (user) {
+      if(userType === 'Admin') {
+        await identityLogIn();
+        const newPrincipal = await getPrincipal();
+
+        if (newPrincipal) {
+          if (user.principal === null) {
+            const res = await fetch(`${apiUrl}/users/update`, {
+              method: 'POST',
+              headers: { 
+                'Content-Type': 'application/json',
+                'API-Key': `${apiKey}`
+              },
+              body: JSON.stringify({ id: user.id, principal: newPrincipal })
+            });
+
+            if (!res.ok) {
+              throw new Error('Failed to update user principal');
+            }
+            
+            user.principal = newPrincipal;
+          } else if (user.principal !== newPrincipal) {
+            return { success: false, message: 'Principal mismatch' };
+          }
+        } else {
+          return { success: false, message: 'Failed to get principal' };
+        }
+      }
+      return { success: true, user };
+    } else {
+      return { success: false, message: 'Invalid credentials' };
+    }
+  } catch (error) {
+    console.error('Login error:', error);
+    return { success: false, message: 'An error occurred during login' };
+  }
+}
 
 const LoginPage = () => {
 	const [email, setEmail] = useState('');
@@ -18,29 +104,50 @@ const LoginPage = () => {
 	const [userTypeError, setUserTypeError] = useState(false);
 	const [passwordError, setPasswordError] = useState(false);
 
+	const [loading, setLoading] = useState(false);
 	const navigate = useNavigate();
+	const { login } = useAuth();
 
-	const userTypes = [
-		{ label: 'Staff', value: 'staff' },
-		{ label: 'Admin', value: 'admin' },
-		{ label: 'Recipient', value: 'recipient' },
-		{ label: 'Private Miller', value: 'privateMiller' }
-	];
+  const userTypes = [
+    { label: 'NFA Branch Staff', value: 'NFA Branch Staff' },
+    { label: 'Admin', value: 'Admin' },
+    { label: 'Rice Recipient', value: 'Rice Recipient' },
+    { label: 'Private Miller', value: 'Private Miller' }
+  ];
 
-	const loginButton = () => {
-		validateForm()
-		if (email && password) {
-			if (userType === 'admin') {
-				navigate('/admin');
-			} else if (userType === 'staff') {
-				navigate('/staff');
-			} else if (userType === 'recipient') {
-				navigate('/recipient');
-			} else if (userType === 'privateMiller') {
-				navigate('/miller');
-			}	
-		}
-	};
+  const loginButton = async () => {
+    if (!email || !password || !userType) {
+      alert('Please fill in all fields');
+      return;
+    }
+
+    setLoading(true);
+    const result = await loginUser(email, password, userType);
+    setLoading(false);
+
+    if (result.success) {
+      login({ ...result.user, userType });
+
+      switch (userType) {
+        case 'Admin':
+          navigate('/admin');
+          break;
+        case 'NFA Branch Staff':
+          navigate('/staff');
+          break;
+        case 'Rice Recipient':
+          navigate('/recipient');
+          break;
+        case 'Private Miller':
+          navigate('/miller');
+          break;
+        default:
+          alert('Invalid user type');
+      }
+    } else {
+      alert(result.message);
+    }
+  };
 
 	const validateForm = () => {
 		setEmailError(false);
@@ -60,6 +167,19 @@ const LoginPage = () => {
 		e.preventDefault();   
 		navigate('/forgotpassword');
 	}
+
+  	const footer = (
+		<>
+			<Divider />
+			<p className="mt-2">Suggestions</p>
+			<ul className="pl-2 ml-2 mt-0 line-height-3">
+				<li>At least one lowercase</li>
+				<li>At least one uppercase</li>
+				<li>At least one numeric</li>
+				<li>Minimum 8 characters</li>
+			</ul>
+		</>
+	);
 
 	return (
 		<div className="h-fit md:h-screen w-screen flex flex-col-reverse md:flex-row md:gap-10 p-0 md:p-10">
@@ -139,6 +259,7 @@ const LoginPage = () => {
 								invalid={passwordError}
 								toggleMask
 								feedback={false} 
+								footer={footer}
 							/>
 							{passwordError && 
 								<small id="password-help" className='p-error'>
@@ -151,8 +272,9 @@ const LoginPage = () => {
 							<Button 
 								onClick={loginButton}
 								className="w-3/4 bg-gradient-to-r from-secondary to-primary text-white px-20 py-3 rounded-lg ring-0 border-none hover:opacity-90 transition-all items-center justify-center gap-2" 
+								disabled={loading}
 							>	
-								<p className='font-semibold'>Login</p>
+								<p className='font-semibold'>{loading ? 'Logging in...' : 'Login'}</p>
 								<ArrowRight />
 							</Button>
 							<a href="#" onClick={forgotButton} className="text-sm font-medium text-primary hover:underline">Forgot Password</a>

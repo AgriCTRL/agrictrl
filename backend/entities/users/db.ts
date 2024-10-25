@@ -59,28 +59,35 @@ export class User extends BaseEntity {
     @ManyToOne(() => OfficeAddress)
     officeAddress: OfficeAddress;
 
-    @Column()
+    @Column({ unique: true })
     email: string;
 
     @Column()
     password: string;
 
-    @Column({ default: 'active' })
+    @Column({ default: 'Pending' })
     status: string;
 
     @Column({ default: false })
     isVerified: boolean;
 
-    @CreateDateColumn()
+    @Column()
     dateCreated: Date;
 }
 
-export type UserCreate = Pick<User, 'principal' | 'firstName' | 'lastName' | 'gender' | 'birthDate' | 'contactNumber' | 'userType' | 'organizationName' | 'jobTitlePosition' | 'branchRegion' | 'branchOffice' | 'validId' | 'validIdName' | 'officeAddressId' | 'email' | 'password' | 'status' | 'isVerified' > &
+export type UserCreate = Pick<User, 'principal' | 'firstName' | 'lastName' | 'gender' | 'birthDate' | 'contactNumber' | 'userType' | 'organizationName' | 'jobTitlePosition' | 'branchRegion' | 'branchOffice' | 'validId' | 'validIdName' | 'officeAddressId' | 'email' | 'password' | 'status' | 'isVerified' | 'dateCreated' > &
 { officeAddressId: OfficeAddress['id'] };
 export type UserUpdate = Pick<User, 'id'> & Partial<UserCreate>;
 
-export async function getUsers(limit: number, offset: number): Promise<User[]> {
+function getCurrentPST(): Date {
+    const now = new Date();
+    const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+    return new Date(utc + (3600000 * 8));
+}
+
+export async function getUsers(limit: number, offset: number, status?: string): Promise<User[]> {
     return await User.find({
+        where: status ? { status } : {},
         take: limit,
         skip: offset,
         relations: {
@@ -135,6 +142,7 @@ export async function createUser(userCreate: UserCreate): Promise<User> {
     user.password = userCreate.password;
     user.status = userCreate.status;
     user.isVerified = userCreate.isVerified;
+    user.dateCreated = getCurrentPST();
 
     return await user.save();
 }

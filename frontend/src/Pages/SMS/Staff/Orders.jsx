@@ -9,6 +9,7 @@ import { FilterMatchMode } from 'primereact/api';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { Dialog } from 'primereact/dialog';
+import { Calendar } from 'primereact/calendar';
 import { Dropdown } from 'primereact/dropdown';
 import { InputTextarea } from 'primereact/inputtextarea';
 
@@ -26,9 +27,9 @@ function Orders() {
         { id: 10, orderID: '010', toBeDeliverAt: 'Balintawak', orderDate: '10/28/12', orderedBy: 'Pordi Hums', status: 'Declined' },
         { id: 11, orderID: '011', toBeDeliverAt: 'Sta. Mesa', orderDate: '12/10/13', orderedBy: 'Ravel Finch', status: 'Declined' },
         { id: 12, orderID: '012', toBeDeliverAt: 'Ananas', orderDate: '12/10/13', orderedBy: 'Edward Newgate', status: 'Declined' },
-        { id: 13, orderID: '013', toBeDeliverAt: 'Makati', orderDate: '1/15/14', orderedBy: 'John Doe', status: 'For Request' },
-        { id: 14, orderID: '014', toBeDeliverAt: 'Taguig', orderDate: '2/20/14', orderedBy: 'Jane Smith', status: 'Requested' },
-        { id: 15, orderID: '015', toBeDeliverAt: 'Quezon City', orderDate: '3/25/14', orderedBy: 'Bob Johnson', status: 'To Send' },
+        { id: 13, orderID: '013', toBeDeliverAt: 'Makati', orderDate: '1/15/14', orderedBy: 'John Doe', status: 'Accepted' },
+        { id: 14, orderID: '014', toBeDeliverAt: 'Taguig', orderDate: '2/20/14', orderedBy: 'Jane Smith', status: 'Accepted' },
+        { id: 15, orderID: '015', toBeDeliverAt: 'Quezon City', orderDate: '3/25/14', orderedBy: 'Bob Johnson', status: 'Accepted' },
     ]);
 
     const [globalFilterValue, setGlobalFilterValue] = useState('');
@@ -36,16 +37,15 @@ function Orders() {
         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     });
 
-    const [selectedFilter, setSelectedFilter] = useState('riceOrders');
-    const [selectedSubFilter, setSelectedSubFilter] = useState('request');
+    const [selectedFilter, setSelectedFilter] = useState('request');
 
     const [showAcceptDialog, setShowAcceptDialog] = useState(false);
     const [showDeclineDialog, setShowDeclineDialog] = useState(false);
-    const [showRequestDialog, setShowRequestDialog] = useState(false);
     const [showSendDialog, setShowSendDialog] = useState(false);
     const [showDeclinedDetailsDialog, setShowDeclinedDetailsDialog] = useState(false);
    
     const [selectedOrder, setSelectedOrder] = useState(null);
+
     const [declineReason, setDeclineReason] = useState('');
     const [declinedDetails, setDeclinedDetails] = useState({
         orderID: '',
@@ -54,22 +54,23 @@ function Orders() {
         orderDate: '',
     });
 
-    const [requestOrderData, setRequestOrderData] = useState({
-        riceType: '',
-        quantity: '',
-        description: '',
+    const [sendOrderData, setSendOrderData] = useState({
+        riceBatchId: '',
         date: '',
-        price: '',
-        warehouse: ''
+        quantityInBags: '',
+        location: '',
+        transpo: '',
+        orderDescription: '',
+        remarks: '',
     });
 
-    const [sendOrderData, setSendOrderData] = useState({
-        riceType: '',
-        quantity: '',
-        description: '',
-        date: '',
-        price: ''
-    });
+    useEffect(() => {
+        const today = new Date();
+        setSendOrderData((prevFormData) => ({
+            ...prevFormData,
+            date: today
+        }));
+    }, []);
 
     const handleInputChange = (e, formType) => {
         const value = e.target?.value ?? e;
@@ -100,9 +101,7 @@ function Orders() {
     const getSeverity = (status) => {
         switch (status.toLowerCase()) {
             case 'for approval': return 'warning';
-            case 'for request': return 'info';
-            case 'requested': return 'success';
-            case 'to send': return 'primary';
+            case 'accepted': return 'success';
             case 'declined': return 'danger';
             default: return 'info';
         }
@@ -112,7 +111,7 @@ function Orders() {
         <Tag 
             value={rowData.status} 
             severity={getSeverity(rowData.status)} 
-            className="text-sm px-2 py-1 rounded-full"
+            className="text-sm px-3 py-1 rounded-lg"
         />
     );
     
@@ -133,20 +132,10 @@ function Orders() {
                         />
                     </div>
                 );
-            case 'For Request':
-                return (
-                    <Button 
-                        label="Request"
-                        icon={<SendHorizontal size={16} />}
-                        className="p-button-info p-button-sm ring-0" 
-                        onClick={() => handleRequestClick(rowData)} 
-                    />
-                );
-            case 'To Send':
+            case 'Accepted':
                 return (
                     <Button 
                         label="Send"
-                        icon={<SendHorizontal size={16} />}
                         className="p-button-primary p-button-sm ring-0" 
                         onClick={() => handleSendClick(rowData)} 
                     />
@@ -154,8 +143,8 @@ function Orders() {
             case 'Declined':
                 return (
                     <Button 
-                        icon="pi pi-eye"
-                        className="p-button-text p-button-rounded ring-0" 
+                        label="View Details"
+                        className="p-button-primary p-button-sm ring-0"
                         onClick={() => handleViewDeclinedDetails(rowData)} 
                     />
                 );
@@ -204,32 +193,9 @@ function Orders() {
         });
     };
 
-    const handleRequestClick = (rowData) => {
-        setSelectedOrder(rowData);
-        setShowRequestDialog(true);
-    };
-
     const handleSendClick = (rowData) => {
         setSelectedOrder(rowData);
         setShowSendDialog(true);
-    };
-
-    const handleConfirmRequest = () => {
-        const updatedOrders = ordersData.map(order => {
-            if (order.id === selectedOrder.id) {
-                return { ...order, status: 'Requested' };
-            }
-            return order;
-        });
-        setOrdersData(updatedOrders);
-        setShowRequestDialog(false);
-        setRequestOrderData({
-            riceType: '',
-            quantity: '',
-            description: '',
-            date: '',
-            price: ''
-        });
     };
 
     const handleConfirmSend = () => {
@@ -262,24 +228,14 @@ function Orders() {
 
     const handleFilterChange = (filter) => {
         setSelectedFilter(filter);
-        if (filter === 'accepted') {
-            setSelectedSubFilter('request');
-        } else {
-            setSelectedSubFilter(null);
-        }
     };
 
     const filteredData = ordersData.filter(item => {
         switch(selectedFilter) {
-            case 'riceOrders':
+            case 'request':
                 return item.status === 'For Approval';
             case 'accepted':
-                if (selectedSubFilter === 'request') {
-                    return ['For Request', 'Requested'].includes(item.status);
-                } else if (selectedSubFilter === 'toSend') {
-                    return item.status === 'To Send';
-                }
-                return ['For Request', 'Requested', 'To Send'].includes(item.status);
+                return item.status === 'Accepted';
             case 'declined':
                 return item.status === 'Declined';
             default:
@@ -297,19 +253,6 @@ function Orders() {
                 return 0;
         }
     };
-
-    const FilterButton = ({ label, icon, filter }) => (
-        <Button 
-            label={label} 
-            icon={icon} 
-            className={`p-button-sm ring-0 border-none rounded-full ${selectedSubFilter === filter ? 'p-button-outlined bg-primary text-white' : 'p-button-text text-primary'} flex items-center`} 
-            onClick={() => setSelectedSubFilter(filter)}
-        >
-            <span className={`ring-0 border-none rounded-full ml-2 px-1 ${selectedSubFilter === filter ? 'p-button-outlined bg-gray-200 text-primary' : 'p-button-text text-white bg-primary'} flex items-center`}>
-                {getFilterCount(filter)}
-            </span>
-        </Button>
-    );
 
     const buttonStyle = (isSelected) => isSelected
         ? 'bg-primary text-white'
@@ -337,9 +280,9 @@ function Orders() {
                     <div className="flex space-x-2 items-center w-1/2 drop-shadow-md">
                         <Button 
                             icon={<ShoppingCart size={16} className="mr-2" />} 
-                            label="Rice Orders" 
-                            className={`p-button-success p-2 w-1/16 ring-0 rounded-full ${buttonStyle(selectedFilter === 'riceOrders')}`} 
-                            onClick={() => handleFilterChange('riceOrders')}
+                            label="Request" 
+                            className={`p-button-success p-2 w-1/16 ring-0 rounded-full ${buttonStyle(selectedFilter === 'request')}`} 
+                            onClick={() => handleFilterChange('request')}
                         />
                         <Button 
                             icon={<ThumbsUp size={16} className="mr-2" />}
@@ -354,22 +297,6 @@ function Orders() {
                             onClick={() => handleFilterChange('declined')}
                         />
                     </div>
-                    <div className="flex justify-end w-1/2 space-x-2">
-                        {selectedFilter === 'accepted' && (
-                            <>
-                                <FilterButton 
-                                    label="Request" 
-                                    icon={<SendHorizontal size={16} />}
-                                    filter="request"
-                                />
-                                <FilterButton 
-                                    label="To Send" 
-                                    icon={<DollarSign size={16} />}
-                                    filter="toSend"
-                                />
-                            </>
-                        )}
-                    </div>
                 </div>
 
                 {/* Data Table */}
@@ -379,7 +306,7 @@ function Orders() {
                         value={filteredData}
                         scrollable
                         scrollHeight="flex"
-                        scrollDirection="both"
+                        scrolldirection="both"
                         className="p-datatable-sm pt-5" 
                         filters={filters}
                         globalFilterFields={['orderID', 'toBeDeliverAt', 'orderDate', 'orderedBy', 'status']}
@@ -440,71 +367,6 @@ function Orders() {
                 </div>
             </Dialog>
 
-            {/* Request Order Dialog */}
-            <Dialog
-                header="Request Rice"
-                visible={showRequestDialog}
-                className='w-1/3'
-                onHide={() => setShowRequestDialog(false)}
-            >
-                <div className="flex flex-col h-full gap-2">
-                    <div className="w-full">
-                        <label htmlFor="riceType" className="text-sm font-medium text-gray-700">Rice Type</label>
-                        <Dropdown
-                            id="riceType"
-                            name="riceType"
-                            value={requestOrderData.riceType}
-                            options={[{ label: 'Sinandomeng', value: 'sinandomeng' }, { label: 'Angelica', value: 'angelica' }, { label: 'Jasmine', value: 'jasmine' }]}
-                            onChange={(e) => handleInputChange(e, 'request')}
-                            placeholder="Select rice type"
-                            className="ring-0 w-full placeholder:text-gray-400"
-                        />
-                    </div>
-
-                    <div className="w-full">
-                        <label htmlFor="quantity" className=" text-sm font-medium text-gray-700">Quantity (in kilos)</label>
-                        <InputText
-                            id="quantity"
-                            name="quantity"
-                            value={requestOrderData.quantity}
-                            onChange={(e) => handleInputChange(e, 'request')}
-                            placeholder="Enter quantity"
-                            className='w-full focus:ring-0'
-                        />
-                    </div>
-
-                    <div className="w-full">
-                        <label htmlFor="description" className=" text-sm font-medium text-gray-700">Description</label>
-                        <InputTextarea
-                            id="description"
-                            name="description"
-                            value={requestOrderData.description}
-                            onChange={(e) => handleInputChange(e, 'request')}
-                            placeholder="Enter description"
-                            className="w-full ring-0"
-                        />
-                    </div>
-
-                    <div className="w-full">
-                        <label htmlFor="warehouse" className=" text-sm font-medium text-gray-700">Request From</label>
-                        <Dropdown
-                            id="warehouse"
-                            name="warehouse"
-                            value={requestOrderData.warehouse}
-                            options={[{ label: 'Warehouse 1', value: 'warehouse1' }, { label: 'Warehouse 2', value: 'warehouse2' }, { label: 'Warehouse 3', value: 'warehouse3' }]}
-                            onChange={(e) => handleInputChange(e, 'request')}
-                            placeholder="Select Warehouse"
-                            className="ring-0 w-full placeholder:text-gray-400"
-                        />
-                    </div>
-
-                    <div className="flex justify-between w-full gap-4 mt-5">
-                        <Button label="Cancel" icon="pi pi-times" onClick={() => setShowRequestDialog(false)} className="w-1/2 bg-transparent text-primary border-primary" />
-                        <Button label="Request Rice" icon="pi pi-check" onClick={handleConfirmRequest} className="w-1/2 bg-primary hover:border-none" />
-                    </div>
-                </div>
-            </Dialog>
-
             {/* Send Order Dialog */}
             <Dialog
                 header="Send Rice"
@@ -512,26 +374,37 @@ function Orders() {
                 className='w-1/3'
                 onHide={() => setShowSendDialog(false)}
             >
-                <div className="flex flex-col gap-4 h-full">
+                <div className="flex flex-col gap-2 h-full">
                     <div className="w-full">
-                        <label htmlFor="riceType" className="block text-sm font-medium text-gray-700 mb-1">Rice Type</label>
+                        <label className="block mb-2">Date Sent</label>
+                        <Calendar 
+                            name="dateProcessed"
+                            value={sendOrderData.date}
+                            className="w-full"
+                            disabled
+                            readOnlyInput
+                        />
+                    </div>
+
+                    <div className="w-full">
+                        <label htmlFor="riceBatchId" className="block text-sm font-medium text-gray-700 mb-1">Rice Batch</label>
                         <Dropdown
-                            id="riceType"
-                            name="riceType"
-                            value={sendOrderData.riceType}
-                            options={[{ label: 'Sinandomeng', value: 'sinandomeng' }, { label: 'Angelica', value: 'angelica' }, { label: 'Jasmine', value: 'jasmine' }]}
+                            id="riceBatchId"
+                            name="riceBatchId"
+                            value={sendOrderData.riceBatchId}
+                            options={[{ label: 'Batch 001', value: 'batch1' }, { label: 'Batch 002', value: 'batch2' }, { label: 'Batch 003', value: 'batch3' }]}
                             onChange={(e) => handleInputChange(e, 'send')}
-                            placeholder="Select rice type"
+                            placeholder="Select Rice Batch"
                             className="ring-0 w-full placeholder:text-gray-400"
                         />
                     </div>
 
                     <div className="w-full">
-                        <label htmlFor="quantity" className="block text-sm font-medium text-gray-700 mb-1">Quantity (in kilos)</label>
+                        <label htmlFor="quantityInBags" className="block text-sm font-medium text-gray-700 mb-1">Quantity in Bags</label>
                         <InputText
-                            id="quantity"
-                            name="quantity"
-                            value={sendOrderData.quantity}
+                            id="quantityInBags"
+                            name="quantityInBags"
+                            value={sendOrderData.quantityInBags}
                             onChange={(e) => handleInputChange(e, 'send')}
                             placeholder="Enter quantity"
                             className='w-full focus:ring-0'
@@ -539,7 +412,31 @@ function Orders() {
                     </div>
 
                     <div className="w-full">
-                        <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                        <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">Drop-off Location</label>
+                        <InputText
+                            id="location"
+                            name="location"
+                            value={sendOrderData.location}
+                            onChange={(e) => handleInputChange(e, 'send')}
+                            placeholder="Enter location"
+                            className='w-full focus:ring-0'
+                        />
+                    </div>
+
+                    <div className="w-full">
+                        <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">Transported by</label>
+                        <InputText
+                            id="transpo"
+                            name="transpo"
+                            value={sendOrderData.transpo}
+                            onChange={(e) => handleInputChange(e, 'send')}
+                            placeholder="Enter Transportation"
+                            className='w-full focus:ring-0'
+                        />
+                    </div>
+
+                    <div className="w-full">
+                        <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">Order Description</label>
                         <InputTextarea
                             id="description"
                             name="description"
@@ -551,13 +448,14 @@ function Orders() {
                     </div>
 
                     <div className="w-full">
-                        <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">Price</label>
-                        <InputText
-                            id="price"
-                            name="price"
+                        <label htmlFor="remarks" className="block text-sm font-medium text-gray-700 mb-1">Remarks</label>
+                        <InputTextarea
+                            id="remarks"
+                            name="remarks"
+                            value={sendOrderData.remarks}
                             onChange={(e) => handleInputChange(e, 'send')}
-                            value={sendOrderData.price}
-                            className='w-full focus:ring-0'
+                            placeholder="Enter remarks"
+                            className="w-full ring-0"
                         />
                     </div>
 

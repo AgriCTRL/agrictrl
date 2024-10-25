@@ -1,31 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
-import { Search, Settings2, FileX } from 'lucide-react';
 import { Tag } from 'primereact/tag';
 import { InputText } from 'primereact/inputtext';
-import { FilterMatchMode } from 'primereact/api';
+import { Toast } from 'primereact/toast';
+
+import { Search, Settings2, FileX } from 'lucide-react';
 
 import WarehouseRegister from './WarehouseRegister';
 import WarehouseUpdate from './WarehouseUpdate';
+import pdfExport from '../../../../../Components/pdfExport';
 
 function Warehouse() {
-    const [warehouseData, setWarehouseData] = useState([
-        { id: 1, warehouseName: 'Warehouse A', location: 'San Pedro', capacity: 1000, currentStock: 750, status: 'Active' },
-        { id: 2, warehouseName: 'Warehouse B', location: 'Biñan', capacity: 1500, currentStock: 1200, status: 'Active' },
-        { id: 3, warehouseName: 'Warehouse C', location: 'Sta. Rosa', capacity: 2000, currentStock: 1800, status: 'Inactive' },
-        { id: 4, warehouseName: 'Warehouse D', location: 'Cabuyao', capacity: 1800, currentStock: 900, status: 'Active' },
-        { id: 5, warehouseName: 'Warehouse E', location: 'Calamba', capacity: 2200, currentStock: 1100, status: 'Inactive' },
-        { id: 1, warehouseName: 'Warehouse A', location: 'San Pedro', capacity: 1000, currentStock: 750, status: 'Active' },
-        { id: 2, warehouseName: 'Warehouse B', location: 'Biñan', capacity: 1500, currentStock: 1200, status: 'Active' },
-        { id: 3, warehouseName: 'Warehouse C', location: 'Sta. Rosa', capacity: 2000, currentStock: 1800, status: 'Inactive' },
-        { id: 4, warehouseName: 'Warehouse D', location: 'Cabuyao', capacity: 1800, currentStock: 900, status: 'Active' },
-        { id: 5, warehouseName: 'Warehouse E', location: 'Calamba', capacity: 2200, currentStock: 1100, status: 'Inactive' },
-    ]);
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    const apiKey = import.meta.env.VITE_API_KEY;
+    const toast = useRef(null);
 
-    // const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    // const [warehouseData, setWarehouseData] = useState([]);
+    const [warehouseData, setWarehouseData] = useState([]);
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [filters, setFilters] = useState({
         global: { value: null, matchMode: 'contains' },
@@ -34,38 +27,47 @@ function Warehouse() {
     const [displayWarehouseUpdate, setDisplayWarehouseUpdate] = useState(false);
     const [selectedWarehouse, setSelectedWarehouse] = useState(null);
 
-    // useEffect(() => {
-    //     setFilters({
-    //         global: { value: globalFilterValue, matchMode: 'contains' },
-    //     });
-    // }, [globalFilterValue]);
+    useEffect(() => {
+        fetchWarehouseData();
+    }, []);
 
-    // useEffect(() => {
-    //     const fetchData = async () => {
-    //         try {
-    //             const res = await fetch(`${apiUrl}/warehouses`, {
-    //                 method: 'GET',
-    //                 headers: {'Content-Type': 'application/json'}
-    //             });
-    //             const data = await res.json();
-    //             setWarehouseData(data);
-    //         }
-    //         catch (error) {
-    //             console.log(error.message);
-    //         }
-    //     };
-    //     fetchData();
-    // }, []);
+    const fetchWarehouseData = async () => {
+        try {
+            const res = await fetch(`${apiUrl}/warehouses`, {
+                headers: { 'API-Key': `${apiKey}` }
+            });
+            if (!res.ok) {
+                throw new Error('Failed to fetch warehouse data');
+            }
+            const data = await res.json();
+            setWarehouseData(data);
+        } catch (error) {
+            console.log(error.message);
+            toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to fetch warehouse data', life: 3000 });
+        }
+    };
 
     const handleWarehouseRegistered = (newWarehouse) => {
         setWarehouseData([...warehouseData, newWarehouse]);
         setDisplayWarehouseRegister(false);
+        toast.current.show({ 
+            severity: 'success', 
+            summary: 'Success', 
+            detail: 'Warehouse registered successfully', 
+            life: 5000 
+        });
     };
 
     const handleWarehouseUpdated = (updatedWarehouse) => {
         const updatedData = warehouseData.map(warehouse => warehouse.id === updatedWarehouse.id ? updatedWarehouse : warehouse);
         setWarehouseData(updatedData);
         setDisplayWarehouseUpdate(false);
+        toast.current.show({ 
+            severity: 'success', 
+            summary: 'Success', 
+            detail: 'Warehouse updated successfully', 
+            life: 5000 
+        });
     };
 
     const showDialog = () => {
@@ -112,8 +114,24 @@ function Warehouse() {
         />
     );
 
+    const exportPdf = () => {
+        const columns = ['ID', 'Warehouse Name', 'Location', 'Branch', 'Capacity (mt)', 'Current Stock (mt)', 'Status'];
+        const data = warehouseData.map(warehouse => [
+            warehouse.id,
+            warehouse.facilityName,
+            warehouse.location,
+            warehouse.nfaBranch,
+            warehouse.totalCapacity,
+            warehouse.currentStock,
+            warehouse.status
+        ]);
+
+        pdfExport('Warehouse Data Export', columns, data);
+    };
+
     return (
         <div className="flex flex-col h-full">
+            <Toast ref={toast} />
             {/* top buttons */}
             <div className="flex items-center justify-between mb-5">
                 <span className="p-input-icon-left w-1/2">
@@ -137,6 +155,7 @@ function Warehouse() {
                         <Button 
                             icon={<FileX className="mr-2" />} 
                             label="Export" 
+                            onClick={exportPdf}
                             className="p-button-success ring-0 text-primary border border-primary rounded-md bg-transparent p-2 mr-1 w-1/16" />
                         
                         <Button 
@@ -148,33 +167,39 @@ function Warehouse() {
             </div>
 
             {/* table */}
-                <div className="flex-grow flex flex-col overflow-hidden rounded-lg shadow">
-                    <div className="flex-grow overflow-auto bg-white">
-                        <DataTable 
-                            value={warehouseData}
-                            scrollable
-                            scrollHeight="flex"
-                            scrollDirection="both"
-                            className="p-datatable-sm px-5 pt-5"
-                            filters={filters}
-                            globalFilterFields={['id', 'warehouseName', 'location', 'status']}
-                            emptyMessage="No inventory found."
-                            paginator
-                            paginatorClassName="border-t-2 border-gray-300"
-                            rows={30}
-                        >
-                            <Column field="id" header="ID" className="text-center" headerClassName="text-center"/>
-                            <Column field="warehouseName" header="Warehouse Name" className="text-center" headerClassName="text-center"/>
-                            <Column field="location" header="Location" className="text-center" headerClassName="text-center"/>
-                            <Column field="capacity" header="Capacity (mt)" className="text-center" headerClassName="text-center"/>
-                            <Column field="currentStock" header="Current Stock (mt)" className="text-center" headerClassName="text-center"/>
-                            <Column field="status" header="Status" body={statusBodyTemplate} className="text-center" headerClassName="text-center"/>
-                            <Column body={actionBodyTemplate} exportable={false} className="text-center" headerClassName="text-center" />
-                        </DataTable>
-                    </div>
+            <div className="flex-grow flex flex-col overflow-hidden rounded-lg shadow">
+                <div className="flex-grow overflow-auto bg-white">
+                    <DataTable 
+                        value={warehouseData}
+                        scrollable
+                        scrollHeight="flex"
+                        scrolldirection="both"
+                        className="p-datatable-sm px-5 pt-5"
+                        filters={filters}
+                        globalFilterFields={['id', 'facilityName', 'location', 'status']}
+                        emptyMessage="No inventory found."
+                        paginator
+                        paginatorClassName="border-t-2 border-gray-300"
+                        rows={30}
+                    >
+                        <Column field="id" header="ID" className="text-center" headerClassName="text-center"/>
+                        <Column field="facilityName" header="Warehouse Name" className="text-center" headerClassName="text-center"/>
+                        <Column field="location" header="Location" className="text-center" headerClassName="text-center"/>
+                        <Column field="nfaBranch" header="Branch" className="text-center" headerClassName="text-center"/>
+                        <Column field="totalCapacity" header="Capacity (mt)" className="text-center" headerClassName="text-center"/>
+                        <Column field="currentStock" header="Current Stock (mt)" className="text-center" headerClassName="text-center"/>
+                        <Column field="status" header="Status" body={statusBodyTemplate} className="text-center" headerClassName="text-center"/>
+                        <Column body={actionBodyTemplate} exportable={false} className="text-center" headerClassName="text-center" />
+                    </DataTable>
                 </div>
+            </div>
 
-            <WarehouseRegister visible={displayWarehouseRegister} onHide={hideRegisterDialog} onWarehouseRegistered={handleWarehouseRegistered} />
+            <WarehouseRegister 
+                visible={displayWarehouseRegister} 
+                onHide={hideRegisterDialog} 
+                onWarehouseRegistered={handleWarehouseRegistered} 
+            />
+            
             {selectedWarehouse && (
                 <WarehouseUpdate 
                     visible={displayWarehouseUpdate} 

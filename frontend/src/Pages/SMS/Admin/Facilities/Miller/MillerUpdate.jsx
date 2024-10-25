@@ -1,35 +1,45 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { Button } from 'primereact/button';
+import { Toast } from 'primereact/toast';
+
 import { Factory } from 'lucide-react';
 
 function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    const apiKey = import.meta.env.VITE_API_KEY;
+    const toast = useRef(null);
+    
     const [millerName, setMillerName] = useState('');
+    const [userId, setUserId] = useState('0');
     const [category, setCategory] = useState('');
-    const [capacity, setCapacity] = useState('');
+    const [type, setType] = useState('');
     const [location, setLocation] = useState('');
+    const [capacity, setCapacity] = useState('');
     const [contactNumber, setContactNumber] = useState('');
     const [email, setEmail] = useState('');
-    const [status, setStatus] = useState(null);
+    const [status, setStatus] = useState('active');
+
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const statusOptions = [
-        { label: 'Active', value: 'Active' },
-        { label: 'Inactive', value: 'Inactive' }
+        { label: 'Active', value: 'active' },
+        { label: 'Inactive', value: 'inactive' }
     ];
 
     const categoryOptions = [
-        { label: 'Small', value: 'small' },
-        { label: 'Medium', value: 'medium' },
-        { label: 'Large', value: 'large' }
+        { label: 'Small', value: 'Small' },
+        { label: 'Medium', value: 'Medium' },
+        { label: 'Large', value: 'Large' }
     ];
 
     useEffect(() => {
         if (selectedMiller) {
             setMillerName(selectedMiller.millerName);
             setCategory(selectedMiller.category);
+            setType(selectedMiller.type);
             setCapacity(selectedMiller.capacity);
             setLocation(selectedMiller.location);
             setContactNumber(selectedMiller.contactNumber);
@@ -41,55 +51,69 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
     const handleUpdate = async (e) => {
         e.preventDefault();
 
+        if (!millerName || !category || !capacity || !location || !contactNumber || !email) {
+            toast.current.show({ 
+                severity: 'error', 
+                summary: 'Error', 
+                detail: 'All fields are required.', 
+                life: 3000 
+            });
+            return;
+        }
+
         setIsSubmitting(true);
         const updatedMiller = {
             ...selectedMiller,
             millerName,
             category,
-            capacity,
             location,
+            capacity,
             contactNumber,
             email,
             status
         };
 
+        console.log(updatedMiller);
+
         try {
             const res = await fetch(`${apiUrl}/millers/update`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'API-Key': `${apiKey}`
+                },
                 body: JSON.stringify(updatedMiller)
             });
             if (!res.ok) {
                 throw new Error('Error updating data');
             }
+
+            const data = await res.json();
+            onUpdateMiller(data);
+            onHide();
         } catch (error) {
             console.log(error.message);
+            toast.current.show({ 
+                severity: 'error', 
+                summary: 'Error', 
+                detail: 'Failed to update warehouse. Please try again.', 
+                life: 3000 
+            });
+        } finally {
+            setIsSubmitting(false);
         }
-
-        onUpdateMiller(updatedMiller);
-
-        // Reset form
-        setMillerName('');
-        setCategory(null);
-        setCapacity('');
-        setLocation('');
-        setContactNumber('');
-        setEmail('');
-        setStatus(null);
-
-        setIsSubmitting(false);
-        onHide();
     };
 
     if (!visible) {
-        return null; // Don't render if not visible
+        return null;
     }
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <Toast ref={toast} />
             <div className="bg-white rounded-lg p-5 w-1/3 shadow-lg relative">
                 {/* Close button */}
-                <button onClick={onHide} className="absolute top-5 right-5 text-gray-600 hover:text-gray-800">
+                <button onClick={onHide} className="absolute top-5 right-5 text-gray-600 hover:text-gray-800 ring-0">
                     ✕
                 </button>
 
@@ -108,7 +132,8 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
                                 id="millerName"
                                 value={millerName}
                                 onChange={(e) => setMillerName(e.target.value)}
-                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
+                                disabled={type === "Private"}
                             />
                         </div>
 
@@ -119,7 +144,8 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
                                 value={category}
                                 options={categoryOptions}
                                 onChange={(e) => setCategory(e.value)}
-                                className="w-full rounded-md border border-gray-300"
+                                className="w-full rounded-md border border-gray-300 ring-0"
+                                disabled={type === "Private"}
                             />
                         </div>
 
@@ -129,7 +155,8 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
                                 id="capacity"
                                 value={capacity}
                                 onChange={(e) => setCapacity(e.target.value)}
-                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
+                                disabled={type === "Private"}
                             />
                         </div>
 
@@ -139,7 +166,8 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
                                 id="location"
                                 value={location}
                                 onChange={(e) => setLocation(e.target.value)}
-                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
+                                disabled={type === "Private"}
                             />
                         </div>
 
@@ -149,7 +177,8 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
                                 id="contactNumber"
                                 value={contactNumber}
                                 onChange={(e) => setContactNumber(e.target.value)}
-                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
+                                disabled={type === "Private"}
                             />
                         </div>
 
@@ -159,11 +188,12 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
                                 id="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
+                                disabled={type === "Private"}
                             />
                         </div>
 
-                        <div>
+                        <div className='col-span-2'>
                             <label htmlFor="status" className="block text-sm font-medium text-gray-700">Status</label>
                             <Dropdown
                                 id="status"
@@ -171,7 +201,7 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
                                 options={statusOptions}
                                 onChange={(e) => setStatus(e.value)}
                                 placeholder="Select Status"
-                                className="w-full rounded-md border border-gray-300"
+                                className="w-full rounded-md border border-gray-300 ring-0"
                             />
                         </div>
 
@@ -179,14 +209,14 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
                         <Button
                             label="Cancel"
                             onClick={onHide}
-                            className="col-start-1 row-start-7 bg-transparent border border-primary text-primary py-2 rounded-md"
+                            className="col-start-1 row-start-7 bg-transparent border border-primary text-primary py-2 rounded-md ring-0"
                         />
 
                         {/* Update Button */}
                         <Button
                             label="Update"
                             disabled={isSubmitting}
-                            className="col-start-2 row-start-7 bg-primary text-white py-2 rounded-md"
+                            className="col-start-2 row-start-7 bg-primary text-white py-2 rounded-md ring-0"
                         />
                     </div>
                 </form>

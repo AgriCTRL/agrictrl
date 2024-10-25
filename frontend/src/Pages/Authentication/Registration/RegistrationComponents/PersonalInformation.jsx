@@ -10,9 +10,9 @@ const PersonalInformation = ({ personalInfo }) => {
   const { firstName, lastName, gender, birthDate, contactNumber } = registrationData.personalInfo;
 
   const genderOptions = [
-    { label: 'Male', value: 'male' },
-    { label: 'Female', value: 'female' },
-    { label: 'Other', value: 'other' }
+    { label: 'Male', value: 'Male' },
+    { label: 'Female', value: 'Female' },
+    { label: 'Other', value: 'Other' }
   ];
 
   const handleInputChange = (field, value) => {
@@ -24,6 +24,19 @@ const PersonalInformation = ({ personalInfo }) => {
     const value = e.target.value;
     if (/^\d{0,11}$/.test(value)) {
       handleInputChange('contactNumber', value);
+    }
+  };
+
+  const handleDateChange = (e) => {
+    const selectedDate = e.value;
+    if (selectedDate) {
+      const offset = selectedDate.getTimezoneOffset();
+      const adjustedDate = new Date(selectedDate.getTime() - (offset * 60 * 1000));
+
+      const formattedDate = adjustedDate.toISOString().split('T')[0];
+      handleInputChange('birthDate', formattedDate);
+    } else {
+      handleInputChange('birthDate', null);
     }
   };
 
@@ -85,8 +98,9 @@ const PersonalInformation = ({ personalInfo }) => {
             <label htmlFor="birthDate" className="block text-sm text-black">Birth Date</label>
             <Calendar 
               id="birthDate" 
-              value={birthDate} 
-              onChange={(e) => handleInputChange('birthDate', e.value)}
+              value={birthDate ? new Date(birthDate) : null} 
+              onChange={handleDateChange} 
+              dateFormat="mm/dd/yy"
               placeholder="MM/DD/YYYY" 
               className="ring-0 w-full focus:shadow-none custom-calendar focus:border-primary hover:border-primary" 
               showIcon

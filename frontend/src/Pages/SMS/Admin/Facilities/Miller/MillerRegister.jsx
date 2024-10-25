@@ -1,37 +1,61 @@
 import React, { useState } from 'react';
+
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { Button } from 'primereact/button';
-import { Factory } from 'lucide-react'; // Icon from Lucide
+import { Toast } from 'primereact/toast';
+
+import { Factory } from 'lucide-react';
 
 function MillerRegister({ visible, onHide, onMillerRegistered }) {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    const apiKey = import.meta.env.VITE_API_KEY;
+    const toast = React.useRef(null);
 
     const [millerName, setMillerName] = useState('');
+    const [userId, setUserId] = useState('0');
     const [category, setCategory] = useState('');
-    const [capacity, setCapacity] = useState('');
+    const [type, setType] = useState('in House');
     const [location, setLocation] = useState('');
+    const [capacity, setCapacity] = useState('');
+    const [processing, setProcessing] = useState('0');
     const [contactNumber, setContactNumber] = useState('');
     const [email, setEmail] = useState('');
-    const [status, setStatus] = useState('Active');
+    const [status, setStatus] = useState('active');
+
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const statusOptions = [
-        { label: 'Active', value: 'Active' },
-        { label: 'Inactive', value: 'Inactive' }
+        { label: 'Active', value: 'active' },
+        { label: 'Inactive', value: 'inactive' }
     ];
 
     const categoryOptions = [
-        { label: 'Small', value: 'small' },
-        { label: 'Medium', value: 'medium' },
-        { label: 'Large', value: 'large' }
+        { label: 'Small', value: 'Small' },
+        { label: 'Medium', value: 'Medium' },
+        { label: 'Large', value: 'Large' }
     ];
+
+    const resetForm = () => {
+        setMillerName('');
+        setCategory('');
+        setLocation('0');
+        setCapacity('');
+        setContactNumber('');
+        setEmail('');
+        setStatus('active');
+    };
 
     const handleRegister = async (e) => {
         e.preventDefault();
 
         if (!millerName || !category || !capacity || !location || !contactNumber || !email) {
-            alert('All fields are required.');
+            toast.current.show({ 
+                severity: 'error', 
+                summary: 'Error', 
+                detail: 'All fields are required.', 
+                life: 3000 
+            });
             return;
         }
 
@@ -39,9 +63,12 @@ function MillerRegister({ visible, onHide, onMillerRegistered }) {
 
         const newMiller = {
             millerName,
+            userId,
             category,
-            capacity,
+            type,
             location,
+            capacity,
+            processing,
             contactNumber,
             email,
             status
@@ -50,29 +77,31 @@ function MillerRegister({ visible, onHide, onMillerRegistered }) {
         try {
             const res = await fetch(`${apiUrl}/millers`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'API-Key': `${apiKey}`
+                },
                 body: JSON.stringify(newMiller)
             });
             if (!res.ok) {
                 throw new Error('Error adding data');
             }
+
+            const data = await res.json();
+            resetForm();
+            onMillerRegistered(data);
+            onHide();
         } catch (error) {
-            console.log(error.message);
+            console.error(error.message);
+            toast.current.show({ 
+                severity: 'error', 
+                summary: 'Error', 
+                detail: 'Failed to register miller. Please try again.', 
+                life: 3000 
+            });
+        } finally {
+            setIsSubmitting(false);
         }
-
-        onMillerRegistered(newMiller);
-
-        // Reset form
-        setMillerName('');
-        setCategory(null);
-        setCapacity('');
-        setLocation('');
-        setContactNumber('');
-        setEmail('');
-        setStatus('Active');
-
-        setIsSubmitting(false);
-        onHide();
     };
 
     if (!visible) {
@@ -81,9 +110,10 @@ function MillerRegister({ visible, onHide, onMillerRegistered }) {
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <Toast ref={toast} />
             <div className="bg-white rounded-lg p-5 w-1/3 shadow-lg relative">
                 {/* Close button */}
-                <button onClick={onHide} className="absolute top-5 right-5 text-gray-600 hover:text-gray-800">
+                <button onClick={onHide} className="absolute top-5 right-5 text-gray-600 hover:text-gray-800 ring-0">
                     ✕ 
                 </button>
 
@@ -102,7 +132,7 @@ function MillerRegister({ visible, onHide, onMillerRegistered }) {
                                 id="millerName"
                                 value={millerName}
                                 onChange={(e) => setMillerName(e.target.value)}
-                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
                             />
                         </div>
 
@@ -113,7 +143,7 @@ function MillerRegister({ visible, onHide, onMillerRegistered }) {
                                 value={category}
                                 options={categoryOptions}
                                 onChange={(e) => setCategory(e.value)}
-                                className="w-full rounded-md border border-gray-300"
+                                className="w-full rounded-md border border-gray-300 ring-0"
                             />
                         </div>
 
@@ -121,9 +151,10 @@ function MillerRegister({ visible, onHide, onMillerRegistered }) {
                             <label htmlFor="capacity" className="block text-sm font-medium text-gray-700">Capacity</label>
                             <InputText
                                 id="capacity"
+                                type='number'
                                 value={capacity}
                                 onChange={(e) => setCapacity(e.target.value)}
-                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
                             />
                         </div>
 
@@ -133,7 +164,7 @@ function MillerRegister({ visible, onHide, onMillerRegistered }) {
                                 id="location"
                                 value={location}
                                 onChange={(e) => setLocation(e.target.value)}
-                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
                             />
                         </div>
 
@@ -141,9 +172,10 @@ function MillerRegister({ visible, onHide, onMillerRegistered }) {
                             <label htmlFor="contactNumber" className="block text-sm font-medium text-gray-700">Contact Number</label>
                             <InputText
                                 id="contactNumber"
+                                type='number'
                                 value={contactNumber}
                                 onChange={(e) => setContactNumber(e.target.value)}
-                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
                             />
                         </div>
 
@@ -153,11 +185,11 @@ function MillerRegister({ visible, onHide, onMillerRegistered }) {
                                 id="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="w-full p-2 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium"
+                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
                             />
                         </div>
 
-                        <div>
+                        <div className='col-span-2'>
                             <label htmlFor="status" className="block text-sm font-medium text-gray-700">Status</label>
                             <Dropdown
                                 id="status"
@@ -165,14 +197,14 @@ function MillerRegister({ visible, onHide, onMillerRegistered }) {
                                 options={statusOptions}
                                 onChange={(e) => setStatus(e.value)}
                                 placeholder="Select Status"
-                                className="w-full rounded-md border border-gray-300"
+                                className="w-full rounded-md border border-gray-300 ring-0"
                             />
                         </div>
 
                         <Button 
                             label="Register" 
                             disabled={isSubmitting} 
-                            className="col-start-2 row-start-7 bg-primary text-white py-2 rounded-md"
+                            className="col-start-2 row-start-7 bg-primary text-white py-2 rounded-md ring-0"
                         />
                         
                     </div>

@@ -1,25 +1,56 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
 import { Search, Settings2, FileX } from 'lucide-react';
 import { Tag } from 'primereact/tag';
 import { InputText } from 'primereact/inputtext';
+import { Toast } from 'primereact/toast';
 
 import UserDetails from './UserDetails';
 
 function Pending() {
-    const [pendingUsers, setPendingUsers] = useState([
-        { id: 1, name: 'Jose Pablito', organization: 'NFA Nueva Ecija', position: 'Procurement II', userType: 'NFA Staff', status: 'Pending', dateRegistered: '07-11-2024' },
-        { id: 2, name: 'Miguel Salazar', organization: 'Millingan Inc.', position: 'Milling Manager', userType: 'Private Miller', status: 'Pending', dateRegistered: '07-11-2024' },
-        { id: 3, name: 'Juan Cruz', organization: 'NFA Nueva Ecija', position: 'Warehouse Operator', userType: 'NFA Staff', status: 'Pending', dateRegistered: '07-11-2024' },
-        { id: 4, name: 'Fathima Garcia', organization: 'DSWD', position: 'Asst. Manager', userType: 'Rice Recipient', status: 'Pending', dateRegistered: '07-11-2024' },
-        { id: 5, name: 'Paula Bautista', organization: 'Zaragoza LGU', position: 'Procurement I', userType: 'Rice Recipient', status: 'Pending', dateRegistered: '07-11-2024' },
-    ]);
 
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    const apiKey = import.meta.env.VITE_API_KEY;
+    const toast = useRef(null);
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [selectedUser, setSelectedUser] = useState(null);
     const [userDetailsVisible, setUserDetailsVisible] = useState(false);
+    const [pendingUsers, setPendingUsers] = useState([]);
+
+    const fetchPendingUsers = async () => {
+        try {
+            const res = await fetch(`${apiUrl}/users?status=Pending`, {
+                headers: { 'API-Key': `${apiKey}` },
+            });
+            if(!res.ok) {
+                throw new Error('Failed to fetch pending users');
+            }
+            const users = await res.json();
+            const formattedUsers = users.map(user => ({
+                ...user,
+                name: `${user.firstName} ${user.lastName}`,
+            }));
+            setPendingUsers(formattedUsers);
+        }
+        catch(error) {
+            console.error(error.message);
+        }
+    }
+
+    useEffect(() => {
+        fetchPendingUsers();
+    }, []);
+
+    const toastSuccess = () => {
+        toast.current.show({
+            severity: 'success',
+            summary: 'Success',
+            detail: 'Verified user successfully!',
+            life: 3000
+        });
+    }
 
     const actionBodyTemplate = (rowData) => {
         return (
@@ -45,10 +76,19 @@ function Pending() {
         />
     );
 
+    const dateBodyTemplate = (rowData) => {
+        const date = new Date(rowData.dateCreated).toISOString().split('T')[0];
 
+        return new Date(date).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        });
+    };
 
     return (
         <div className="flex flex-col h-full">
+            <Toast ref={toast} />
             <div className="flex items-center justify-between mb-5">
                 <span className="p-input-icon-left w-1/2">
                     <Search className="ml-3 -translate-y-1 text-primary"/>
@@ -87,10 +127,10 @@ function Pending() {
                         paginatorClassName="border-t-2 border-gray-300"
                         rows={10}
                     >
-                        <Column field="dateRegistered" header="Date Registered" className="text-center" headerClassName="text-center"/>
+                        <Column field="dateCreated" header="Date Registered" body={dateBodyTemplate} className="text-center" headerClassName="text-center"/>
                         <Column field="name" header="Name" className="text-center" headerClassName="text-center"/>
-                        <Column field="organization" header="Organization" className="text-center" headerClassName="text-center"/>
-                        <Column field="position" header="Position" className="text-center" headerClassName="text-center"/>
+                        <Column field="organizationName" header="Organization" className="text-center" headerClassName="text-center"/>
+                        <Column field="jobTitlePosition" header="Position" className="text-center" headerClassName="text-center"/>
                         <Column field="userType" header="User Type" className="text-center" headerClassName="text-center"/>
                         <Column field="status" header="Status" body={statusBodyTemplate} className="text-center" headerClassName="text-center"/>
                         <Column header="Verify" body={actionBodyTemplate} className="text-center" headerClassName="text-center"/>
@@ -99,9 +139,12 @@ function Pending() {
             </div>
 
             <UserDetails
-                userType="pending"
+                userType="Pending"
                 visible={userDetailsVisible}
                 onHide={() => setUserDetailsVisible(false)}
+                selectedUser={selectedUser}
+                onUserUpdated={fetchPendingUsers}
+                onStatusUpdated={toastSuccess}
             />
         </div>
     );

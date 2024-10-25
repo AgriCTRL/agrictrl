@@ -11,37 +11,47 @@ import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 
 import ConfirmReceive from './ConfirmReceive';
+import { useAuth } from '../../../Authentication/Login/AuthContext';
 
 
 function RiceReceive() {
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    const apiKey = import.meta.env.VITE_API_KEY;
+    const { user } = useAuth();
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [filters, setFilters] = useState({
         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     });
 
-    const [showRegisterPalay, setShowRegisterPalay] = useState(false);
-    const [showDeclinedDetails, setShowDeclinedDetails] = useState(false);
-    const [selectedDeclinedData, setSelectedDeclinedData] = useState(null);
+    const [showConfirmReceive, setShowConfirmReceive] = useState(false);
+    const [selectedOrderData, setSelectedOrderData] = useState(null);
+    const [inventoryData, setInventoryData] = useState([]);
 
+    useEffect(() => {
+        fetchData();
+    }, []);
 
-    const [inventoryData, setInventoryData] = useState([
-        { id: 1, trackingId: '001', dateBought: '2024-03-01', quantity: 1000, price: 100, riceType: 'Premium', status: 'TO RECEIVE'},
-        { id: 2, trackingId: '002', dateBought: '2024-03-02', quantity: 1500, price: 100, riceType: 'Standard', status: 'RECEIVED'},
-        { id: 3, trackingId: '003', dateBought: '2024-03-03', quantity: 2000, price: 100, riceType: 'Premium', status: 'RECEIVED'},
-        { id: 4, trackingId: '004', dateBought: '2024-03-04', quantity: 1800, price: 100, riceType: 'Standard', status: 'RECEIVED'},
-        { id: 5, trackingId: '005', dateBought: '2024-03-05', quantity: 2200, price: 100, riceType: 'Premium', status: 'RECEIVED'},
-        { id: 6, trackingId: '001', dateBought: '2024-03-01', quantity: 1000, price: 100, riceType: 'Premium', status: 'TO RECEIVE'},
-        { id: 7, trackingId: '002', dateBought: '2024-03-02', quantity: 1500, price: 100, riceType: 'Standard', status: 'TO RECEIVE'},
-        { id: 8, trackingId: '003', dateBought: '2024-03-03', quantity: 2000, price: 100, riceType: 'Premium', status: 'RECEIVED'},
-        { id: 9, trackingId: '004', dateBought: '2024-03-04', quantity: 1800, price: 100, riceType: 'Standard', status: 'RECEIVED'},
-        { id: 10, trackingId: '005', dateBought: '2024-03-05', quantity: 2200, price: 100, riceType: 'Premium', status: 'RECEIVED'},
-    ]);
+    const fetchData = async () => {
+        try {
+            const res = await fetch(`${apiUrl}/riceorders?riceRecipientId=${user.id}&status=In%20Transit&status=Received`, {
+                headers: { 'API-Key': `${apiKey}` }
+            });
+            if(!res.ok) {
+                throw new Error('Failed to fetch rice orders')
+            }
+            const data = await res.json();
+            setInventoryData(data);
+        }
+        catch (error) {
+            console.error(error.message)
+        }
+    };
 
     const [selectedFilter, setSelectedFilter] = useState('riceOrders');
 
     const getSeverity = (status) => {
         switch (status.toLowerCase()) {
-            case 'to receive': return 'warning';
+            case 'in transit': return 'info';
             case 'received': return 'success';
             default: return 'secondary';
         }
@@ -57,27 +67,37 @@ function RiceReceive() {
     );
     
     const actionBodyTemplate = (rowData) => {
-        if (rowData.status === 'TO RECEIVE') {
+        if (rowData.status === 'In Transit') {
             return (
                 <CircleAlert  
                     className="text-red-500 cursor-pointer"
-                    onClick={() => handleDeclinedClick(rowData)}
+                    onClick={() => handleReceiveClick(rowData)}
                 />
             );
         }
         return null;
     };
 
-    const handleDeclinedClick = (rowData) => {
-        setSelectedDeclinedData({
+    const dateBodyTemplate = (rowData, field) => {
+        const date = new Date(rowData[field]).toISOString().split('T')[0];
+
+        return new Date(date).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+        });
+    };
+
+    const handleReceiveClick = (rowData) => {
+        setSelectedOrderData({
             ...rowData,
             dateBought: new Date(rowData.dateBought)
         });
-        setShowDeclinedDetails(true);
+        setShowConfirmReceive(true);
     };
 
     const filteredData = inventoryData.filter(item => 
-        selectedFilter === 'riceOrders' ? item.status !== 'RECEIVED' : item.status === 'RECEIVED'
+        selectedFilter === 'riceOrders' ? item.status !== 'Received' : item.status === 'Received'
     );
 
     const buttonStyle = (isSelected) => isSelected
@@ -85,7 +105,7 @@ function RiceReceive() {
         : 'bg-white text-primary border border-gray-300';
 
     return (
-        <RecipientLayout activePage="Rice Receive">
+        <RecipientLayout activePage="Rice Receive" user={user}>
             <div className="flex flex-col px-10 py-2 h-full bg-[#F1F5F9]">
                 <div className="flex flex-col justify-center items-center p-10 h-1/4 rounded-lg bg-gradient-to-r from-primary to-secondary mb-2">
                     <h1 className="text-5xl h-full text-white font-bold mb-2">Rice Receive</h1>
@@ -114,8 +134,8 @@ function RiceReceive() {
                         <Button 
                             icon={<Settings2 className="mr-2" />}
                             label="Orders Received" 
-                            className={`p-button-success p-2 w-1/16 ring-0 rounded-full ${buttonStyle(selectedFilter === 'declined')}`} 
-                            onClick={() => setSelectedFilter('declined')}
+                            className={`p-button-success p-2 w-1/16 ring-0 rounded-full ${buttonStyle(selectedFilter === 'received')}`} 
+                            onClick={() => setSelectedFilter('received')}
                         />
                     </div>
                 </div>
@@ -127,7 +147,7 @@ function RiceReceive() {
                         value={filteredData}
                         scrollable
                         scrollHeight="flex"
-                        scrollDirection="both"
+                        scrolldirection="both"
                         className="p-datatable-sm pt-5" 
                         filters={filters}
                         globalFilterFields={['trackingId', 'qualityType', 'status', 'farmer', 'originFarm']}
@@ -135,11 +155,11 @@ function RiceReceive() {
                         paginator
                         rows={30}
                     > 
-                        <Column field="trackingId" header="Tracking ID" className="text-center" headerClassName="text-center" />
-                        <Column field="dateBought" header="Date Bought" className="text-center" headerClassName="text-center" />
-                        <Column field="quantity" header="Quantity" className="text-center" headerClassName="text-center" />
-                        <Column field="price" header="Price" className="text-center" headerClassName="text-center" />
-                        <Column field="riceType" header="Quality Type" className="text-center" headerClassName="text-center" />
+                        <Column field="id" header="Order ID" className="text-center" headerClassName="text-center" />
+                        <Column field="orderDate" header="Date Ordered" body={(rowData) => dateBodyTemplate(rowData, 'orderDate')} className="text-center" headerClassName="text-center" />
+                        <Column field="riceQuantityBags" header="Quantity in Bags" className="text-center" headerClassName="text-center" />
+                        <Column field="totalCost" header="Price" className="text-center" headerClassName="text-center" />
+                        <Column field="preferredDeliveryDate" header="Delivery Date" body={(rowData) => dateBodyTemplate(rowData, 'preferredDeliveryDate')} className="text-center" headerClassName="text-center" />
                         <Column field="status" header="Status" body={statusBodyTemplate} className="text-center" headerClassName="text-center"/>
                         <Column body={actionBodyTemplate} exportable={false} className="text-center" headerClassName="text-center"/>
                     </DataTable>
@@ -149,9 +169,10 @@ function RiceReceive() {
             </div>
 
             <ConfirmReceive
-                visible={showDeclinedDetails}
-                onHide={() => setShowDeclinedDetails(false)}
-                data={selectedDeclinedData}
+                visible={showConfirmReceive}
+                onHide={() => setShowConfirmReceive(false)}
+                data={selectedOrderData}
+                onConfirmReceive={fetchData}
             />
         </RecipientLayout> 
     );

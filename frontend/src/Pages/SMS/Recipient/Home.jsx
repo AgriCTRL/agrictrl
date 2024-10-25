@@ -1,10 +1,16 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import RecipientLayout from '../../../Layouts/RecipientLayout';
 import { Carousel } from 'primereact/carousel';
 import { Fan, Loader2, Undo2, CheckCircle2 } from "lucide-react";
+import { useAuth } from '../../Authentication/Login/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 
 function Home({ isRightSidebarOpen }) {
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    const apiKey = import.meta.env.VITE_API_KEY;
+    const { user } = useAuth();
+    const navigate = useNavigate();
     const [carouselItems] = useState([
         {
             title: "Traceability Power",
@@ -23,16 +29,48 @@ function Home({ isRightSidebarOpen }) {
         }
     ]);
 
-    const Orders = [
-        { icon: Fan, title: "Order #1111", date: "MM/DD/YYYY", value: "preparing" },
-        { icon: Fan, title: "Order #2222", date: "MM/DD/YYYY", value: "transporting" },
-        { icon: Fan, title: "Order #3333", date: "MM/DD/YYYY", value: "preparing" },
-        { icon: Fan, title: "Order #4444", date: "MM/DD/YYYY", value: "preparing" },
-        { icon: Fan, title: "Order #5555", date: "MM/DD/YYYY", value: "transporting" },
-    ];
+    const [riceOrders, setRiceOrders] = useState([]);
+
+    const viewAllOrders = () => {
+        navigate('/recipient/order')
+    }
+
+    const fetchData = async () => {
+        try {
+            const res = await fetch(`${apiUrl}/riceorders?riceRecipientId=${user.id}&status=For%20Approval`, {
+                headers: { 'API-Key': `${apiKey}`}
+            });
+            const data = await res.json();
+            setRiceOrders(data);
+        }
+        catch (error) {
+            console.error(error.message)
+        }
+    }
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const formatDate = (date) => {
+        const formattedDate = new Date(date).toISOString().split('T')[0];
+
+        return new Date(formattedDate).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+        });
+    }
+
+    const Orders = riceOrders.map(order => ({
+        icon: Fan,
+        title: `Order #${order.id}`,
+        date: formatDate(order.orderDate),
+        value: "For Approval"
+    }));
 
     return (
-        <RecipientLayout activePage="Home">
+        <RecipientLayout activePage="Home" user={user}>
             <div className={`flex flex-row p-2 bg-[#F1F5F9] h-full ${isRightSidebarOpen ? 'pr-[20%]' : ''}`}>
                 
                 {/* Main Content */}
@@ -40,7 +78,7 @@ function Home({ isRightSidebarOpen }) {
                     <div className="flex justify-start">
                         <div className="flex flex-col items-center">
                             <h1 className="text-xl">Welcome Back,</h1>
-                            <h1 className="text-2xl font-bold">Juan!</h1>
+                            <h1 className="text-2xl font-bold">{user.firstName}</h1>
                         </div>
                     </div>
 
@@ -78,7 +116,7 @@ function Home({ isRightSidebarOpen }) {
 
                     <div className="flex flex-row justify-between items-center">
                         <h1 className="text-xl font-medium">Rice Orders</h1>
-                        <h1 className="text-md font-medium text-primary">View all {'>'} </h1>
+                        <h1 className="text-md font-medium text-primary hover:cursor-pointer" onClick={viewAllOrders}>View all {'>'} </h1>
                     </div>
 
                     {/* Carousel for Orders */}

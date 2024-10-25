@@ -19,19 +19,15 @@ function MillingTransactions() {
     });
 
     const [inventoryData, setInventoryData] = useState([
-        { id: 1, dryer: 'Manheim', dryingMethod: 'machine', dateSent: '2/11/12', qualityType: 'Fresh', status: 'To receive'},
-        { id: 2, dryer: 'Pune', dryingMethod: 'sun', dateSent: '7/11/19', qualityType: 'Dry', status: 'To return'},
-        { id: 3, dryer: 'Augusta', dryingMethod: 'machine', dateSent: '4/21/12', qualityType: 'Dry', status: 'To mill'},
-        { id: 4, dryer: 'Augusta', dryingMethod: 'sun', dateSent: '10/28/12', qualityType: 'Fresh', status: 'To receive'},
-        { id: 5, dryer: 'Augusta', dryingMethod: 'sun', dateSent: '12/10/13', qualityType: 'Dry', status: 'To receive'},
-        { id: 6, dryer: 'Augusta', dryingMethod: 'sun', dateSent: '12/10/13', qualityType: 'Dry', status: 'To return'},
-        { id: 7, dryer: 'Berlin', dryingMethod: 'machine', dateSent: '3/15/14', qualityType: 'Fresh', status: 'To mill'},
-        { id: 8, dryer: 'Tokyo', dryingMethod: 'sun', dateSent: '5/20/14', qualityType: 'Dry', status: 'To receive'},
-        { id: 9, dryer: 'Paris', dryingMethod: 'machine', dateSent: '6/30/14', qualityType: 'Fresh', status: 'To mill'},
-        { id: 10, dryer: 'London', dryingMethod: 'sun', dateSent: '8/5/14', qualityType: 'Dry', status: 'To return'},
+        { id: 1, batchId: '001', quantityInBags: '100', grossWeight: '10', preNetWeight: '100', postNetWeight: '100', from: 'Farm 001', location: 'Warehouse 003', millerType: 'Private', requestDate: '2/11/12', startDate: '1/1/1', endDate: '2/2/2', transportedBy: 'Bills Trucking Inc.', status: 'To Be Mill', millingStatus: 'In Progress'},
+        { id: 2, batchId: '002', quantityInBags: '100', grossWeight: '10', preNetWeight: '100', postNetWeight: '100', from: 'Pune', location: 'Warehouse 002', millerType: 'In House', requestDate: '7/11/19', startDate: '1/1/1', endDate: '2/2/2', transportedBy: 'Mobilis Services', status: 'To Be Mill', millingStatus: 'In Progress'},
+        { id: 3, batchId: '003', quantityInBags: '100', grossWeight: '10', preNetWeight: '100', postNetWeight: '100', from: 'Augusta', location: 'Warehouse 002', millerType: 'Private', requestDate: '4/21/12', startDate: '1/1/1', endDate: '2/2/2', transportedBy: 'NFA Trucking', status: 'In Milling', millingStatus: 'In Progress'},
+        { id: 4, batchId: '004', quantityInBags: '100', grossWeight: '10', preNetWeight: '100', postNetWeight: '100', from: 'Augusta', location: 'Warehouse 004', millerType: 'In House', requestDate: '10/28/12', startDate: '1/1/1', endDate: '2/2/2', transportedBy: 'N/A', status: 'In Milling', millingStatus: 'In Progress'},
+        { id: 5, batchId: '005', quantityInBags: '100', grossWeight: '10', preNetWeight: '100', postNetWeight: '100', from: 'Augusta', location: 'Warehouse 004', millerType: 'In House', requestDate: '12/10/13', startDate: '1/1/1', endDate: '2/2/2', transportedBy: 'N/A', status: 'Milled', millingStatus: 'In Progress'},
+        { id: 6, batchId: '006', quantityInBags: '100', grossWeight: '10', preNetWeight: '100', postNetWeight: '100', from: 'Augusta', location: 'Warehouse 004', millerType: 'In House', requestDate: '12/10/13', startDate: '1/1/1', endDate: '2/2/2', transportedBy: 'Zaragoza Trucks', status: 'Milled', millingStatus: 'In Progress'}
     ]);
 
-    const [selectedFilter, setSelectedFilter] = useState('all');
+    const [selectedFilter, setSelectedFilter] = useState('to be mill');
     const [showReceiveDialog, setShowReceiveDialog] = useState(false);
     const [showMillDialog, setShowMillDialog] = useState(false);
     const [showReturnDialog, setShowReturnDialog] = useState(false);
@@ -57,12 +53,29 @@ function MillingTransactions() {
 
     const getSeverity = (status) => {
         switch (status.toLowerCase()) {
-            case 'to receive': return 'warning';
-            case 'to mill': return 'info';
-            case 'to return': return 'success';
+            case 'to be mill': return 'info';
+            case 'in milling': return 'warning';
+            case 'milled': return 'success';
             default: return 'secondary';
         }
     };
+
+    const getMillingStatusSeverity = (millingStatus) => {
+        switch (millingStatus.toLowerCase()) {
+            case 'in progress': return 'warning';
+            case 'milled': return 'success';
+            default: return 'info';
+        }
+    };
+
+    const millingStatusBodyTemplate = (rowData) => (
+        <Tag 
+            value={rowData.millingStatus} 
+            severity={getMillingStatusSeverity(rowData.millingStatus)} 
+            style={{ minWidth: '80px', textAlign: 'center' }}
+            className="text-sm px-2 rounded-md"
+        />
+    );
     
     const statusBodyTemplate = (rowData) => (
         <Tag 
@@ -74,33 +87,44 @@ function MillingTransactions() {
     );
 
     const actionBodyTemplate = (rowData) => {
-        const actionText = rowData.status.split(' ')[1];
+        let actionText;
+        switch (rowData.status.toLowerCase()) {
+            case 'to be dry':
+            case 'to be mill':
+                actionText = 'Accept';
+                break;
+            case 'in drying':
+            case 'in milling':
+                actionText = 'Done';
+                break;
+            case 'dried':
+            case 'milled':
+                actionText = 'Return';
+                break;
+            default:
+                actionText = 'Action';
+        }
         return (
             <Button 
-                label={actionText.charAt(0).toUpperCase() + actionText.slice(1)} 
-                className="p-button-text p-button-sm text-primary" 
+                label={actionText} 
+                className="p-button-text p-button-sm text-primary ring-0" 
                 onClick={() => handleActionClick(rowData.status)}
             />
         );
     };
-    
+
     const handleActionClick = (status) => {
         switch (status.toLowerCase()) {
-            case 'to receive':
+            case 'to be mill':
                 setShowReceiveDialog(true);
                 break;
-            case 'to mill':
+            case 'in milling':
                 setShowMillDialog(true);
                 break;
-            case 'to return':
+            case 'milled':
                 setShowReturnDialog(true);
                 break;
         }
-    };
-
-    const handleReceiveInputChange = (e) => {
-        const { name, value } = e.target;
-        setReceiveFormData(prev => ({ ...prev, [name]: value }));
     };
 
     const handleMillInputChange = (e) => {
@@ -153,15 +177,10 @@ function MillingTransactions() {
 
                 {/* Buttons & Filters */}
                 <div className="flex justify-start mb-4 space-x-2 py-2">
-                    <Button 
-                        label="All" 
-                        className={`p-button-sm border-none ring-0  ${selectedFilter === 'all' ? 'p-button-raised bg-primary text-white' : 'p-button-outlined bg-white text-primary'}`} 
-                        onClick={() => setSelectedFilter('all')} 
-                    />
                     <div className="flex bg-white rounded-full gap-2">
-                        <FilterButton label="Request" icon={<Box className="mr-2" size={16} />} filter="to receive" />
-                        <FilterButton label="To mill" icon={<Factory className="mr-2" size={16} />} filter="to mill" />
-                        <FilterButton label="To return" icon={<RotateCcw className="mr-2" size={16} />} filter="to return" />
+                        <FilterButton label="Request" icon={<Box className="mr-2" size={16} />} filter="to be mill" />
+                        <FilterButton label="In milling" icon={<Factory className="mr-2" size={16} />} filter="in milling" />
+                        <FilterButton label="To return" icon={<RotateCcw className="mr-2" size={16} />} filter="milled" />
                     </div>
                     
                 </div>
@@ -173,7 +192,7 @@ function MillingTransactions() {
                         value={filteredData}
                         scrollable
                         scrollHeight="flex"
-                        scrollDirection="both"
+                        scrolldirection="both"
                         className="p-datatable-sm pt-5" 
                         filters={filters}
                         globalFilterFields={['dryer', 'dryingMethod', 'dateSent', 'qualityType', 'status']}
@@ -181,13 +200,38 @@ function MillingTransactions() {
                         paginator
                         rows={10}
                     > 
-                        <Column field="id" header="ID" className="text-center" headerClassName="text-center" />
-                        <Column field="dryer" header="Dryer" className="text-center" headerClassName="text-center" />
-                        <Column field="dryingMethod" header="Drying Method" className="text-center" headerClassName="text-center" />
-                        <Column field="dateSent" header="Date Sent" className="text-center" headerClassName="text-center" />
-                        <Column field="qualityType" header="Quality Type" className="text-center" headerClassName="text-center" />
-                        <Column field="status" header="Status" body={statusBodyTemplate} className="text-center" headerClassName="text-center"/>
-                        <Column header="Action" body={actionBodyTemplate} className="text-center" headerClassName="text-center"/>
+                        {selectedFilter !== 'request' && (
+                            <Column field="id" header="Milling Batch ID"className="text-center" headerClassName="text-center" />
+                        )}
+                        <Column field="quantityInBags" header="Quantity In Bags" className="text-center" headerClassName="text-center" />
+                        <Column field="grossWeight" header="Gross Weight" className="text-center" headerClassName="text-center" />
+                        <Column field="preNetWeight" header="Net Weight" className="text-center" headerClassName="text-center" />
+                        <Column field="from" header="From" className="text-center" headerClassName="text-center" />
+                        <Column field="location" header={selectedFilter === 'to be mill' ? 'To be Milled at' : selectedFilter === 'in milling' ? 'Milling at': 'Milled at'}
+                                className="text-center" headerClassName="text-center"/>
+                        <Column field="millerType" header="Miller Type" className="text-center" headerClassName="text-center" />
+                        {selectedFilter === 'milled' && (
+                            <Column field='startDate' header='Start Date' className="text-center" headerClassName="text-center" />
+                        )}
+                        <Column 
+                            field={selectedFilter === 'to be mill' ? 'requestDate' : (selectedFilter === 'in milling' ? 'startDate' : 'endDate')} 
+                            header={selectedFilter === 'to be mill' ? 'Request Date' : (selectedFilter === 'in milling' ? 'Start Date' : 'End Date')} 
+                            className="text-center" 
+                            headerClassName="text-center" 
+                        />
+                        <Column field="transportedBy" header="Transported By" className="text-center" headerClassName="text-center" />
+                        {(selectedFilter === 'to be mill') && (
+                            <Column field="status" header="Rice Status" body={statusBodyTemplate} className="text-center" headerClassName="text-center" />
+                        )}
+                        {selectedFilter !== 'receive' && (
+                            <Column 
+                                field="millingStatus" 
+                                header="Milling Status" 
+                                body={millingStatusBodyTemplate} 
+                                className="text-center" headerClassName="text-center" frozen alignFrozen="right"
+                            />
+                        )}
+                        <Column header="Action" body={actionBodyTemplate} className="text-center" headerClassName="text-center" frozen alignFrozen="right"/>   
                     </DataTable>
                     </div>
                 </div>

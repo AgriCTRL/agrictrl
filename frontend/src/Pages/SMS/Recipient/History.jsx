@@ -6,6 +6,7 @@ import { FilterMatchMode } from 'primereact/api';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
+import { useAuth } from '../../Authentication/Login/AuthContext';
 
 function CustomDateRangeSelector({ selectedFilter, onChange, disabled }) {
   const [currentDate, setCurrentDate] = useState(getStartOfWeek(new Date()));
@@ -58,6 +59,7 @@ function CustomDateRangeSelector({ selectedFilter, onChange, disabled }) {
 }
 
 function History() {
+    const { user } = useAuth();
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [filters, setFilters] = useState({
         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -138,7 +140,7 @@ function History() {
     };
 
     return (
-        <RecipientLayout activePage="History">
+        <RecipientLayout activePage="History" user={user}>
             <div className="flex flex-col px-10 py-2 h-full bg-[#F1F5F9]">
                 <div className="flex flex-col justify-center items-center p-10 h-1/4 rounded-lg bg-gradient-to-r from-primary to-secondary mb-2">
                     <h1 className="text-5xl h-full text-white font-bold mb-2">History</h1>

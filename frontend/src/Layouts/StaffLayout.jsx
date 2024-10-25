@@ -1,70 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Bell } from 'lucide-react';
 import { Avatar } from 'primereact/avatar';
-import { AuthClient } from "@dfinity/auth-client";
 
 function StaffLayout({ children, activePage }) {
-    const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const [name, setName] = useState(() => localStorage.getItem('userName') || '');
     const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
     const navigate = useNavigate();
 
     const navItems = [
         { text: 'Home', link: '/staff' },
-        { text: 'Buy Palay', link: '/staff/buy' },
+        { text: 'Procurement', link: '/staff/buy' },
         { text: 'Warehouse', link: '/staff/warehouse' },
         { text: 'Processing', link: '/staff/processing' },
         { text: 'Orders', link: '/staff/orders' },
     ];
 
-    useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                const authClient = await AuthClient.create();
-                const identity = authClient.getIdentity();
-                const principal = identity.getPrincipal().toText();
-
-                localStorage.removeItem('userName');
-
-                const res = await fetch(`${apiUrl}/nfapersonnels/principal/${principal}`, {
-                    method: 'GET',
-                    headers: {'Content-Type': 'application/json'}
-                });
-                const data = await res.json();
-                setName(data.firstName);
-
-                localStorage.setItem('userName', data.firstName);
-            } catch (error) {
-                console.log(error.message);
-            }
-        };
-        fetchUser();
-
-        const handleStorageChange = () => {
-            setName(localStorage.getItem('userName') || '');
-        };
-
-        window.addEventListener('storage', handleStorageChange);
-
-        return () => {
-            window.removeEventListener('storage', handleStorageChange);
-        };
-    }, []);
-
     const toggleRightSidebar = () => {
         setIsRightSidebarOpen(!isRightSidebarOpen);
     };
 
-    const logoutButton = async () => {
-        try {
-            const authClient = await AuthClient.create();
-            await authClient.logout();
-            navigate('/');
-        }
-        catch (error) {
-            console.log(error.message);
-        }
+    const profileClick = () => {
+        navigate('/staff/profile');
     }
 
     return (
@@ -99,13 +55,14 @@ function StaffLayout({ children, activePage }) {
                                 image="/profileAvatar.png"
                                 size="large" 
                                 shape="circle"
+                                onClick={profileClick}
                                 className="cursor-pointer border-primary border-2"
                             />
                             <div>
                                 <p className="font-bold text-primary">
                                     Juan Valencio
                                 </p> 
-                                <p onClick={logoutButton}>
+                                <p>
                                     Staff | NFA Nueva Ecija
                                 </p>
                             </div> 
