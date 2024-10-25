@@ -1,16 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
 import { Search, Settings2, FileX } from 'lucide-react';
 import { Tag } from 'primereact/tag';
 import { InputText } from 'primereact/inputtext';
+import { Toast } from 'primereact/toast';
 
 import UserDetails from './UserDetails';
 
 function Inactive() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const apiKey = import.meta.env.VITE_API_KEY;
+    const toast = useRef(null);
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [selectedUser, setSelectedUser] = useState(null);
     const [userDetailsVisible, setUserDetailsVisible] = useState(false);
@@ -38,7 +40,16 @@ function Inactive() {
 
     useEffect(() => {
         fetchInactiveUsers();
-    }, [inactiveUsers]);
+    }, []);
+
+    const toastSuccess = () => {
+        toast.current.show({
+            severity: 'success',
+            summary: 'Success',
+            detail: 'Updated user status successfully!',
+            life: 3000
+        });
+    }
 
     const actionBodyTemplate = (rowData) => {
         return (
@@ -67,6 +78,7 @@ function Inactive() {
 
     return (
         <div className="flex flex-col h-full">
+            <Toast ref={toast} />
             <div className="flex items-center justify-between mb-5">
                 <span className="p-input-icon-left w-1/2">
                     <Search className="ml-3 -translate-y-1 text-primary"/>
@@ -121,6 +133,8 @@ function Inactive() {
                 visible={userDetailsVisible}
                 onHide={() => setUserDetailsVisible(false)}
                 selectedUser={selectedUser}
+                onUserUpdated={fetchInactiveUsers}
+                onStatusUpdated={toastSuccess}
             />
         </div>
     );

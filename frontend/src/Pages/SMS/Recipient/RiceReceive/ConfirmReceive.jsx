@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
@@ -6,76 +6,79 @@ import { Calendar } from 'primereact/calendar';
 
 import { Wheat, CheckCircle } from 'lucide-react';
 import { InputTextarea } from 'primereact/inputtextarea';
+import { Toast } from 'primereact/toast';
 
-const initialFormData = {
-    riceType: '',
-    quantity: '',
-    description: '',
-    date: null,
-    price: '₱ 0'
-};
-
-function ConfirmReceive({ visible, onHide, data }) {
-    const [formData, setFormData] = useState(initialFormData);
+function ConfirmReceive({ visible, onHide, data, onConfirmReceive }) {
+    const [formData, setFormData] = useState([]);
     const [showConfirmation, setShowConfirmation] = useState(false);
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    const apiKey = import.meta.env.VITE_API_KEY;
+    const toast = useRef(null);
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         if (visible) {
             setFormData({
-                riceType: data.riceType || '',
-                orderId: data.id || '',
-                quantity: data.quantity || '',
-                description: data.description || '',
-                date: data.dateBought || null,
-                price: data.price || '₱ 0'
+                riceType: 'NFA Rice',
+                orderId: data.id,
+                quantity: data.riceQuantityBags,
+                date: new Date(data.orderDate).toISOString().split('T')[0],
+                price: data.totalCost,
+                description: data.description
             });
         }
     }, [visible, data]);
-
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prevState => ({
-            ...prevState,
-            [name]: value
-        }));
-
-        if (name === 'riceType' || name === 'quantity') {
-            calculatePrice(name === 'quantity' ? value : formData.quantity, name === 'riceType' ? value : formData.riceType);
-        }
-    };
-
-    const calculatePrice = (quantity, riceType) => {
-        let pricePerKilo = 0;
-
-        if (riceType === 'sinandomeng') {
-            pricePerKilo = 30;
-        } else if (riceType === 'angelica') {
-            pricePerKilo = 40;
-        } else if (riceType === 'jasmine') {
-            pricePerKilo = 50;
-        }
-
-        const calculatedPrice = quantity ? `₱ ${(pricePerKilo * parseInt(quantity) || 0).toLocaleString()}` : '₱ 0';
-        setFormData(prevState => ({
-            ...prevState,
-            price: calculatedPrice
-        }));
-    };
 
     const handleSubmit = () => {
         setShowConfirmation(true);
     };
 
     const handleClose = () => {
-        setFormData(initialFormData);
         setShowConfirmation(false);
         onHide();
     };
 
-    const confirmReceive = () => {
-        setShowConfirmation(false);
-        setFormData(initialFormData);
-        onHide();
+    const confirmReceive = async () => {
+        const receiveObject = {
+            id: data.id,
+            status: 'Received'
+        }
+
+        setIsLoading(true);
+
+        console.log(receiveObject);
+        try {
+            const res = await fetch(`${apiUrl}/riceorders/update`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'API-Key': `${apiKey}`
+                },
+                body: JSON.stringify(receiveObject)
+            });
+            if(!res.ok) {
+                throw new Error('failed to update rice order status')
+            }
+            setIsLoading(false);
+            setShowConfirmation(false);
+            onConfirmReceive();
+            onHide();
+            toast.current.show({
+                severity: 'success',
+                summary: 'Success',
+                detail: 'Received rice successfully!',
+                life: 3000
+            });
+        }
+        catch (error) {
+            console.error(error.message);
+            toast.current.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Failed, Please try again.',
+                life: 3000
+            });
+        }
     };
 
     const customDialogHeader = (
@@ -92,8 +95,17 @@ function ConfirmReceive({ visible, onHide, data }) {
         </div>
     );
 
+    const formatDate = (date) => {
+        return new Date(date).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        });
+    };
+
     return (
         <>
+            <Toast ref={toast} />
             <Dialog 
                 visible={visible} 
                 onHide={onHide} 
@@ -123,7 +135,6 @@ function ConfirmReceive({ visible, onHide, data }) {
                                 id="riceType"
                                 name="riceType"
                                 value={formData.riceType}
-                                onChange={handleInputChange}
                                 disabled
                                 className='w-full focus:ring-0'
                             />
@@ -135,7 +146,6 @@ function ConfirmReceive({ visible, onHide, data }) {
                                 id="orderId"
                                 name="orderId"
                                 value={formData.orderId}
-                                onChange={handleInputChange}
                                 disabled
                                 className='w-full focus:ring-0'
                             />
@@ -143,12 +153,11 @@ function ConfirmReceive({ visible, onHide, data }) {
                     </div>
 
                     <div className="w-full">
-                        <label htmlFor="quantity" className="block text-sm font-medium text-gray-700 mb-1">Quantity (in kilos)</label>
+                        <label htmlFor="quantity" className="block text-sm font-medium text-gray-700 mb-1">Quantity in Bags</label>
                         <InputText
                             id="quantity"
                             name="quantity"
                             value={formData.quantity}
-                            onChange={handleInputChange}
                             disabled
                             className='w-full focus:ring-0'
                         />
@@ -158,14 +167,12 @@ function ConfirmReceive({ visible, onHide, data }) {
 
                     <div className="w-full flex mb-1 space-x-2">
                         <div className="w-1/2">
-                            <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">Order Date</label>
-                            <Calendar
+                            <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">Date Ordered</label>
+                            <InputText
                                 id="date"
                                 name="date"
-                                value={formData.date}
-                                onChange={handleInputChange}
+                                value={formatDate(formData.date)}
                                 disabled
-                                dateFormat="yy-mm-dd"
                                 className="rig-0 w-full placeholder:text-gray-400 focus:shadow-none custom-calendar"
                             />
                         </div>
@@ -188,7 +195,6 @@ function ConfirmReceive({ visible, onHide, data }) {
                             id="description"
                             name="description"
                             value={formData.description}
-                            onChange={handleInputChange}
                             disabled
                             className="w-full"
                         />
@@ -198,7 +204,7 @@ function ConfirmReceive({ visible, onHide, data }) {
 
             <Dialog
                 visible={showConfirmation}
-                onHide={handleClose}
+                onHide={isLoading ? null : handleClose}
                 header={customDialogHeader2}
                 modal
                 footer={
@@ -207,6 +213,7 @@ function ConfirmReceive({ visible, onHide, data }) {
                             label="Confirm Receive" 
                             onClick={confirmReceive} 
                             className="py-2 px-4 bg-green-500 text-white"
+                            disabled={isLoading}
                         />
                     </div>
                 }
