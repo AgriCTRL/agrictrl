@@ -4,7 +4,7 @@ import { Bell } from 'lucide-react';
 import { Avatar } from 'primereact/avatar';
 import { Divider } from 'primereact/divider';
 
-function RecipientLayout({ children, activePage }) {
+function RecipientLayout({ children, activePage, user }) {
     const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
     const navigate = useNavigate();
 
@@ -60,10 +60,10 @@ function RecipientLayout({ children, activePage }) {
                             />
                             <div>
                                 <p className="font-bold text-primary">
-                                    Juan Valencio
+                                    {user.firstName + ' ' + user.lastName}
                                 </p> 
                                 <p>
-                                    Recipient
+                                    {user.userType}
                                 </p>
                             </div> 
                         </div>

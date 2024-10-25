@@ -10,40 +10,50 @@ import { FilterMatchMode } from 'primereact/api';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 
-import PalayRegister from './PalayRegister';
+import BuyRice from './BuyRice';
 import DeclinedDetails from './DeclineDetails';
+import { useAuth } from '../../../Authentication/Login/AuthContext';
 
 
 function RiceOrder() {
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    const apiKey = import.meta.env.VITE_API_KEY;
+    const { user } = useAuth();
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [filters, setFilters] = useState({
         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     });
 
-    const [showRegisterPalay, setShowRegisterPalay] = useState(false);
+    const [showBuyRice, setShowBuyRice] = useState(false);
     const [showDeclinedDetails, setShowDeclinedDetails] = useState(false);
     const [selectedDeclinedData, setSelectedDeclinedData] = useState(null);
+    const [inventoryData, setInventoryData] = useState([]);
 
+    useEffect(() => {
+        fetchData();
+    }, []);
 
-    const [inventoryData, setInventoryData] = useState([
-        { id: 1, trackingId: '001', dateBought: '2024-03-01', quantity: 1000, price: 100, riceType: 'Premium', status: 'UNPROCESSED'},
-        { id: 2, trackingId: '002', dateBought: '2024-03-02', quantity: 1500, price: 100, riceType: 'Standard', status: 'TRANSPORTED'},
-        { id: 3, trackingId: '003', dateBought: '2024-03-03', quantity: 2000, price: 100, riceType: 'Premium', status: 'UNPROCESSED'},
-        { id: 4, trackingId: '004', dateBought: '2024-03-04', quantity: 1800, price: 100, riceType: 'Standard', status: 'DECLINED'},
-        { id: 5, trackingId: '005', dateBought: '2024-03-05', quantity: 2200, price: 100, riceType: 'Premium', status: 'TRANSPORTED'},
-        { id: 6, trackingId: '001', dateBought: '2024-03-01', quantity: 1000, price: 100, riceType: 'Premium', status: 'TRANSPORTED'},
-        { id: 7, trackingId: '002', dateBought: '2024-03-02', quantity: 1500, price: 100, riceType: 'Standard', status: 'UNPROCESSED'},
-        { id: 8, trackingId: '003', dateBought: '2024-03-03', quantity: 2000, price: 100, riceType: 'Premium', status: 'UNPROCESSED'},
-        { id: 9, trackingId: '004', dateBought: '2024-03-04', quantity: 1800, price: 100, riceType: 'Standard', status: 'DECLINED'},
-        { id: 10, trackingId: '005', dateBought: '2024-03-05', quantity: 2200, price: 100, riceType: 'Premium', status: 'DECLINED'},
-    ]);
+    const fetchData = async () => {
+        try {
+            const res = await fetch(`${apiUrl}/riceorders?riceRecipientId=${user.id}&status=For%20Approval&status=Declined`, {
+                headers: { 'API-Key': `${apiKey}` }
+            });
+            if(!res.ok) {
+                throw new Error('Failed to fetch rice orders')
+            }
+            const data = await res.json();
+            setInventoryData(data);
+        }
+        catch (error) {
+            console.error(error.message)
+        }
+    }
 
     const [selectedFilter, setSelectedFilter] = useState('riceOrders');
 
     const getSeverity = (status) => {
         switch (status.toLowerCase()) {
-            case 'transported': return 'success';
-            case 'unprocessed': return 'warning';
+            case 'for approval': return 'warning';
             case 'declined': return 'danger';
             default: return 'secondary';
         }
@@ -59,7 +69,7 @@ function RiceOrder() {
     );
     
     const actionBodyTemplate = (rowData) => {
-        if (rowData.status === 'DECLINED') {
+        if (rowData.status === 'Declined') {
             return (
                 <CircleAlert 
                     className="text-red-500 cursor-pointer"
@@ -70,25 +80,29 @@ function RiceOrder() {
         return null;
     };
 
-    const handleAddPalay = () => {
-        setShowRegisterPalay(true);
-    };
-
-    const handlePalayRegistered = (newPalay) => {
-        console.log('New Palay registered:', newPalay);
-        setShowRegisterPalay(false);
+    const handleBuyRice = () => {
+        setShowBuyRice(true);
     };
 
     const handleDeclinedClick = (rowData) => {
         setSelectedDeclinedData({
-            ...rowData,
-            dateBought: new Date(rowData.dateBought)
+            ...rowData
         });
         setShowDeclinedDetails(true);
     };
 
+    const dateBodyTemplate = (rowData, field) => {
+        const date = new Date(rowData[field]).toISOString().split('T')[0];
+
+        return new Date(date).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+        });
+    };
+
     const filteredData = inventoryData.filter(item => 
-        selectedFilter === 'riceOrders' ? item.status !== 'DECLINED' : item.status === 'DECLINED'
+        selectedFilter === 'riceOrders' ? item.status !== 'Declined' : item.status === 'Declined'
     );
 
     const buttonStyle = (isSelected) => isSelected
@@ -96,7 +110,7 @@ function RiceOrder() {
         : 'bg-white text-primary border border-gray-300';
 
     return (
-        <RecipientLayout activePage="Rice Order">
+        <RecipientLayout activePage="Rice Order" user={user}>
             <div className="flex flex-col px-10 py-2 h-full bg-[#F1F5F9]">
                 <div className="flex flex-col justify-center items-center p-10 h-1/4 rounded-lg bg-gradient-to-r from-primary to-secondary mb-2">
                     <h1 className="text-5xl h-full text-white font-bold mb-2">Rice Order</h1>
@@ -134,7 +148,7 @@ function RiceOrder() {
                         <Button 
                             label="New Order + " 
                             className="w-1/16 p-2 rounded-md p-button-success text-white bg-gradient-to-r from-primary to-secondary ring-0"
-                            onClick={handleAddPalay} />
+                            onClick={handleBuyRice} />
                     </div>
                 </div>
 
@@ -153,11 +167,11 @@ function RiceOrder() {
                         paginator
                         rows={30}
                     > 
-                        <Column field="trackingId" header="Tracking ID" className="text-center" headerClassName="text-center" />
-                        <Column field="dateBought" header="Date Bought" className="text-center" headerClassName="text-center" />
-                        <Column field="quantity" header="Quantity" className="text-center" headerClassName="text-center" />
-                        <Column field="price" header="Price" className="text-center" headerClassName="text-center" />
-                        <Column field="riceType" header="Quality Type" className="text-center" headerClassName="text-center" />
+                        <Column field="id" header="Order ID" className="text-center" headerClassName="text-center" />
+                        <Column field="orderDate" header="Date Ordered" body={(rowData) => dateBodyTemplate(rowData, 'orderDate')} className="text-center" headerClassName="text-center" />
+                        <Column field="riceQuantityBags" header="Quantity in Bags" className="text-center" headerClassName="text-center" />
+                        <Column field="totalCost" header="Price" className="text-center" headerClassName="text-center" />
+                        <Column field="preferredDeliveryDate" header="Delivery Date" body={(rowData) => dateBodyTemplate(rowData, 'preferredDeliveryDate')} className="text-center" headerClassName="text-center" />
                         <Column field="status" header="Status" body={statusBodyTemplate} className="text-center" headerClassName="text-center"/>
                         <Column body={actionBodyTemplate} exportable={false} className="text-center" headerClassName="text-center"/>
                     </DataTable>
@@ -166,10 +180,10 @@ function RiceOrder() {
                 </div>
             </div>
 
-            <PalayRegister
-                visible={showRegisterPalay}
-                onHide={() => setShowRegisterPalay(false)}
-                onPalayRegistered={handlePalayRegistered}
+            <BuyRice
+                visible={showBuyRice}
+                onHide={() => setShowBuyRice(false)}
+                onRiceOrdered={fetchData}
             />
 
             <DeclinedDetails

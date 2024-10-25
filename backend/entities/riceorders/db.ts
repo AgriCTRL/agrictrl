@@ -1,4 +1,4 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, In } from 'typeorm';
 
 @Entity()
 export class RiceOrder extends BaseEntity {
@@ -8,7 +8,7 @@ export class RiceOrder extends BaseEntity {
     @Column()
     riceRecipientId: number;
 
-    @Column()
+    @Column({ nullable: true})
     riceBatchId: number;
 
     @Column()
@@ -29,7 +29,7 @@ export class RiceOrder extends BaseEntity {
     @Column()
     preferredDeliveryDate: Date;
 
-    @Column({ default: 'for approval'})
+    @Column({ default: 'For Approval'})
     status: string;
 
     @Column({ default: false })
@@ -48,10 +48,21 @@ function getCurrentPST(): Date {
     return new Date(utc + (3600000 * 8));
 }
 
-export async function getRiceOrders(limit: number, offset: number): Promise<RiceOrder[]> {
+export async function getRiceOrders(limit: number, offset: number, riceRecipientId?: number, status?: string[]): Promise<RiceOrder[]> {
+    let whereClause: any = {};
+    
+    if (riceRecipientId) {
+        whereClause.riceRecipientId = riceRecipientId;
+    }
+
+    if (status) {
+        whereClause.status = In(status);
+    }
+
     return await RiceOrder.find({
+        where: whereClause,
         take: limit,
-        skip: offset
+        skip: offset,
     });
 }
 

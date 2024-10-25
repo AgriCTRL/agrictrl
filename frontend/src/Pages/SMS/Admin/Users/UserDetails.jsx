@@ -3,7 +3,7 @@ import { TabView, TabPanel } from 'primereact/tabview';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 
-const UserDetails = ({ userType, visible, onHide, selectedUser }) => {
+const UserDetails = ({ userType, visible, onHide, selectedUser, onUserUpdated, onStatusUpdated }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [imageError, setImageError] = useState(false);
@@ -152,7 +152,9 @@ const UserDetails = ({ userType, visible, onHide, selectedUser }) => {
       if (!response.ok) {
         throw new Error('Failed to update user status');
       }
+      onUserUpdated();
       onHide();
+      onStatusUpdated();
     } catch (error) {
       console.error('Error updating user status:', error);
     } finally {
@@ -175,7 +177,7 @@ const UserDetails = ({ userType, visible, onHide, selectedUser }) => {
         <Button
           label="Previous"
           onClick={() => setActiveIndex((prev) => Math.max(0, prev - 1))}
-          disabled={activeIndex === 0}
+          disabled={activeIndex === 0 || isLoading}
           className="px-6 py-2 rounded-md text-white bg-primary disabled:opacity-50"
         />
         <Button
@@ -204,7 +206,7 @@ const UserDetails = ({ userType, visible, onHide, selectedUser }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="bg-white flex flex-col justify-between rounded-lg p-6 shadow-lg relative">
-        <button onClick={onHide} className="absolute top-4 right-4 z-50 text-gray-600 hover:text-gray-800">
+        <button onClick={onHide} disabled={isLoading} className="absolute top-4 right-4 z-50 text-gray-600 hover:text-gray-800">
           ✕
         </button>
 
