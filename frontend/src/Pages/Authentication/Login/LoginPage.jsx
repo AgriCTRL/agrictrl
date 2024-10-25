@@ -22,6 +22,7 @@ import {
 
 import { useAuth } from './AuthContext';
 import { AuthClient } from "@dfinity/auth-client";
+import { validate } from 'uuid';
 
 // Login function
 const loginUser = async (email, password, userType) => {
@@ -121,46 +122,45 @@ const LoginPage = () => {
 	const navigate = useNavigate();
 	const { login } = useAuth();
 
-  const userTypes = [
-    { label: 'NFA Branch Staff', value: 'NFA Branch Staff' },
-    { label: 'Admin', value: 'Admin' },
-    { label: 'Rice Recipient', value: 'Rice Recipient' },
-    { label: 'Private Miller', value: 'Private Miller' }
-  ];
+  	const userTypes = [
+		{ label: 'NFA Branch Staff', value: 'NFA Branch Staff' },
+		{ label: 'Admin', value: 'Admin' },
+		{ label: 'Rice Recipient', value: 'Rice Recipient' },
+		{ label: 'Private Miller', value: 'Private Miller' }
+	];
 
-  const loginButton = async () => {
-    if (!email || !password || !userType) {
-      alert('Please fill in all fields');
-      return;
-    }
+	const loginButton = async () => {
+		const isValidated = validateForm()
 
-    setLoading(true);
-    const result = await loginUser(email, password, userType);
-    setLoading(false);
-
-    if (result.success) {
-      login({ ...result.user, userType });
-
-      switch (userType) {
-        case 'Admin':
-          navigate('/admin');
-          break;
-        case 'NFA Branch Staff':
-          navigate('/staff');
-          break;
-        case 'Rice Recipient':
-          navigate('/recipient');
-          break;
-        case 'Private Miller':
-          navigate('/miller');
-          break;
-        default:
-          alert('Invalid user type');
-      }
-    } else {
-      alert(result.message);
-    }
-  };
+		if (isValidated) {
+			setLoading(true);
+			const result = await loginUser(email, password, userType);
+			setLoading(false);
+	
+			if (result.success) {
+			login({ ...result.user, userType });
+	
+			switch (userType) {
+				case 'Admin':
+				navigate('/admin');
+				break;
+				case 'NFA Branch Staff':
+				navigate('/staff');
+				break;
+				case 'Rice Recipient':
+				navigate('/recipient');
+				break;
+				case 'Private Miller':
+				navigate('/miller');
+				break;
+				default:
+				alert('Invalid user type');
+			}
+			} else {
+				alert(result.message);
+			}
+		}
+	};
 
 	const validateForm = () => {
 		setEmailError(false);
@@ -169,6 +169,12 @@ const LoginPage = () => {
 		if (!email) setEmailError(true);
 		if (!password) setPasswordError(true);
 		if (!userType) setUserTypeError(true);
+
+		if (!email || !password || !userType) {
+			return false;
+		}
+
+		return true;
 	};
 
 	const RegisterButton = (e) => {   

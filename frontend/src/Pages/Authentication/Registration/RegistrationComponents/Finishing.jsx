@@ -53,13 +53,17 @@ const Finishing = ({ setConfirmPasswordValid, credsInfo }) => {
 
         <div className="flex flex-col gap-2">
           <label htmlFor="password" className="block text-sm text-black">Password</label>
-          <CustomPasswordInput 
+          <Password 
             id="password" 
+            aria-describedby="password"
             value={password} 
             footer={footer}
             onChange={(e) => handleInputChange('password', e.target.value)} 
             placeholder="Enter your password" 
-            className="focus:border-[#14b8a6] hover:border-[#14b8a6] w-full p-inputtext-sm p-3 rounded-md border placeholder:text-gray-400 placeholder:font-normal"
+            className="w-full"
+            inputClassName='ring-0 focus:border-primary hover:border-primary'
+            toggleMask
+            feedback={false} 
             invalid={!credsInfo.password}
           />
           {!credsInfo.password &&
@@ -69,12 +73,14 @@ const Finishing = ({ setConfirmPasswordValid, credsInfo }) => {
 
         <div className="flex flex-col gap-2">
           <label htmlFor="confirmPassword" className="block text-sm text-black">Confirm Password</label>
-          <CustomPasswordInput 
+          <Password 
             id="confirmPassword" 
             value={confirmPassword} 
             onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
             placeholder="Confirm your password" 
-            className="focus:border-[#14b8a6] hover:border-[#14b8a6] w-full p-inputtext-sm p-3 rounded-md border border-gray-300 placeholder:text-gray-400 placeholder:font-normal"
+            className="w-full"
+            inputClassName='ring-0 focus:border-primary hover:border-primary'
+            feedback={false} 
             invalid={!credsInfo.confirmPassword}
           />
           {!credsInfo.confirmPassword &&
