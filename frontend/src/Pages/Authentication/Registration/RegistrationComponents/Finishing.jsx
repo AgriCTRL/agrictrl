@@ -4,11 +4,12 @@ import { useRegistration } from '../RegistrationContext';
 import { Password } from 'primereact/password';
 import { Divider } from 'primereact/divider';
 
-const Finishing = ({ setConfirmPasswordValid }) => {
+const Finishing = ({ setConfirmPasswordValid, credsInfo }) => {
   const { registrationData, updateRegistrationData } = useRegistration();
   const { email, password, confirmPassword } = registrationData.finishingDetails;
 
   const handleInputChange = (field, value) => {
+    credsInfo[field] = value;
     updateRegistrationData('finishingDetails', { [field]: value });
     if (field === 'password' || field === 'confirmPassword') {
       setConfirmPasswordValid(registrationData.finishingDetails.password === value);
@@ -29,46 +30,63 @@ const Finishing = ({ setConfirmPasswordValid }) => {
   );
 
   return (
-    <form className="h-full w-full px-16">
-      <h2 className="text-4xl font-medium mb-2 text-secondary">Finishing</h2>
-      <p className="mb-6 font-medium text-black">You're almost done! Please provide your email and create a secure password to complete your registration.</p>
+    <form className="h-fit w-full flex flex-col gap-4">
+      <h2 className="font-medium text-black text-2xl sm:text-4xl">Finishing</h2>
+      <p className="text-md text-black">You're almost done! Please provide your email and create a secure password to complete your registration.</p>
       
-      <div className="mb-4">
-        <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-700">Email</label>
-        <InputText 
-          id="email" 
-          type="email" 
-          value={email} 
-          onChange={(e) => handleInputChange('email', e.target.value)}  
-          placeholder="Enter your email" 
-          className="w-full ring-0"
-        />
-      </div>
+      <div className="flex flex-col gap-4 pt-4">
+        <div className="flex flex-col gap-2">
+          <label htmlFor="email" className="block text-sm text-black">Email</label>
+          <InputText 
+            id="email" 
+            type="email" 
+            value={email} 
+            onChange={(e) => handleInputChange('email', e.target.value)}  
+            placeholder="Enter your email" 
+            className="w-full focus:ring-0 focus:border-primary hover:border-primary"
+            invalid={!credsInfo.email}
+          />
+          {!credsInfo.email &&
+            <small className='p-error'>Please input your email.</small>
+          }
+        </div>
 
-      <div className="mb-4">
-        <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-700">Password</label>
-        <Password
-          id="password"
-          value={password}
-          footer={footer}
-          toggleMask 
-          onChange={(e) => handleInputChange('password', e.target.value)}
-          placeholder="Enter your password"
-          inputClassName="w-full p-3 ring-0"
-        />
-      </div>
+        <div className="flex flex-col gap-2">
+          <label htmlFor="password" className="block text-sm text-black">Password</label>
+          <Password 
+            id="password" 
+            aria-describedby="password"
+            value={password} 
+            footer={footer}
+            onChange={(e) => handleInputChange('password', e.target.value)} 
+            placeholder="Enter your password" 
+            className="w-full"
+            inputClassName='ring-0 focus:border-primary hover:border-primary'
+            toggleMask
+            feedback={false} 
+            invalid={!credsInfo.password}
+          />
+          {!credsInfo.password &&
+            <small className='p-error'>Please input your password.</small>
+          }
+        </div>
 
-      <div className="mb-4">
-        <label htmlFor="confirmPassword" className="block mb-2 text-sm font-medium text-gray-700">Confirm Password</label>
-        <Password
-          id="confirmPassword"
-          value={confirmPassword}
-          toggleMask 
-          feedback={false}
-          onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-          placeholder="Confirm your password"
-          inputClassName="w-full p-3 ring-0"
-        />
+        <div className="flex flex-col gap-2">
+          <label htmlFor="confirmPassword" className="block text-sm text-black">Confirm Password</label>
+          <Password 
+            id="confirmPassword" 
+            value={confirmPassword} 
+            onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+            placeholder="Confirm your password" 
+            className="w-full"
+            inputClassName='ring-0 focus:border-primary hover:border-primary'
+            feedback={false} 
+            invalid={!credsInfo.confirmPassword}
+          />
+          {!credsInfo.confirmPassword &&
+            <small className='p-error'>Please input your password.</small>
+          }
+        </div>
       </div>
     </form>
   );

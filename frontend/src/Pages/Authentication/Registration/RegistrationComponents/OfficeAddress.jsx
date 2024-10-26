@@ -3,7 +3,7 @@ import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { useRegistration } from '../RegistrationContext';
 
-const OfficeAddress = () => {
+const OfficeAddress = ({ addressInfo }) => {
   const { registrationData, updateRegistrationData } = useRegistration();
   const { region, province, cityTown, barangay, street } = registrationData.officeAddress;
   const [regionOptions, setRegionOptions] = useState([]);
@@ -119,6 +119,7 @@ const OfficeAddress = () => {
   };
 
   const handleInputChange = (field, value) => {
+    addressInfo[field] = value;
     if (field === 'region') {
       const selectedRegion = regionOptions.find(r => r.value === value);
       updateRegistrationData('officeAddress', { 
@@ -174,70 +175,94 @@ const OfficeAddress = () => {
   };
 
   return (
-    <form className="h-full w-full px-16">
-      <h2 className="text-4xl font-medium mb-2 text-secondary">Office Address</h2>
-      <p className="mb-6 font-medium text-black0">Enter your office address</p>
+    <form className="h-fit w-full flex flex-col gap-4">
+      <h2 className="font-medium text-black text-2xl sm:text-4xl">Office Address</h2>
+      <p className="text-md text-black">Enter your office address</p>
       
-      <div className="grid grid-cols-1 gap-4 mb-4">
-        <div>
-          <label htmlFor="region" className="block mb-2 text-sm font-medium text-gray-700">Region</label>
+      <div className="flex flex-col gap-4 pt-4">
+        <div className='flex flex-col gap-2'>
+          <label htmlFor="region" className="block text-sm text-black">Region</label>
           <Dropdown 
             id="region" 
             value={region} 
             options={regionOptions} 
             onChange={(e) => handleInputChange('region', e.value)}
             placeholder="Select a region" 
-            className="ring-0 w-full placeholder:text-gray-400" />
+            className="ring-0 w-full placeholder:text-gray-400"
+            invalid={!addressInfo.region}
+          />
+          {!addressInfo.region &&
+            <small className='p-error'>Region is required.</small>
+          }
         </div>
-      </div>
 
-      <div className="grid grid-cols-2 gap-4 mb-4">
-      {region !== 'National Capital Region' && (
-          <div>
-            <label htmlFor="province" className="block mb-2 text-sm font-medium text-gray-700">Province</label>
-            <Dropdown
-              id="province"
-              value={province}
-              options={provinceOptions}
-              onChange={(e) => handleInputChange('province', e.value)}
-              placeholder="Select a province"
-              className="ring-0 w-full"
+        <div className="grid grid-cols-2 gap-4 ">
+        {region !== 'National Capital Region' && (
+            <div className='flex flex-col gap-2'>
+              <label htmlFor="province" className="block text-sm text-black">Province</label>
+              <Dropdown
+                id="province"
+                value={province}
+                options={provinceOptions}
+                onChange={(e) => handleInputChange('province', e.value)}
+                placeholder="Select a province"
+                className="ring-0 w-full"
+                invalid={!addressInfo.province}
+              />
+              {!addressInfo.province &&
+                <small className='p-error'>Province is required.</small>
+              }
+            </div>
+          )}
+          
+          <div className='flex flex-col gap-2'>
+            <label htmlFor="cityTown" className="block text-sm text-black">City / Town</label>
+            <Dropdown 
+              id="cityTown" 
+              value={cityTown} 
+              options={cityTownOptions} 
+              onChange={(e) => handleInputChange('cityTown', e.value)}
+              placeholder="Select a city" 
+              className="ring-0 w-full placeholder:text-gray-400"
+              invalid={!addressInfo.cityTown}
             />
+            {!addressInfo.cityTown &&
+              <small className='p-error'>City is required.</small>
+            }
           </div>
-        )}
-        
-        <div>
-          <label htmlFor="cityTown" className="block mb-2 text-sm font-medium text-gray-700">City / Town</label>
-          <Dropdown 
-            id="cityTown" 
-            value={cityTown} 
-            options={cityTownOptions} 
-            onChange={(e) => handleInputChange('cityTown', e.value)}
-            placeholder="Select a city" 
-            className="ring-0 w-full placeholder:text-gray-400"/>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4 mb-4">
-        <div>
-          <label htmlFor="barangay" className="block mb-2 text-sm font-medium text-gray-700">Barangay</label>
-          <Dropdown 
-            id="barangay" 
-            value={barangay} 
-            options={barangayOptions} 
-            onChange={(e) => handleInputChange('barangay', e.value)} 
-            placeholder="Select a barangay" 
-            className="ring-0 w-full placeholder:text-gray-400"/>
         </div>
 
-        <div className="mb-4">
-          <label htmlFor="street" className="block mb-2 text-sm font-medium text-gray-700">Street</label>
-          <InputText 
-            id="street" 
-            value={street} 
-            onChange={(e) => handleInputChange('street', e.target.value)} 
-            className="w-full focus:ring-0" 
-            placeholder="#123 Sample Street" />
+        <div className="grid grid-cols-2 gap-4">
+          <div className='flex flex-col gap-2'>
+            <label htmlFor="barangay" className="block text-sm text-black">Barangay</label>
+            <Dropdown 
+              id="barangay" 
+              value={barangay} 
+              options={barangayOptions} 
+              onChange={(e) => handleInputChange('barangay', e.value)} 
+              placeholder="Select a barangay" 
+              className="ring-0 w-full placeholder:text-gray-400"
+              invalid={!addressInfo.barangay}
+            />
+            {!addressInfo.barangay &&
+              <small className='p-error'>Barangay is required.</small>
+            }
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label htmlFor="street" className="block text-sm text-black">Street</label>
+            <InputText 
+              id="street" 
+              value={street} 
+              onChange={(e) => handleInputChange('street', e.target.value)} 
+              className="w-full focus:ring-0" 
+              placeholder="#123 Sample Street"
+              invalid={!addressInfo.street}
+            />
+            {!addressInfo.street &&
+              <small className='p-error'>Street is required.</small>
+            }
+          </div>
         </div>
       </div>
     </form>

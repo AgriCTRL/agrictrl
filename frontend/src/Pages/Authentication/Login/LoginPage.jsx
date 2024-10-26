@@ -1,13 +1,28 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
 import { InputText } from 'primereact/inputtext';
-import { Dropdown } from 'primereact/dropdown';
 import { Button } from 'primereact/button';
-import { Wheat, Link, Map, FileStack, MapPinned, Facebook, Mail, Linkedin} from 'lucide-react';
 import { Password } from 'primereact/password';
 import { Divider } from 'primereact/divider';
+import { SelectButton } from 'primereact/selectbutton';
+
+import { 
+	Wheat, 
+	Link, 
+	Map, 
+	FileStack, 
+	MapPinned, 
+	Facebook, 
+	Mail, 
+	Linkedin, 
+	ArrowDown,
+	ArrowRight
+} from 'lucide-react';
+
 import { useAuth } from './AuthContext';
 import { AuthClient } from "@dfinity/auth-client";
+import { validate } from 'uuid';
 
 // Login function
 const loginUser = async (email, password, userType) => {
@@ -96,65 +111,83 @@ const loginUser = async (email, password, userType) => {
 }
 
 const LoginPage = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [userType, setUserType] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-  const { login } = useAuth();
+	const [email, setEmail] = useState('');
+	const [password, setPassword] = useState('');
+	const [userType, setUserType] = useState(null);
+	const [emailError, setEmailError] = useState(false);
+	const [userTypeError, setUserTypeError] = useState(false);
+	const [passwordError, setPasswordError] = useState(false);
 
-  const userTypes = [
-    { label: 'NFA Branch Staff', value: 'NFA Branch Staff' },
-    { label: 'Admin', value: 'Admin' },
-    { label: 'Rice Recipient', value: 'Rice Recipient' },
-    { label: 'Private Miller', value: 'Private Miller' }
-  ];
+	const [loading, setLoading] = useState(false);
+	const navigate = useNavigate();
+	const { login } = useAuth();
 
-  const loginButton = async () => {
-    if (!email || !password || !userType) {
-      alert('Please fill in all fields');
-      return;
-    }
+  	const userTypes = [
+		{ label: 'NFA Branch Staff', value: 'NFA Branch Staff' },
+		{ label: 'Admin', value: 'Admin' },
+		{ label: 'Rice Recipient', value: 'Rice Recipient' },
+		{ label: 'Private Miller', value: 'Private Miller' }
+	];
 
-    setLoading(true);
-    const result = await loginUser(email, password, userType);
-    setLoading(false);
+	const loginButton = async () => {
+		const isValidated = validateForm()
 
-    if (result.success) {
-      login({ ...result.user, userType });
+		if (isValidated) {
+			setLoading(true);
+			const result = await loginUser(email, password, userType);
+			setLoading(false);
+	
+			if (result.success) {
+			login({ ...result.user, userType });
+	
+			switch (userType) {
+				case 'Admin':
+				navigate('/admin');
+				break;
+				case 'NFA Branch Staff':
+				navigate('/staff');
+				break;
+				case 'Rice Recipient':
+				navigate('/recipient');
+				break;
+				case 'Private Miller':
+				navigate('/miller');
+				break;
+				default:
+				alert('Invalid user type');
+			}
+			} else {
+				alert(result.message);
+			}
+		}
+	};
 
-      switch (userType) {
-        case 'Admin':
-          navigate('/admin');
-          break;
-        case 'NFA Branch Staff':
-          navigate('/staff');
-          break;
-        case 'Rice Recipient':
-          navigate('/recipient');
-          break;
-        case 'Private Miller':
-          navigate('/miller');
-          break;
-        default:
-          alert('Invalid user type');
-      }
-    } else {
-      alert(result.message);
-    }
-  };
+	const validateForm = () => {
+		setEmailError(false);
+		setPasswordError(false);
+		setUserTypeError(false);
+		if (!email) setEmailError(true);
+		if (!password) setPasswordError(true);
+		if (!userType) setUserTypeError(true);
 
-  const RegisterButton = (e) => {   
-    e.preventDefault();
-    navigate('/register');
-  }
+		if (!email || !password || !userType) {
+			return false;
+		}
 
-  const forgotButton = (e) => {
-    e.preventDefault();   
-    navigate('/forgotpassword');
-  }
+		return true;
+	};
 
-  const footer = (
+	const RegisterButton = (e) => {   
+		e.preventDefault();
+		navigate('/register');
+	}
+
+	const forgotButton = (e) => {
+		e.preventDefault();   
+		navigate('/forgotpassword');
+	}
+
+  	const footer = (
 		<>
 			<Divider />
 			<p className="mt-2">Suggestions</p>
@@ -167,153 +200,188 @@ const LoginPage = () => {
 		</>
 	);
 
-  return (
-    <div className="h-screen w-screen flex flex-row">
-      {/* Left side */}
-      <div className="flex flex-col items-center justify-between h-full w-[45%] p-8">
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent mb-6">Login</h1>
-
-        <p className="text-md font-medium text-black mb-6">Login by providing your user type and user credentials</p>
-
-        <div className="h-full w-full flex flex-col justify-start my-10">
-          <label htmlFor="userType" className="block text-sm font-medium text-gray-700 mb-1">User Type</label>
-          <Dropdown
-            value={userType}
-            options={userTypes}
-            onChange={(e) => setUserType(e.value)}
-            placeholder="Select User Type"
-            className="ring-0 w-full placeholder:text-gray-400 mb-4"
-            valueTemplate={(option) => (
-              <div className="flex items-center">
-                <Wheat className="mr-2 text-secondary" />
-                <span className="text-secondary">{option?.label || "Select User Type"}</span>
-              </div>
-            )}
-            itemTemplate={(option) => (
-              <div className="flex items-center">
-                <Wheat className="mr-2 text-secondary" />
-                <span className="text-secondary">{option.label}</span>
-              </div>
-            )}
-          />
-
-          <div className="mb-4 w-full">
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-            <InputText
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email here"
-              className="w-full focus:ring-0 p-3"
-            />
-          </div>
-
-					<div className="mb-4 w-full">
-						<label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-700">Password</label>
-						<Password
-							id="password"
-							value={password}
-							footer={footer}
-							toggleMask 
-							feedback={false}
-							onChange={(e) => setPassword(e.target.value)}
-							placeholder="Enter your password"
-							inputClassName='w-full ring-0'
-						/>
+	return (
+		<div className="h-fit md:h-screen w-screen flex flex-col-reverse md:flex-row md:gap-10 p-0 md:p-10">
+			{/* Left side */}
+			<div className="flex flex-col items-center justify-between h-full w-full md:w-[45%] p-10 gap-4 rounded-2xl">
+				<div className="h-full w-full flex flex-col justify-start gap-6">
+					<div className="flex items-center cursor-pointer">
+						<img src="favicon.ico" alt="AgriCTRL+ Logo" className="h-12 mr-4" onClick={() => navigate('/') } />
 					</div>
 
-          <div className="flex justify-between items-center mb-6 w-full">
-            <div className="flex items-center">
-              <input type="checkbox" id="remember" className="mr-2" />
-              <label htmlFor="remember" className="text-sm font-medium text-primary">Remember Me</label>
-            </div>
-            <a href="#" onClick={forgotButton} className="text-sm font-medium text-primary hover:underline">Forgot Password</a>
-          </div>
+					<div className="title text-center flex items-center gap-4">
+						<h1 className="text-black text-2xl sm:text-4xl font-medium w-fit">Login an account</h1>
+						<ArrowDown size={30} />
+					</div>
 
-          <Button 
-            label={loading ? 'Logging in...' : 'Login'}
-            onClick={loginButton}
-            disabled={loading}
-            className="w-full bg-gradient-to-r from-secondary to-primary text-white px-20 py-3 rounded-lg" />
-        </div>
-        
-        <div className="mt-6 text-center">
-          <span className="text-sm font-medium text-black">No Account? </span>
-          <a href="#" onClick={RegisterButton} className="text-sm font-medium text-primary hover:underline">Register here</a>
-        </div>
-      </div>
+					<p className="text-md text-black">Let's continue working together to build a sustainable future for Philippine agriculture.</p>
 
-      {/* Right side */}
-      <div className="flex flex-col justify-between h-full w-[55%] p-8 text-white relative">
-        {/* Background Image */}
-        <div 
-          className="absolute inset-0 bg-cover bg-center z-0" 
-          style={{ 
-            backgroundImage: 'url("/Login-BG.jpg")', 
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat'
-          }}
-        ></div>
+					<div className="form flex flex-col gap-4">
+						<div className="w-full">
+							<SelectButton 
+								invalid
+								id="userType"
+								value={userType} 
+								onChange={(e) => setUserType(e.value)} 
+								options={userTypes}
+								className={`login-select-button w-full bg-tag-grey/50 
+									grid sm:grid-rows-1 grid-flow-col-2
+									sm:grid-cols-4 grid-cols-2
+								p-1 rounded-lg items-center justify-between gap-1 ${userTypeError && 'ring-1 ring-[#e24c4c]'}`}
+								optionValue="value" 
+								itemTemplate={(item) => (
+									<small className="text-center">{item.label}</small>
+								)}
+								pt={{
+									button: {
+										className: 'px-4 p-2 rounded-lg flex justify-center border-0 ring-0 w-full bg-transparent'
+									}
+								}}
+							/>
+							{userTypeError && 
+								<small id="userType-help" className='p-error'>
+									Please input your user type.
+								</small>
+							}
+						</div>
 
-        {/* Filter Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-secondary via-[#00c26170] to-transparent"></div>
+						<div className="flex flex-col gap-2">
+							<label htmlFor="email" className='text-black text-sm'>Email</label>
+							<InputText 
+								id="email" 
+								aria-describedby="email"
+								value={email}
+								onChange={(e) => {setEmail(e.target.value); setEmailError(false)}}
+								placeholder="Enter your email"
+								className="focus:border-primary hover:border-primary"
+								required
+								invalid={emailError}
+								keyfilter="email"
+							/>
+							{emailError && 
+								<small id="email-help" className='p-error'>
+									Please input a valid email.
+								</small>
+							}
+						</div>
 
-        <div className="relative z-20 w-full flex flex-col items-center">
-          <div className="flex justify-between items-center mb-8">
-            <div className="flex items-center">
-              <img src="favicon.ico" alt="AgriCTRL+ Logo" className="h-12 mr-4" />
-              <h1 className="text-2xl font-bold">AgriCTRL+</h1>
-            </div>
-          </div>
+						<div className="flex flex-col gap-2">
+							<label htmlFor="password" className='text-black text-sm'>Password</label>
+							<Password 
+								id="password" 
+								aria-describedby="password"
+								value={password}
+								onChange={(e) => {setPassword(e.target.value); setPasswordError(false)}}
+								placeholder="Enter your password"
+								className="focus:border-primary hover:border-primary w-full"
+								required
+								invalid={passwordError}
+								toggleMask
+								feedback={false} 
+								footer={footer}
+							/>
+							{passwordError && 
+								<small id="password-help" className='p-error'>
+									Please input your password.
+								</small>
+							}
+						</div>
 
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-medium mb-4">Welcome back!</h2>
-            <p className="text-md mb-8">Revolutionizing Rice Supply Chain Transparency and Traceability</p>
-          </div>
+						<div className="flex justify-between items-center w-full gap-4">
+							<Button 
+								onClick={loginButton}
+								className="w-3/4 bg-gradient-to-r from-secondary to-primary text-white px-20 py-3 rounded-lg ring-0 border-none hover:opacity-90 transition-all items-center justify-center gap-2" 
+								disabled={loading}
+							>	
+								<p className='font-semibold'>{loading ? 'Logging in...' : 'Login'}</p>
+								<ArrowRight />
+							</Button>
+							<a href="#" onClick={forgotButton} className="text-sm font-medium text-primary hover:underline">Forgot Password</a>
+						</div>
+						<div className="flex items-center">
+							<input type="checkbox" id="remember" className="mr-2" />
+							<label htmlFor="remember" className="text-black">Remember Me</label>
+						</div>
+					</div>
+				</div>
+				
+				<Divider className='m-0' />
 
-          <div className="grid grid-cols-4 gap-4 mb-8 w-full">
-            <div className="p-button-outlined p-button-secondary h-32 flex flex-col items-center justify-center bg-white/30 backdrop-blur-sm rounded-lg">
-              <Link size={24} />
-              <span className="mt-2">Chain</span>
-            </div>
+				<div className="text-center">
+					<span className="text-black">No Account? </span>
+					<a href="#" onClick={RegisterButton} className="font-medium text-primary hover:underline">Register here</a>
+				</div>
+			</div>
 
-            <div className="p-button-outlined p-button-secondary h-32 flex flex-col items-center justify-center bg-white/30 backdrop-blur-sm rounded-lg">
-              <Map size={24} />
-              <span className="mt-2">Trace</span>
-            </div>
+			{/* Right side */}
+			<div className="flex flex-col justify-between h-full w-full md:w-[55%] p-10 text-white relative md:rounded-2xl">
+				{/* Background Image */}
+				<div 
+					className="absolute inset-0 bg-cover bg-center md:rounded-2xl w-full" 
+					style={{ 
+						backgroundImage: 'url("/Login-BG.jpg")', 
+						backgroundSize: 'cover',
+						backgroundPosition: 'center',
+						backgroundRepeat: 'no-repeat'
+					}}
+				></div>
 
-            <div className="p-button-outlined p-button-secondary h-32 flex flex-col items-center justify-center bg-white/30 backdrop-blur-sm rounded-lg">
-              <FileStack size={24} />
-              <span className="mt-2">Review</span>
-            </div>
+				{/* Filter Overlay */}
+				<div className="absolute inset-0 bg-gradient-to-t from-[#0b373a] via-[#00c2617b] to-[#00c26100] md:rounded-2xl"></div>
 
-            <div className="p-button-outlined p-button-secondary h-32 flex flex-col items-center justify-center bg-white/30 backdrop-blur-sm rounded-lg">
-              <MapPinned size={24} />
-              <span className="mt-2">Locate</span>
-            </div>
-          </div>
-        </div>
+				<div className="relative z-20 w-full flex flex-col items-center justify-center h-full gap-8">
+					<div className='w-full flex flex-col gap-6'>
+						<div className="text-center">
+							<h2 className="text-2xl sm:text-4xl font-medium">Welcome back!</h2>
+							<p className="text-md">Revolutionizing Rice Supply Chain Transparency and Traceability</p>
+						</div>
 
-        <div className="relative z-20 w-full flex flex-col items-center">
-          <h3 className="text-xl font-semibold mb-4">Connect with us</h3>
-          <div className="w-full flex justify-between items-center">
-            <Button className="ring-0 bg-transparent border-none">
-              <Facebook size={24} />
-            </Button>
+						<div className="grid gap-4 w-full 
+							grid-cols-2 sm:grid-cols-4
+							grid-rows-2 sm:grid-rows-1 
+						">
+							<div className="p-button-outlined p-button-secondary h-32 flex flex-col items-center justify-center bg-white/10 hover:bg-white/25 transition shadow-xl backdrop-blur-sm rounded-lg">
+								<Link size={20} />
+								<span className="mt-2">Chain</span>
+							</div>
 
-            <Button className="ring-0 bg-transparent border-none">
-              <Mail size={24} />
-            </Button>
-                
-            <Button className="ring-0 bg-transparent border-none">
-              <Linkedin size={24} />
-            </Button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+							<div className="p-button-outlined p-button-secondary h-32 flex flex-col items-center justify-center bg-white/10 hover:bg-white/25 transition shadow-xl backdrop-blur-sm rounded-lg">
+								<Map size={20} />
+								<span className="mt-2">Trace</span>
+							</div>
+
+							<div className="p-button-outlined p-button-secondary h-32 flex flex-col items-center justify-center bg-white/10 hover:bg-white/25 transition shadow-xl backdrop-blur-sm rounded-lg">
+								<FileStack size={20} />
+								<span className="mt-2">Review</span>
+							</div>
+
+							<div className="p-button-outlined p-button-secondary h-32 flex flex-col items-center justify-center bg-white/10 hover:bg-white/25 transition shadow-xl backdrop-blur-sm rounded-lg">
+								<MapPinned size={20} />
+								<span className="mt-2">Locate</span>
+							</div>
+						</div>
+
+						<div className="w-full flex flex-col items-center">
+							<h3 className="text-xl font-semibold">Connect with us</h3>
+							<div className="w-full flex justify-between items-center">
+								<Button className="ring-0 bg-transparent border-none">
+									<Facebook size={20} />
+								</Button>
+
+								<Button className="ring-0 bg-transparent border-none">
+									<Mail size={20} />
+								</Button>
+										
+								<Button className="ring-0 bg-transparent border-none">
+									<Linkedin size={20} />
+								</Button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	);
 };
 
 export default LoginPage;

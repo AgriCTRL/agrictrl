@@ -59,7 +59,7 @@ const HeroSection = () => {
                 <img src={"/Landing-HeroBg.jpg"} alt={"image"} className="absolute inset-0 object-cover h-full" />
             </SimpleParallax>
 
-            <div className={`absolute inset-0 bg-[#000000] ${ overlayOpacity ? 'opacity-30' : 'opacity-0'} transition-opacity duration-800`}> </div>
+            <div className={`absolute inset-0 bg-[#000000] ${ overlayOpacity ? 'opacity-40' : 'opacity-0'} transition-opacity duration-800`}> </div>
                 
             <div className="min-w-full container flex flex-col gap-6 lg:flex-row relative px-6 sm:px-12 lg:px-24 h-full">
                 {/* Right Section */}
