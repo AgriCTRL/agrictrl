@@ -27,6 +27,7 @@ function Processing() {
     });
     const [viewMode, setViewMode] = useState('drying');
     const [selectedFilter, setSelectedFilter] = useState('request');
+    const [selectedItem, setSelectedItem] = useState(null);
     
     // Dialog states
     const [showAcceptDialog, setShowAcceptDialog] = useState(false);
@@ -36,6 +37,8 @@ function Processing() {
     // Data states
     const [palayBatches, setPalayBatches] = useState([]);
     const [transactions, setTransactions] = useState([]);
+    const [dryingbatches, setDryingBatches] = useState([]);
+    const [millingbatches, setMillingBatches] = useState([]);
     const [combinedData, setCombinedData] = useState([]);
     
 
@@ -54,24 +57,41 @@ function Processing() {
         remarks: ''
     });
 
-    useEffect(() => {
-        const today = new Date();
-        setFormData((prevFormData) => ({
-            ...prevFormData,
-            dateProcessed: today
-        }));
-    }, []);
+    // useEffect(() => {
+    //     const today = new Date();
+    //     setFormData((prevFormData) => ({
+    //         ...prevFormData,
+    //         dateProcessed: today
+    //     }));
+    // }, []);
 
     useEffect(() => {
         fetchPalayBatches();
-        fetchTransactions();
     }, []);
+
+    useEffect(() => {
+        if (viewMode === 'drying') {
+            if (selectedFilter === 'request') {
+                fetchPendingTransactions();
+            } else {
+                fetchAcceptedTransactions();
+            }
+            fetchDryingBatches();
+        } else {
+            if (selectedFilter === 'request') {
+                fetchPendingTransactions();
+            } else {
+                fetchAcceptedTransactions();
+            }
+            fetchMillingBatches();
+        }
+    }, [viewMode, selectedFilter]);
 
     useEffect(() => {
         if (palayBatches.length > 0 && transactions.length > 0) {
             processCombinedData();
         }
-    }, [palayBatches, transactions]);
+    }, [palayBatches, transactions, dryingbatches, millingbatches]);
 
     const fetchPalayBatches = async () => {
         try {
@@ -85,25 +105,66 @@ function Processing() {
         }
     };
 
-    const fetchTransactions = async () => {
+    const fetchAcceptedTransactions = async () => {
         try {
-          const response = await fetch(`${apiUrl}/transactions`, {
-            headers: { 'API-Key': apiKey }
-          });
-          const data = await response.json();
-          // Filter only pending transactions
-          setTransactions(data.filter(t => t.status === 'Pending'));
+            const locationType = viewMode === 'drying' ? 'Dryer' : 'Miller';
+            const response = await fetch(`${apiUrl}/transactions?toLocationType=${locationType}&status=Accepted`, {
+                headers: { 'API-Key': apiKey }
+            });
+            const data = await response.json();
+            setTransactions(data);
         } catch (error) {
-          console.error('Error fetching transactions:', error);
+            console.error('Error fetching accepted transactions:', error);
         }
-      };
+    };
+    
+    const fetchPendingTransactions = async () => {
+        try {
+            const locationType = viewMode === 'drying' ? 'Dryer' : 'Miller';
+            const response = await fetch(`${apiUrl}/transactions?toLocationType=${locationType}&status=Pending`, {
+                headers: { 'API-Key': apiKey }
+            });
+            const data = await response.json();
+            setTransactions(data);
+        } catch (error) {
+            console.error('Error fetching pending transactions:', error);
+        }
+    };
+
+    const fetchDryingBatches = async () => {
+        try {
+            const response = await fetch(`${apiUrl}/dryingbatches`, {
+                headers: { 'API-Key': apiKey }
+            });
+            const data = await response.json();
+            setDryingBatches(data);
+        } catch (error) {
+            console.error('Error fetching drying batches:', error);
+        }
+    };
+
+    const fetchMillingBatches = async () => {
+        try {
+            const response = await fetch(`${apiUrl}/millingbatches`, {
+                headers: { 'API-Key': apiKey }
+            });
+            const data = await response.json();
+            setMillingBatches(data);
+        } catch (error) {
+            console.error('Error fetching milling batches:', error);
+        }
+    };
 
     const processCombinedData = () => {
         const combined = palayBatches.map(batch => {
-            const relatedTransaction = transactions.find(t => t.itemId === batch.id);
+            const relatedTransaction = transactions.find(t => t.id === batch.currentTransaction);
+            const relatedDryingBatch = dryingbatches.find(d => d.palayBatchId === batch.id);
+            const relatedMillingBatch = millingbatches.find(m => m.palayBatchId === batch.id);
+            
             if (relatedTransaction) {
                 return {
-                    id: batch.id,
+                    dryingId: relatedDryingBatch?.id || null,
+                    millingId: relatedMillingBatch?.id || null,
                     batchId: batch.id,
                     quantityInBags: batch.quantityBags,
                     grossWeight: batch.grossWeight,
@@ -118,14 +179,15 @@ function Processing() {
                     endDate: batch.processEndDate ? new Date(batch.processEndDate).toLocaleDateString() : '',
                     moistureContent: batch.moistureContent,
                     transportedBy: relatedTransaction.transporterName,
-                    status: batch.status,
-                    dryingStatus: batch.dryingStatus,
-                    millingStatus: batch.millingStatus
+                    palayStatus: batch.status,
+                    transactionStatus: relatedTransaction.status,
+                    currentTransaction: relatedTransaction.id,
+                    dryingStatus: relatedDryingBatch?.status || null,
+                    millingStatus: relatedMillingBatch?.status || null
                 };
             }
             return null;
         }).filter(Boolean);
-
         setCombinedData(combined);
     };
 
@@ -147,8 +209,6 @@ function Processing() {
 
     const getSeverity = (status) => {
         switch (status?.toLowerCase()) {
-            case 'to be dry':
-            case 'to be mill': return 'info';
             case 'in drying':
             case 'in milling': return 'warning';
             case 'dried':
@@ -208,18 +268,19 @@ function Processing() {
         );
     };
     
-    const handleActionClick = (status) => {
-        switch (status?.toLowerCase()) {
-            case 'to be dry':
-            case 'to be mill':
+    const handleActionClick = (status, rowData) => {
+        setSelectedItem(rowData);
+        
+        switch (selectedFilter) {
+            case 'request':
                 setShowAcceptDialog(true);
                 break;
-            case 'in drying':
-            case 'in milling':
+                
+            case 'process':
                 setShowSetDataDialog(true);
                 break;
-            case 'dried':
-            case 'milled':
+                
+            case 'return':
                 setShowReturnDialog(true);
                 break;
         }
@@ -228,6 +289,32 @@ function Processing() {
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleConfirmReceive = async () => {
+        try {
+            const response = await fetch(`${apiUrl}/transactions/update`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'API-Key': apiKey
+                },
+                body: JSON.stringify({
+                    id: selectedItem.id,
+                    status: 'Accepted',
+                    receiveDateTime: new Date().toISOString(),
+                    receiverId: user.id
+                })
+            });
+    
+            if (!response.ok) throw new Error('Failed to update transaction');
+            
+            // Refresh data after successful update
+            await Promise.all([fetchPendingTransactions(), fetchPalayBatches()]);
+            setShowAcceptDialog(false);
+        } catch (error) {
+            console.error('Error updating transaction:', error);
+        }
     };
 
     const handleAccept = async (item) => {
@@ -251,7 +338,7 @@ function Processing() {
           });
       
           if (transactionResponse.ok) {
-            await Promise.all([fetchTransactions(), fetchPalayBatches()]);
+            await Promise.all([fetchPendingTransactions(), fetchPalayBatches()]);
             setShowAcceptDialog(false);
           }
         } catch (error) {
@@ -310,7 +397,7 @@ function Processing() {
           });
       
           if (response.ok) {
-            await Promise.all([fetchTransactions(), fetchPalayBatches()]);
+            await Promise.all([fetchPendingTransactions(), fetchPalayBatches()]);
             setShowReturnDialog(false);
           }
         } catch (error) {
@@ -318,46 +405,73 @@ function Processing() {
         }
     };
 
-    const getFilteredData = () => {
-        switch (selectedFilter) {
-          case 'request':
-            return combinedData.filter(item => {
-              const transaction = transactions.find(t => t.itemId === item.batchId);
-              return transaction && transaction.status === 'Pending';
-            });
-          
-          case 'process':
-            return combinedData.filter(item => 
-              viewMode === 'drying' ? item.status === 'In Drying' : item.status === 'In Milling'
-            );
-          
-          case 'return':
-            return combinedData.filter(item => 
-              viewMode === 'drying' ? item.status === 'To be Mill' : item.status === 'Milled'
-            );
-          
-          default:
-            return [];
+    const filteredData = combinedData.filter(item => {
+        if (viewMode === 'drying') {
+            switch (selectedFilter) {
+                case 'request':
+                    return item.transactionStatus === 'Pending' && 
+                           ['To be Dry', 'In Drying'].includes(item.palayStatus);
+                case 'process':
+                    return item.transactionStatus === 'Accepted' && 
+                           item.palayStatus === 'In Drying';
+                case 'return':
+                    return item.transactionStatus === 'Accepted' && 
+                           item.palayStatus === 'Dried';
+                default:
+                    return true;
+            }
+        } else { // milling viewMode
+            switch (selectedFilter) {
+                case 'request':
+                    return item.transactionStatus === 'Pending' && 
+                           ['To be Mill', 'In Milling'].includes(item.palayStatus);
+                case 'process':
+                    return item.transactionStatus === 'Accepted' && 
+                           item.palayStatus === 'In Milling';
+                case 'return':
+                    return item.transactionStatus === 'Accepted' && 
+                           item.palayStatus === 'Milled';
+                default:
+                    return true;
+            }
         }
-    };
+    });
 
     const getFilterCount = (filter) => {
-        const relevantStatuses = {
-            drying: {
-                request: 'To be Dry',
-                process: 'In Drying',
-                return: 'Dried'
-            },
-            milling: {
-                request: 'To be Mill',
-                process: 'In Milling',
-                return: 'Milled'
+        return combinedData.filter(item => {
+            if (viewMode === 'drying') {
+                switch (filter) {
+                    case 'request':
+                        return item.transactionStatus === 'Pending' && 
+                               ['To be Dry', 'In Drying'].includes(item.palayStatus);
+                    case 'process':
+                        return item.transactionStatus === 'Accepted' && 
+                               item.palayStatus === 'In Drying';
+                    case 'return':
+                        return item.transactionStatus === 'Accepted' && 
+                               item.palayStatus === 'Dried';
+                    default:
+                        return true;
+                }
+            } else {
+                switch (filter) {
+                    case 'request':
+                        return item.transactionStatus === 'Pending' && 
+                               ['To be Mill', 'In Milling'].includes(item.palayStatus);
+                    case 'process':
+                        return item.transactionStatus === 'Accepted' && 
+                               item.palayStatus === 'In Milling';
+                    case 'return':
+                        return item.transactionStatus === 'Accepted' && 
+                               item.palayStatus === 'Milled';
+                    default:
+                        return true;
+                }
             }
-        };
-
-        const statusToMatch = relevantStatuses[viewMode][filter];
-        return combinedData.filter(item => item.status === statusToMatch).length;
+        }).length;
     };
+
+
 
     const FilterButton = ({ label, icon, filter }) => (
         <Button 
@@ -371,146 +485,6 @@ function Processing() {
             </span>
         </Button>
     );
-
-    const getLocationHeader = () => {
-        if (viewMode === 'drying') {
-            switch (selectedFilter) {
-                case 'request': return 'To be Dry at';
-                case 'process': return 'Drying at';
-                case 'return': return 'Dried at';
-                default: return 'Location';
-            }
-        } else { // milling
-            switch (selectedFilter) {
-                case 'request': return 'To be Milled at';
-                case 'process': return 'Milling at';
-                case 'return': return 'Milled at';
-                default: return 'Location';
-            }
-        }
-    };
-
-    const getColumns = () => {
-        const baseColumns = [
-            { 
-                field: 'batchId', 
-                header: 'Palay Batch ID',
-                className: "text-center",
-                headerClassName: "text-center"
-            },
-            { 
-                field: 'quantityInBags', 
-                header: 'Quantity In Bags',
-                className: "text-center",
-                headerClassName: "text-center"
-            },
-            { 
-                field: 'grossWeight', 
-                header: 'Gross Weight',
-                className: "text-center",
-                headerClassName: "text-center"
-            },
-            { 
-                field: 'preNetWeight', 
-                header: 'Net Weight',
-                className: "text-center",
-                headerClassName: "text-center"
-            },
-            { 
-                field: 'from', 
-                header: 'From',
-                className: "text-center",
-                headerClassName: "text-center"
-            },
-            { 
-                field: 'location', 
-                header: getLocationHeader(),
-                className: "text-center",
-                headerClassName: "text-center"
-            },
-            { 
-                field: 'transportedBy', 
-                header: 'Transported By',
-                className: "text-center",
-                headerClassName: "text-center"
-            }
-        ];
-    
-        if (selectedFilter === 'return') {
-            baseColumns.splice(4, 0, { 
-                field: 'postNetWeight', 
-                header: 'Post-Net Weight',
-                className: "text-center",
-                headerClassName: "text-center"
-            });
-            baseColumns.push(
-                { 
-                    field: 'startDate', 
-                    header: 'Start Date',
-                    className: "text-center",
-                    headerClassName: "text-center"
-                },
-                { 
-                    field: 'endDate', 
-                    header: 'End Date',
-                    className: "text-center",
-                    headerClassName: "text-center"
-                }
-            );
-            if (viewMode === 'drying') {
-                baseColumns.push(
-                    { 
-                        field: 'dryingMethod', 
-                        header: 'Drying Method',
-                        className: "text-center",
-                        headerClassName: "text-center"
-                    },
-                    { 
-                        field: 'moistureContent', 
-                        header: 'Moisture Content',
-                        className: "text-center",
-                        headerClassName: "text-center"
-                    }
-                );
-            }
-        }
-    
-        // Add status column for request filter
-        if (selectedFilter === 'request') {
-            baseColumns.push({
-                field: 'status',
-                header: viewMode === 'milling' ? 'Rice Status' : 'Palay Status',
-                body: statusBodyTemplate,
-                className: "text-center",
-                headerClassName: "text-center"
-            });
-        }
-    
-        // Add process status column (except for request filter)
-        if (selectedFilter !== 'request') {
-            baseColumns.push({
-                field: viewMode === 'drying' ? "dryingStatus" : "millingStatus",
-                header: viewMode === 'drying' ? "Drying Status" : "Milling Status",
-                body: viewMode === 'drying' ? dryingStatusBodyTemplate : millingStatusBodyTemplate,
-                className: "text-center",
-                headerClassName: "text-center",
-                frozen: true,
-                alignFrozen: "right"
-            });
-        }
-    
-        // Add action column
-        baseColumns.push({
-            header: "Action",
-            body: actionBodyTemplate,
-            className: "text-center",
-            headerClassName: "text-center",
-            frozen: true,
-            alignFrozen: "right"
-        });
-    
-        return baseColumns;
-    };
     
     return (
         <StaffLayout activePage="Processing">
@@ -560,29 +534,77 @@ function Processing() {
                 <div className="flex-grow flex flex-col overflow-hidden rounded-lg shadow">
                     <div className="flex-grow overflow-hidden bg-white">
                         <DataTable 
-                            value={getFilteredData()}
+                            value={filteredData}
                             scrollable
                             scrollHeight="flex"
                             scrolldirection="both"
                             className="p-datatable-sm pt-5" 
                             filters={filters}
-                            globalFilterFields={['from', 'toBeDryAt', 'requestDate', 'startDate', 'endDate', 'transportedBy', 'status', 'dryingStatus']}
+                            globalFilterFields={[
+                                'batchId',
+                                'from',
+                                'location',
+                                'requestDate',
+                                'startDate',
+                                'endDate',
+                                'transportedBy',
+                                'status',
+                                viewMode === 'drying' ? 'dryingStatus' : 'millingStatus'
+                            ]}
                             emptyMessage="No data found."
                             paginator
                             rows={10}
                         >
-                            {getColumns().map((col, i) => (
-                                <Column
-                                    key={col.field || i}
-                                    field={col.field}
-                                    header={col.header}
-                                    body={col.body}
-                                    className={col.className}
-                                    headerClassName={col.headerClassName}
-                                    frozen={col.frozen}
-                                    alignFrozen={col.alignFrozen}
+                            {selectedFilter !== 'request' && (
+                                <Column 
+                                    field={viewMode === 'drying' ? "dryingId" : "millingId"} 
+                                    header={viewMode === 'drying' ? "Drying Batch ID" : "Milling Batch ID"} 
+                                    className="text-center" 
+                                    headerClassName="text-center" 
                                 />
-                            ))}
+                            )}
+                            <Column field="batchId" header="Palay Batch ID" className="text-center" headerClassName="text-center" />
+                            <Column field="quantityInBags" header="Quantity In Bags" className="text-center" headerClassName="text-center" />
+                            <Column field="location" 
+                                header={viewMode === 'drying' 
+                                    ? (selectedFilter === 'request' ? 'To be Dry at' 
+                                        : selectedFilter === 'process' ? 'Drying at' 
+                                        : 'Dried at') 
+                                    : (selectedFilter === 'request' ? 'To be Milled at' 
+                                        : selectedFilter === 'process' ? 'Milling at' 
+                                        : 'Milled at')}
+                                className="text-center" 
+                                headerClassName="text-center" 
+                            />
+                            <Column 
+                                field={selectedFilter === 'request' ? 'requestDate' : (selectedFilter === 'process' ? 'startDate' : 'endDate')} 
+                                header={selectedFilter === 'request' ? 'Request Date' : (selectedFilter === 'process' ? 'Start Date' : 'End Date')} 
+                                className="text-center" 
+                                headerClassName="text-center" 
+                            />
+                            <Column field="transportedBy" header="Transported By" className="text-center" headerClassName="text-center" />
+                            {selectedFilter !== 'request' && (
+                                <Column 
+                                    field={viewMode === 'drying' ? "dryingStatus" : "millingStatus"} 
+                                    header={viewMode === 'drying' ? "Drying Status" : "Milling Status"} 
+                                    body={viewMode === 'drying' ? dryingStatusBodyTemplate : millingStatusBodyTemplate} 
+                                    className="text-center" 
+                                    headerClassName="text-center" 
+                                    frozen 
+                                    alignFrozen="right"
+                                />
+                            )}
+                            {selectedFilter === 'request' && (
+                                <Column field="transactionStatus" header="Status" className="text-center" headerClassName="text-center" />
+                            )}
+                            <Column 
+                                header="Action" 
+                                body={actionBodyTemplate} 
+                                className="text-center" 
+                                headerClassName="text-center" 
+                                frozen 
+                                alignFrozen="right"
+                            />
                         </DataTable>
                     </div>
                 </div>
@@ -597,7 +619,7 @@ function Processing() {
                         <Button 
                             label="Confirm Receive" 
                             className="w-1/2 bg-primary hover:border-none" 
-                            // onClick={handleConfirmReceive}
+                            onClick={handleConfirmReceive}
                         />
                     </div>
                 </div>

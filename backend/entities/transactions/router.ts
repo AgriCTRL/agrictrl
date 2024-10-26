@@ -14,13 +14,15 @@ export function getRouter(): Router {
     router.get(
         '/',
         async (
-            req: Request<any, any, any, { limit?: string; offset?: string }>,
+            req: Request<any, any, any, { limit?: string; offset?: string; toLocationType?: string; status?: string }>,
             res
         ) => {
             const limit = Number(req.query.limit ?? -1);
             const offset = Number(req.query.offset ?? 0);
+            const toLocationType = req.query.toLocationType;
+            const status = req.query.status;
 
-            const transactions = await getTransactions(limit, offset);
+            const transactions = await getTransactions(limit, offset, toLocationType, status);
 
             res.json(transactions);
         }

@@ -127,7 +127,6 @@ function Warehouse() {
         millingEfficiency: '',
         status: 'In Progress',
     });
-
     const [acceptFormData, setAcceptFormData] = useState({
         riceBatchName: '',
         riceType: '',
@@ -163,10 +162,17 @@ function Warehouse() {
 
     useEffect(() => {
         fetchPalayBatches();
-        fetchTransactions();
         fetchDryerData();
         fetchMillerData();
     }, []);
+
+    useEffect(() => {
+        if (viewMode === 'requests') {
+            fetchPendingTransactions();
+        } else {
+            fetchAcceptedTransactions();
+        }
+    }, [viewMode]);
 
     useEffect(() => {
         if (palayBatches.length && transactions.length) {
@@ -186,9 +192,21 @@ function Warehouse() {
         }
     };
 
-    const fetchTransactions = async () => {
+    const fetchAcceptedTransactions = async () => {
         try {
-            const response = await fetch(`${apiUrl}/transactions`, {
+            const response = await fetch(`${apiUrl}/transactions?toLocationType=Warehouse&status=Accepted`, {
+                headers: { 'API-Key': apiKey }
+            });
+            const data = await response.json();
+            setTransactions(data);
+        } catch (error) {
+            console.error('Error fetching accepted transactions:', error);
+        }
+    };
+
+    const fetchPendingTransactions = async () => {
+        try {
+            const response = await fetch(`${apiUrl}/transactions?toLocationType=Warehouse&status=Pending`, {
                 headers: { 'API-Key': apiKey }
             });
             const data = await response.json();
@@ -231,9 +249,11 @@ function Warehouse() {
     };
 
     const processCombinedData = () => {
+        // Since transactions are already filtered for pending status and warehouse location
         const combined = palayBatches.map(batch => {
-            // Find transaction using currentTransaction field
-            const relatedTransaction = transactions.find(t => t.id === batch.currentTransaction);
+            // Find transaction where transaction's itemId matches batch id
+            const relatedTransaction = transactions.find(t => t.itemId === batch.id);
+            
             if (relatedTransaction) {
                 return {
                     id: batch.id,
@@ -359,7 +379,7 @@ function Warehouse() {
                     throw new Error('Failed to update transaction');
                 }
     
-                await fetchTransactions();
+                await fetchAcceptedTransactions();
                 setShowPalayAcceptDialog(false);
             }
         } catch (error) {
@@ -609,7 +629,7 @@ function Warehouse() {
     ? combinedData.filter(item => {
         const isPending = item.transactionStatus === 'Pending';
         if (!isPending) return false;
-        
+
         switch (selectedFilter) {
             case 'palay':
                 return item.item === 'Palay';

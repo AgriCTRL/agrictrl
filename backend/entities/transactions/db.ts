@@ -62,8 +62,26 @@ function getCurrentPST(): Date {
     return new Date(utc + (3600000 * 8));
 }
 
-export async function getTransactions(limit: number, offset: number): Promise<Transaction[]> {
+// export async function getTransactions(limit: number, offset: number): Promise<Transaction[]> {
+//     return await Transaction.find({
+//         take: limit,
+//         skip: offset
+//     });
+// }
+
+export async function getTransactions(limit: number, offset: number, toLocationType?: string, status?: string): Promise<Transaction[]> {
+    let whereClause: any = {};
+
+    if (toLocationType) {
+        whereClause.toLocationType = toLocationType;
+    }
+
+    if (status) {
+        whereClause.status = status;
+    }
+    
     return await Transaction.find({
+        where: whereClause,
         take: limit,
         skip: offset
     });
