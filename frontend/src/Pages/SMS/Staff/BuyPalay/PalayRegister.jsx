@@ -56,7 +56,6 @@ const initialPalayData = {
     harvestedDate: null,
     estimatedCapital: '',
     currentlyAt: '',
-    currentTransaction: '',
     status: '',
 };
 
@@ -73,7 +72,8 @@ const initialTransactionData = {
     toLocationType: 'Warehouse',
     toLocationId: '',
     status: 'Pending',
-    remarks: ''
+    remarks: '',
+    palayBatch: ''
 };
 
 function PalayRegister({ visible, onHide, onPalayRegistered }) {
@@ -126,7 +126,6 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
         harvestedDate: null,
         estimatedCapital: '',
         currentlyAt: '',
-        currentTransaction: '',
         status: '',
     });
     const [transactionData, setTransactionData] = useState({
@@ -142,7 +141,8 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
         toLocationType: 'Warehouse',
         toLocationId: '',
         status: 'Pending',
-        remarks: ''
+        remarks: '',
+        palayBatch: ''
     });
 
     const [activeStep, setActiveStep] = useState(0);
@@ -329,24 +329,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
         if (!isValid) return;
     
         try {
-            // Step 1: Create the transaction first
-            const transactionResponse = await fetch(`${apiUrl}/transactions`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': `${apiKey}`
-                },
-                body: JSON.stringify(transactionData)
-            });
-    
-            if (!transactionResponse.ok) {
-                throw new Error('Failed to submit transaction data');
-            }
-
-            const transactionResult = await transactionResponse.json();
-            const transactionId = transactionResult.id;
-    
-            // Step 2: Create palay data with the transaction ID
+            // Step 1: Create palay data first
             const palayResponse = await fetch(`${apiUrl}/palaybatches`, {
                 method: 'POST',
                 headers: {
@@ -355,7 +338,6 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                 },
                 body: JSON.stringify({
                     ...palayData,
-                    currentTransaction: transactionId,
                     dateBought: palayData.dateBought ? palayData.dateBought.toISOString().split('T')[0] : null,
                     birthDate: palayData.birthDate ? palayData.birthDate.toISOString().split('T')[0] : null,
                     plantedDate: palayData.plantedDate ? palayData.plantedDate.toISOString().split('T')[0] : null,
@@ -369,30 +351,31 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
     
             const palayResult = await palayResponse.json();
             const palayId = palayResult.id;
-            
-            // Step 3: Update the transaction with the palay ID
-            const updateTransactionResponse = await fetch(`${apiUrl}/transactions/update`, {
+    
+            // Step 2: Create the transaction with the palay ID
+            const transactionResponse = await fetch(`${apiUrl}/transactions`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'API-Key': `${apiKey}`
                 },
                 body: JSON.stringify({
-                    ...transactionResult,
-                    itemId: palayId
+                    ...transactionData,
+                    itemId: palayId  // Use the palay batch ID here
                 })
             });
     
-            if (!updateTransactionResponse.ok) {
-                throw new Error('Failed to update transaction with palay ID');
+            if (!transactionResponse.ok) {
+                throw new Error('Failed to submit transaction data');
             }
-
-            const newTransactionResult = await updateTransactionResponse.json();
+    
+            const transactionResult = await transactionResponse.json();
+            const transactionId = transactionResult.id;
     
             // Reset states and show success message
             setPalayData(initialPalayData);
             setTransactionData(initialTransactionData);
-            
+    
             toast.current.show({
                 severity: 'success',
                 summary: 'Success',

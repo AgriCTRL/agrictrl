@@ -2,8 +2,12 @@ import {
     BaseEntity,
     Column,
     Entity,
-    PrimaryGeneratedColumn
+    PrimaryGeneratedColumn,
+    ManyToOne,
+    JoinColumn
 } from 'typeorm';
+
+import { PalayBatch } from '../palaybatches/db';
 
 @Entity()
 export class Transaction extends BaseEntity {
@@ -51,6 +55,10 @@ export class Transaction extends BaseEntity {
 
     @Column({ nullable: true })
     remarks: string;
+
+    @ManyToOne(() => PalayBatch)
+    @JoinColumn({ name: 'itemId' })
+    palayBatch: PalayBatch;
 }
 
 export type TransactionCreate = Pick<Transaction, 'item' | 'itemId' | 'senderId' | 'sendDateTime' | 'fromLocationType' | 'fromLocationId' | 'transporterName' | 'transporterDesc' | 'receiverId' | 'receiveDateTime' | 'toLocationType' | 'toLocationId' | 'status' | 'remarks'>;
@@ -62,8 +70,26 @@ function getCurrentPST(): Date {
     return new Date(utc + (3600000 * 8));
 }
 
-export async function getTransactions(limit: number, offset: number): Promise<Transaction[]> {
+// export async function getTransactions(limit: number, offset: number): Promise<Transaction[]> {
+//     return await Transaction.find({
+//         take: limit,
+//         skip: offset
+//     });
+// }
+
+export async function getTransactions(limit: number, offset: number, toLocationType?: string, status?: string): Promise<Transaction[]> {
+    let whereClause: any = {};
+
+    if (toLocationType) {
+        whereClause.toLocationType = toLocationType;
+    }
+
+    if (status) {
+        whereClause.status = status;
+    }
+    
     return await Transaction.find({
+        where: whereClause,
         take: limit,
         skip: offset
     });

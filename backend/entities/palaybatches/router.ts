@@ -79,7 +79,6 @@ export function getRouter(): Router {
                 harvestedDate: Date;
                 estimatedCapital: number;
                 currentlyAt: string;
-                currentTransaction: number;
                 status: string }>,
             res
         ) => {
@@ -117,7 +116,6 @@ export function getRouter(): Router {
                 harvestedDate,
                 estimatedCapital,
                 currentlyAt,
-                currentTransaction,
                 status } = req.body;
 
             const qualitySpec = await createQualitySpec({
@@ -172,7 +170,6 @@ export function getRouter(): Router {
                 harvestedDate,
                 estimatedCapital,
                 currentlyAt,
-                currentTransaction,
                 status
             });
 
@@ -200,7 +197,6 @@ async function updateHandler(
         harvestedDate?: Date;
         estimatedCapital?: number;
         currentlyAt?: string;
-        currentTransaction?: number;
         status?: string }>,
     res: Response
 ): Promise<void> {
@@ -218,7 +214,6 @@ async function updateHandler(
         harvestedDate,
         estimatedCapital,
         currentlyAt,
-        currentTransaction,
         status } = req.body;
 
     const palayBatch = await updatePalayBatch({
@@ -236,7 +231,6 @@ async function updateHandler(
         harvestedDate,
         estimatedCapital,
         currentlyAt,
-        currentTransaction,
         status
     });
 

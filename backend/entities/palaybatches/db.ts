@@ -3,12 +3,14 @@ import {
     Column,
     Entity,
     ManyToOne,
+    OneToMany,
     PrimaryGeneratedColumn
 } from 'typeorm';
 
 import { getQualitySpec, QualitySpec } from '../qualityspecs/db';
 import { getPalaySupplier, PalaySupplier } from '../palaysuppliers/db';
 import { getFarm, Farm } from '../farms/db';
+import { Transaction } from '../transactions/db';
 
 @Entity()
 export class PalayBatch extends BaseEntity {
@@ -73,13 +75,13 @@ export class PalayBatch extends BaseEntity {
     currentlyAt: string;
 
     @Column()
-    currentTransaction: number;
-
-    @Column()
     status: string;
+
+    @OneToMany(() => Transaction, transaction => transaction.palayBatch)
+    transactions: Transaction[];
 }
 
-export type PalayBatchCreate = Pick<PalayBatch, 'palayVariety' | 'dateBought' | 'buyingStationName' | 'buyingStationLoc' | 'quantityBags' | 'grossWeight' | 'netWeight' | 'qualityType' | 'qualitySpecId' | 'price' | 'palaySupplierId' | 'farmId' | 'plantedDate' | 'harvestedDate' | 'estimatedCapital' | 'currentlyAt' | 'currentTransaction' | 'status'> &
+export type PalayBatchCreate = Pick<PalayBatch, 'palayVariety' | 'dateBought' | 'buyingStationName' | 'buyingStationLoc' | 'quantityBags' | 'grossWeight' | 'netWeight' | 'qualityType' | 'qualitySpecId' | 'price' | 'palaySupplierId' | 'farmId' | 'plantedDate' | 'harvestedDate' | 'estimatedCapital' | 'currentlyAt' | 'status'> &
 {  qualitySpecId: QualitySpec['id'];
     palaySupplierId: PalaySupplier['id'];
     farmId: Farm['id'];
@@ -169,7 +171,6 @@ export async function createPalayBatch(palayBatchCreate: PalayBatchCreate): Prom
     palayBatch.harvestedDate = palayBatchCreate.harvestedDate;
     palayBatch.estimatedCapital = palayBatchCreate.estimatedCapital;
     palayBatch.currentlyAt = palayBatchCreate.currentlyAt;
-    palayBatch.currentTransaction = palayBatchCreate.currentTransaction;
     palayBatch.status = palayBatchCreate.status;
 
     return await palayBatch.save();
@@ -190,7 +191,6 @@ export async function updatePalayBatch(palayBatchUpdate: PalayBatchUpdate): Prom
         harvestedDate: palayBatchUpdate.harvestedDate,
         estimatedCapital: palayBatchUpdate.estimatedCapital,
         currentlyAt: palayBatchUpdate.currentlyAt,
-        currentTransaction: palayBatchUpdate.currentTransaction,
         status: palayBatchUpdate.status
     });
 
