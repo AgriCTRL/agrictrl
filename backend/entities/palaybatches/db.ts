@@ -3,12 +3,14 @@ import {
     Column,
     Entity,
     ManyToOne,
+    OneToMany,
     PrimaryGeneratedColumn
 } from 'typeorm';
 
 import { getQualitySpec, QualitySpec } from '../qualityspecs/db';
 import { getPalaySupplier, PalaySupplier } from '../palaysuppliers/db';
 import { getFarm, Farm } from '../farms/db';
+import { Transaction } from '../transactions/db';
 
 @Entity()
 export class PalayBatch extends BaseEntity {
@@ -77,6 +79,9 @@ export class PalayBatch extends BaseEntity {
 
     @Column()
     status: string;
+
+    @OneToMany(() => Transaction, transaction => transaction.palayBatch)
+    transactions: Transaction[];
 }
 
 export type PalayBatchCreate = Pick<PalayBatch, 'palayVariety' | 'dateBought' | 'buyingStationName' | 'buyingStationLoc' | 'quantityBags' | 'grossWeight' | 'netWeight' | 'qualityType' | 'qualitySpecId' | 'price' | 'palaySupplierId' | 'farmId' | 'plantedDate' | 'harvestedDate' | 'estimatedCapital' | 'currentlyAt' | 'currentTransaction' | 'status'> &

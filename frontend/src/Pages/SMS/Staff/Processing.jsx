@@ -11,10 +11,55 @@ import { Dialog } from 'primereact/dialog';
 import { Calendar } from 'primereact/calendar';
 import { Dropdown } from 'primereact/dropdown';
 import { InputTextarea } from 'primereact/inputtextarea';
+import { Toast } from 'primereact/toast';
 
 import { useAuth } from '../../Authentication/Login/AuthContext';
 
-function Processing() {
+const initialDryingData = {
+    palayBatchId: '',
+    dryingMethod: '',
+    dryerId : '',
+    startDateTime: '',
+    endDateTime: '',
+    driedQuantityBags: '',
+    driedGrossWeight: '',
+    driedNetWeight: '',
+    moistureContent: '',
+    status: 'In Progress',
+};
+
+const initialMillingData = {
+    dryingBatchId: '',
+    palayBatchId: '',
+    millerId: '',
+    millerType: '',
+    startDateTime: '',
+    endDateTime: '',
+    milledQuantityBags: '',
+    milledGrossWeight: '',
+    milledNetWeight: '',
+    millingEfficiency: '',
+    status: 'In Progress',
+};
+
+const initialTransactionData = {
+    item: '',
+    itemId: '',
+    senderId: '',
+    fromLocationType: '',
+    fromLocationId: 0,
+    transporterName: '',
+    transporterDesc: '',
+    receiverId: '',
+    receiveDateTime: '0',
+    toLocationType: '',
+    toLocationId: '',
+    toLocationName: '',
+    status: 'Pending',
+    remarks: ''
+};
+
+const Processing = () => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const apiKey = import.meta.env.VITE_API_KEY;
     const toast = useRef(null);
@@ -31,16 +76,19 @@ function Processing() {
     
     // Dialog states
     const [showAcceptDialog, setShowAcceptDialog] = useState(false);
-    const [showSetDataDialog, setShowSetDataDialog] = useState(false);
+    const [showProcessDialog, setProcessDialog] = useState(false);
     const [showReturnDialog, setShowReturnDialog] = useState(false);
 
     // Data states
-    const [palayBatches, setPalayBatches] = useState([]);
-    const [transactions, setTransactions] = useState([]);
-    const [dryingbatches, setDryingBatches] = useState([]);
-    const [millingbatches, setMillingBatches] = useState([]);
     const [combinedData, setCombinedData] = useState([]);
-    
+    const [dryerData, setDryerData] = useState([]);
+    const [millerData, setMillerData] = useState([]);
+
+    const [warehouses, setWarehouses] = useState([]);
+
+    const [newDryingData, setNewDryingData] = useState(initialDryingData);
+    const [newMillingData, setNewMillingData] = useState(initialMillingData);
+    const [newTransactionData, setNewTransactionData] = useState(initialMillingData);
 
     const [formData, setFormData] = useState({
         dateProcessed: new Date(),
@@ -57,138 +105,449 @@ function Processing() {
         remarks: ''
     });
 
-    // useEffect(() => {
-    //     const today = new Date();
-    //     setFormData((prevFormData) => ({
-    //         ...prevFormData,
-    //         dateProcessed: today
-    //     }));
-    // }, []);
-
     useEffect(() => {
-        fetchPalayBatches();
-    }, []);
-
-    useEffect(() => {
-        if (viewMode === 'drying') {
-            if (selectedFilter === 'request') {
-                fetchPendingTransactions();
-            } else {
-                fetchAcceptedTransactions();
-            }
-            fetchDryingBatches();
-        } else {
-            if (selectedFilter === 'request') {
-                fetchPendingTransactions();
-            } else {
-                fetchAcceptedTransactions();
-            }
-            fetchMillingBatches();
-        }
+        fetchData();
+        fetchActiveWarehouses();
     }, [viewMode, selectedFilter]);
 
-    useEffect(() => {
-        if (palayBatches.length > 0 && transactions.length > 0) {
-            processCombinedData();
-        }
-    }, [palayBatches, transactions, dryingbatches, millingbatches]);
-
-    const fetchPalayBatches = async () => {
+    const fetchData = async () => {
         try {
-            const response = await fetch(`${apiUrl}/palaybatches`, {
-                headers: { 'API-Key': apiKey }
+            // Determine processing type and location based on viewMode
+            const processType = viewMode === 'drying' ? 'dryer' : 'miller';
+            const locationType = viewMode === 'drying' ? 'Dryer' : 'Miller';
+            const status = selectedFilter === 'request' ? 'Pending' : 'Accepted';
+            const batchType = viewMode === 'drying' ? 'drying' : 'milling';
+            
+            // Fetch all required data in parallel
+            const [
+                facilitiesRes,
+                inventoryRes,
+                warehousesRes
+            ] = await Promise.all([
+                fetch(`${apiUrl}/${processType}s`, { headers: { 'API-Key': apiKey } }),
+                fetch(`${apiUrl}/inventory?toLocationType=${locationType}&status=${status}&batchType=${batchType}`, { headers: { 'API-Key': apiKey } }),
+                fetch(`${apiUrl}/warehouses`, { headers: { 'API-Key': apiKey } })
+            ]);
+    
+            if (!facilitiesRes.ok || !inventoryRes.ok || !warehousesRes.ok) {
+                throw new Error('Failed to fetch data');
+            }
+    
+            const [facilities, inventory, warehouses] = await Promise.all([
+                facilitiesRes.json(),
+                inventoryRes.json(),
+                warehousesRes.json()
+            ]);
+    
+            // Update facility states based on viewMode
+            if (viewMode === 'drying') {
+                setDryerData(facilities);
+            } else {
+                setMillerData(facilities);
+            }
+    
+            // Combine and structure the data based on the backend associations
+            const transformedData = inventory.map(item => {
+                const millerType = facilities.find(f => f.id === item.transaction.toLocationId)?.type || null;
+
+                return {
+                    palayBatchId: item.palayBatch.id,
+                    transactionId: item.transaction.id,
+                    processingBatchId: item.processingBatch?.id,
+                    quantityInBags: item.palayBatch.quantityBags,
+                    grossWeight: item.palayBatch.grossWeight,
+                    netWeight: item.palayBatch.netWeight,
+                    from: warehouses.find(w => w.id === item.transaction.fromLocationId)?.facilityName || 'Unknown Warehouse',
+                    location: facilities.find(f => f.id === item.transaction.toLocationId)?.[`${processType}Name`] || 'Unknown Facility',
+                    toLocationId: item.transaction.toLocationId, // Adjust based on response structure
+                    millerType: millerType,
+                    dryingMethod: item.processingBatch?.dryingMethod || null,  // Adjust based on response structure
+                    requestDate: item.transaction.sendDateTime ? new Date(item.transaction.sendDateTime).toLocaleDateString() : '',
+                    startDate: item.processingBatch?.startDateTime ? new Date(item.processingBatch.startDateTime).toLocaleDateString() : '',
+                    endDate: item.processingBatch?.endDateTime ? new Date(item.processingBatch.endDateTime).toLocaleDateString() : '',
+                    moistureContent: item.palayBatch.qualitySpec?.moistureContent || '',
+                    transportedBy: item.transaction.transporterName,
+                    palayStatus: item.palayBatch.status,
+                    transactionStatus: item.transaction.status,
+                    processingStatus: item.processingBatch?.status || null
+                };
             });
-            const data = await response.json();
-            setPalayBatches(data);
+    
+            setCombinedData(transformedData);
         } catch (error) {
-            console.error('Error fetching palay batches:', error);
+            console.error('Error fetching data:', error);
+            toast.current.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Failed to fetch data',
+                life: 3000
+            });
         }
     };
 
-    const fetchAcceptedTransactions = async () => {
+    const fetchActiveWarehouses = async () => {
         try {
-            const locationType = viewMode === 'drying' ? 'Dryer' : 'Miller';
-            const response = await fetch(`${apiUrl}/transactions?toLocationType=${locationType}&status=Accepted`, {
-                headers: { 'API-Key': apiKey }
+            const response = await fetch(`${apiUrl}/warehouses?status=Active`, {
+                headers: {
+                    'API-Key': apiKey
+                }
             });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch warehouses');
+            }
+
             const data = await response.json();
-            setTransactions(data);
+            const formattedWarehouses = data.map(warehouse => ({
+                label: warehouse.facilityName,
+                value: warehouse.id
+            }));
+            setWarehouses(formattedWarehouses);
         } catch (error) {
-            console.error('Error fetching accepted transactions:', error);
+            console.error('Error fetching warehouses:', error);
+            toast.current.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Failed to fetch warehouses',
+                life: 3000
+            });
         }
     };
     
-    const fetchPendingTransactions = async () => {
-        try {
-            const locationType = viewMode === 'drying' ? 'Dryer' : 'Miller';
-            const response = await fetch(`${apiUrl}/transactions?toLocationType=${locationType}&status=Pending`, {
-                headers: { 'API-Key': apiKey }
-            });
-            const data = await response.json();
-            setTransactions(data);
-        } catch (error) {
-            console.error('Error fetching pending transactions:', error);
+    const handleActionClick = (rowData) => {
+        setSelectedItem(rowData);
+        
+        switch (rowData.transactionStatus?.toLowerCase()) {
+            case 'pending':
+                setShowAcceptDialog(true);
+                break;
+            case 'accepted':
+                if (rowData.processingStatus?.toLowerCase() === 'in progress') {
+                    // Reset the form data for the specific process
+                    if (viewMode === 'drying') {
+                        setNewDryingData(initialDryingData);
+                    } else {
+                        setNewMillingData(initialMillingData);
+                    }
+                    setProcessDialog(true);
+                } else if (rowData.processingStatus?.toLowerCase() === 'done') {
+                    setShowReturnDialog(true);
+                }
+                break;
         }
     };
 
-    const fetchDryingBatches = async () => {
-        try {
-            const response = await fetch(`${apiUrl}/dryingbatches`, {
-                headers: { 'API-Key': apiKey }
-            });
-            const data = await response.json();
-            setDryingBatches(data);
-        } catch (error) {
-            console.error('Error fetching drying batches:', error);
-        }
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const fetchMillingBatches = async () => {
-        try {
-            const response = await fetch(`${apiUrl}/millingbatches`, {
-                headers: { 'API-Key': apiKey }
-            });
-            const data = await response.json();
-            setMillingBatches(data);
-        } catch (error) {
-            console.error('Error fetching milling batches:', error);
+    const handleAccept = async () => {
+        if (!selectedItem) {
+            console.error('No item selected');
+            return;
         }
-    };
-
-    const processCombinedData = () => {
-        const combined = palayBatches.map(batch => {
-            const relatedTransaction = transactions.find(t => t.id === batch.currentTransaction);
-            const relatedDryingBatch = dryingbatches.find(d => d.palayBatchId === batch.id);
-            const relatedMillingBatch = millingbatches.find(m => m.palayBatchId === batch.id);
-            
-            if (relatedTransaction) {
-                return {
-                    dryingId: relatedDryingBatch?.id || null,
-                    millingId: relatedMillingBatch?.id || null,
-                    batchId: batch.id,
-                    quantityInBags: batch.quantityBags,
-                    grossWeight: batch.grossWeight,
-                    preNetWeight: batch.netWeight,
-                    postNetWeight: batch.processedNetWeight,
-                    from: batch.buyingStationLoc,
-                    location: batch.currentlyAt,
-                    dryingMethod: batch.dryingMethod,
-                    millerType: batch.millerType,
-                    requestDate: new Date(relatedTransaction.sendDateTime).toLocaleDateString(),
-                    startDate: batch.processStartDate ? new Date(batch.processStartDate).toLocaleDateString() : '',
-                    endDate: batch.processEndDate ? new Date(batch.processEndDate).toLocaleDateString() : '',
-                    moistureContent: batch.moistureContent,
-                    transportedBy: relatedTransaction.transporterName,
-                    palayStatus: batch.status,
-                    transactionStatus: relatedTransaction.status,
-                    currentTransaction: relatedTransaction.id,
-                    dryingStatus: relatedDryingBatch?.status || null,
-                    millingStatus: relatedMillingBatch?.status || null
-                };
+    
+        try {
+            // 1. Update transaction status to "Accepted"
+            const transactionResponse = await fetch(`${apiUrl}/transactions/update`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'API-Key': apiKey
+                },
+                body: JSON.stringify({
+                    id: selectedItem.transactionId,
+                    status: "Accepted",
+                    receiveDateTime: new Date().toISOString(),
+                    receiverId: user.id
+                })
+            });
+    
+            if (!transactionResponse.ok) {
+                throw new Error('Failed to update transaction');
             }
-            return null;
-        }).filter(Boolean);
-        setCombinedData(combined);
+    
+            // 2. Update palay batch status
+            const newPalayStatus = viewMode === 'drying' ? 'In Drying' : 'In Milling';
+            const palayResponse = await fetch(`${apiUrl}/palaybatches/update`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'API-Key': apiKey
+                },
+                body: JSON.stringify({
+                    id: selectedItem.palayBatchId,
+                    status: newPalayStatus
+                })
+            });
+    
+            if (!palayResponse.ok) {
+                throw new Error('Failed to update palay batch status');
+            }
+    
+            // 3. Create new processing batch with correct data
+            if (viewMode === 'drying') {
+                const dryingBatchData = {
+                    palayBatchId: selectedItem.palayBatchId,
+                    dryerId: selectedItem.toLocationId,
+                    startDateTime: '',
+                    endDateTime: '',
+                    dryingMethod: '',
+                    driedQuantityBags: '',
+                    driedGrossWeight: '',
+                    driedNetWeight: '',
+                    moistureContent: '',
+                    status: 'In Progress'
+                };
+                
+                const dryingResponse = await fetch(`${apiUrl}/dryingbatches`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'API-Key': apiKey
+                    },
+                    body: JSON.stringify(dryingBatchData)
+                });
+
+                if (!dryingResponse.ok) {
+                    throw new Error('Failed to create drying batch');
+                }
+            } else {
+                const millingBatchData = {
+                    dryingBatchId: '',
+                    palayBatchId: selectedItem.palayBatchId,
+                    millerId: selectedItem.toLocationId,
+                    millerType: '',
+                    startDateTime: '',
+                    endDateTime: '',
+                    milledQuantityBags: '',
+                    milledNetWeight: '',
+                    millingEfficiency: '',
+                    status: 'In Progress'
+                };
+                
+                const millingResponse = await fetch(`${apiUrl}/millingbatches`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'API-Key': apiKey
+                    },
+                    body: JSON.stringify(millingBatchData)
+                });
+
+                if (!millingResponse.ok) {
+                    throw new Error('Failed to create milling batch');
+                }
+            }
+    
+            // 4. Refresh data and close dialog
+            await fetchData();
+            setShowAcceptDialog(false);
+            
+            toast.current.show({
+                severity: 'success',
+                summary: 'Success',
+                detail: `${viewMode === 'drying' ? 'Drying' : 'Milling'} process started successfully`,
+                life: 3000
+            });
+    
+        } catch (error) {
+            console.error('Error in handleAccept:', error);
+            toast.current.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: `Failed to process acceptance: ${error.message}`,
+                life: 3000
+            });
+        }
+    };
+
+    const handleProcess = async () => {
+        if (!selectedItem) {
+            console.error('No item selected');
+            return;
+        }
+    
+        try {
+            let updateData;
+            let endpoint;
+            
+            if (viewMode === 'drying') {
+                updateData = {
+                    id: selectedItem.processingBatchId,
+                    dryerId: selectedItem.toLocationId,
+                    dryingMethod: newDryingData.dryingMethod,
+                    endDateTime: new Date().toISOString(),
+                    driedQuantityBags: parseInt(newDryingData.driedQuantityBags),
+                    driedGrossWeight: parseFloat(newDryingData.driedGrossWeight),
+                    driedNetWeight: parseFloat(newDryingData.driedNetWeight),
+                    moistureContent: parseFloat(newDryingData.moistureContent),
+                    status: 'Done'
+                };
+                endpoint = 'dryingbatches';
+            } else {
+                updateData = {
+                    id: selectedItem.processingBatchId,
+                    dryingBatchId: '0',
+                    palayBatchId: selectedItem.palayBatchId,
+                    millerId: selectedItem.toLocationId,
+                    millerType: selectedItem.millerType,
+                    endDateTime: new Date().toISOString(),
+                    milledGrossWeight: parseFloat(newMillingData.milledGrossWeight),
+                    milledQuantityBags: parseInt(newMillingData.milledQuantityBags),
+                    milledNetWeight: parseFloat(newMillingData.milledNetWeight),
+                    millingEfficiency: parseFloat(newMillingData.millingEfficiency),
+                    status: 'Done'
+                };
+                endpoint = 'millingbatches';
+                console.log("updateData ", updateData)
+            }
+    
+            const response = await fetch(`${apiUrl}/${endpoint}/update`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'API-Key': apiKey
+                },
+                body: JSON.stringify(updateData)
+            });
+    
+            if (!response.ok) {
+                throw new Error(`Failed to update ${viewMode} batch`);
+            }
+    
+            // Update palay batch status
+            const palayResponse = await fetch(`${apiUrl}/palaybatches/update`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'API-Key': apiKey
+                },
+                body: JSON.stringify({
+                    id: selectedItem.palayBatchId,
+                    status: viewMode === 'drying' ? 'To be Mill' : 'Milled'
+                })
+            });
+    
+            if (!palayResponse.ok) {
+                throw new Error('Failed to update palay batch status');
+            }
+    
+            await fetchData();
+            setProcessDialog(false);
+            
+            toast.current.show({
+                severity: 'success',
+                summary: 'Success',
+                detail: `${viewMode === 'drying' ? 'Drying' : 'Milling'} process completed successfully`,
+                life: 3000
+            });
+    
+        } catch (error) {
+            console.error('Error in handleProcess:', error);
+            toast.current.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: `Failed to complete process: ${error.message}`,
+                life: 3000
+            });
+        }
+    };
+
+    const handleReturn = async () => {
+        if (!selectedItem || !newTransactionData.toLocationId) {
+            toast.current.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Please select a warehouse',
+                life: 3000
+            });
+            return;
+        }
+
+        try {
+            // 1. Update current transaction to Completed
+            const updateTransactionResponse = await fetch(`${apiUrl}/transactions/update`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'API-Key': apiKey
+                },
+                body: JSON.stringify({
+                    id: selectedItem.transactionId,
+                    status: 'Completed'
+                })
+            });
+
+            if (!updateTransactionResponse.ok) {
+                throw new Error('Failed to update current transaction');
+            }
+
+            // 2. Update palay batch with new status
+            const palayResponse = await fetch(`${apiUrl}/palaybatches/update`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'API-Key': apiKey
+                },
+                body: JSON.stringify({
+                    id: selectedItem.palayBatchId,
+                    currentlyAt: newTransactionData.toLocationName
+                })
+            });
+
+            if (!palayResponse.ok) {
+                throw new Error('Failed to update palay batch');
+            }
+
+            // 3. Create new transaction for return
+            const newTransaction = {
+                ...newTransactionData,
+                item: viewMode === 'drying' ? 'Palay' : 'Rice',
+                itemId: selectedItem.palayBatchId,
+                fromLocationType: viewMode === 'drying' ? 'Dryer' : 'Miller',
+                fromLocationId: selectedItem.toLocationId,
+                toLocationType: 'Warehouse',
+                senderId: user.id,
+                receiverId: null,
+                status: 'Pending',
+                receiveDateTime: null,
+            };
+
+            const createTransactionResponse = await fetch(`${apiUrl}/transactions`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'API-Key': apiKey
+                },
+                body: JSON.stringify(newTransaction)
+            });
+
+            if (!createTransactionResponse.ok) {
+                throw new Error('Failed to create return transaction');
+            }
+
+            await fetchData();
+            setShowReturnDialog(false);
+            setNewTransactionData(initialTransactionData);
+            
+            toast.current.show({
+                severity: 'success',
+                summary: 'Success',
+                detail: 'Return process initiated successfully',
+                life: 3000
+            });
+
+        } catch (error) {
+            console.error('Error in handleReturn:', error);
+            toast.current.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: `Failed to process return: ${error.message}`,
+                life: 3000
+            });
+        }
     };
 
     const getDryingStatusSeverity = (status) => {
@@ -242,237 +601,95 @@ function Processing() {
     );
 
     const actionBodyTemplate = (rowData) => {
-        let actionText;
-        switch (rowData.status?.toLowerCase()) {
-            case 'to be dry':
-            case 'to be mill':
+        let actionText = 'Action';
+        switch (rowData.transactionStatus?.toLowerCase()) {
+            case 'pending':
                 actionText = 'Accept';
                 break;
-            case 'in drying':
-            case 'in milling':
-                actionText = 'Done';
+            case 'accepted':
+                if (rowData.processingStatus?.toLowerCase() === 'in progress') {
+                    actionText = 'Done';
+                } else if (rowData.processingStatus?.toLowerCase() === 'done') {
+                    actionText = 'Return';
+                }
                 break;
-            case 'dried':
-            case 'milled':
-                actionText = 'Return';
-                break;
-            default:
-                actionText = 'Action';
         }
+        
         return (
             <Button 
                 label={actionText} 
                 className="p-button-text p-button-sm text-primary ring-0" 
-                onClick={() => handleActionClick(rowData.status)}
+                onClick={() => handleActionClick(rowData)}
             />
         );
-    };
-    
-    const handleActionClick = (status, rowData) => {
-        setSelectedItem(rowData);
-        
-        switch (selectedFilter) {
-            case 'request':
-                setShowAcceptDialog(true);
-                break;
-                
-            case 'process':
-                setShowSetDataDialog(true);
-                break;
-                
-            case 'return':
-                setShowReturnDialog(true);
-                break;
-        }
-    };
-
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
-
-    const handleConfirmReceive = async () => {
-        try {
-            const response = await fetch(`${apiUrl}/transactions/update`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': apiKey
-                },
-                body: JSON.stringify({
-                    id: selectedItem.id,
-                    status: 'Accepted',
-                    receiveDateTime: new Date().toISOString(),
-                    receiverId: user.id
-                })
-            });
-    
-            if (!response.ok) throw new Error('Failed to update transaction');
-            
-            // Refresh data after successful update
-            await Promise.all([fetchPendingTransactions(), fetchPalayBatches()]);
-            setShowAcceptDialog(false);
-        } catch (error) {
-            console.error('Error updating transaction:', error);
-        }
-    };
-
-    const handleAccept = async (item) => {
-        try {
-          const transaction = transactions.find(t => t.itemId === item.batchId);
-          if (!transaction) return;
-      
-          // Update transaction status
-          const transactionResponse = await fetch(`${apiUrl}/transactions/update`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'API-Key': apiKey
-            },
-            body: JSON.stringify({
-              ...transaction,
-              status: 'Accepted',
-              receiveDateTime: new Date().toISOString(),
-              receiverId: user.id
-            })
-          });
-      
-          if (transactionResponse.ok) {
-            await Promise.all([fetchPendingTransactions(), fetchPalayBatches()]);
-            setShowAcceptDialog(false);
-          }
-        } catch (error) {
-          console.error('Error accepting request:', error);
-        }
-    };
-
-    const handleDone = async (item) => {
-        try {
-          const newStatus = viewMode === 'drying' ? 'To be Mill' : 'Milled';
-          const response = await fetch(`${apiUrl}/palaybatches/update`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'API-Key': apiKey
-            },
-            body: JSON.stringify({
-              id: item.batchId,
-              status: newStatus,
-              processEndDate: new Date().toISOString(),
-              ...formData
-            })
-          });
-      
-          if (response.ok) {
-            await fetchPalayBatches();
-            setShowSetDataDialog(false);
-          }
-        } catch (error) {
-          console.error('Error updating process status:', error);
-        }
-    };
-
-    const handleReturn = async (item) => {
-        try {
-          // Create new transaction for return
-          const newTransaction = {
-            itemId: item.batchId,
-            senderId: user.id,
-            receiverId: null, // Will be set by warehouse
-            status: 'Pending',
-            sendDateTime: new Date().toISOString(),
-            receiveDateTime: null,
-            transporterName: formData.transportedBy,
-            description: formData.description,
-            remarks: formData.remarks
-          };
-      
-          const response = await fetch(`${apiUrl}/transactions/create`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'API-Key': apiKey
-            },
-            body: JSON.stringify(newTransaction)
-          });
-      
-          if (response.ok) {
-            await Promise.all([fetchPendingTransactions(), fetchPalayBatches()]);
-            setShowReturnDialog(false);
-          }
-        } catch (error) {
-          console.error('Error returning item:', error);
-        }
     };
 
     const filteredData = combinedData.filter(item => {
         if (viewMode === 'drying') {
             switch (selectedFilter) {
                 case 'request':
-                    return item.transactionStatus === 'Pending' && 
-                           ['To be Dry', 'In Drying'].includes(item.palayStatus);
+                    return item.transactionStatus === 'Pending';
                 case 'process':
                     return item.transactionStatus === 'Accepted' && 
-                           item.palayStatus === 'In Drying';
+                           item.palayStatus === 'In Drying' && 
+                           item.processingStatus === 'In Progress';
                 case 'return':
                     return item.transactionStatus === 'Accepted' && 
-                           item.palayStatus === 'Dried';
+                           item.processingStatus === 'Done';
                 default:
                     return true;
             }
-        } else { // milling viewMode
+        } else {
             switch (selectedFilter) {
                 case 'request':
-                    return item.transactionStatus === 'Pending' && 
-                           ['To be Mill', 'In Milling'].includes(item.palayStatus);
+                    return item.transactionStatus === 'Pending';
                 case 'process':
                     return item.transactionStatus === 'Accepted' && 
-                           item.palayStatus === 'In Milling';
+                           item.palayStatus === 'In Milling' && 
+                           item.processingStatus === 'In Progress';
                 case 'return':
                     return item.transactionStatus === 'Accepted' && 
-                           item.palayStatus === 'Milled';
+                           item.processingStatus === 'Done';
                 default:
                     return true;
             }
         }
     });
 
-    const getFilterCount = (filter) => {
+    const getFilterCount = (filterType) => {
         return combinedData.filter(item => {
             if (viewMode === 'drying') {
-                switch (filter) {
+                switch (filterType) {
                     case 'request':
-                        return item.transactionStatus === 'Pending' && 
-                               ['To be Dry', 'In Drying'].includes(item.palayStatus);
+                        return item.transactionStatus === 'Pending';
                     case 'process':
                         return item.transactionStatus === 'Accepted' && 
-                               item.palayStatus === 'In Drying';
+                               item.palayStatus === 'In Drying' && 
+                               item.processingStatus === 'In Progress';
                     case 'return':
                         return item.transactionStatus === 'Accepted' && 
-                               item.palayStatus === 'Dried';
+                               item.processingStatus === 'Done';
                     default:
-                        return true;
+                        return false;
                 }
             } else {
-                switch (filter) {
+                switch (filterType) {
                     case 'request':
-                        return item.transactionStatus === 'Pending' && 
-                               ['To be Mill', 'In Milling'].includes(item.palayStatus);
+                        return item.transactionStatus === 'Pending';
                     case 'process':
                         return item.transactionStatus === 'Accepted' && 
-                               item.palayStatus === 'In Milling';
+                               item.palayStatus === 'In Milling' && 
+                               item.processingStatus === 'In Progress';
                     case 'return':
                         return item.transactionStatus === 'Accepted' && 
-                               item.palayStatus === 'Milled';
+                               item.processingStatus === 'Done';
                     default:
-                        return true;
+                        return false;
                 }
             }
         }).length;
     };
-
-
-
+    
     const FilterButton = ({ label, icon, filter }) => (
         <Button 
             label={label} 
@@ -480,14 +697,13 @@ function Processing() {
             className={`p-button-sm ring-0 border-none rounded-full ${selectedFilter === filter ? 'p-button-outlined bg-primary text-white' : 'p-button-text text-primary'} flex items-center`} 
             onClick={() => setSelectedFilter(filter)}
         >
-            <span className={`ring-0 border-none rounded-full ml-2 px-1 ${selectedFilter === filter ? 'p-button-outlined bg-gray-200 text-primary' : 'p-button-text text-white bg-primary'} flex items-center`}>
-                {getFilterCount(filter)}
-            </span>
+           
         </Button>
     );
     
     return (
         <StaffLayout activePage="Processing">
+            <Toast ref={toast} />
             <div className="flex flex-col px-10 py-2 h-full bg-[#F1F5F9]">
                 <div className="flex flex-col justify-center items-center p-10 h-1/4 rounded-lg bg-gradient-to-r from-primary to-secondary mb-2">
                     <h1 className="text-5xl text-white font-bold mb-2">Palay Processing</h1>
@@ -533,78 +749,67 @@ function Processing() {
                 {/* Data Table */}
                 <div className="flex-grow flex flex-col overflow-hidden rounded-lg shadow">
                     <div className="flex-grow overflow-hidden bg-white">
-                        <DataTable 
+                    <DataTable 
                             value={filteredData}
                             scrollable
                             scrollHeight="flex"
-                            scrolldirection="both"
+                            scrollDirection="both"
                             className="p-datatable-sm pt-5" 
                             filters={filters}
-                            globalFilterFields={[
-                                'batchId',
-                                'from',
-                                'location',
-                                'requestDate',
-                                'startDate',
-                                'endDate',
-                                'transportedBy',
-                                'status',
-                                viewMode === 'drying' ? 'dryingStatus' : 'millingStatus'
-                            ]}
+                            globalFilterFields={['from', 'toBeDryAt', 'requestDate', 'startDate', 'endDate', 'transportedBy', 'status', 'dryingStatus']}
                             emptyMessage="No data found."
                             paginator
                             rows={10}
-                        >
+                            // tableStyle={{ minWidth: '2200px' }}
+                        > 
                             {selectedFilter !== 'request' && (
-                                <Column 
-                                    field={viewMode === 'drying' ? "dryingId" : "millingId"} 
-                                    header={viewMode === 'drying' ? "Drying Batch ID" : "Milling Batch ID"} 
-                                    className="text-center" 
-                                    headerClassName="text-center" 
-                                />
+                                <Column field="processingBatchId" header={viewMode === 'drying' ? "Drying Batch ID" : "Milling Batch ID"} className="text-center" headerClassName="text-center" />
                             )}
-                            <Column field="batchId" header="Palay Batch ID" className="text-center" headerClassName="text-center" />
+                            <Column field="palayBatchId" header="Palay Batch ID" className="text-center" headerClassName="text-center" />
                             <Column field="quantityInBags" header="Quantity In Bags" className="text-center" headerClassName="text-center" />
+                            <Column field="grossWeight" header="Gross Weight" className="text-center" headerClassName="text-center" />
+                            <Column field="netWeight" header="Net Weight" className="text-center" headerClassName="text-center" />
+                            {viewMode === 'drying' && (selectedFilter === 'return') && (
+                               <Column field="moistureContent" header="Moisture Content" className="text-center" headerClassName="text-center" />
+                            )}  
+                            <Column field="from" header="From" className="text-center" headerClassName="text-center" />
                             <Column field="location" 
-                                header={viewMode === 'drying' 
-                                    ? (selectedFilter === 'request' ? 'To be Dry at' 
+                                    header={viewMode === 'drying' 
+                                        ? (selectedFilter === 'request' ? 'To be Dry at' 
                                         : selectedFilter === 'process' ? 'Drying at' 
                                         : 'Dried at') 
-                                    : (selectedFilter === 'request' ? 'To be Milled at' 
+                                        : (selectedFilter === 'request' ? 'To be Milled at' 
                                         : selectedFilter === 'process' ? 'Milling at' 
                                         : 'Milled at')}
-                                className="text-center" 
-                                headerClassName="text-center" 
-                            />
+                                    className="text-center" headerClassName="text-center" />
+                            {viewMode === 'drying' && selectedFilter === 'return' && (
+                                <Column field="dryingMethod" header="Drying Method" className="text-center" headerClassName="text-center" />
+                            )}
+                            {viewMode === 'milling' && selectedFilter === 'return' && (
+                                <Column field="millerType" header="Miller Type" className="text-center" headerClassName="text-center" />
+                            )}
+                            {selectedFilter === 'return' && (
+                                <Column field='startDate' header='Start Date' className="text-center" headerClassName="text-center" />
+                            )}
                             <Column 
                                 field={selectedFilter === 'request' ? 'requestDate' : (selectedFilter === 'process' ? 'startDate' : 'endDate')} 
                                 header={selectedFilter === 'request' ? 'Request Date' : (selectedFilter === 'process' ? 'Start Date' : 'End Date')} 
                                 className="text-center" 
                                 headerClassName="text-center" 
                             />
+                            
                             <Column field="transportedBy" header="Transported By" className="text-center" headerClassName="text-center" />
+                            {(selectedFilter === 'request') && (
+                                <Column field="palayStatus" header={viewMode === 'milling' ? 'Rice Status' : 'Palay Status'} className="text-center" headerClassName="text-center" />
+                            )}
                             {selectedFilter !== 'request' && (
                                 <Column 
-                                    field={viewMode === 'drying' ? "dryingStatus" : "millingStatus"} 
+                                    field="processingStatus" 
                                     header={viewMode === 'drying' ? "Drying Status" : "Milling Status"} 
-                                    body={viewMode === 'drying' ? dryingStatusBodyTemplate : millingStatusBodyTemplate} 
-                                    className="text-center" 
-                                    headerClassName="text-center" 
-                                    frozen 
-                                    alignFrozen="right"
+                                    className="text-center" headerClassName="text-center" frozen alignFrozen="right"
                                 />
                             )}
-                            {selectedFilter === 'request' && (
-                                <Column field="transactionStatus" header="Status" className="text-center" headerClassName="text-center" />
-                            )}
-                            <Column 
-                                header="Action" 
-                                body={actionBodyTemplate} 
-                                className="text-center" 
-                                headerClassName="text-center" 
-                                frozen 
-                                alignFrozen="right"
-                            />
+                            <Column header="Action" body={actionBodyTemplate} className="text-center" headerClassName="text-center" frozen alignFrozen="right"/>
                         </DataTable>
                     </div>
                 </div>
@@ -619,196 +824,190 @@ function Processing() {
                         <Button 
                             label="Confirm Receive" 
                             className="w-1/2 bg-primary hover:border-none" 
-                            onClick={handleConfirmReceive}
+                            onClick={handleAccept}
                         />
                     </div>
                 </div>
             </Dialog>
 
-            {/* Post Drying/Milling Dialog */}
-            <Dialog header={`Post ${viewMode} data`} visible={showSetDataDialog} onHide={() => setShowSetDataDialog(false)} className="w-1/3">
-                <div className="flex flex-col gap-2">
-                    <div className="flex w-full gap-2">
-                        <div className="w-full">
-                            <label className="block mb-2">
-                                Date {viewMode === 'drying' ? 'Dried' : 'Milled'}
-                            </label>
-                            <Calendar 
-                                name="dateProcessed"
-                                value={formData.dateProcessed}
-                                className="w-full"
-                                disabled
-                                readOnlyInput
-                            />
-                        </div>
-                        
-                        {viewMode === 'drying' && (
+            {/* Process Dialog */}
+            <Dialog header={`Complete ${viewMode} Process`} visible={showProcessDialog} onHide={() => setProcessDialog(false)} className="w-1/3">
+                <div className="flex flex-col gap-4">
+                    {viewMode === 'drying' ? (
+                        <>
                             <div className="w-full">
-                                <label className="block mb-2">
-                                    {viewMode === 'drying' ? 'Drying' : 'Milling'} Method
-                                </label>
-                                <Dropdown 
-                                    name="method"
-                                    value={formData.method}
-                                    options={['Sun', 'Machine']}
-                                    onChange={handleInputChange}
-                                    placeholder="Select a method" 
-                                    className="w-full ring-0" 
+                                <label className="block mb-2">Quantity in Bags</label>
+                                <InputText 
+                                    type="number"
+                                    value={newDryingData.driedQuantityBags}
+                                    onChange={(e) => setNewDryingData(prev => ({...prev, driedQuantityBags: e.target.value}))}
+                                    className="w-full ring-0"
                                 />
                             </div>
-                        )}
-                    </div>
-
-                    <div className="flex w-full gap-2">
-                        
-                        {viewMode === 'drying' && (
+                            <div className="w-full">
+                                <label className="block mb-2">Gross Weight</label>
+                                <InputText 
+                                    type="number"
+                                    value={newDryingData.driedGrossWeight}
+                                    onChange={(e) => setNewDryingData(prev => ({...prev, driedGrossWeight: e.target.value}))}
+                                    className="w-full ring-0"
+                                />
+                            </div>
+                            <div className="w-full">
+                                <label className="block mb-2">Net Weight</label>
+                                <InputText 
+                                    type="number"
+                                    value={newDryingData.driedNetWeight}
+                                    onChange={(e) => setNewDryingData(prev => ({...prev, driedNetWeight: e.target.value}))}
+                                    className="w-full ring-0"
+                                />
+                            </div>
                             <div className="w-full">
                                 <label className="block mb-2">Moisture Content</label>
                                 <InputText 
-                                    type="number" 
-                                    name="moistureContent"
-                                    value={formData.moistureContent}
-                                    onChange={handleInputChange}
-                                    className="w-full ring-0" 
+                                    type="number"
+                                    value={newDryingData.moistureContent}
+                                    onChange={(e) => setNewDryingData(prev => ({...prev, moistureContent: e.target.value}))}
+                                    className="w-full ring-0"
                                 />
                             </div>
-                        )}
-                        <div className="w-full">
-                            <label className="block mb-2">Quantity in Bags</label>
-                            <InputText 
-                                type="number" 
-                                name="quantityInBags"
-                                value={formData.quantityInBags}
-                                onChange={handleInputChange}
-                                className="w-full ring-0" 
-                            />
-                        </div>
-                    </div>
-
-                    <div className="flex w-full gap-2">
-                        <div className="w-full">
-                            <label className="block mb-2">Gross Weight</label>
-                            <InputText 
-                                type="number" 
-                                name="grossWeight"
-                                value={formData.grossWeight}
-                                onChange={handleInputChange}
-                                className="w-full ring-0" 
-                            />
-                        </div>
-
-                        <div className="w-full">
-                            <label className="block mb-2">Net Weight</label>
-                            <InputText 
-                                type="number" 
-                                name="netWeight"
-                                value={formData.netWeight}
-                                onChange={handleInputChange}
-                                className="w-full ring-0" 
-                            />
-                        </div>
-                    </div>
+                            <div className="w-full">
+                                <label className="block mb-2">Drying Method</label>
+                                <Dropdown 
+                                    value={newDryingData.dryingMethod}
+                                    options={[
+                                        { label: "Sun Dry", value: "Sun Dry" },
+                                        { label: "Machine Dry", value: "Machine Dry" }
+                                    ]}
+                                    onChange={(e) => {
+                                        setNewDryingData(prev => {
+                                            console.log('Updating drying method:', e.value);
+                                            return { ...prev, dryingMethod: e.value };
+                                        });
+                                    }}
+                                    className="w-full"
+                                    placeholder="Select Drying Method"
+                                />
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            <div className="w-full">
+                                <label className="block mb-2">Quantity in Bags</label>
+                                <InputText 
+                                    type="number"
+                                    value={newMillingData.milledQuantityBags}
+                                    onChange={(e) => setNewMillingData(prev => ({...prev, milledQuantityBags: e.target.value}))}
+                                    className="w-full ring-0"
+                                />
+                            </div>
+                            <div className="w-full">
+                                <label className="block mb-2">Gross Weight</label>
+                                <InputText 
+                                    type="number"
+                                    value={newMillingData.milledGrossWeight}
+                                    onChange={(e) => setNewMillingData(prev => ({...prev, milledGrossWeight: e.target.value}))}
+                                    className="w-full ring-0"
+                                />
+                            </div>
+                            <div className="w-full">
+                                <label className="block mb-2">Net Weight</label>
+                                <InputText 
+                                    type="number"
+                                    value={newMillingData.milledNetWeight}
+                                    onChange={(e) => setNewMillingData(prev => ({...prev, milledNetWeight: e.target.value}))}
+                                    className="w-full ring-0"
+                                />
+                            </div>
+                            <div className="w-full">
+                                <label className="block mb-2">Milling Efficiency</label>
+                                <InputText 
+                                    type="number"
+                                    value={newMillingData.millingEfficiency}
+                                    onChange={(e) => setNewMillingData(prev => ({...prev, millingEfficiency: e.target.value}))}
+                                    className="w-full ring-0"
+                                />
+                            </div>
+                        </>
+                    )}
                     
-
-                    <div className="flex justify-between w-full gap-4 mt-5">
-                        <Button label="Cancel" className="w-1/2 bg-transparent text-primary border-primary" onClick={() => setShowSetDataDialog(false)} />
-                        <Button label="Confirm" className="w-1/2 bg-primary hover:border-none" onClick={() => {
-                            console.log(formData);
-                            setShowSetDataDialog(false);
-                        }} />
+                    <div className="flex justify-between gap-4 mt-4">
+                        <Button label="Cancel" className="w-1/2 bg-transparent text-primary border-primary" onClick={() => setProcessDialog(false)} />
+                        <Button label="Complete Process" className="w-1/2 bg-primary hover:border-none" onClick={handleProcess} />
                     </div>
                 </div>
             </Dialog>
 
             {/* Return Dialog */}
-            <Dialog header={`Return ${viewMode === 'drying' ? 'Palay' : 'Rice'}`} visible={showReturnDialog} onHide={() => setShowReturnDialog(false)} className="w-1/3">
+            <Dialog header={`Return ${viewMode === 'drying' ? 'Palay' : 'Rice'}`} visible={showReturnDialog} onHide={() => {setShowReturnDialog(false); }} className="w-1/3">
                 <div className="flex flex-col w-full gap-4">
-                    <div className="flex w-full gap-4">
-                        <div className="w-full">
-                            <label className="block mb-2">Date Returned</label>
-                            <Calendar 
-                                name="dateProcessed"
-                                value={formData.dateProcessed}
-                                onChange={handleInputChange}
-                                className="w-full ring-0" 
-                                disabled
-                                readOnlyInput
-                            />
-                        </div>
-                        {/* <div className="w-1/2">
-                            <label className="block mb-2">{viewMode === 'drying' ? 'Palay' : 'Rice'} Quantity (kg)</label>
-                            <InputText 
-                                type="number" 
-                                name="quantity"
-                                value={formData.quantity}
-                                onChange={handleInputChange}
-                                className="w-full ring-0" 
-                            />
-                        </div> */}
-                    </div>
-
-                    <div className="flex w-full gap-4">
-                        <div className="w-full">
-                            <label className="block mb-2">Facility</label>
-                            <Dropdown 
-                                name="facility"
-                                value={formData.facility}
-                                options={['Warehouse A', 'Warehouse B', 'Warehouse C']} 
-                                onChange={handleInputChange}
-                                placeholder="Select a facility" 
-                                className="w-full ring-0" 
-                            />
-                        </div>
-                        {viewMode === 'milling' && (
-                            <div className="w-full">
-                                <label className="block mb-2">Milling Efficiency</label>
-                                <InputText 
-                                    type="number" 
-                                    name="efficiency"
-                                    value={formData.efficiency}
-                                    onChange={handleInputChange}
-                                    className="w-full ring-0" 
-                                />
-                            </div>
-                        )}
+                    <div className="w-full">
+                        <label className="block mb-2">Warehouse</label>
+                        <Dropdown 
+                            value={newTransactionData.toLocationId}
+                            options={warehouses} 
+                            onChange={(e) => setNewTransactionData(prev => ({
+                                ...prev,
+                                toLocationId: e.value,
+                                toLocationName: warehouses.find(w => w.value === e.value)?.label
+                            }))}
+                            placeholder="Select a warehouse" 
+                            className="w-full ring-0" 
+                        />
                     </div>
 
                     <div className="w-full">
-                        <label htmlFor="transportedBy" className="block text-sm font-medium text-gray-700 mb-1">Transported by</label>
+                        <label className="block mb-2">Transported By</label>
                         <InputText 
-                            name="transportedBy"
-                            value={formData.transportedBy}
-                            onChange={handleInputChange}
+                            value={newTransactionData.transporterName}
+                            onChange={(e) => setNewTransactionData(prev => ({
+                                ...prev,
+                                transporterName: e.target.value
+                            }))}
                             className="w-full ring-0" 
                         />
                     </div>
 
                     <div className="w-full">
-                        <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">Transport Description</label>
+                        <label className="block mb-2">Transport Description</label>
                         <InputTextarea 
-                            name="description"
-                            value={formData.description}
-                            onChange={handleInputChange}
+                            value={newTransactionData.transporterDesc}
+                            onChange={(e) => setNewTransactionData(prev => ({
+                                ...prev,
+                                transporterDesc: e.target.value
+                            }))}
                             className="w-full ring-0" 
+                            rows={3}
                         />
                     </div>
 
                     <div className="w-full">
-                        <label htmlFor="remarks" className="block text-sm font-medium text-gray-700 mb-1">Remarks</label>
+                        <label className="block mb-2">Remarks</label>
                         <InputTextarea 
-                            name="remarks"
-                            value={formData.remarks}
-                            onChange={handleInputChange}
+                            value={newTransactionData.remarks}
+                            onChange={(e) => setNewTransactionData(prev => ({
+                                ...prev,
+                                remarks: e.target.value
+                            }))}
                             className="w-full ring-0" 
+                            rows={3}
                         />
                     </div>
                     
                     <div className="flex justify-between gap-4 mt-4">
-                        <Button label="Cancel" className="w-1/2 bg-transparent text-primary border-primary" onClick={() => setShowReturnDialog(false)} />
-                        <Button label="Confirm Return" className="w-1/2 bg-primary hover:border-none" onClick={() => {
-                            console.log(formData);
-                            setShowReturnDialog(false);
-                        }} />
+                        <Button 
+                            label="Cancel" 
+                            className="w-1/2 bg-transparent text-primary border-primary" 
+                            onClick={() => {
+                                setShowReturnDialog(false);
+                                setNewTransactionData(initialTransactionData);
+                            }} 
+                        />
+                        <Button 
+                            label="Confirm Return" 
+                            className="w-1/2 bg-primary hover:border-none" 
+                            onClick={handleReturn}
+                        />
                     </div>
                 </div>
             </Dialog>

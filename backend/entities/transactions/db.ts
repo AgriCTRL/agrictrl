@@ -2,8 +2,12 @@ import {
     BaseEntity,
     Column,
     Entity,
-    PrimaryGeneratedColumn
+    PrimaryGeneratedColumn,
+    ManyToOne,
+    JoinColumn
 } from 'typeorm';
+
+import { PalayBatch } from '../palaybatches/db';
 
 @Entity()
 export class Transaction extends BaseEntity {
@@ -51,6 +55,10 @@ export class Transaction extends BaseEntity {
 
     @Column({ nullable: true })
     remarks: string;
+
+    @ManyToOne(() => PalayBatch)
+    @JoinColumn({ name: 'itemId' })
+    palayBatch: PalayBatch;
 }
 
 export type TransactionCreate = Pick<Transaction, 'item' | 'itemId' | 'senderId' | 'sendDateTime' | 'fromLocationType' | 'fromLocationId' | 'transporterName' | 'transporterDesc' | 'receiverId' | 'receiveDateTime' | 'toLocationType' | 'toLocationId' | 'status' | 'remarks'>;

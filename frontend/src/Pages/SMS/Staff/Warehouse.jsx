@@ -33,30 +33,10 @@ const initialTransactionData = {
     remarks: ''
 };
 
-const initialDryingData = {
-    palayBatchId: '',
-    dryingMethod: '',
-    dryerId : '',
-    startDateTime: '',
-    endDateTime: '',
-    driedQuantityBags: '',
-    driedGrossWeight: '',
-    driedNetWeight: '',
-    moistureContent: '',
-    status: 'In Progress',
-};
-
-const initialMillingData = {
-    dryingBatchId: '0',
-    palayBatchId: '',
-    millerId: '',
-    millerType: '',
-    startDateTime: '',
-    endDateTime: '',
-    milledQuantityBags: '',
-    milledNetWeight: '',
-    millingEfficiency: '',
-    status: 'In Progress',
+const initialRiceAcceptData = {
+    riceBatchName: '',
+    riceType: '',
+    price: ''
 };
 
 function Warehouse() {
@@ -80,141 +60,206 @@ function Warehouse() {
     const [showRiceAcceptDialog, setShowRiceAcceptDialog] = useState(false);
     const [showPalayAcceptDialog, setShowPalayAcceptDialog] = useState(false);
 
-    const [palayBatches, setPalayBatches] = useState([]);
-    const [transactions, setTransactions] = useState([]);
     const [combinedData, setCombinedData] = useState([]);
-
     const [millerData, setMillerData] = useState([]);
     const [dryerData, setDryerData] = useState([]);
 
-    const [newTransactionData, setNewTransactionData] = useState({
-        item: '',
-        itemId: '',
-        senderId: '',
-        fromLocationType: 'Warehouse',
-        fromLocationId: '',
-        transporterName: '',
-        transporterDesc: '',
-        receiverId: '',
-        receiveDateTime: '0',
-        toLocationType: '',
-        toLocationId: '',
-        toLocationName: '',
-        status: 'Pending',
-        remarks: ''
-    });
-    const [newDryingData, setNewDryingData] = useState({
-        palayBatchId: '',
-        dryingMethod: '',
-        dryerId : '',
-        startDateTime: '',
-        endDateTime: '',
-        driedQuantityBags: '',
-        driedGrossWeight: '',
-        driedNetWeight: '',
-        moistureContent: '',
-        status: 'In Progress',
-    });
-    const [newMillingData, setNewMillingData] = useState({
-        dryingBatchId: '0',
-        palayBatchId: '',
-        millerId: '',
-        millerType: '',
-        startDateTime: '',
-        endDateTime: '',
-        milledQuantityBags: '',
-        milledNetWeight: '',
-        millingEfficiency: '',
-        status: 'In Progress',
-    });
     const [acceptFormData, setAcceptFormData] = useState({
         riceBatchName: '',
         riceType: '',
         price: ''
     });
 
-    const getAvailableFacilities = () => {
-        if (!selectedItem) return [];
-        
-        if (selectedItem.palayStatus === 'To be Dry') {
-            return dryerData
-                .filter(dryer => dryer.status === 'active')
-                .map(dryer => ({
-                    label: dryer.dryerName.toString(),
-                    value: dryer.id,
-                    name: dryer.dryerName.toString()
-                }));  
+    const [newTransactionData, setNewTransactionData] = useState(initialTransactionData);
+
+    const [riceAcceptFormData, setRiceAcceptFormData] = useState(initialRiceAcceptData);
+    const [riceAcceptErrors, setRiceAcceptErrors] = useState({});
+
+    const handleRiceAcceptInputChange = (e) => {
+        const { name, value } = e.target;
+        setRiceAcceptFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
+        // Clear error for this field if it exists
+        if (riceAcceptErrors[name]) {
+            setRiceAcceptErrors(prev => ({
+                ...prev,
+                [name]: ''
+            }));
         }
-        
-        if (selectedItem.palayStatus === 'To be Mill') {
-            console.log()
-            return millerData
-                .filter(miller => miller.status === 'active')
-                .map(miller => ({
-                    label: miller.millerName.toString(),
-                    value: miller.id,
-                    name: miller.millerName.toString()
-                }));
-        }
-        
-        return [];
     };
 
+    const validateRiceAcceptForm = () => {
+        let newErrors = {};
+        
+        if (!riceAcceptFormData.riceBatchName.trim()) {
+            newErrors.riceBatchName = "Rice batch name is required";
+        }
+        
+        if (!riceAcceptFormData.riceType.trim()) {
+            newErrors.riceType = "Rice type is required";
+        }
+        
+        if (!riceAcceptFormData.price.trim()) {
+            newErrors.price = "Price is required";
+        } else if (isNaN(riceAcceptFormData.price) || parseFloat(riceAcceptFormData.price) <= 0) {
+            newErrors.price = "Please enter a valid price";
+        }
+        
+        setRiceAcceptErrors(newErrors);
+        
+        if (Object.keys(newErrors).length > 0) {
+            Object.values(newErrors).forEach(error => {
+                toast.current.show({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: error,
+                    life: 3000
+                });
+            });
+        }
+        
+        return Object.keys(newErrors).length === 0;
+    };
+
+    const handleRiceAcceptConfirm = async () => {
+        if (!validateRiceAcceptForm()) {
+            return;
+        }
+
+        try {
+            const transactionResponse = await fetch(`${apiUrl}/transactions/update`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'API-Key': apiKey
+                },
+                body: JSON.stringify({
+                    id: selectedItem.transactionId,
+                    status: 'Accepted',
+                    receiveDateTime: new Date().toISOString(),
+                    receiverId: user.id,
+                    riceBatchData: {
+                        ...riceAcceptFormData,
+                        price: parseFloat(riceAcceptFormData.price)
+                    }
+                })
+            });
+
+            if (!transactionResponse.ok) {
+                throw new Error('Failed to update transaction');
+            }
+
+            await fetchInventory();
+            setShowRiceAcceptDialog(false);
+            setRiceAcceptFormData(initialRiceAcceptData);
+            
+            toast.current.show({
+                severity: 'success',
+                summary: 'Success',
+                detail: 'Rice batch successfully received',
+                life: 3000
+            });
+        } catch (error) {
+            console.error('Error accepting rice batch:', error);
+            toast.current.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Failed to receive rice batch',
+                life: 3000
+            });
+        }
+    };
+
+
     useEffect(() => {
-        fetchPalayBatches();
+        fetchInventory();
         fetchDryerData();
         fetchMillerData();
-    }, []);
-
-    useEffect(() => {
-        if (viewMode === 'requests') {
-            fetchPendingTransactions();
-        } else {
-            fetchAcceptedTransactions();
-        }
     }, [viewMode]);
 
-    useEffect(() => {
-        if (palayBatches.length && transactions.length) {
-            processCombinedData();
-        }
-    }, [palayBatches, transactions]);
+    const fetchInventory = async () => {
+        try {
+            const status = viewMode === 'requests' ? 'Pending' : 'Accepted';
+            
+            // Fetch inventory, warehouses, dryers, and millers as needed
+            const [inventoryRes, warehousesRes, dryersRes, millersRes] = await Promise.all([
+                fetch(`${apiUrl}/inventory?toLocationType=Warehouse&status=${status}`, {
+                    headers: { 'API-Key': apiKey }
+                }),
+                fetch(`${apiUrl}/warehouses`, {
+                    headers: { 'API-Key': apiKey }
+                }),
+                fetch(`${apiUrl}/dryers`, { headers: { 'API-Key': apiKey } }),
+                fetch(`${apiUrl}/millers`, { headers: { 'API-Key': apiKey } })
+            ]);
     
-    const fetchPalayBatches = async () => {
-        try {
-            const response = await fetch(`${apiUrl}/palaybatches`, {
-                headers: { 'API-Key': apiKey }
+            // Error handling if any fetch fails
+            if (!inventoryRes.ok || !warehousesRes.ok || !dryersRes.ok || !millersRes.ok) {
+                throw new Error('Failed to fetch data');
+            }
+    
+            // Parse JSON responses
+            const [inventory, warehouses, dryers, millers] = await Promise.all([
+                inventoryRes.json(),
+                warehousesRes.json(),
+                dryersRes.json(),
+                millersRes.json()
+            ]);
+    
+            // Transform data with condition for `from` field
+            const transformedData = inventory.map(item => {
+                let from;
+                if (item.transaction.fromLocationType === "Procurement") {
+                    from = `Procurement: ${item.palayBatch.buyingStationLoc || 'Unknown Location'}`;
+                } else if (item.transaction.fromLocationType === "Dryer") {
+                    const dryerName = dryers.find(dryer => dryer.id === item.transaction.fromLocationId)?.dryerName || 'Unknown Dryer';
+                    from = `Dryer: ${dryerName}`;
+                } else if (item.transaction.fromLocationType === "Miller") {
+                    const millerName = millers.find(miller => miller.id === item.transaction.fromLocationId)?.millerName || 'Unknown Miller';
+                    from = `Miller: ${millerName}`;
+                } else {
+                    from = 'Unknown Location';
+                }
+    
+                return {
+                    id: item.palayBatch.id,
+                    quantityInBags: item.palayBatch.quantityBags,
+                    from,
+                    toBeStoreAt: item.palayBatch.currentlyAt,
+                    currentlyAt: item.palayBatch.currentlyAt,
+                    dateRequest: new Date(item.transaction.sendDateTime).toLocaleDateString(),
+                    receivedOn: new Date(item.transaction.receiveDateTime).toLocaleDateString(),
+                    transportedBy: item.transaction.transporterName,
+                    transactionStatus: item.transaction.status,
+                    palayStatus: item.palayBatch.status,
+                    transactionId: item.transaction.id,
+                    toLocationId: item.transaction.toLocationId,
+                    item: item.transaction.item,
+                    qualityType: item.palayBatch.qualityType,
+                    // Additional fields from new structure
+                    palayVariety: item.palayBatch.palayVariety,
+                    moistureContent: item.palayBatch.qualitySpec?.moistureContent,
+                    purity: item.palayBatch.qualitySpec?.purity,
+                    damaged: item.palayBatch.qualitySpec?.damaged,
+                    supplierName: item.palayBatch.palaySupplier?.farmerName,
+                    farmLocation: `${item.palayBatch.farm?.barangay}, ${item.palayBatch.farm?.cityTown}`
+                };
             });
-            const data = await response.json();
-            setPalayBatches(data);
+    
+            setCombinedData(transformedData);
         } catch (error) {
-            console.error('Error fetching palay batches:', error);
+            console.error('Error fetching warehouse inventory:', error);
+            toast.current.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Failed to fetch warehouse inventory',
+                life: 3000
+            });
         }
     };
-
-    const fetchAcceptedTransactions = async () => {
-        try {
-            const response = await fetch(`${apiUrl}/transactions?toLocationType=Warehouse&status=Accepted`, {
-                headers: { 'API-Key': apiKey }
-            });
-            const data = await response.json();
-            setTransactions(data);
-        } catch (error) {
-            console.error('Error fetching accepted transactions:', error);
-        }
-    };
-
-    const fetchPendingTransactions = async () => {
-        try {
-            const response = await fetch(`${apiUrl}/transactions?toLocationType=Warehouse&status=Pending`, {
-                headers: { 'API-Key': apiKey }
-            });
-            const data = await response.json();
-            setTransactions(data);
-        } catch (error) {
-            console.error('Error fetching transactions:', error);
-        }
-    };
+    
 
     const fetchDryerData = async () => {
         try {
@@ -248,34 +293,31 @@ function Warehouse() {
         }
     };
 
-    const processCombinedData = () => {
-        // Since transactions are already filtered for pending status and warehouse location
-        const combined = palayBatches.map(batch => {
-            // Find transaction where transaction's itemId matches batch id
-            const relatedTransaction = transactions.find(t => t.itemId === batch.id);
-            
-            if (relatedTransaction) {
-                return {
-                    id: batch.id,
-                    quantityInBags: batch.quantityBags,
-                    from: batch.buyingStationLoc,
-                    toBeStoreAt: batch.currentlyAt,
-                    currentlyAt: batch.currentlyAt,
-                    dateRequest: new Date(relatedTransaction.sendDateTime).toLocaleDateString(),
-                    receivedOn: new Date(relatedTransaction.receiveDateTime).toLocaleDateString(),
-                    transportedBy: relatedTransaction.transporterName,
-                    transactionStatus: relatedTransaction.status,
-                    palayStatus: batch.status,
-                    transactionId: relatedTransaction.id,
-                    item: relatedTransaction.item,
-                    qualityType: batch.qualityType,
-                    currentTransaction: batch.currentTransaction
-                };
-            }
-            return null;
-        }).filter(Boolean);
-    
-        setCombinedData(combined);
+    const getAvailableFacilities = () => {
+        if (!selectedItem) return [];
+        
+        if (selectedItem.palayStatus === 'To be Dry') {
+            return dryerData
+                .filter(dryer => dryer.status === 'active')
+                .map(dryer => ({
+                    label: dryer.dryerName.toString(),
+                    value: dryer.id,
+                    name: dryer.dryerName.toString()
+                }));  
+        }
+        
+        if (selectedItem.palayStatus === 'To be Mill') {
+            console.log()
+            return millerData
+                .filter(miller => miller.status === 'active')
+                .map(miller => ({
+                    label: miller.millerName.toString(),
+                    value: miller.id,
+                    name: miller.millerName.toString()
+                }));
+        }
+        
+        return [];
     };
 
     const handleInputChange = (e) => {  
@@ -287,8 +329,6 @@ function Warehouse() {
         }
     
         try {
-            const newStatus = selectedItem.palayStatus === 'To be Dry' ? 'In Drying' : 'In Milling';
-            
             // Create new transaction first
             const transactionResponse = await fetch(`${apiUrl}/transactions`, {
                 method: 'POST',
@@ -296,7 +336,12 @@ function Warehouse() {
                     'Content-Type': 'application/json',
                     'API-Key': apiKey
                 },
-                body: JSON.stringify(newTransactionData)
+                body: JSON.stringify({
+                    ...newTransactionData,
+                    itemId: selectedItem.id,
+                    senderId: user.id,
+                    fromLocationType: 'Warehouse',
+                })
             });
     
             if (!transactionResponse.ok) {
@@ -304,9 +349,8 @@ function Warehouse() {
             }
     
             const transactionResult = await transactionResponse.json();
-            const transactionResultId = transactionResult.id;
             
-            // Update palay batch with new status and new transaction ID
+            // Update palay batch with new status
             const palayResponse = await fetch(`${apiUrl}/palaybatches/update`, {
                 method: 'POST',
                 headers: {
@@ -315,31 +359,41 @@ function Warehouse() {
                 },
                 body: JSON.stringify({
                     id: selectedItem.id,
-                    status: newStatus,
-                    currentlyAt: newTransactionData.toLocationName,
-                    currentTransaction: transactionResultId
+                    currentlyAt: newTransactionData.toLocationName
                 })
             });
-    
+
             if (!palayResponse.ok) {
                 throw new Error('Failed to update palay batch');
             }
-    
-            // Submit other data (drying/milling)
-            if (selectedItem.palayStatus === 'To be Dry') {
-                await newDryingSubmit();
-            } else if (selectedItem.palayStatus === 'To be Mill') {
-                await newMillingSubmit();
+
+            //update old transaction to status = completed
+            const oldTransactionResponse = await fetch(`${apiUrl}/transactions/update`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'API-Key': apiKey
+                },
+                body: JSON.stringify({
+                    id: selectedItem.transactionId,
+                    status: 'Completed'
+                })
+            });
+
+            if (!oldTransactionResponse.ok) {
+                throw new Error('Failed to update Old transaction');
             }
     
-            await fetchPalayBatches();
+            
+    
+            await fetchInventory();
             setShowSendToDialog(false);
             setNewTransactionData(initialTransactionData);
     
             toast.current.show({
                 severity: 'success',
                 summary: 'Success',
-                detail: `Palay batch status updated to ${newStatus}`,
+                detail: `Palay batch status updated to`,
                 life: 3000
             });
     
@@ -356,32 +410,33 @@ function Warehouse() {
 
     const handleConfirmReceive = async () => {
         try {
-            // Find transaction using currentTransaction field
-            const transactionToUpdate = transactions.find(t => t.id === selectedItem.currentTransaction);
+            const transactionResponse = await fetch(`${apiUrl}/transactions/update`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'API-Key': apiKey
+                },
+                body: JSON.stringify({
+                    id: selectedItem.transactionId,
+                    status: 'Accepted',
+                    receiveDateTime: new Date().toISOString(),
+                    receiverId: user.id
+                })
+            });
     
-            if (transactionToUpdate) {
-                // Update transaction
-                const transactionResponse = await fetch(`${apiUrl}/transactions/update`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'API-Key': apiKey
-                    },
-                    body: JSON.stringify({
-                        ...transactionToUpdate,
-                        status: 'Accepted',
-                        receiveDateTime: new Date().toISOString(),
-                        receiverId: user.id
-                    })
-                });
-    
-                if (!transactionResponse.ok) {
-                    throw new Error('Failed to update transaction');
-                }
-    
-                await fetchAcceptedTransactions();
-                setShowPalayAcceptDialog(false);
+            if (!transactionResponse.ok) {
+                throw new Error('Failed to update transaction');
             }
+    
+            await fetchInventory();
+            setShowPalayAcceptDialog(false);
+            
+            toast.current.show({
+                severity: 'success',
+                summary: 'Success',
+                detail: 'Transaction successfully updated',
+                life: 3000
+            });
         } catch (error) {
             console.error('Error updating transaction:', error);
             toast.current.show({
@@ -395,7 +450,6 @@ function Warehouse() {
 
     const handleActionClick = (item, rowData) => {
         if (viewMode === 'requests') {
-            console.log("rowData is ", rowData)
             setSelectedItem(rowData);
             if (item === 'Palay') {
                 setShowPalayAcceptDialog(true);
@@ -404,9 +458,9 @@ function Warehouse() {
             }
         } else if (viewMode === 'inWarehouse') {
             setSelectedItem(rowData);
-            // Find the current transaction using currentTransaction field
-            const currentTransaction = transactions.find(t => t.id === rowData.currentTransaction);
 
+            console.log(rowData);
+            
             const toLocationType = rowData.palayStatus === 'To be Dry' ? 'Dryer' : 
                                  rowData.palayStatus === 'To be Mill' ? 'Miller' : '';
             
@@ -416,7 +470,7 @@ function Warehouse() {
                 itemId: rowData.id,
                 senderId: user.id,
                 fromLocationType: 'Warehouse',
-                fromLocationId: currentTransaction?.toLocationId, // Use current transaction's location
+                fromLocationId: rowData.toLocationId,
                 receiverId: 0,
                 receiveDateTime: '0',
                 toLocationType: toLocationType,
@@ -424,152 +478,10 @@ function Warehouse() {
             };
             
             setNewTransactionData(newTransaction);
-    
-            if (rowData.palayStatus === 'To be Dry') {
-                setNewDryingData({
-                    ...initialDryingData,
-                    palayBatchId: rowData.id,
-                });
-            } else if (rowData.palayStatus === 'To be Mill') {
-                setNewMillingData({
-                    ...initialMillingData,
-                    palayBatchId: rowData.id,
-                });
-            }
-            
             setShowSendToDialog(true);
         }
     };
 
-    // const newTransactionSubmit = async () => {
-    //     const transformedData = {
-    //         ...newTransactionData
-    //     };
-
-    //     console.log(transformedData)
-    
-    //     try {
-    //         const response = await fetch(`${apiUrl}/transactions`, {
-    //             method: 'POST',
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //                 'API-Key': `${apiKey}`
-    //             },
-    //             body: JSON.stringify(transformedData)
-    //         });
-    
-    //         if (!response.ok) {
-    //             throw new Error('Failed to submit transaction data');
-    //         }
-    
-    //         const result = await response.json();
-
-    //         toast.current.show({
-    //             severity: 'success',
-    //             summary: 'Success',
-    //             detail: 'Transaction record successfully created',
-    //             life: 3000
-    //         });
-    
-    //         setNewTransactionData(initialTransactionData);
-    
-    //     } catch (error) {
-    //         console.error('Error:', error);
-    //         toast.current.show({
-    //             severity: 'error',
-    //             summary: 'Error',
-    //             detail: 'Failed to create transaction record',
-    //             life: 3000
-    //         });
-    //     }
-    // };
-
-    const newDryingSubmit = async () => {
-        const transformedData = {
-            ...newDryingData
-        };
-
-        console.log(transformedData)
-    
-        try {
-            const response = await fetch(`${apiUrl}/dryingbatches`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': `${apiKey}`
-                },
-                body: JSON.stringify(transformedData)
-            });
-    
-            if (!response.ok) {
-                throw new Error('Failed to submit drying batches data');
-            }
-    
-            const result = await response.json();
-
-            toast.current.show({
-                severity: 'success',
-                summary: 'Success',
-                detail: 'drying batches successfully created',
-                life: 3000
-            });
-    
-            setNewDryingData(initialDryingData);
-    
-        } catch (error) {
-            console.error('Error:', error);
-            toast.current.show({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'Failed to create drying batches record',
-                life: 3000
-            });
-        }
-    };
-
-    const newMillingSubmit = async () => {
-        const transformedData = {
-            ...newMillingData
-        };
-
-        console.log(transformedData)
-    
-        try {
-            const response = await fetch(`${apiUrl}/millingbatches`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': `${apiKey}`
-                },
-                body: JSON.stringify(transformedData)
-            });
-    
-            if (!response.ok) {
-                throw new Error('Failed to submit milling batches data');
-            }
-    
-            const result = await response.json();
-
-            toast.current.show({
-                severity: 'success',
-                summary: 'Success',
-                detail: 'milling batches successfully created',
-                life: 3000
-            });
-    
-            setNewMillingData(initialMillingData);
-    
-        } catch (error) {
-            console.error('Error:', error);
-            toast.current.show({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'Failed to create milling batches record',
-                life: 3000
-            });
-        }
-    };
-    
     const getSeverity = (status, viewMode) => {
         // Handle transaction statuses
         if (viewMode === 'requests') {
@@ -625,29 +537,15 @@ function Warehouse() {
         );
     };
     
-    const filteredData = viewMode === 'requests' 
-    ? combinedData.filter(item => {
-        const isPending = item.transactionStatus === 'Pending';
-        if (!isPending) return false;
-
-        switch (selectedFilter) {
-            case 'palay':
-                return item.item === 'Palay';
-            case 'rice':
-                return item.item === 'Rice';
-            default:
-                return true;
+    const filteredData = combinedData.filter(item => {
+        // First apply view mode filter
+        if (viewMode === 'inWarehouse') {
+            const allowedStatuses = ['To be Mill', 'To be Dry', 'Milled'];
+            if (!allowedStatuses.includes(item.palayStatus)) return false;
+            if (['In Milling', 'In Drying'].includes(item.palayStatus)) return false;
         }
-    })
-    : combinedData.filter(item => {
-        const isAccepted = item.transactionStatus === 'Accepted';
-        if (!isAccepted) return false;
-        
-        const allowedStatuses = ['To be Mill', 'To be Dry', 'Milled'];
-        if (!allowedStatuses.includes(item.palayStatus)) return false;
-        
-        if (['In Milling', 'In Drying'].includes(item.palayStatus)) return false;
-        
+
+        // Then apply item type filter
         switch (selectedFilter) {
             case 'palay':
                 return item.item === 'Palay';
@@ -661,12 +559,14 @@ function Warehouse() {
     const getFilterCount = (filter) => {
         const excludedStatuses = ['In Milling', 'In Drying'];
         
-        const baseData = viewMode === 'requests' 
-            ? combinedData.filter(item => item.transactionStatus === 'Pending')
-            : combinedData.filter(item => {
+        const baseData = combinedData.filter(item => {
+            if (viewMode === 'requests') {
+                return item.transactionStatus === 'Pending';
+            } else {
                 return item.transactionStatus === 'Accepted' && 
-                       !excludedStatuses.includes(item.palayStatus);
-            });
+                        !excludedStatuses.includes(item.palayStatus);
+            }
+        });
 
         switch (filter) {
             case 'palay':
@@ -851,14 +751,6 @@ function Warehouse() {
                                         toLocationId: selectedOption.value,
                                         toLocationName: selectedOption.label
                                     }));
-                                    setNewDryingData(prev => ({
-                                        ...prev,
-                                        dryerId: selectedOption.value,
-                                    }));
-                                    setNewMillingData(prev => ({
-                                        ...prev,
-                                        millerId: selectedOption.value,
-                                    }));
                                     setErrors(prev => ({...prev, toLocationId: ''}));
                                 }
                             }}
@@ -915,43 +807,65 @@ function Warehouse() {
             </Dialog>
 
             {/* Accept Rice Dialog */}
-            <Dialog header="Receive palay" visible={showRiceAcceptDialog} onHide={() => setShowRiceAcceptDialog(false)} className="w-1/3">
+            <Dialog header="Receive Rice" visible={showRiceAcceptDialog} onHide={() => {
+                setShowRiceAcceptDialog(false);
+                setRiceAcceptFormData(initialRiceAcceptData);
+                setRiceAcceptErrors({});
+            }} className="w-1/3">
                 <div className="flex flex-col items-center gap-2">
                     <div className="w-full">
                         <label htmlFor="riceBatchName" className="block text-sm font-medium text-gray-700 mb-1">Rice Batch Name</label>
                         <InputText 
                             name="riceBatchName"
-                            value={acceptFormData.riceBatchName}
-                            onChange={handleInputChange}
-                            className="w-full ring-0" 
+                            value={riceAcceptFormData.riceBatchName}
+                            onChange={handleRiceAcceptInputChange}
+                            className={`w-full ring-0 ${riceAcceptErrors.riceBatchName ? 'p-invalid' : ''}`}
                         />
+                        {riceAcceptErrors.riceBatchName && (
+                            <small className="text-red-500">{riceAcceptErrors.riceBatchName}</small>
+                        )}
                     </div>
 
                     <div className="w-full">
                         <label htmlFor="riceType" className="block text-sm font-medium text-gray-700 mb-1">Rice Type</label>
                         <InputText 
                             name="riceType"
-                            value={acceptFormData.riceType}
-                            onChange={handleInputChange}
-                            className="w-full ring-0" 
+                            value={riceAcceptFormData.riceType}
+                            onChange={handleRiceAcceptInputChange}
+                            className={`w-full ring-0 ${riceAcceptErrors.riceType ? 'p-invalid' : ''}`}
                         />
+                        {riceAcceptErrors.riceType && (
+                            <small className="text-red-500">{riceAcceptErrors.riceType}</small>
+                        )}
                     </div>
 
                     <div className="w-full">
                         <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">Price</label>
                         <InputText 
                             name="price"
-                            value={acceptFormData.price}
-                            onChange={handleInputChange}
-                            className="w-full ring-0" 
+                            value={riceAcceptFormData.price}
+                            onChange={handleRiceAcceptInputChange}
+                            className={`w-full ring-0 ${riceAcceptErrors.price ? 'p-invalid' : ''}`}
                         />
+                        {riceAcceptErrors.price && (
+                            <small className="text-red-500">{riceAcceptErrors.price}</small>
+                        )}
                     </div>
                     
-                    <div className="flex justify-between w-full mt-5">
+                    <div className="flex justify-between w-full mt-5 gap-4">
+                        <Button 
+                            label="Cancel" 
+                            className="w-1/2 bg-transparent text-primary border-primary"
+                            onClick={() => {
+                                setShowRiceAcceptDialog(false);
+                                setRiceAcceptFormData(initialRiceAcceptData);
+                                setRiceAcceptErrors({});
+                            }}
+                        />
                         <Button 
                             label="Confirm Receive" 
-                            className="w-full bg-primary hover:border-none" 
-                            onClick={handleConfirmReceive} 
+                            className="w-1/2 bg-primary hover:border-none" 
+                            onClick={handleRiceAcceptConfirm}
                         />
                     </div>
                 </div>

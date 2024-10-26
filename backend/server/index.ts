@@ -18,6 +18,8 @@ import { getRouter as getRouterTransaction} from '../entities/transactions/route
 import { getRouter as getRouterFarm } from '../entities/farms/router';
 import { getRouter as getRouterHouseOfficeAddress } from '../entities/houseofficeaddresses/router';
 import { getRouter as getRouterRiceMillingBatches } from '../entities/ricemillingbatches/router';
+import { getRouter as getRouterInventory } from '../entities/inventory/router';
+
 
 
 // TODO make this function's return type explicit https://github.com/demergent-labs/azle/issues/1860
@@ -46,6 +48,7 @@ export function initServer() {
     app.use('/farms', requireAuth, getRouterFarm());
     app.use('/houseofficeaddresses', requireAuth, getRouterHouseOfficeAddress());
     app.use('/ricemillingbatches', requireAuth, getRouterRiceMillingBatches());
+    app.use('/inventory', requireAuth, getRouterInventory());
 
 
     app.get('/init-called', (_req, res) => {
