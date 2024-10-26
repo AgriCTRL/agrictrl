@@ -137,7 +137,7 @@ function Warehouse() {
                 },
                 body: JSON.stringify({
                     id: selectedItem.transactionId,
-                    status: 'Accepted',
+                    status: 'Received',
                     receiveDateTime: new Date().toISOString(),
                     receiverId: user.id,
                     riceBatchData: {
@@ -181,7 +181,7 @@ function Warehouse() {
 
     const fetchInventory = async () => {
         try {
-            const status = viewMode === 'requests' ? 'Pending' : 'Accepted';
+            const status = viewMode === 'requests' ? 'Pending' : 'Received';
             
             // Fetch inventory, warehouses, dryers, and millers as needed
             const [inventoryRes, warehousesRes, dryersRes, millersRes] = await Promise.all([
@@ -418,7 +418,7 @@ function Warehouse() {
                 },
                 body: JSON.stringify({
                     id: selectedItem.transactionId,
-                    status: 'Accepted',
+                    status: 'Received',
                     receiveDateTime: new Date().toISOString(),
                     receiverId: user.id
                 })
@@ -488,7 +488,7 @@ function Warehouse() {
             switch (status) {
                 case 'Pending':
                     return 'warning';
-                case 'Accepted':
+                case 'Received':
                     return 'success';
                 default:
                     return 'info';
@@ -563,7 +563,7 @@ function Warehouse() {
             if (viewMode === 'requests') {
                 return item.transactionStatus === 'Pending';
             } else {
-                return item.transactionStatus === 'Accepted' && 
+                return item.transactionStatus === 'Received' && 
                         !excludedStatuses.includes(item.palayStatus);
             }
         });

@@ -56,7 +56,6 @@ const initialPalayData = {
     harvestedDate: null,
     estimatedCapital: '',
     currentlyAt: '',
-    currentTransaction: '',
     status: '',
 };
 
@@ -127,7 +126,6 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
         harvestedDate: null,
         estimatedCapital: '',
         currentlyAt: '',
-        currentTransaction: '',
         status: '',
     });
     const [transactionData, setTransactionData] = useState({
@@ -340,7 +338,6 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                 },
                 body: JSON.stringify({
                     ...palayData,
-                    currentTransaction: 0,  // Set to 0 as per request
                     dateBought: palayData.dateBought ? palayData.dateBought.toISOString().split('T')[0] : null,
                     birthDate: palayData.birthDate ? palayData.birthDate.toISOString().split('T')[0] : null,
                     plantedDate: palayData.plantedDate ? palayData.plantedDate.toISOString().split('T')[0] : null,

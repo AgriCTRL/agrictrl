@@ -115,7 +115,7 @@ const Processing = () => {
             // Determine processing type and location based on viewMode
             const processType = viewMode === 'drying' ? 'dryer' : 'miller';
             const locationType = viewMode === 'drying' ? 'Dryer' : 'Miller';
-            const status = selectedFilter === 'request' ? 'Pending' : 'Accepted';
+            const status = selectedFilter === 'request' ? 'Pending' : 'Received';
             const batchType = viewMode === 'drying' ? 'drying' : 'milling';
             
             // Fetch all required data in parallel
@@ -221,7 +221,7 @@ const Processing = () => {
             case 'pending':
                 setShowAcceptDialog(true);
                 break;
-            case 'accepted':
+            case 'received':
                 if (rowData.processingStatus?.toLowerCase() === 'in progress') {
                     // Reset the form data for the specific process
                     if (viewMode === 'drying') {
@@ -249,7 +249,7 @@ const Processing = () => {
         }
     
         try {
-            // 1. Update transaction status to "Accepted"
+            // 1. Update transaction status to "Received"
             const transactionResponse = await fetch(`${apiUrl}/transactions/update`, {
                 method: 'POST',
                 headers: {
@@ -258,7 +258,7 @@ const Processing = () => {
                 },
                 body: JSON.stringify({
                     id: selectedItem.transactionId,
-                    status: "Accepted",
+                    status: "Received",
                     receiveDateTime: new Date().toISOString(),
                     receiverId: user.id
                 })
@@ -606,7 +606,7 @@ const Processing = () => {
             case 'pending':
                 actionText = 'Accept';
                 break;
-            case 'accepted':
+            case 'Received':
                 if (rowData.processingStatus?.toLowerCase() === 'in progress') {
                     actionText = 'Done';
                 } else if (rowData.processingStatus?.toLowerCase() === 'done') {
@@ -630,11 +630,11 @@ const Processing = () => {
                 case 'request':
                     return item.transactionStatus === 'Pending';
                 case 'process':
-                    return item.transactionStatus === 'Accepted' && 
+                    return item.transactionStatus === 'Received' && 
                            item.palayStatus === 'In Drying' && 
                            item.processingStatus === 'In Progress';
                 case 'return':
-                    return item.transactionStatus === 'Accepted' && 
+                    return item.transactionStatus === 'Received' && 
                            item.processingStatus === 'Done';
                 default:
                     return true;
@@ -644,11 +644,11 @@ const Processing = () => {
                 case 'request':
                     return item.transactionStatus === 'Pending';
                 case 'process':
-                    return item.transactionStatus === 'Accepted' && 
+                    return item.transactionStatus === 'Received' && 
                            item.palayStatus === 'In Milling' && 
                            item.processingStatus === 'In Progress';
                 case 'return':
-                    return item.transactionStatus === 'Accepted' && 
+                    return item.transactionStatus === 'Received' && 
                            item.processingStatus === 'Done';
                 default:
                     return true;
@@ -663,11 +663,11 @@ const Processing = () => {
                     case 'request':
                         return item.transactionStatus === 'Pending';
                     case 'process':
-                        return item.transactionStatus === 'Accepted' && 
+                        return item.transactionStatus === 'Received' && 
                                item.palayStatus === 'In Drying' && 
                                item.processingStatus === 'In Progress';
                     case 'return':
-                        return item.transactionStatus === 'Accepted' && 
+                        return item.transactionStatus === 'Received' && 
                                item.processingStatus === 'Done';
                     default:
                         return false;
@@ -677,11 +677,11 @@ const Processing = () => {
                     case 'request':
                         return item.transactionStatus === 'Pending';
                     case 'process':
-                        return item.transactionStatus === 'Accepted' && 
+                        return item.transactionStatus === 'Received' && 
                                item.palayStatus === 'In Milling' && 
                                item.processingStatus === 'In Progress';
                     case 'return':
-                        return item.transactionStatus === 'Accepted' && 
+                        return item.transactionStatus === 'Received' && 
                                item.processingStatus === 'Done';
                     default:
                         return false;
