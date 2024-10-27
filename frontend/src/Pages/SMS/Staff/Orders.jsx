@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import StaffLayout from '@/Layouts/StaffLayout';
 import { Search, ShoppingCart, ThumbsUp, ThumbsDown, SendHorizontal, DollarSign } from "lucide-react";
 
@@ -11,26 +11,96 @@ import { InputText } from 'primereact/inputtext';
 import { Dialog } from 'primereact/dialog';
 import { Calendar } from 'primereact/calendar';
 import { Dropdown } from 'primereact/dropdown';
+import { Toast } from 'primereact/toast';
 import { InputTextarea } from 'primereact/inputtextarea';
+import { useAuth } from '../../Authentication/Login/AuthContext';
 
 function Orders() {
-    const [ordersData, setOrdersData] = useState([
-        { id: 1, orderID: '001', toBeDeliverAt: 'Rizal', orderDate: '2/11/12', orderedBy: 'Mark Johanes', status: 'For Approval' },
-        { id: 2, orderID: '002', toBeDeliverAt: 'Cubao', orderDate: '7/11/19', orderedBy: 'Athena Don', status: 'For Approval' },
-        { id: 3, orderID: '003', toBeDeliverAt: 'Pasig', orderDate: '4/21/12', orderedBy: 'Mark Josh', status: 'For Approval' },
-        { id: 4, orderID: '004', toBeDeliverAt: 'Balintawak', orderDate: '10/28/12', orderedBy: 'Pordi Hums', status: 'For Approval' },
-        { id: 5, orderID: '005', toBeDeliverAt: 'Sta. Mesa', orderDate: '12/10/13', orderedBy: 'Ravel Finch', status: 'For Approval' },
-        { id: 6, orderID: '006', toBeDeliverAt: 'Ananas', orderDate: '12/10/13', orderedBy: 'Edward Newgate', status: 'For Approval' },
-        { id: 7, orderID: '007', toBeDeliverAt: 'Rizal', orderDate: '2/11/12', orderedBy: 'Mark Johanes', status: 'Accepted' },
-        { id: 8, orderID: '008', toBeDeliverAt: 'Cubao', orderDate: '7/11/19', orderedBy: 'Athena Don', status: 'Accepted' },
-        { id: 9, orderID: '009', toBeDeliverAt: 'Pasig', orderDate: '4/21/12', orderedBy: 'Mark Josh', status: 'Accepted' },
-        { id: 10, orderID: '010', toBeDeliverAt: 'Balintawak', orderDate: '10/28/12', orderedBy: 'Pordi Hums', status: 'Declined' },
-        { id: 11, orderID: '011', toBeDeliverAt: 'Sta. Mesa', orderDate: '12/10/13', orderedBy: 'Ravel Finch', status: 'Declined' },
-        { id: 12, orderID: '012', toBeDeliverAt: 'Ananas', orderDate: '12/10/13', orderedBy: 'Edward Newgate', status: 'Declined' },
-        { id: 13, orderID: '013', toBeDeliverAt: 'Makati', orderDate: '1/15/14', orderedBy: 'John Doe', status: 'Accepted' },
-        { id: 14, orderID: '014', toBeDeliverAt: 'Taguig', orderDate: '2/20/14', orderedBy: 'Jane Smith', status: 'Accepted' },
-        { id: 15, orderID: '015', toBeDeliverAt: 'Quezon City', orderDate: '3/25/14', orderedBy: 'Bob Johnson', status: 'Accepted' },
-    ]);
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    const apiKey = import.meta.env.VITE_API_KEY;
+    const toast = useRef();
+    const { user } = useAuth();
+
+    const [ordersData, setOrdersData] = useState([]);
+    const [recipients, setRecipients] = useState({});
+    const [riceBatches, setRiceBatches] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+
+    const fetchRecipients = async () => {
+        try {
+            const res = await fetch(`${apiUrl}/users?userType=Rice%20Recipient`, {
+                headers: { 'API-Key': `${apiKey}`}
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error('failed to fetch rice recipients');
+            }
+            const recipientMap = data.reduce((acc, recipient) => {
+                acc[recipient.id] = `${recipient.firstName} ${recipient.lastName}`;
+                return acc;
+            }, {});
+            setRecipients(recipientMap);
+        } catch (error) {
+            console.error(error.message);
+        }
+    };
+    
+    const fetchOrders = async () => {
+        try {
+            const res = await fetch(`${apiUrl}/riceorders`, {
+                headers: { 'API-Key': `${apiKey}`}
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error('failed to fetch rice orders');
+            }
+            const ordersWithRecipients = data.map(order => ({
+                ...order,
+                orderedBy: recipients[order.riceRecipientId] || 'Unknown'
+            }));
+            setOrdersData(ordersWithRecipients);
+        } catch (error) {
+            console.error(error.message);
+        }
+    };
+
+    const fetchRiceBatches = async () => {
+        try {
+            const res = await fetch(`${apiUrl}/ricebatches`, {
+                headers: { 'API-Key': `${apiKey}` }
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error('failed to fetch rice batches');
+            }
+            const batchOptions = data.map(batch => ({
+                label: `Batch ${batch.id}`,
+                value: batch.id,
+                warehouseId: batch.warehouseId
+            }));
+            setRiceBatches(batchOptions);
+        } catch (error) {
+            console.error('Error fetching rice batches:', error.message);
+        }
+    };
+
+    useEffect(() => {
+        fetchRecipients();
+        fetchRiceBatches();
+    }, []);
+
+    useEffect(() => {
+        if (Object.keys(recipients).length > 0) {
+            fetchOrders();
+        }
+    }, [recipients]);
+
+    const onUpdate = () => {
+        fetchRecipients();
+        if (Object.keys(recipients).length > 0) {
+            fetchOrders();
+        }
+    }
 
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [filters, setFilters] = useState({
@@ -47,38 +117,17 @@ function Orders() {
     const [selectedOrder, setSelectedOrder] = useState(null);
 
     const [declineReason, setDeclineReason] = useState('');
-    const [declinedDetails, setDeclinedDetails] = useState({
-        orderID: '',
-        quantity: '',
-        description: '',
-        orderDate: '',
-    });
+    const [declinedDetails, setDeclinedDetails] = useState({});
 
-    const [sendOrderData, setSendOrderData] = useState({
-        riceBatchId: '',
-        date: '',
-        quantityInBags: '',
-        location: '',
-        transpo: '',
-        orderDescription: '',
-        remarks: '',
-    });
-
-    useEffect(() => {
-        const today = new Date();
-        setSendOrderData((prevFormData) => ({
-            ...prevFormData,
-            date: today
-        }));
-    }, []);
+    const [sendOrderData, setSendOrderData] = useState({});
 
     const handleInputChange = (e, formType) => {
         const value = e.target?.value ?? e;
-        const name = e.target?.name ?? 'date';
+        const name = e.target?.name;
     
         switch (formType) {
             case 'decline':
-                setDeclineOrderData(prevState => ({
+                setDeclineReason(prevState => ({
                     ...prevState,
                     [name]: value
                 }));
@@ -114,6 +163,16 @@ function Orders() {
             className="text-sm px-3 py-1 rounded-lg"
         />
     );
+
+    const dateBodyTemplate = (rowData, field) => {
+        const date = new Date(rowData[field]).toISOString().split('T')[0];
+
+        return new Date(date).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+        });
+    };
     
     const actionBodyTemplate = (rowData) => {
         switch (rowData.status) {
@@ -163,67 +222,227 @@ function Orders() {
         setShowDeclineDialog(true);
     };
 
-    const handleConfirmAccept = () => {
-        const updatedOrders = ordersData.map(order => {
-            if (order.id === selectedOrder.id) {
-                return { ...order, status: 'Accepted' };
+    const handleConfirmAccept = async () => {
+        setIsLoading(true);
+        const order = {
+            id: selectedOrder.id,
+            status: 'Accepted'
+        }
+        try {
+            const res = await fetch(`${apiUrl}/riceorders/update`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'API-Key': `${apiKey}`
+                },
+                body: JSON.stringify(order)
+            });
+            if (!res.ok) {
+                throw new Error('failed to update rice order status')
             }
-            return order;
-        });
-        setOrdersData(updatedOrders);
-        setShowAcceptDialog(false);
+        } catch (error) {
+            console.error(error.message);
+        } finally {
+            toast.current.show({
+                severity: 'success',
+                summary: 'Success',
+                detail: 'Order accepted successfully!',
+                life: 3000
+            });
+            setShowAcceptDialog(false);
+            setIsLoading(false);
+            onUpdate();
+        }
     };
 
-    const handleConfirmDecline = () => {
-        const updatedOrders = ordersData.map(order => {
-            if (order.id === selectedOrder.id) {
-                return { ...order, status: 'Declined' };
+    const handleConfirmDecline = async () => {
+        if (!declineReason.trim()) {
+            toast.current.show({
+                severity: 'warn',
+                summary: 'Required field',
+                detail: 'Please enter a reason for declining',
+                life: 3000
+            });
+            return;
+        }
+
+        setIsLoading(true);
+        const order = {
+            id: selectedOrder.id,
+            status: 'Declined',
+            remarks: declineReason
+        }
+        try {
+            const res = await fetch(`${apiUrl}/riceorders/update`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'API-Key': `${apiKey}`
+                },
+                body: JSON.stringify(order)
+            });
+            if (!res.ok) {
+                throw new Error('failed to update rice order status')
             }
-            return order;
-        });
-        setOrdersData(updatedOrders);
-        setShowDeclineDialog(false);
-        setDeclineReason('');
-        setDeclineOrderData({
-            riceType: '',
-            quantity: '',
+        } catch (error) {
+            console.error(error.message);
+        } finally {
+            toast.current.show({
+                severity: 'success',
+                summary: 'Success',
+                detail: 'Order declined successfully!',
+                life: 3000
+            });
+            setShowDeclineDialog(false);
+            setIsLoading(false);
+            onUpdate();
+        }
+    };
+
+    const resetSendOrderData = () => {
+        setSendOrderData({
+            warehouseId: null,
+            riceQuantityBags: '',
+            dropOffLocation: '',
             description: '',
-            date: '',
-            price: ''
+            transportedBy: '',
+            transporterDescription: '',
+            remarks: '',
+            riceOrderId: null,
+            riceRecipientId: null,
+            riceBatchId: null
         });
     };
 
     const handleSendClick = (rowData) => {
         setSelectedOrder(rowData);
+        setSendOrderData({
+            ...sendOrderData,
+            warehouseId: null,
+            riceQuantityBags: rowData.riceQuantityBags,
+            dropOffLocation: rowData.dropOffLocation,
+            description: rowData.description || '',
+            transportedBy: '',
+            transporterDescription: '',
+            remarks: '',
+            riceOrderId: rowData.id,
+            riceRecipientId: rowData.riceRecipientId
+        });
         setShowSendDialog(true);
     };
 
-    const handleConfirmSend = () => {
-        const updatedOrders = ordersData.map(order => {
-            if (order.id === selectedOrder.id) {
-                return { ...order, status: 'Sent' };
+    const validateForm = () => {
+        const errors = [];
+
+        if (!sendOrderData.riceBatchId) {
+            errors.push('Please select a rice batch');
+        }
+
+        if (!sendOrderData.transportedBy) {
+            errors.push('Please enter transporter name');
+        }
+
+        if(!sendOrderData.transporterDescription) {
+            errors.push('Please enter transporter description');
+        }
+
+        if (errors.length > 0) {
+            errors.forEach(error => {
+                toast.current.show({
+                    severity: 'warn',
+                    summary: 'Required Field',
+                    detail: error,
+                    life: 3000
+                });
+            });
+            return;
+        }
+
+        return true;
+    };
+
+    const handleConfirmSend = async () => {
+        if (!validateForm()) {
+            return;
+        }
+        setIsLoading(true);
+        const selectedBatch = riceBatches.find(batch => batch.value === sendOrderData.riceBatchId);
+        const transactionBody = {
+            item: 'Rice',
+            itemId: sendOrderData.riceBatchId,
+            senderId: user.id,
+            fromLocationType: 'Warehouse',
+            fromLocationId: selectedBatch.warehouseId,
+            transporterName: sendOrderData.transportedBy,
+            transporterDesc: sendOrderData.transporterDescription,
+            receiverId: sendOrderData.riceRecipientId,
+            toLocationType: 'Distribution',
+            toLocationId: sendOrderData.riceOrderId,
+            remarks: sendOrderData.remarks
+        };
+
+        const riceOrderBody = {
+            id: sendOrderData.riceOrderId,
+            status: 'In Transit'
+        }
+
+        try {
+            const transactionRes = await fetch(`${apiUrl}/transactions`, {
+                method: 'POST',
+                headers: {
+                    'API-Key': `${apiKey}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(transactionBody)
+            })
+            const riceOrderRes = await fetch(`${apiUrl}/riceorders/update`, {
+                method: 'POST',
+                headers: {
+                    'API-Key': `${apiKey}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(riceOrderBody)
+            })
+            if(!transactionRes.ok && !riceOrderRes.ok) {
+                throw new Error('failed to send rice')
             }
-            return order;
-        });
-        setOrdersData(updatedOrders);
+        } catch (error) {
+            console.error(error.message);
+        } finally {
+            toast.current.show({
+                severity: 'success',
+                summary: 'Success',
+                detail: 'Sent rice successfully!',
+                life: 3000
+            });
+            setShowSendDialog(false);
+            resetSendOrderData();
+            setIsLoading(false);
+            onUpdate();
+        }
+    };
+
+    const handleCloseSendDialog = () => {
+        resetSendOrderData();
         setShowSendDialog(false);
-        setSendOrderData({
-            riceType: '',
-            quantity: '',
-            description: '',
-            date: '',
-            price: ''
-        });
     };
 
     const handleViewDeclinedDetails = (rowData) => {
         setDeclinedDetails({
-            orderID: rowData.orderID,
-            quantity: '1000 kg', // You can modify this based on your actual data
-            description: 'Insufficient Stock', // You can modify this based on your actual data
-            orderDate: rowData.orderDate,
+            orderID: rowData.id,
+            quantity: rowData.riceQuantityBags, // You can modify this based on your actual data
+            description: rowData.description, // You can modify this based on your actual data
+            orderDate: new Date(rowData.orderDate).toISOString().split('T')[0]
         });
         setShowDeclinedDetailsDialog(true);
+    };
+
+    const formatDate = (date) => {
+        return new Date(date).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        });
     };
 
     const handleFilterChange = (filter) => {
@@ -254,12 +473,18 @@ function Orders() {
         }
     };
 
+    const handleCancelDecline = () => {
+        setShowDeclineDialog(false);
+        setDeclineReason('');
+    }
+
     const buttonStyle = (isSelected) => isSelected
         ? 'bg-primary text-white'
         : 'bg-white text-primary border border-gray-300';
 
     return (
         <StaffLayout activePage="Orders">
+            <Toast ref={toast} />
             <div className="flex flex-col px-10 py-2 h-full bg-[#F1F5F9]">
                 <div className="flex flex-col justify-center items-center p-10 h-1/4 rounded-lg bg-gradient-to-r from-primary to-secondary mb-2">
                     <h1 className="text-5xl h-full text-white font-bold mb-2">Manage Orders</h1>
@@ -314,9 +539,9 @@ function Orders() {
                         paginator
                         rows={10}
                     > 
-                        <Column field="orderID" header="Order ID" className="text-center" headerClassName="text-center" />
-                        <Column field="toBeDeliverAt" header="To Be Deliver At" className="text-center" headerClassName="text-center" />
-                        <Column field="orderDate" header="Order Date" className="text-center" headerClassName="text-center" />
+                        <Column field="id" header="Order ID" className="text-center" headerClassName="text-center" />
+                        <Column field="dropOffLocation" header="To Be Deliver At" className="text-center" headerClassName="text-center" />
+                        <Column field="orderDate" header="Date Ordered" body={(rowData) => dateBodyTemplate(rowData, 'orderDate')} className="text-center" headerClassName="text-center" />
                         <Column field="orderedBy" header="Ordered By" className="text-center" headerClassName="text-center" />
                         <Column field="status" header="Status" body={statusBodyTemplate} className="text-center" headerClassName="text-center"/>
                         <Column body={actionBodyTemplate} header="Action" className="text-center" headerClassName="text-center"/>
@@ -330,13 +555,13 @@ function Orders() {
                 header="Accept Order"
                 visible={showAcceptDialog}
                 className='w-1/3'
-                onHide={() => setShowAcceptDialog(false)}
+                onHide={isLoading ? null : () => setShowAcceptDialog(false)}
             >
                 <div className="flex flex-col items-center">
                     <p className="mb-10">Are you sure you want to receive this request?</p>
                     <div className="flex justify-between w-full gap-4">
-                        <Button label="Cancel" icon="pi pi-times" onClick={() => setShowAcceptDialog(false)} className="w-1/2 bg-transparent text-primary border-primary" />
-                        <Button label="Confirm Accept" icon="pi pi-check" onClick={handleConfirmAccept} className="w-1/2 bg-primary hover:border-none" />
+                        <Button label="Cancel" icon="pi pi-times" onClick={() => setShowAcceptDialog(false)} className="w-1/2 bg-transparent text-primary border-primary" disabled={isLoading}/>
+                        <Button label="Confirm Accept" icon="pi pi-check" onClick={handleConfirmAccept} className="w-1/2 bg-primary hover:border-none" disabled={isLoading}/>
                     </div>
                 </div>
             </Dialog>
@@ -346,12 +571,13 @@ function Orders() {
                 header="Decline Order"
                 visible={showDeclineDialog}
                 className='w-1/3'
-                onHide={() => setShowDeclineDialog(false)}
+                onHide={isLoading ? null : handleCancelDecline}
             >
                 <div className="flex flex-col items-center gap-5">
                     <p className="">Are you sure you want to decline this request?</p>
                     <div className="w-full ">
-                        <label htmlFor="reason" className="block text-sm font-medium text-gray-700 mb-1">Reason</label>
+                        <label htmlFor="reason" className="block text-sm font-medium text-gray-700 mb-1">
+                            Reason <span className="text-red-500">*</span></label>
                         <InputTextarea 
                             id="reason"
                             name="reason"
@@ -361,8 +587,8 @@ function Orders() {
                         />
                     </div>
                     <div className="flex justify-between w-full gap-4">
-                        <Button label="Cancel" icon="pi pi-times" onClick={() => setShowDeclineDialog(false)} className="w-1/2 bg-transparent text-primary border-primary" />
-                        <Button label="Confirm Decline" icon="pi pi-check" onClick={handleConfirmDecline} className="w-1/2 bg-primary hover:border-none" />
+                        <Button label="Cancel" icon="pi pi-times" onClick={handleCancelDecline} className="w-1/2 bg-transparent text-primary border-primary" disabled={isLoading}/>
+                        <Button label="Confirm Decline" icon="pi pi-check" onClick={handleConfirmDecline} className="w-1/2 bg-primary hover:border-none" disabled={isLoading}/>
                     </div>
                 </div>
             </Dialog>
@@ -372,27 +598,16 @@ function Orders() {
                 header="Send Rice"
                 visible={showSendDialog}
                 className='w-1/3'
-                onHide={() => setShowSendDialog(false)}
+                onHide={isLoading ? null : handleCloseSendDialog}
             >
                 <div className="flex flex-col gap-2 h-full">
-                    <div className="w-full">
-                        <label className="block mb-2">Date Sent</label>
-                        <Calendar 
-                            name="dateProcessed"
-                            value={sendOrderData.date}
-                            className="w-full"
-                            disabled
-                            readOnlyInput
-                        />
-                    </div>
-
                     <div className="w-full">
                         <label htmlFor="riceBatchId" className="block text-sm font-medium text-gray-700 mb-1">Rice Batch</label>
                         <Dropdown
                             id="riceBatchId"
                             name="riceBatchId"
                             value={sendOrderData.riceBatchId}
-                            options={[{ label: 'Batch 001', value: 'batch1' }, { label: 'Batch 002', value: 'batch2' }, { label: 'Batch 003', value: 'batch3' }]}
+                            options={riceBatches}
                             onChange={(e) => handleInputChange(e, 'send')}
                             placeholder="Select Rice Batch"
                             className="ring-0 w-full placeholder:text-gray-400"
@@ -403,11 +618,9 @@ function Orders() {
                         <label htmlFor="quantityInBags" className="block text-sm font-medium text-gray-700 mb-1">Quantity in Bags</label>
                         <InputText
                             id="quantityInBags"
-                            name="quantityInBags"
-                            value={sendOrderData.quantityInBags}
-                            onChange={(e) => handleInputChange(e, 'send')}
-                            placeholder="Enter quantity"
-                            className='w-full focus:ring-0'
+                            value={sendOrderData.riceQuantityBags}
+                            disabled
+                            className='w-full focus:ring-0 bg-gray-50'
                         />
                     </div>
 
@@ -415,23 +628,9 @@ function Orders() {
                         <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">Drop-off Location</label>
                         <InputText
                             id="location"
-                            name="location"
-                            value={sendOrderData.location}
-                            onChange={(e) => handleInputChange(e, 'send')}
-                            placeholder="Enter location"
-                            className='w-full focus:ring-0'
-                        />
-                    </div>
-
-                    <div className="w-full">
-                        <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">Transported by</label>
-                        <InputText
-                            id="transpo"
-                            name="transpo"
-                            value={sendOrderData.transpo}
-                            onChange={(e) => handleInputChange(e, 'send')}
-                            placeholder="Enter Transportation"
-                            className='w-full focus:ring-0'
+                            value={sendOrderData.dropOffLocation}
+                            disabled
+                            className='w-full focus:ring-0 bg-gray-50'
                         />
                     </div>
 
@@ -439,10 +638,35 @@ function Orders() {
                         <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">Order Description</label>
                         <InputTextarea
                             id="description"
-                            name="description"
                             value={sendOrderData.description}
+                            disabled
+                            className="w-full ring-0 bg-gray-50"
+                        />
+                    </div>
+
+                    <div className="w-full">
+                        <label htmlFor="transportedBy" className="block text-sm font-medium text-gray-700 mb-1">
+                            Transported By <span className="text-red-500">*</span>
+                        </label>
+                        <InputText
+                            id="transportedBy"
+                            name="transportedBy"
+                            value={sendOrderData.transportedBy}
                             onChange={(e) => handleInputChange(e, 'send')}
-                            placeholder="Enter description"
+                            placeholder="Enter transporter name"
+                            className='w-full focus:ring-0'
+                        />
+                    </div>
+
+                    <div className="w-full">
+                        <label htmlFor="transporterDescription" className="block text-sm font-medium text-gray-700 mb-1">
+                            Transporter Description <span className="text-red-500">*</span></label>
+                        <InputTextarea
+                            id="transporterDescription"
+                            name="transporterDescription"
+                            value={sendOrderData.transporterDescription}
+                            onChange={(e) => handleInputChange(e, 'send')}
+                            placeholder="Enter transporter description"
                             className="w-full ring-0"
                         />
                     </div>
@@ -460,8 +684,8 @@ function Orders() {
                     </div>
 
                     <div className="flex justify-between w-full gap-4 mt-5">
-                        <Button label="Cancel" icon="pi pi-times" onClick={() => setShowSendDialog(false)} className="w-1/2 bg-transparent text-primary border-primary" />
-                        <Button label="Send Rice" icon="pi pi-check" onClick={handleConfirmSend} className="w-1/2 bg-primary hover:border-none" />
+                        <Button label="Cancel" icon="pi pi-times" onClick={handleCloseSendDialog} className="w-1/2 bg-transparent text-primary border-primary" disabled={isLoading}/>
+                        <Button label="Send Rice" icon="pi pi-check" onClick={handleConfirmSend} className="w-1/2 bg-primary hover:border-none" disabled={isLoading}/>
                     </div>
 
                 </div>
@@ -485,7 +709,7 @@ function Orders() {
                     </div>
                     
                     <div className="field">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Quantity in Bags</label>
                         <InputText
                             value={declinedDetails.quantity}
                             disabled
@@ -504,9 +728,9 @@ function Orders() {
                     </div>
 
                     <div className="field">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Order Date</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Date Ordered</label>
                         <InputText
-                            value={declinedDetails.orderDate}
+                            value={formatDate(declinedDetails.orderDate)}
                             disabled
                             className="w-full bg-gray-50"
                         />

@@ -24,6 +24,7 @@ function ConfirmReceive({ visible, onHide, data, onConfirmReceive }) {
                 quantity: data.riceQuantityBags,
                 date: new Date(data.orderDate).toISOString().split('T')[0],
                 price: data.totalCost,
+                dropOffLocation: data.dropOffLocation,
                 description: data.description
             });
         }
@@ -187,6 +188,17 @@ function ConfirmReceive({ visible, onHide, data, onConfirmReceive }) {
                                 className='w-full focus:ring-0'
                             />
                         </div>
+                    </div>
+
+                    <div className="w-full">
+                        <label htmlFor="dropOffLocation" className="block text-sm font-medium text-gray-700 mb-1">Drop-off Location</label>
+                        <InputText
+                            id="dropOffLocation"
+                            name="dropOffLocation"
+                            value={formData.dropOffLocation}
+                            disabled
+                            className="w-full"
+                        />
                     </div>
 
                     <div className="w-full">

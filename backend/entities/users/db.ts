@@ -85,9 +85,19 @@ function getCurrentPST(): Date {
     return new Date(utc + (3600000 * 8));
 }
 
-export async function getUsers(limit: number, offset: number, status?: string): Promise<User[]> {
+export async function getUsers(limit: number, offset: number, userType?: string, status?: string): Promise<User[]> {
+    let whereClause: any = {};
+    
+    if (userType) {
+        whereClause.userType = userType;
+    }
+
+    if (status) {
+        whereClause.status = status;
+    }
+
     return await User.find({
-        where: status ? { status } : {},
+        where: whereClause,
         take: limit,
         skip: offset,
         relations: {

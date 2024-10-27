@@ -33,7 +33,7 @@ function RiceReceive() {
 
     const fetchData = async () => {
         try {
-            const res = await fetch(`${apiUrl}/riceorders?riceRecipientId=${user.id}&status=In%20Transit&status=Received`, {
+            const res = await fetch(`${apiUrl}/riceorders?riceRecipientId=${user.id}&status=Accepted&status=In%20Transit&status=Received`, {
                 headers: { 'API-Key': `${apiKey}` }
             });
             if(!res.ok) {
@@ -51,8 +51,9 @@ function RiceReceive() {
 
     const getSeverity = (status) => {
         switch (status.toLowerCase()) {
-            case 'in transit': return 'info';
+            case 'in transit': return 'primary';
             case 'received': return 'success';
+            case 'accepted': return 'info';
             default: return 'secondary';
         }
     };

@@ -17,7 +17,8 @@ const initialFormData = {
     date: null,
     ricePrice: '30',
     weightInKilo: '',
-    totalPrice: '₱ 0'
+    totalPrice: '₱ 0',
+    dropOffLocation: ''
 };
 
 function BuyRice({ visible, onHide, onRiceOrdered }) {
@@ -112,6 +113,10 @@ function BuyRice({ visible, onHide, onRiceOrdered }) {
             errors.push('Please select a delivery date');
         }
 
+        if(!formData.dropOffLocation) {
+            errors.push('Please enter drop off location');
+        }
+
         if (errors.length > 0) {
             errors.forEach(error => {
                 toast.current.show({
@@ -121,7 +126,7 @@ function BuyRice({ visible, onHide, onRiceOrdered }) {
                     life: 3000
                 });
             });
-            return false;
+            return;
         }
 
         return true;
@@ -136,7 +141,7 @@ function BuyRice({ visible, onHide, onRiceOrdered }) {
 
         const riceOrder = {
             riceRecipientId: user.id,
-            dropOffLocation: '',
+            dropOffLocation: formData.dropOffLocation,
             riceQuantityBags: formData.quantity,
             description: formData.description,
             totalCost: formData.totalPrice,
@@ -296,7 +301,18 @@ function BuyRice({ visible, onHide, onRiceOrdered }) {
                             </div>
                         </div>
                     </div>
-                    
+                    <div className="w-full">
+                        <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+                            Drop-off Location <span className="text-red-500">*</span></label>
+                        <InputText
+                            id="dropOffLocation"
+                            name="dropOffLocation"
+                            value={formData.dropOffLocation}
+                            onChange={handleInputChange}
+                            placeholder="Enter location"
+                            className="w-full ring-0"
+                        />
+                    </div>
                     <div className="w-full">
                         <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">Description</label>
                         <InputTextarea
