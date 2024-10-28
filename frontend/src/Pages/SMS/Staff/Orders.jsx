@@ -226,7 +226,8 @@ function Orders() {
         setIsLoading(true);
         const order = {
             id: selectedOrder.id,
-            status: 'Accepted'
+            status: 'Accepted',
+            isAccepted: true
         }
         try {
             const res = await fetch(`${apiUrl}/riceorders/update`, {
@@ -240,18 +241,24 @@ function Orders() {
             if (!res.ok) {
                 throw new Error('failed to update rice order status')
             }
-        } catch (error) {
-            console.error(error.message);
-        } finally {
             toast.current.show({
                 severity: 'success',
                 summary: 'Success',
                 detail: 'Order accepted successfully!',
                 life: 3000
             });
+            onUpdate();
+        } catch (error) {
+            console.error(error.message);
+            toast.current.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Failed to accept order. Please try again.',
+                life: 3000
+            });
+        } finally {
             setShowAcceptDialog(false);
             setIsLoading(false);
-            onUpdate();
         }
     };
 
@@ -284,18 +291,24 @@ function Orders() {
             if (!res.ok) {
                 throw new Error('failed to update rice order status')
             }
-        } catch (error) {
-            console.error(error.message);
-        } finally {
             toast.current.show({
                 severity: 'success',
                 summary: 'Success',
                 detail: 'Order declined successfully!',
                 life: 3000
             });
+            onUpdate();
+        } catch (error) {
+            console.error(error.message);
+            toast.current.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Failed to decline order. Please try again.',
+                life: 3000
+            });
+        } finally {
             setShowDeclineDialog(false);
             setIsLoading(false);
-            onUpdate();
         }
     };
 
@@ -383,7 +396,8 @@ function Orders() {
 
         const riceOrderBody = {
             id: sendOrderData.riceOrderId,
-            status: 'In Transit'
+            status: 'In Transit',
+            riceBatchId: sendOrderData.riceBatchId
         }
 
         try {
@@ -406,19 +420,25 @@ function Orders() {
             if(!transactionRes.ok && !riceOrderRes.ok) {
                 throw new Error('failed to send rice')
             }
-        } catch (error) {
-            console.error(error.message);
-        } finally {
             toast.current.show({
                 severity: 'success',
                 summary: 'Success',
                 detail: 'Sent rice successfully!',
                 life: 3000
             });
+            onUpdate();
+        } catch (error) {
+            console.error(error.message);
+            toast.current.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Failed to send rice order. Please try again.',
+                life: 3000
+            });
+        } finally {
             setShowSendDialog(false);
             resetSendOrderData();
             setIsLoading(false);
-            onUpdate();
         }
     };
 

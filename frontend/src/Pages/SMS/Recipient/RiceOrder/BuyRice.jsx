@@ -160,18 +160,14 @@ function BuyRice({ visible, onHide, onRiceOrdered }) {
             if(!res.ok) {
                 throw new Error('failed rice order')
             }
-            setIsLoading(false);
-            onHide();
-            onRiceOrdered();
-            setFormData(initialFormData);
             toast.current.show({
                 severity: 'success',
                 summary: 'Success',
                 detail: 'Placed order successfully!',
                 life: 3000
             });
-        }
-        catch(error) {
+            onRiceOrdered();
+        } catch (error) {
             console.error(error.message);
             toast.current.show({
                 severity: 'error',
@@ -179,6 +175,10 @@ function BuyRice({ visible, onHide, onRiceOrdered }) {
                 detail: 'Failed to place rice order. Please try again.',
                 life: 3000
             });
+        } finally {
+            setIsLoading(false);
+            onHide();
+            setFormData(initialFormData);
         }
     };
 
