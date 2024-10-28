@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import StaffLayout from '@/Layouts/StaffLayout';
-import { Search, ShoppingCart, ThumbsUp, ThumbsDown, SendHorizontal, DollarSign } from "lucide-react";
+import { Search, ShoppingCart, ThumbsUp, ThumbsDown, SendHorizontal, DollarSign, RotateCw } from "lucide-react";
 
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -503,7 +503,7 @@ function Orders() {
         : 'bg-white text-primary border border-gray-300';
 
     return (
-        <StaffLayout activePage="Orders">
+        <StaffLayout activePage="Orders" user={user}>
             <Toast ref={toast} />
             <div className="flex flex-col px-10 py-2 h-full bg-[#F1F5F9]">
                 <div className="flex flex-col justify-center items-center p-10 h-1/4 rounded-lg bg-gradient-to-r from-primary to-secondary mb-2">
@@ -540,6 +540,12 @@ function Orders() {
                             label="Declined" 
                             className={`p-button-success p-2 w-1/16 ring-0 rounded-full ${buttonStyle(selectedFilter === 'declined')}`} 
                             onClick={() => handleFilterChange('declined')}
+                        />
+
+                        <RotateCw 
+                            className="w-6 h-6 text-primary cursor-pointer hover:text-secondary transition-colors" 
+                            onClick={onUpdate}
+                            title="Refresh data"
                         />
                     </div>
                 </div>

@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import PrivateMillerLayout from '../../../Layouts/PrivateMillerLayout';
+import { useAuth } from '../../Authentication/Login/AuthContext';
 
 import { Carousel } from 'primereact/carousel';
 import { Fan } from "lucide-react";
 
 function Home({ isRightSidebarOpen }) {
+    const { user } = useAuth();
     const [carouselItems] = useState([
         {
             title: "Traceability Power",
@@ -32,7 +34,7 @@ function Home({ isRightSidebarOpen }) {
     ];
 
     return (
-        <PrivateMillerLayout activePage="Home">
+        <PrivateMillerLayout activePage="Home" user={user}>
             <div className={`flex flex-row p-2 bg-[#F1F5F9] h-full ${isRightSidebarOpen ? 'pr-[20%]' : ''}`}>
                 
                 {/* Main Content */}
@@ -40,7 +42,7 @@ function Home({ isRightSidebarOpen }) {
                     <div className="flex flex-row justify-between items-center">
                         <div className="flex flex-col items-center">
                             <h1 className="text-xl">Welcome Back,</h1>
-                            <h1 className="text-2xl font-bold">Juan!</h1>
+                            <h1 className="text-2xl font-bold">{user.firstName}!</h1>
                         </div>
                     </div>
 

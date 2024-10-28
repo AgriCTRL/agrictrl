@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import StaffLayout from '@/Layouts/StaffLayout';
-import { Search, Box, Sun, RotateCcw } from "lucide-react";
+import { Search, Box, Sun, RotateCcw, RotateCw } from "lucide-react";
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Tag } from 'primereact/tag';
@@ -682,7 +682,7 @@ const Processing = () => {
     );
     
     return (
-        <StaffLayout activePage="Processing">
+        <StaffLayout activePage="Processing" user={user}>
             <Toast ref={toast} />
             <div className="flex flex-col px-10 py-2 h-full bg-[#F1F5F9]">
                 <div className="flex flex-col justify-center items-center p-10 h-1/4 rounded-lg bg-gradient-to-r from-primary to-secondary mb-2">
@@ -723,6 +723,13 @@ const Processing = () => {
                         <FilterButton label="Request" icon={<Box className="mr-2" size={16} />} filter="request" />
                         <FilterButton label={viewMode === 'milling' ? 'In Milling' : 'In Drying'} icon={<Sun className="mr-2" size={16} />} filter="process" />
                         <FilterButton label="Return" icon={<RotateCcw className="mr-2" size={16} />} filter="return" />
+                    </div>
+                    <div className="flex items-center justify-center">
+                        <RotateCw 
+                            className="w-6 h-6 text-primary cursor-pointer hover:text-secondary transition-colors" 
+                            onClick={fetchData}
+                            title="Refresh data"
+                        />
                     </div>
                 </div>
 

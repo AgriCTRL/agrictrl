@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import RecipientLayout from '../../../../Layouts/RecipientLayout';
 
-import { Settings2, Search, CircleAlert } from "lucide-react";
+import { Settings2, Search, CircleAlert, RotateCw } from "lucide-react";
 
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -137,6 +137,12 @@ function RiceReceive() {
                             label="Orders Received" 
                             className={`p-button-success p-2 w-1/16 ring-0 rounded-full ${buttonStyle(selectedFilter === 'received')}`} 
                             onClick={() => setSelectedFilter('received')}
+                        />
+
+                        <RotateCw 
+                            className="w-6 h-6 text-primary cursor-pointer hover:text-secondary transition-colors" 
+                            onClick={fetchData}
+                            title="Refresh data"
                         />
                     </div>
                 </div>
