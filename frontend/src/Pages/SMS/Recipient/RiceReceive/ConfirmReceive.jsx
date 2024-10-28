@@ -24,6 +24,7 @@ function ConfirmReceive({ visible, onHide, data, onConfirmReceive }) {
                 quantity: data.riceQuantityBags,
                 date: new Date(data.orderDate).toISOString().split('T')[0],
                 price: data.totalCost,
+                dropOffLocation: data.dropOffLocation,
                 description: data.description
             });
         }
@@ -39,38 +40,57 @@ function ConfirmReceive({ visible, onHide, data, onConfirmReceive }) {
     };
 
     const confirmReceive = async () => {
-        const receiveObject = {
+        const riceOrderBody = {
             id: data.id,
             status: 'Received'
         }
 
         setIsLoading(true);
 
-        console.log(receiveObject);
         try {
-            const res = await fetch(`${apiUrl}/riceorders/update`, {
+            const getTransactionRes = await fetch(`${apiUrl}/transactions/toLocation/${data.id}`, {
+                headers: { 'API-Key': `${apiKey}` }
+            });
+            const transactionData = await getTransactionRes.json();
+            const transactionId = transactionData.id;
+
+            const currentDate = new Date();
+            currentDate.setHours(currentDate.getHours() + 8);
+
+            const transactionBody = {
+                id: transactionId,
+                status: 'received',
+                receiveDateTime: currentDate.toISOString()
+            }
+
+            const transactionRes = await fetch(`${apiUrl}/transactions/update`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'API-Key': `${apiKey}`
                 },
-                body: JSON.stringify(receiveObject)
+                body: JSON.stringify(transactionBody)
             });
-            if(!res.ok) {
+
+            const riceOrderRes = await fetch(`${apiUrl}/riceorders/update`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'API-Key': `${apiKey}`
+                },
+                body: JSON.stringify(riceOrderBody)
+            });
+            if(!riceOrderRes.ok && !transactionRes.ok && !getTransactionRes.ok) {
                 throw new Error('failed to update rice order status')
             }
-            setIsLoading(false);
-            setShowConfirmation(false);
-            onConfirmReceive();
-            onHide();
             toast.current.show({
                 severity: 'success',
                 summary: 'Success',
                 detail: 'Received rice successfully!',
                 life: 3000
             });
-        }
-        catch (error) {
+            onConfirmReceive();
+        } catch (error) {
             console.error(error.message);
             toast.current.show({
                 severity: 'error',
@@ -78,6 +98,10 @@ function ConfirmReceive({ visible, onHide, data, onConfirmReceive }) {
                 detail: 'Failed, Please try again.',
                 life: 3000
             });
+        } finally {
+            setIsLoading(false);
+            setShowConfirmation(false);
+            onHide();
         }
     };
 
@@ -190,6 +214,17 @@ function ConfirmReceive({ visible, onHide, data, onConfirmReceive }) {
                     </div>
 
                     <div className="w-full">
+                        <label htmlFor="dropOffLocation" className="block text-sm font-medium text-gray-700 mb-1">Drop-off Location</label>
+                        <InputText
+                            id="dropOffLocation"
+                            name="dropOffLocation"
+                            value={formData.dropOffLocation}
+                            disabled
+                            className="w-full"
+                        />
+                    </div>
+
+                    <div className="w-full">
                         <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">Description</label>
                         <InputTextarea
                             id="description"
@@ -204,7 +239,7 @@ function ConfirmReceive({ visible, onHide, data, onConfirmReceive }) {
 
             <Dialog
                 visible={showConfirmation}
-                onHide={isLoading ? null : handleClose}
+                onHide={isLoading ? null : () => setShowConfirmation(false)}
                 header={customDialogHeader2}
                 modal
                 footer={

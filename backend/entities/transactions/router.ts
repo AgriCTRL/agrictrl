@@ -4,6 +4,7 @@ import {
     countTransactions,
     createTransaction,
     getTransaction,
+    getTransactionByToLocationId,
     getTransactions,
     updateTransaction
 } from './db';
@@ -36,6 +37,14 @@ export function getRouter(): Router {
         const { id } = req.params;
 
         const transaction = await getTransaction(Number(id));
+
+        res.json(transaction);
+    });
+
+    router.get('/toLocation/:toLocationId', async (req, res) => {
+        const { toLocationId } = req.params;
+
+        const transaction = await getTransactionByToLocationId(Number(toLocationId));
 
         res.json(transaction);
     });

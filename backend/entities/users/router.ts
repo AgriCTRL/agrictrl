@@ -16,14 +16,15 @@ export function getRouter(): Router {
     router.get(
         '/',
         async (
-            req: Request<any, any, any, { limit?: string; offset?: string; status?: string }>,
+            req: Request<any, any, any, { limit?: string; offset?: string; userType?: string; status?: string }>,
             res
         ) => {
             const limit = Number(req.query.limit ?? -1);
             const offset = Number(req.query.offset ?? 0);
+            const userType = req.query.userType;
             const status = req.query.status;
 
-            const users = await getUsers(limit, offset, status);
+            const users = await getUsers(limit, offset, userType, status);
 
             res.json(users);
         }

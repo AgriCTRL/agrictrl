@@ -95,6 +95,14 @@ export async function getTransactions(limit: number, offset: number, toLocationT
     });
 }
 
+export async function getTransactionByToLocationId(toLocationId: number): Promise<Transaction | null> {
+    return await Transaction.findOne({
+        where: {
+            toLocationId
+        }
+    });
+}
+
 export async function getTransaction(id: number): Promise<Transaction | null> {
     return await Transaction.findOne({
         where: {

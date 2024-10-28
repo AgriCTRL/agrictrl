@@ -62,7 +62,7 @@ export async function getRiceOrders(limit: number, offset: number, riceRecipient
     return await RiceOrder.find({
         where: whereClause,
         take: limit,
-        skip: offset,
+        skip: offset
     });
 }
 
