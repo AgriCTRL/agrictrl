@@ -20,13 +20,13 @@ const LogisticsInfoForm = ({
             <div className="flex w-full gap-4">
                 <div className="w-full">
                     <label htmlFor="buyingStationName" className="block text-sm font-medium text-gray-700 mb-1">Bought at</label>
-                    <Dropdown
+                    <InputText
                         id="buyingStationName"
                         name="buyingStationName"
-                        value={options.find(option => option.label === palayData.buyingStationName) || null} // Find the selected option object
+                        value={palayData.buyingStationName}
                         options={options}
-                        onChange={handleStationChange}
-                        placeholder="Select buying station"
+                        onChange={handlePalayInputChange}
+                        placeholder="Enter buying station name"
                         className="ring-0 w-full placeholder:text-gray-400"
                     />
                     {errors.buyingStationName && <p className="text-red-500 text-xs mt-1">{errors.buyingStationName}</p>}
@@ -38,8 +38,9 @@ const LogisticsInfoForm = ({
                         id="buyingStationLoc"
                         name="buyingStationLoc"
                         value={palayData.buyingStationLoc}
+                        onChange={handlePalayInputChange}
+                        placeholder="Enter buying station location"
                         className='w-full focus:ring-0'
-                        disabled
                     />
                     {errors.buyingStationLoc && <p className="text-red-500 text-xs mt-1">{errors.buyingStationLoc}</p>}
                 </div>
