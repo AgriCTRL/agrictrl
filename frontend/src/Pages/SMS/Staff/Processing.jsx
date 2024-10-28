@@ -117,6 +117,7 @@ const Processing = () => {
             const locationType = viewMode === 'drying' ? 'Dryer' : 'Miller';
             const status = selectedFilter === 'request' ? 'Pending' : 'Received';
             const batchType = viewMode === 'drying' ? 'drying' : 'milling';
+            const millerType = 'In House';
             
             // Fetch all required data in parallel
             const [
@@ -125,7 +126,7 @@ const Processing = () => {
                 warehousesRes
             ] = await Promise.all([
                 fetch(`${apiUrl}/${processType}s`, { headers: { 'API-Key': apiKey } }),
-                fetch(`${apiUrl}/inventory?toLocationType=${locationType}&status=${status}&batchType=${batchType}`, { headers: { 'API-Key': apiKey } }),
+                fetch(`${apiUrl}/inventory?toLocationType=${locationType}&status=${status}&batchType=${batchType}&millerType=${millerType}`, { headers: { 'API-Key': apiKey } }),
                 fetch(`${apiUrl}/warehouses`, { headers: { 'API-Key': apiKey } })
             ]);
     
@@ -138,6 +139,8 @@ const Processing = () => {
                 inventoryRes.json(),
                 warehousesRes.json()
             ]);
+
+            console.log('Raw inventory data:', inventory); // Add this for debugging
     
             // Update facility states based on viewMode
             if (viewMode === 'drying') {
@@ -235,11 +238,6 @@ const Processing = () => {
                 }
                 break;
         }
-    };
-
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
     };
 
     const handleAccept = async () => {
@@ -549,56 +547,38 @@ const Processing = () => {
             });
         }
     };
-
-    const getDryingStatusSeverity = (status) => {
-        switch (status?.toLowerCase()) {
-            case 'in progress': return 'warning';
-            case 'dried': return 'success';
-            default: return 'info';
-        }
-    };
-
-    const getMillingStatusSeverity = (status) => {
-        switch (status?.toLowerCase()) {
-            case 'in progress': return 'warning';
-            case 'milled': return 'success';
-            default: return 'info';
-        }
-    };
-
-    const getSeverity = (status) => {
-        switch (status?.toLowerCase()) {
-            case 'in drying':
-            case 'in milling': return 'warning';
-            case 'dried':
-            case 'milled': return 'success';
-            default: return 'secondary';
-        }
-    };
-
-    const dryingStatusBodyTemplate = (rowData) => (
-        <Tag 
-            value={rowData.dryingStatus} 
-            severity={getDryingStatusSeverity(rowData.dryingStatus)} 
-            className="text-sm px-2 rounded-md"
-        />
-    );
-
-    const millingStatusBodyTemplate = (rowData) => (
-        <Tag 
-            value={rowData.millingStatus} 
-            severity={getMillingStatusSeverity(rowData.millingStatus)} 
-            className="text-sm px-2 rounded-md"
-        />
-    );
     
-    const statusBodyTemplate = (rowData) => (
-        <Tag 
-            value={rowData.status} 
-            severity={getSeverity(rowData.status)} 
-            className="text-sm px-2 rounded-md"
-        />
-    );
+    const getSeverity = (status, type) => {
+        const statusLower = status?.toLowerCase();
+        
+        // Processing status severities
+        if (statusLower === 'in progress') return 'warning';
+        if (statusLower === 'done') return 'success';
+        
+        // Transaction status severities
+        if (statusLower === 'pending') return 'warning';
+        if (statusLower === 'received') return 'success';
+        
+        // Palay/Processing status severities
+        if (statusLower === 'to be dry' || statusLower === 'to be mill') return 'info';
+        if (statusLower === 'in drying' || statusLower === 'in milling') return 'warning';
+        if (statusLower === 'dried' || statusLower === 'milled') return 'success';
+        
+        return 'secondary'; // default severity
+    };
+    
+    const statusBodyTemplate = (rowData, options) => {
+        const { field } = options;
+        const status = rowData[field];
+        
+        return (
+            <Tag 
+                value={status} 
+                severity={getSeverity(status, field)}
+                className="text-sm px-2 rounded-md"
+            />
+        );
+    };
 
     const actionBodyTemplate = (rowData) => {
         let actionText = 'Action';
@@ -606,7 +586,7 @@ const Processing = () => {
             case 'pending':
                 actionText = 'Accept';
                 break;
-            case 'Received':
+            case 'received':
                 if (rowData.processingStatus?.toLowerCase() === 'in progress') {
                     actionText = 'Done';
                 } else if (rowData.processingStatus?.toLowerCase() === 'done') {
@@ -797,16 +777,22 @@ const Processing = () => {
                                 className="text-center" 
                                 headerClassName="text-center" 
                             />
-                            
                             <Column field="transportedBy" header="Transported By" className="text-center" headerClassName="text-center" />
-                            {(selectedFilter === 'request') && (
-                                <Column field="palayStatus" header={viewMode === 'milling' ? 'Rice Status' : 'Palay Status'} className="text-center" headerClassName="text-center" />
+                            {(selectedFilter === 'request') && (    
+                                <Column 
+                                    field="transactionStatus" 
+                                    header='Status'
+                                    body={(rowData) => statusBodyTemplate(rowData, { field: 'transactionStatus' })}
+                                    className="text-center" 
+                                    headerClassName="text-center" 
+                                />
                             )}
                             {selectedFilter !== 'request' && (
                                 <Column 
                                     field="processingStatus" 
                                     header={viewMode === 'drying' ? "Drying Status" : "Milling Status"} 
                                     className="text-center" headerClassName="text-center" frozen alignFrozen="right"
+                                    body={(rowData) => statusBodyTemplate(rowData, { field: 'processingStatus' })}
                                 />
                             )}
                             <Column header="Action" body={actionBodyTemplate} className="text-center" headerClassName="text-center" frozen alignFrozen="right"/>

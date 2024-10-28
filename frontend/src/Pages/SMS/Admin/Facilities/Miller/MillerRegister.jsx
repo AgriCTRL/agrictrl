@@ -15,7 +15,7 @@ function MillerRegister({ visible, onHide, onMillerRegistered }) {
     const [millerName, setMillerName] = useState('');
     const [userId, setUserId] = useState('0');
     const [category, setCategory] = useState('');
-    const [type, setType] = useState('in House');
+    const [type, setType] = useState('In House');
     const [location, setLocation] = useState('');
     const [capacity, setCapacity] = useState('');
     const [processing, setProcessing] = useState('0');
