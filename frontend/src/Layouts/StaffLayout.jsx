@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Bell } from 'lucide-react';
 import { Avatar } from 'primereact/avatar';
 
-function StaffLayout({ children, activePage }) {
+function StaffLayout({ children, activePage, user }) {
     const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
     const navigate = useNavigate();
 
@@ -60,10 +60,10 @@ function StaffLayout({ children, activePage }) {
                             />
                             <div>
                                 <p className="font-bold text-primary">
-                                    Juan Valencio
+                                    {user.firstName + ' ' + user.lastName}
                                 </p> 
                                 <p>
-                                    Staff | NFA Nueva Ecija
+                                    {user.userType}
                                 </p>
                             </div> 
                         </div>

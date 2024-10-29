@@ -12,7 +12,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Toast } from 'primereact/toast';
 
-import { Search, Wheat, CheckCircle } from "lucide-react";
+import { Search, Wheat, CheckCircle, RotateCw } from "lucide-react";
 
 import { useAuth } from '../../../Authentication/Login/AuthContext';
 import ReceiveRice from './ReceiveRice';
@@ -61,6 +61,16 @@ function Warehouse() {
 
     const [newTransactionData, setNewTransactionData] = useState(initialTransactionData);
     
+    useEffect(() => {
+        const newFilters = {
+            global: { value: globalFilterValue, matchMode: FilterMatchMode.CONTAINS },
+        };
+        setFilters(newFilters);
+    }, [globalFilterValue]);
+
+    const onGlobalFilterChange = (e) => {
+        setGlobalFilterValue(e.target.value);
+    };
 
     // const updateRiceBatchAndJunction = async (riceBatchData) => {
     //     // Update the rice batch
@@ -94,6 +104,12 @@ function Warehouse() {
         fetchDryerData();
         fetchMillerData();
     }, [viewMode]);
+
+    const refreshData = () => {
+        fetchInventory();
+        fetchDryerData();
+        fetchMillerData();
+    }
 
     const fetchInventory = async () => {
         try {
@@ -537,7 +553,7 @@ function Warehouse() {
     };
 
     return (
-        <StaffLayout activePage="Warehouse">
+        <StaffLayout activePage="Warehouse" user={user}>
             <Toast ref={toast} />
             <div className="flex flex-col px-10 py-2 h-full bg-[#F1F5F9]">
                 <div className="flex flex-col justify-center items-center p-10 h-1/4 rounded-lg bg-gradient-to-r from-primary to-secondary mb-2">
@@ -547,7 +563,7 @@ function Warehouse() {
                         <InputText 
                             type="search"
                             value={globalFilterValue} 
-                            onChange={(e) => setGlobalFilterValue(e.target.value)} 
+                            onChange={onGlobalFilterChange} 
                             placeholder="Tap to Search" 
                             className="w-full pl-10 pr-4 py-2 rounded-full text-white bg-transparent border border-white placeholder:text-white"
                         />
@@ -587,6 +603,13 @@ function Warehouse() {
                         <FilterButton label="Palay" icon={<Wheat className="mr-2" size={16} />} filter="palay" />
                         <FilterButton label="Rice" icon={<Wheat className="mr-2" size={16} />} filter="rice" />
                     </div>
+                    <div className="flex items-center justify-center">
+                        <RotateCw 
+                            className="w-6 h-6 text-primary cursor-pointer hover:text-secondary transition-colors" 
+                            onClick={refreshData}
+                            title="Refresh data"
+                        />
+                    </div>
                 </div>
 
                 {/* Data Table */}
@@ -600,8 +623,8 @@ function Warehouse() {
                         className="p-datatable-sm pt-5" 
                         filters={filters}
                         globalFilterFields={viewMode === 'inWarehouse' ? 
-                            ['from', 'currentlyAt', 'receivedOn', 'transportedBy', 'status'] : 
-                            ['from', 'toBeStoreAt', 'dateRequest', 'transportedBy', 'status']}
+                            ['id' , 'from', 'currentlyAt', 'receivedOn', 'transportedBy', 'status'] : 
+                            ['id' , 'from', 'toBeStoreAt', 'dateRequest', 'transportedBy', 'status']}
                         emptyMessage="No inventory found."
                         paginator
                         rows={10}

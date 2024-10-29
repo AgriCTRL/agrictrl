@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import StaffLayout from '@/Layouts/StaffLayout';
-import { Search, ShoppingCart, ThumbsUp, ThumbsDown, SendHorizontal, DollarSign } from "lucide-react";
+import { Search, ShoppingCart, ThumbsUp, ThumbsDown, SendHorizontal, DollarSign, RotateCw } from "lucide-react";
 
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -25,6 +25,11 @@ function Orders() {
     const [recipients, setRecipients] = useState({});
     const [riceBatches, setRiceBatches] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [selectedFilter, setSelectedFilter] = useState('request');
+    const [globalFilterValue, setGlobalFilterValue] = useState('');
+    const [filters, setFilters] = useState({
+        global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    });
 
     const fetchRecipients = async () => {
         try {
@@ -66,7 +71,7 @@ function Orders() {
 
     const fetchRiceBatches = async () => {
         try {
-            const res = await fetch(`${apiUrl}/ricebatches`, {
+            const res = await fetch(`${apiUrl}/ricebatches?isFull=true`, {
                 headers: { 'API-Key': `${apiKey}` }
             });
             const data = await res.json();
@@ -95,6 +100,13 @@ function Orders() {
         }
     }, [recipients]);
 
+    useEffect(() => {
+        const newFilters = {
+            global: { value: globalFilterValue, matchMode: FilterMatchMode.CONTAINS },
+        };
+        setFilters(newFilters);
+    }, [globalFilterValue]);
+
     const onUpdate = () => {
         fetchRecipients();
         if (Object.keys(recipients).length > 0) {
@@ -102,12 +114,9 @@ function Orders() {
         }
     }
 
-    const [globalFilterValue, setGlobalFilterValue] = useState('');
-    const [filters, setFilters] = useState({
-        global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    });
-
-    const [selectedFilter, setSelectedFilter] = useState('request');
+    const onGlobalFilterChange = (e) => {
+        setGlobalFilterValue(e.target.value);
+    };
 
     const [showAcceptDialog, setShowAcceptDialog] = useState(false);
     const [showDeclineDialog, setShowDeclineDialog] = useState(false);
@@ -503,7 +512,7 @@ function Orders() {
         : 'bg-white text-primary border border-gray-300';
 
     return (
-        <StaffLayout activePage="Orders">
+        <StaffLayout activePage="Orders" user={user}>
             <Toast ref={toast} />
             <div className="flex flex-col px-10 py-2 h-full bg-[#F1F5F9]">
                 <div className="flex flex-col justify-center items-center p-10 h-1/4 rounded-lg bg-gradient-to-r from-primary to-secondary mb-2">
@@ -513,7 +522,7 @@ function Orders() {
                         <InputText 
                             type="search"
                             value={globalFilterValue} 
-                            onChange={(e) => setGlobalFilterValue(e.target.value)} 
+                            onChange={onGlobalFilterChange} 
                             placeholder="Tap to Search" 
                             className="w-full pl-10 pr-4 py-2 rounded-full text-primary border border-gray-300 ring-0 placeholder:text-primary"
                         />
@@ -541,6 +550,12 @@ function Orders() {
                             className={`p-button-success p-2 w-1/16 ring-0 rounded-full ${buttonStyle(selectedFilter === 'declined')}`} 
                             onClick={() => handleFilterChange('declined')}
                         />
+
+                        <RotateCw 
+                            className="w-6 h-6 text-primary cursor-pointer hover:text-secondary transition-colors" 
+                            onClick={onUpdate}
+                            title="Refresh data"
+                        />
                     </div>
                 </div>
 
@@ -554,7 +569,7 @@ function Orders() {
                         scrolldirection="both"
                         className="p-datatable-sm pt-5" 
                         filters={filters}
-                        globalFilterFields={['orderID', 'toBeDeliverAt', 'orderDate', 'orderedBy', 'status']}
+                        globalFilterFields={['id', 'status']}
                         emptyMessage="No orders found."
                         paginator
                         rows={10}
