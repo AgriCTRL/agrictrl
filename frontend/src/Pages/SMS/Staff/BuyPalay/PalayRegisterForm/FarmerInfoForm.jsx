@@ -1,9 +1,208 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { Calendar } from 'primereact/calendar';
 
 const FarmerInfoForm = ({ palayData, handlePalayInputChange, errors }) => {
+  const [regionOptions, setRegionOptions] = useState([]);
+  const [provinceOptions, setProvinceOptions] = useState([]);
+  const [cityTownOptions, setCityTownOptions] = useState([]);
+  const [barangayOptions, setBarangayOptions] = useState([]);
+
+  useEffect(() => {
+    fetchRegions();
+  }, []);
+
+  useEffect(() => {
+    if (palayData.palaySupplierRegion) {
+      const selectedRegion = regionOptions.find(r => r.value === palayData.palaySupplierRegion);
+      if (selectedRegion && selectedRegion.code === '130000000') {
+        fetchCities(selectedRegion.code);
+      } else if (selectedRegion) {
+        fetchProvinces(selectedRegion.code);
+      }
+    }
+  }, [palayData.palaySupplierRegion, regionOptions]);
+
+  useEffect(() => {
+    if (palayData.palaySupplierProvince) {
+      const selectedProvince = provinceOptions.find(p => p.value === palayData.palaySupplierProvince);
+      if (selectedProvince) {
+        fetchCities(selectedProvince.code);
+      }
+    }
+  }, [palayData.palaySupplierProvince, provinceOptions]);
+
+  useEffect(() => {
+    if (palayData.palaySupplierCityTown) {
+      const selectedCity = cityTownOptions.find(c => c.value === palayData.palaySupplierCityTown);
+      if (selectedCity) {
+        fetchBarangays(selectedCity.code);
+      }
+    }
+  }, [palayData.palaySupplierCityTown, cityTownOptions]);
+
+  const fetchRegions = async () => {
+    try {
+      const res = await fetch('https://psgc.gitlab.io/api/regions/');
+      const data = await res.json();
+      const regions = data.map(region => ({
+        label: region.regionName,
+        value: region.regionName,
+        code: region.code
+      }));
+      setRegionOptions(regions);
+    } catch (error) {
+      console.error('Error fetching regions:', error);
+    }
+  };
+
+  const fetchProvinces = async (regionCode) => {
+    try {
+      const res = await fetch(`https://psgc.gitlab.io/api/regions/${regionCode}/provinces/`);
+      const data = await res.json();
+      const provinces = data.map(province => ({
+        label: province.name,
+        value: province.name,
+        code: province.code
+      }));
+      setProvinceOptions(provinces);
+      setCityTownOptions([]);
+      setBarangayOptions([]);
+    } catch (error) {
+      console.error('Error fetching provinces:', error);
+    }
+  };
+
+  const fetchCities = async (code) => {
+    try {
+      const endpoint = `https://psgc.gitlab.io/api/${code === '130000000' ? 'regions' : 'provinces'}/${code}/cities-municipalities/`;
+      const res = await fetch(endpoint);
+      const data = await res.json();
+      const cities = data.map(city => ({
+        label: city.name,
+        value: city.name,
+        code: city.code
+      }));
+      setCityTownOptions(cities);
+      setBarangayOptions([]);
+    } catch (error) {
+      console.error('Error fetching cities:', error);
+    }
+  };
+
+  const fetchBarangays = async (cityOrMunicipalityCode) => {
+    try {
+      const res = await fetch(`https://psgc.gitlab.io/api/cities-municipalities/${cityOrMunicipalityCode}/barangays/`);
+      const data = await res.json();
+      const barangays = data.map(barangay => ({
+        label: barangay.name,
+        value: barangay.name,
+        code: barangay.code
+      }));
+      setBarangayOptions(barangays);
+    } catch (error) {
+      console.error('Error fetching barangays:', error);
+    }
+  };
+
+  const handleAddressChange = (field, value) => {
+    if (field === 'Region') {
+      const selectedRegion = regionOptions.find(r => r.value === value);
+      handlePalayInputChange({
+        target: {
+          name: 'palaySupplierRegion',
+          value: value
+        }
+      });
+      
+      handlePalayInputChange({
+        target: {
+          name: 'palaySupplierProvince',
+          value: ''
+        }
+      });
+      handlePalayInputChange({
+        target: {
+          name: 'palaySupplierCityTown',
+          value: ''
+        }
+      });
+      handlePalayInputChange({
+        target: {
+          name: 'palaySupplierBarangay',
+          value: ''
+        }
+      });
+
+      if (selectedRegion) {
+        if (selectedRegion.code === '130000000') {
+          setProvinceOptions([]);
+          fetchCities(selectedRegion.code);
+        } else {
+          fetchProvinces(selectedRegion.code);
+        }
+      }
+      setCityTownOptions([]);
+      setBarangayOptions([]);
+    } 
+    else if (field === 'Province') {
+      const selectedProvince = provinceOptions.find(p => p.value === value);
+      handlePalayInputChange({
+        target: {
+          name: 'palaySupplierProvince',
+          value: value
+        }
+      });
+      
+      handlePalayInputChange({
+        target: {
+          name: 'palaySupplierCityTown',
+          value: ''
+        }
+      });
+      handlePalayInputChange({
+        target: {
+          name: 'palaySupplierBarangay',
+          value: ''
+        }
+      });
+
+      if (selectedProvince) {
+        fetchCities(selectedProvince.code);
+      }
+      setBarangayOptions([]);
+    }
+    else if (field === 'CityTown') {
+      const selectedCity = cityTownOptions.find(c => c.value === value);
+      handlePalayInputChange({
+        target: {
+          name: 'palaySupplierCityTown',
+          value: value
+        }
+      });
+      
+      handlePalayInputChange({
+        target: {
+          name: 'palaySupplierBarangay',
+          value: ''
+        }
+      });
+
+      if (selectedCity) {
+        fetchBarangays(selectedCity.code);
+      }
+    }
+    else if (field === 'Barangay') {
+      handlePalayInputChange({
+        target: {
+          name: 'palaySupplierBarangay',
+          value: value
+        }
+      });
+    }
+  };
+  
   return (
     <div className="flex flex-col gap-4 h-full">
       <div className="w-full">
@@ -114,44 +313,46 @@ const FarmerInfoForm = ({ palayData, handlePalayInputChange, errors }) => {
         </label>
         <div className="flex gap-4">
           <div className="flex flex-col w-full">
-            <InputText
+            <Dropdown
               id="palaySupplierRegion"
-              name="palaySupplierRegion"
               value={palayData.palaySupplierRegion}
-              onChange={handlePalayInputChange}  
+              options={regionOptions}
+              onChange={(e) => handleAddressChange('Region', e.value)}
               placeholder="Region"
               className="w-full ring-0"
             />
             {errors.palaySupplierRegion && <p className="text-red-500 text-xs mt-1">{errors.palaySupplierRegion}</p>}
           </div>
+          {palayData.palaySupplierRegion !== 'National Capital Region' && (
+            <div className="flex flex-col w-full">
+              <Dropdown
+                id="palaySupplierProvince"
+                value={palayData.palaySupplierProvince}
+                options={provinceOptions}
+                onChange={(e) => handleAddressChange('Province', e.value)}
+                placeholder="Province"
+                className="w-full ring-0"
+              />
+              {errors.palaySupplierProvince && <p className="text-red-500 text-xs mt-1">{errors.palaySupplierProvince}</p>}
+            </div>
+          )}
           <div className="flex flex-col w-full">
-            <InputText
-              id="palaySupplierProvince"
-              name="palaySupplierProvince"
-              value={palayData.palaySupplierProvince}
-              onChange={handlePalayInputChange}  
-              placeholder="Province"
-              className="w-full ring-0"
-            />
-            {errors.palaySupplierProvince && <p className="text-red-500 text-xs mt-1">{errors.palaySupplierProvince}</p>}
-          </div>
-          <div className="flex flex-col w-full">
-            <InputText
+            <Dropdown
               id="palaySupplierCityTown"
-              name="palaySupplierCityTown"
               value={palayData.palaySupplierCityTown}
-              onChange={handlePalayInputChange}  
+              options={cityTownOptions}
+              onChange={(e) => handleAddressChange('CityTown', e.value)}
               placeholder="City/Town"
               className="w-full ring-0"
             />
             {errors.palaySupplierCityTown && <p className="text-red-500 text-xs mt-1">{errors.palaySupplierCityTown}</p>}
           </div>
           <div className="flex flex-col w-full">
-            <InputText
+            <Dropdown
               id="palaySupplierBarangay"
-              name="palaySupplierBarangay"
               value={palayData.palaySupplierBarangay}
-              onChange={handlePalayInputChange}  
+              options={barangayOptions}
+              onChange={(e) => handleAddressChange('Barangay', e.value)}
               placeholder="Barangay"
               className="w-full ring-0"
             />

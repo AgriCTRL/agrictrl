@@ -496,7 +496,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                 newErrors.palaySupplierRegion = "Region is required";
                 toast.current.show({severity:'error', summary: 'Error', detail:'Region is required', life: 5000});
             }
-            if (!palayData.palaySupplierProvince) {
+            if (!palayData.palaySupplierProvince && palayData.palaySupplierRegion != 'National Capital Region') {
                 newErrors.palaySupplierProvince = "Province is required";
                 toast.current.show({severity:'error', summary: 'Error', detail:'Province is required', life: 5000});
             }
@@ -579,7 +579,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                 newErrors.farmRegion = "Farm region is required";
                 toast.current.show({severity:'error', summary: 'Error', detail:'Farm region is required', life: 5000});
             }
-            if (!palayData.farmProvince) {
+            if (!palayData.farmProvince && palayData.farmRegion != 'National Capital Region') {
                 newErrors.farmProvince = "Farm province is required";
                 toast.current.show({severity:'error', summary: 'Error', detail:'Farm province is required', life: 5000});
             }
