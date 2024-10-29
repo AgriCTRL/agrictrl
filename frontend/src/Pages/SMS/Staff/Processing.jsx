@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import StaffLayout from '@/Layouts/StaffLayout';
-import { Search, Box, Sun, RotateCcw } from "lucide-react";
+import { Search, Box, Sun, RotateCcw, RotateCw } from "lucide-react";
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Tag } from 'primereact/tag';
@@ -61,7 +61,6 @@ const initialTransactionData = {
 
 const Processing = () => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const apiKey = import.meta.env.VITE_API_KEY;
     const toast = useRef(null);
     const { user } = useAuth();
 
@@ -73,6 +72,7 @@ const Processing = () => {
     const [viewMode, setViewMode] = useState('drying');
     const [selectedFilter, setSelectedFilter] = useState('request');
     const [selectedItem, setSelectedItem] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
     
     // Dialog states
     const [showAcceptDialog, setShowAcceptDialog] = useState(false);
@@ -110,6 +110,17 @@ const Processing = () => {
         fetchActiveWarehouses();
     }, [viewMode, selectedFilter]);
 
+    useEffect(() => {
+        const newFilters = {
+            global: { value: globalFilterValue, matchMode: FilterMatchMode.CONTAINS },
+        };
+        setFilters(newFilters);
+    }, [globalFilterValue]);
+
+    const onGlobalFilterChange = (e) => {
+        setGlobalFilterValue(e.target.value);
+    };
+
     const fetchData = async () => {
         try {
             // Determine processing type and location based on viewMode
@@ -117,6 +128,7 @@ const Processing = () => {
             const locationType = viewMode === 'drying' ? 'Dryer' : 'Miller';
             const status = selectedFilter === 'request' ? 'Pending' : 'Received';
             const batchType = viewMode === 'drying' ? 'drying' : 'milling';
+            const millerType = 'In House';
             
             // Fetch all required data in parallel
             const [
@@ -124,9 +136,9 @@ const Processing = () => {
                 inventoryRes,
                 warehousesRes
             ] = await Promise.all([
-                fetch(`${apiUrl}/${processType}s`, { headers: { 'API-Key': apiKey } }),
-                fetch(`${apiUrl}/inventory?toLocationType=${locationType}&status=${status}&batchType=${batchType}`, { headers: { 'API-Key': apiKey } }),
-                fetch(`${apiUrl}/warehouses`, { headers: { 'API-Key': apiKey } })
+                fetch(`${apiUrl}/${processType}s`),
+                fetch(`${apiUrl}/inventory?toLocationType=${locationType}&status=${status}&batchType=${batchType}&millerType=${millerType}`),
+                fetch(`${apiUrl}/warehouses`)
             ]);
     
             if (!facilitiesRes.ok || !inventoryRes.ok || !warehousesRes.ok) {
@@ -187,11 +199,7 @@ const Processing = () => {
 
     const fetchActiveWarehouses = async () => {
         try {
-            const response = await fetch(`${apiUrl}/warehouses?status=Active`, {
-                headers: {
-                    'API-Key': apiKey
-                }
-            });
+            const response = await fetch(`${apiUrl}/warehouses?status=Active`);
 
             if (!response.ok) {
                 throw new Error('Failed to fetch warehouses');
@@ -237,24 +245,18 @@ const Processing = () => {
         }
     };
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
-
     const handleAccept = async () => {
         if (!selectedItem) {
-            console.error('No item selected');
             return;
         }
     
+        setIsLoading(false);
         try {
             // 1. Update transaction status to "Received"
             const transactionResponse = await fetch(`${apiUrl}/transactions/update`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': apiKey
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     id: selectedItem.transactionId,
@@ -273,8 +275,7 @@ const Processing = () => {
             const palayResponse = await fetch(`${apiUrl}/palaybatches/update`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': apiKey
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     id: selectedItem.palayBatchId,
@@ -304,8 +305,7 @@ const Processing = () => {
                 const dryingResponse = await fetch(`${apiUrl}/dryingbatches`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'API-Key': apiKey
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(dryingBatchData)
                 });
@@ -330,8 +330,7 @@ const Processing = () => {
                 const millingResponse = await fetch(`${apiUrl}/millingbatches`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'API-Key': apiKey
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(millingBatchData)
                 });
@@ -360,15 +359,17 @@ const Processing = () => {
                 detail: `Failed to process acceptance: ${error.message}`,
                 life: 3000
             });
+        } finally {
+            setIsLoading(false);
         }
     };
 
     const handleProcess = async () => {
         if (!selectedItem) {
-            console.error('No item selected');
             return;
         }
     
+        setIsLoading(true);
         try {
             let updateData;
             let endpoint;
@@ -401,14 +402,12 @@ const Processing = () => {
                     status: 'Done'
                 };
                 endpoint = 'millingbatches';
-                console.log("updateData ", updateData)
             }
     
             const response = await fetch(`${apiUrl}/${endpoint}/update`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': apiKey
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(updateData)
             });
@@ -421,8 +420,7 @@ const Processing = () => {
             const palayResponse = await fetch(`${apiUrl}/palaybatches/update`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': apiKey
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     id: selectedItem.palayBatchId,
@@ -452,6 +450,8 @@ const Processing = () => {
                 detail: `Failed to complete process: ${error.message}`,
                 life: 3000
             });
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -466,13 +466,13 @@ const Processing = () => {
             return;
         }
 
+        setIsLoading(true);
         try {
             // 1. Update current transaction to Completed
             const updateTransactionResponse = await fetch(`${apiUrl}/transactions/update`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': apiKey
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     id: selectedItem.transactionId,
@@ -488,8 +488,7 @@ const Processing = () => {
             const palayResponse = await fetch(`${apiUrl}/palaybatches/update`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': apiKey
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     id: selectedItem.palayBatchId,
@@ -518,8 +517,7 @@ const Processing = () => {
             const createTransactionResponse = await fetch(`${apiUrl}/transactions`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': apiKey
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(newTransaction)
             });
@@ -547,58 +545,42 @@ const Processing = () => {
                 detail: `Failed to process return: ${error.message}`,
                 life: 3000
             });
+        } finally {
+            setIsLoading(false);
         }
     };
-
-    const getDryingStatusSeverity = (status) => {
-        switch (status?.toLowerCase()) {
-            case 'in progress': return 'warning';
-            case 'dried': return 'success';
-            default: return 'info';
-        }
-    };
-
-    const getMillingStatusSeverity = (status) => {
-        switch (status?.toLowerCase()) {
-            case 'in progress': return 'warning';
-            case 'milled': return 'success';
-            default: return 'info';
-        }
-    };
-
-    const getSeverity = (status) => {
-        switch (status?.toLowerCase()) {
-            case 'in drying':
-            case 'in milling': return 'warning';
-            case 'dried':
-            case 'milled': return 'success';
-            default: return 'secondary';
-        }
-    };
-
-    const dryingStatusBodyTemplate = (rowData) => (
-        <Tag 
-            value={rowData.dryingStatus} 
-            severity={getDryingStatusSeverity(rowData.dryingStatus)} 
-            className="text-sm px-2 rounded-md"
-        />
-    );
-
-    const millingStatusBodyTemplate = (rowData) => (
-        <Tag 
-            value={rowData.millingStatus} 
-            severity={getMillingStatusSeverity(rowData.millingStatus)} 
-            className="text-sm px-2 rounded-md"
-        />
-    );
     
-    const statusBodyTemplate = (rowData) => (
-        <Tag 
-            value={rowData.status} 
-            severity={getSeverity(rowData.status)} 
-            className="text-sm px-2 rounded-md"
-        />
-    );
+    const getSeverity = (status, type) => {
+        const statusLower = status?.toLowerCase();
+        
+        // Processing status severities
+        if (statusLower === 'in progress') return 'warning';
+        if (statusLower === 'done') return 'success';
+        
+        // Transaction status severities
+        if (statusLower === 'pending') return 'warning';
+        if (statusLower === 'received') return 'success';
+        
+        // Palay/Processing status severities
+        if (statusLower === 'to be dry' || statusLower === 'to be mill') return 'info';
+        if (statusLower === 'in drying' || statusLower === 'in milling') return 'warning';
+        if (statusLower === 'dried' || statusLower === 'milled') return 'success';
+        
+        return 'secondary'; // default severity
+    };
+    
+    const statusBodyTemplate = (rowData, options) => {
+        const { field } = options;
+        const status = rowData[field];
+        
+        return (
+            <Tag 
+                value={status} 
+                severity={getSeverity(status, field)}
+                className="text-sm px-2 rounded-md"
+            />
+        );
+    };
 
     const actionBodyTemplate = (rowData) => {
         let actionText = 'Action';
@@ -606,7 +588,7 @@ const Processing = () => {
             case 'pending':
                 actionText = 'Accept';
                 break;
-            case 'Received':
+            case 'received':
                 if (rowData.processingStatus?.toLowerCase() === 'in progress') {
                     actionText = 'Done';
                 } else if (rowData.processingStatus?.toLowerCase() === 'done') {
@@ -702,7 +684,7 @@ const Processing = () => {
     );
     
     return (
-        <StaffLayout activePage="Processing">
+        <StaffLayout activePage="Processing" user={user}>
             <Toast ref={toast} />
             <div className="flex flex-col px-10 py-2 h-full bg-[#F1F5F9]">
                 <div className="flex flex-col justify-center items-center p-10 h-1/4 rounded-lg bg-gradient-to-r from-primary to-secondary mb-2">
@@ -712,7 +694,7 @@ const Processing = () => {
                         <InputText 
                             type="search"
                             value={globalFilterValue} 
-                            onChange={(e) => setGlobalFilterValue(e.target.value)} 
+                            onChange={onGlobalFilterChange} 
                             placeholder="Tap to Search" 
                             className="w-full pl-10 pr-4 py-2 rounded-full text-white bg-transparent border border-white placeholder:text-white"
                         />
@@ -744,6 +726,13 @@ const Processing = () => {
                         <FilterButton label={viewMode === 'milling' ? 'In Milling' : 'In Drying'} icon={<Sun className="mr-2" size={16} />} filter="process" />
                         <FilterButton label="Return" icon={<RotateCcw className="mr-2" size={16} />} filter="return" />
                     </div>
+                    <div className="flex items-center justify-center">
+                        <RotateCw 
+                            className="w-6 h-6 text-primary cursor-pointer hover:text-secondary transition-colors" 
+                            onClick={fetchData}
+                            title="Refresh data"
+                        />
+                    </div>
                 </div>
 
                 {/* Data Table */}
@@ -756,7 +745,7 @@ const Processing = () => {
                             scrollDirection="both"
                             className="p-datatable-sm pt-5" 
                             filters={filters}
-                            globalFilterFields={['from', 'toBeDryAt', 'requestDate', 'startDate', 'endDate', 'transportedBy', 'status', 'dryingStatus']}
+                            globalFilterFields={['processingBatchId', 'palayBatchId', 'transactionStatus', 'processingStatus']}
                             emptyMessage="No data found."
                             paginator
                             rows={10}
@@ -797,16 +786,22 @@ const Processing = () => {
                                 className="text-center" 
                                 headerClassName="text-center" 
                             />
-                            
                             <Column field="transportedBy" header="Transported By" className="text-center" headerClassName="text-center" />
-                            {(selectedFilter === 'request') && (
-                                <Column field="palayStatus" header={viewMode === 'milling' ? 'Rice Status' : 'Palay Status'} className="text-center" headerClassName="text-center" />
+                            {(selectedFilter === 'request') && (    
+                                <Column 
+                                    field="transactionStatus" 
+                                    header='Status'
+                                    body={(rowData) => statusBodyTemplate(rowData, { field: 'transactionStatus' })}
+                                    className="text-center" 
+                                    headerClassName="text-center" 
+                                />
                             )}
                             {selectedFilter !== 'request' && (
                                 <Column 
                                     field="processingStatus" 
                                     header={viewMode === 'drying' ? "Drying Status" : "Milling Status"} 
                                     className="text-center" headerClassName="text-center" frozen alignFrozen="right"
+                                    body={(rowData) => statusBodyTemplate(rowData, { field: 'processingStatus' })}
                                 />
                             )}
                             <Column header="Action" body={actionBodyTemplate} className="text-center" headerClassName="text-center" frozen alignFrozen="right"/>
@@ -816,27 +811,28 @@ const Processing = () => {
             </div>
 
             {/* Accept Dialog */}
-            <Dialog header={`Receive ${viewMode}`} visible={showAcceptDialog} onHide={() => setShowAcceptDialog(false)} className="w-1/3">
+            <Dialog header={`Receive ${viewMode}`} visible={showAcceptDialog} onHide={isLoading ? null : () => setShowAcceptDialog(false)} className="w-1/3">
                 <div className="flex flex-col items-center">
                     <p className="mb-10">Are you sure you want to receive this request?</p>
                     <div className="flex justify-between w-full gap-4">
-                        <Button label="Cancel" className="w-1/2 bg-transparent text-primary border-primary" onClick={() => setShowAcceptDialog(false)} />
+                        <Button label="Cancel" className="w-1/2 bg-transparent text-primary border-primary" onClick={() => setShowAcceptDialog(false)} disabled={isLoading}/>
                         <Button 
                             label="Confirm Receive" 
                             className="w-1/2 bg-primary hover:border-none" 
                             onClick={handleAccept}
+                            disabled={isLoading}
                         />
                     </div>
                 </div>
             </Dialog>
 
             {/* Process Dialog */}
-            <Dialog header={`Complete ${viewMode} Process`} visible={showProcessDialog} onHide={() => setProcessDialog(false)} className="w-1/3">
+            <Dialog header={`Complete ${viewMode} Process`} visible={showProcessDialog} onHide={isLoading ? null : () => setProcessDialog(false)} className="w-1/3">
                 <div className="flex flex-col gap-4">
                     {viewMode === 'drying' ? (
                         <>
                             <div className="w-full">
-                                <label className="block mb-2">Quantity in Bags</label>
+                                <label className="block mb-2">Dried Quantity in Bags</label>
                                 <InputText 
                                     type="number"
                                     value={newDryingData.driedQuantityBags}
@@ -845,7 +841,7 @@ const Processing = () => {
                                 />
                             </div>
                             <div className="w-full">
-                                <label className="block mb-2">Gross Weight</label>
+                                <label className="block mb-2">Dried Gross Weight</label>
                                 <InputText 
                                     type="number"
                                     value={newDryingData.driedGrossWeight}
@@ -854,7 +850,7 @@ const Processing = () => {
                                 />
                             </div>
                             <div className="w-full">
-                                <label className="block mb-2">Net Weight</label>
+                                <label className="block mb-2">Dried Net Weight</label>
                                 <InputText 
                                     type="number"
                                     value={newDryingData.driedNetWeight}
@@ -881,7 +877,6 @@ const Processing = () => {
                                     ]}
                                     onChange={(e) => {
                                         setNewDryingData(prev => {
-                                            console.log('Updating drying method:', e.value);
                                             return { ...prev, dryingMethod: e.value };
                                         });
                                     }}
@@ -893,7 +888,7 @@ const Processing = () => {
                     ) : (
                         <>
                             <div className="w-full">
-                                <label className="block mb-2">Quantity in Bags</label>
+                                <label className="block mb-2">Milled Quantity in Bags</label>
                                 <InputText 
                                     type="number"
                                     value={newMillingData.milledQuantityBags}
@@ -902,7 +897,7 @@ const Processing = () => {
                                 />
                             </div>
                             <div className="w-full">
-                                <label className="block mb-2">Gross Weight</label>
+                                <label className="block mb-2">Milled Gross Weight</label>
                                 <InputText 
                                     type="number"
                                     value={newMillingData.milledGrossWeight}
@@ -911,7 +906,7 @@ const Processing = () => {
                                 />
                             </div>
                             <div className="w-full">
-                                <label className="block mb-2">Net Weight</label>
+                                <label className="block mb-2">Milled Net Weight</label>
                                 <InputText 
                                     type="number"
                                     value={newMillingData.milledNetWeight}
@@ -932,14 +927,14 @@ const Processing = () => {
                     )}
                     
                     <div className="flex justify-between gap-4 mt-4">
-                        <Button label="Cancel" className="w-1/2 bg-transparent text-primary border-primary" onClick={() => setProcessDialog(false)} />
-                        <Button label="Complete Process" className="w-1/2 bg-primary hover:border-none" onClick={handleProcess} />
+                        <Button label="Cancel" className="w-1/2 bg-transparent text-primary border-primary" onClick={() => setProcessDialog(false)} disabled={isLoading}/>
+                        <Button label="Complete Process" className="w-1/2 bg-primary hover:border-none" onClick={handleProcess} disabled={isLoading}/>
                     </div>
                 </div>
             </Dialog>
 
             {/* Return Dialog */}
-            <Dialog header={`Return ${viewMode === 'drying' ? 'Palay' : 'Rice'}`} visible={showReturnDialog} onHide={() => {setShowReturnDialog(false); }} className="w-1/3">
+            <Dialog header={`Return ${viewMode === 'drying' ? 'Palay' : 'Rice'}`} visible={showReturnDialog} onHide={isLoading ? null : () => {setShowReturnDialog(false); }} className="w-1/3">
                 <div className="flex flex-col w-full gap-4">
                     <div className="w-full">
                         <label className="block mb-2">Warehouse</label>
@@ -1002,11 +997,13 @@ const Processing = () => {
                                 setShowReturnDialog(false);
                                 setNewTransactionData(initialTransactionData);
                             }} 
+                            disabled={isLoading}
                         />
                         <Button 
                             label="Confirm Return" 
                             className="w-1/2 bg-primary hover:border-none" 
                             onClick={handleReturn}
+                            disabled={isLoading}
                         />
                     </div>
                 </div>

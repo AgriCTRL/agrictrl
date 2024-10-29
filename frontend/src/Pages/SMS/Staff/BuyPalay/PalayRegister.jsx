@@ -78,7 +78,6 @@ const initialTransactionData = {
 
 function PalayRegister({ visible, onHide, onPalayRegistered }) {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const apiKey = import.meta.env.VITE_API_KEY;
     const toast = useRef(null);
     const { user } = useAuth();
 
@@ -146,7 +145,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
     });
 
     const [activeStep, setActiveStep] = useState(0);
-    const [loading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const [errors, setErrors] = useState({});
 
     const steps = [
@@ -196,9 +195,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
 
     const fetchUserData = async () => {
         try {
-            const res = await fetch(`${apiUrl}/users/${user.id}`, {
-                headers: { 'API-Key': `${apiKey}` },
-            });
+            const res = await fetch(`${apiUrl}/users/${user.id}`);
             const data = await res.json();
             setUserData({
                 personalInfo: {
@@ -238,9 +235,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
 
     const fetchWarehouseData = async () => {
         try {
-            const res = await fetch(`${apiUrl}/warehouses`, {
-                headers: { 'API-Key': `${apiKey}` }
-            });
+            const res = await fetch(`${apiUrl}/warehouses`);
             if (!res.ok) {
                 throw new Error('Failed to fetch warehouse data');
             }
@@ -328,13 +323,14 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
         const isValid = validateForm(activeStep);
         if (!isValid) return;
     
+        
+        setIsLoading(true);
         try {
             // Step 1: Create palay data first
             const palayResponse = await fetch(`${apiUrl}/palaybatches`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': `${apiKey}`
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     ...palayData,
@@ -356,8 +352,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
             const transactionResponse = await fetch(`${apiUrl}/transactions`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': `${apiKey}`
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     ...transactionData,
@@ -394,6 +389,8 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                 detail: 'Failed to create records',
                 life: 3000
             });
+        } finally {
+            setIsLoading(false);
         }
     };
     
@@ -496,7 +493,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                 newErrors.palaySupplierRegion = "Region is required";
                 toast.current.show({severity:'error', summary: 'Error', detail:'Region is required', life: 5000});
             }
-            if (!palayData.palaySupplierProvince) {
+            if (!palayData.palaySupplierProvince && palayData.palaySupplierRegion != 'National Capital Region') {
                 newErrors.palaySupplierProvince = "Province is required";
                 toast.current.show({severity:'error', summary: 'Error', detail:'Province is required', life: 5000});
             }
@@ -579,7 +576,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                 newErrors.farmRegion = "Farm region is required";
                 toast.current.show({severity:'error', summary: 'Error', detail:'Farm region is required', life: 5000});
             }
-            if (!palayData.farmProvince) {
+            if (!palayData.farmProvince && palayData.farmRegion != 'National Capital Region') {
                 newErrors.farmProvince = "Farm province is required";
                 toast.current.show({severity:'error', summary: 'Error', detail:'Farm province is required', life: 5000});
             }
@@ -641,7 +638,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
     return (
         <Dialog 
             visible={visible} 
-            onHide={onHide} 
+            onHide={isLoading ? null : onHide} 
             header={customDialogHeader} 
             modal 
             style={{ minWidth: '60vw', maxWidth: '60vw'}}
@@ -650,12 +647,13 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                     <Button 
                         label="Previous" 
                         onClick={handlePrevious} 
-                        disabled={activeStep === 0} 
+                        disabled={activeStep === 0 || isLoading} 
                         className="py-2 px-14 bg-primary"
                     />
                     <Button 
                         label={activeStep === steps.length - 1 ? 'Buy Palay' : 'Next'} 
-                        onClick={activeStep === steps.length - 1 ? handleSubmit : handleNext} 
+                        onClick={activeStep === steps.length - 1 ? handleSubmit : handleNext}
+                        disabled={isLoading} 
                         className="py-2 px-14 bg-primary"
                     />
                 </div>

@@ -9,14 +9,15 @@ import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { Toast } from 'primereact/toast';
 
-import { Settings2, Search, CircleAlert, FileX } from "lucide-react";
+import { Settings2, Search, CircleAlert, FileX, RotateCw } from "lucide-react";
 
 import PalayRegister from './PalayRegister';
+import { useAuth } from '../../../Authentication/Login/AuthContext';
 
 function BuyPalay() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const apiKey = import.meta.env.VITE_API_KEY;
     const toast = useRef(null);
+    const { user } = useAuth();
 
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [filters, setFilters] = useState({
@@ -30,11 +31,20 @@ function BuyPalay() {
         fetchPalayData();
     }, []);
 
+    useEffect(() => {
+        const newFilters = {
+            global: { value: globalFilterValue, matchMode: FilterMatchMode.CONTAINS },
+        };
+        setFilters(newFilters);
+    }, [globalFilterValue]);
+
+    const onGlobalFilterChange = (e) => {
+        setGlobalFilterValue(e.target.value);
+    };
+
     const fetchPalayData = async () => {
         try {
-            const response = await fetch(`${apiUrl}/palaybatches`, {
-                headers: { 'API-Key': `${apiKey}` }
-            });
+            const response = await fetch(`${apiUrl}/palaybatches`);
 
             if (!response.ok) {
                 throw new Error('Failed to fetch palay data');
@@ -100,7 +110,7 @@ function BuyPalay() {
     };
 
     return (
-        <StaffLayout activePage="Procurement">
+        <StaffLayout activePage="Procurement" user={user}>
             <Toast ref={toast} />
             <div className="flex flex-col px-10 py-2 h-full bg-[#F1F5F9]">
                 <div className="flex flex-col justify-center items-center p-10 h-1/4 rounded-lg bg-gradient-to-r from-primary to-secondary mb-2">
@@ -110,7 +120,7 @@ function BuyPalay() {
                         <InputText 
                             type="search"
                             value={globalFilterValue} 
-                            onChange={(e) => setGlobalFilterValue(e.target.value)} 
+                            onChange={onGlobalFilterChange} 
                             placeholder="Tap to Search" 
                             className="w-full pl-10 pr-4 py-2 rounded-full text-white bg-transparent border border-white placeholder:text-white"
                         />
@@ -125,6 +135,11 @@ function BuyPalay() {
                             icon={<Settings2 className="mr-2 text-primary" />}
                             label="Filters" 
                             className="p-button-success text-primary border border-gray-300 rounded-full bg-white p-2 w-1/16 ring-0" />
+                        <RotateCw 
+                            className="w-6 h-6 text-primary cursor-pointer hover:text-secondary transition-colors" 
+                            onClick={fetchPalayData}
+                            title="Refresh data"
+                        />
                     </div>
                     
 
@@ -146,7 +161,7 @@ function BuyPalay() {
                             scrolldirection="both"
                             className="p-datatable-sm pt-5"
                             filters={filters}
-                            globalFilterFields={['qualityType', 'status', 'farmer', 'originFarm']}
+                            globalFilterFields={['id', 'status']}
                             emptyMessage="No inventory found."
                             paginator
                             rows={30}

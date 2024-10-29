@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import RecipientLayout from '../../../../Layouts/RecipientLayout';
 
-import { Settings2, Search, CircleAlert } from "lucide-react";
+import { Settings2, Search, CircleAlert, RotateCw } from "lucide-react";
 
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -17,7 +17,6 @@ import { useAuth } from '../../../Authentication/Login/AuthContext';
 
 function RiceOrder() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const apiKey = import.meta.env.VITE_API_KEY;
     const { user } = useAuth();
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [filters, setFilters] = useState({
@@ -28,16 +27,22 @@ function RiceOrder() {
     const [showDeclinedDetails, setShowDeclinedDetails] = useState(false);
     const [selectedDeclinedData, setSelectedDeclinedData] = useState(null);
     const [inventoryData, setInventoryData] = useState([]);
+    const [selectedFilter, setSelectedFilter] = useState('riceOrders');
 
     useEffect(() => {
         fetchData();
     }, []);
 
+    useEffect(() => {
+        const newFilters = {
+            global: { value: globalFilterValue, matchMode: FilterMatchMode.CONTAINS },
+        };
+        setFilters(newFilters);
+    }, [globalFilterValue]);
+
     const fetchData = async () => {
         try {
-            const res = await fetch(`${apiUrl}/riceorders?riceRecipientId=${user.id}&status=For%20Approval&status=Declined`, {
-                headers: { 'API-Key': `${apiKey}` }
-            });
+            const res = await fetch(`${apiUrl}/riceorders?riceRecipientId=${user.id}&status=For%20Approval&status=Declined`);
             if(!res.ok) {
                 throw new Error('Failed to fetch rice orders')
             }
@@ -49,7 +54,9 @@ function RiceOrder() {
         }
     }
 
-    const [selectedFilter, setSelectedFilter] = useState('riceOrders');
+    const onGlobalFilterChange = (e) => {
+        setGlobalFilterValue(e.target.value);
+    };
 
     const getSeverity = (status) => {
         switch (status.toLowerCase()) {
@@ -119,7 +126,7 @@ function RiceOrder() {
                         <InputText 
                             type="search"
                             value={globalFilterValue} 
-                            onChange={(e) => setGlobalFilterValue(e.target.value)} 
+                            onChange={onGlobalFilterChange}
                             placeholder="Tap to Search" 
                             className="w-full pl-10 pr-4 py-2 rounded-full text-primary border border-gray-300 ring-0 placeholder:text-primary"
                         />
@@ -142,6 +149,12 @@ function RiceOrder() {
                             className={`p-button-success p-2 w-1/16 ring-0 rounded-full ${buttonStyle(selectedFilter === 'declined')}`} 
                             onClick={() => setSelectedFilter('declined')}
                         />
+
+                        <RotateCw 
+                            className="w-6 h-6 text-primary cursor-pointer hover:text-secondary transition-colors" 
+                            onClick={fetchData}
+                            title="Refresh data"
+                        />
                     </div>
 
                     <div className="flex flex-row w-1/2 justify-end">
@@ -162,7 +175,7 @@ function RiceOrder() {
                         scrolldirection="both"
                         className="p-datatable-sm pt-5" 
                         filters={filters}
-                        globalFilterFields={['trackingId', 'qualityType', 'status', 'farmer', 'originFarm']}
+                        globalFilterFields={['id', 'status']}
                         emptyMessage="No inventory found."
                         paginator
                         rows={30}

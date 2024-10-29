@@ -35,7 +35,6 @@ export function getRouter(): Router {
 
         const dryingBatch = await getDryingBatch(Number(id));
 
-        console.log('dryingBatch', dryingBatch);
 
         res.json(dryingBatch);
     });

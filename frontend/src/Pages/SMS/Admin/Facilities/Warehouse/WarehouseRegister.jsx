@@ -9,7 +9,6 @@ import { Wheat } from 'lucide-react';
 
 function WarehouseRegister({ visible, onHide, onWarehouseRegistered }) {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const apiKey = import.meta.env.VITE_API_KEY;
     const toast = React.useRef(null);
 
     const [facilityName, setFacilityName] = useState('');
@@ -68,8 +67,7 @@ function WarehouseRegister({ visible, onHide, onWarehouseRegistered }) {
             const res = await fetch(`${apiUrl}/warehouses`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': `${apiKey}`
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(newWarehouse)
             });

@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { AdminSidebarComponent, SidebarItem } from "@/Components/AdminSidebarComponent";
 import AdminNavbarComponent from '@/Components/AdminNavbarComponent';
-import { AuthClient } from "@dfinity/auth-client";
+import { useAuth } from '../Pages/Authentication/Login/AuthContext';
 
 const sidebarItems = [
     { 
@@ -51,42 +51,8 @@ const sidebarItems = [
 ];
  
 function AdminLayout({ children, activePage }) {
-    // const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    // const [name, setName] = useState(() => localStorage.getItem('userName') || '');
-
-    // useEffect(() => {
-    //     const fetchUser = async () => {
-    //         try {
-    //             const authClient = await AuthClient.create();
-    //             const identity = authClient.getIdentity();
-    //             const principal = identity.getPrincipal().toText();
-
-    //             localStorage.removeItem('userName');
-
-    //             const res = await fetch(`${apiUrl}/nfapersonnels/principal/${principal}`, {
-    //                 method: 'GET',
-    //                 headers: {'Content-Type': 'application/json'}
-    //             });
-    //             const data = await res.json();
-    //             setName(data.firstName);
-
-    //             localStorage.setItem('userName', data.firstName);
-    //         } catch (error) {
-    //             console.log(error.message);
-    //         }
-    //     };
-    //     fetchUser();
-
-    //     const handleStorageChange = () => {
-    //         setName(localStorage.getItem('userName') || '');
-    //     };
-
-    //     window.addEventListener('storage', handleStorageChange);
-
-    //     return () => {
-    //         window.removeEventListener('storage', handleStorageChange);
-    //     };
-    // }, []);
+    const { user } = useAuth();
+    const name = user.firstName + ' ' + user.lastName;
 
     const [expanded, setExpanded] = useState(() => {
         const storedState = localStorage.getItem('sidebarExpanded');
@@ -137,7 +103,7 @@ function AdminLayout({ children, activePage }) {
                     items={{
                         user: name,
                         avatar: '/profileAvatar.png',
-                        user_type: 'Staff',
+                        user_type: user.userType,
                         title: activePage,
                     }}
                     expanded={expanded}

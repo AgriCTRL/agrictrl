@@ -12,9 +12,10 @@ import { Dropdown } from 'primereact/dropdown';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Toast } from 'primereact/toast';
 
-import { Search, Wheat, CheckCircle } from "lucide-react";
+import { Search, Wheat, CheckCircle, RotateCw } from "lucide-react";
 
-import { useAuth } from '../../Authentication/Login/AuthContext';
+import { useAuth } from '../../../Authentication/Login/AuthContext';
+import ReceiveRice from './ReceiveRice';
 
 const initialTransactionData = {
     item: 'Palay',
@@ -33,15 +34,8 @@ const initialTransactionData = {
     remarks: ''
 };
 
-const initialRiceAcceptData = {
-    riceBatchName: '',
-    riceType: '',
-    price: ''
-};
-
 function Warehouse() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const apiKey = import.meta.env.VITE_API_KEY;
     const toast = useRef(null);
     const { user } = useAuth();
     
@@ -49,7 +43,7 @@ function Warehouse() {
     const [filters, setFilters] = useState({
         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     });
-    const [loading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const [errors, setErrors] = useState({});
 
     const [viewMode, setViewMode] = useState('requests');
@@ -64,114 +58,18 @@ function Warehouse() {
     const [millerData, setMillerData] = useState([]);
     const [dryerData, setDryerData] = useState([]);
 
-    const [acceptFormData, setAcceptFormData] = useState({
-        riceBatchName: '',
-        riceType: '',
-        price: ''
-    });
-
     const [newTransactionData, setNewTransactionData] = useState(initialTransactionData);
+    
+    useEffect(() => {
+        const newFilters = {
+            global: { value: globalFilterValue, matchMode: FilterMatchMode.CONTAINS },
+        };
+        setFilters(newFilters);
+    }, [globalFilterValue]);
 
-    const [riceAcceptFormData, setRiceAcceptFormData] = useState(initialRiceAcceptData);
-    const [riceAcceptErrors, setRiceAcceptErrors] = useState({});
-
-    const handleRiceAcceptInputChange = (e) => {
-        const { name, value } = e.target;
-        setRiceAcceptFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
-        // Clear error for this field if it exists
-        if (riceAcceptErrors[name]) {
-            setRiceAcceptErrors(prev => ({
-                ...prev,
-                [name]: ''
-            }));
-        }
+    const onGlobalFilterChange = (e) => {
+        setGlobalFilterValue(e.target.value);
     };
-
-    const validateRiceAcceptForm = () => {
-        let newErrors = {};
-        
-        if (!riceAcceptFormData.riceBatchName.trim()) {
-            newErrors.riceBatchName = "Rice batch name is required";
-        }
-        
-        if (!riceAcceptFormData.riceType.trim()) {
-            newErrors.riceType = "Rice type is required";
-        }
-        
-        if (!riceAcceptFormData.price.trim()) {
-            newErrors.price = "Price is required";
-        } else if (isNaN(riceAcceptFormData.price) || parseFloat(riceAcceptFormData.price) <= 0) {
-            newErrors.price = "Please enter a valid price";
-        }
-        
-        setRiceAcceptErrors(newErrors);
-        
-        if (Object.keys(newErrors).length > 0) {
-            Object.values(newErrors).forEach(error => {
-                toast.current.show({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: error,
-                    life: 3000
-                });
-            });
-        }
-        
-        return Object.keys(newErrors).length === 0;
-    };
-
-    const handleRiceAcceptConfirm = async () => {
-        if (!validateRiceAcceptForm()) {
-            return;
-        }
-
-        try {
-            const transactionResponse = await fetch(`${apiUrl}/transactions/update`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': apiKey
-                },
-                body: JSON.stringify({
-                    id: selectedItem.transactionId,
-                    status: 'Received',
-                    receiveDateTime: new Date().toISOString(),
-                    receiverId: user.id,
-                    riceBatchData: {
-                        ...riceAcceptFormData,
-                        price: parseFloat(riceAcceptFormData.price)
-                    }
-                })
-            });
-
-            if (!transactionResponse.ok) {
-                throw new Error('Failed to update transaction');
-            }
-
-            await fetchInventory();
-            setShowRiceAcceptDialog(false);
-            setRiceAcceptFormData(initialRiceAcceptData);
-            
-            toast.current.show({
-                severity: 'success',
-                summary: 'Success',
-                detail: 'Rice batch successfully received',
-                life: 3000
-            });
-        } catch (error) {
-            console.error('Error accepting rice batch:', error);
-            toast.current.show({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'Failed to receive rice batch',
-                life: 3000
-            });
-        }
-    };
-
 
     useEffect(() => {
         fetchInventory();
@@ -179,31 +77,31 @@ function Warehouse() {
         fetchMillerData();
     }, [viewMode]);
 
+    const refreshData = () => {
+        fetchInventory();
+        fetchDryerData();
+        fetchMillerData();
+    }
+
     const fetchInventory = async () => {
         try {
             const status = viewMode === 'requests' ? 'Pending' : 'Received';
             
             // Fetch inventory, warehouses, dryers, and millers as needed
-            const [inventoryRes, warehousesRes, dryersRes, millersRes] = await Promise.all([
-                fetch(`${apiUrl}/inventory?toLocationType=Warehouse&status=${status}`, {
-                    headers: { 'API-Key': apiKey }
-                }),
-                fetch(`${apiUrl}/warehouses`, {
-                    headers: { 'API-Key': apiKey }
-                }),
-                fetch(`${apiUrl}/dryers`, { headers: { 'API-Key': apiKey } }),
-                fetch(`${apiUrl}/millers`, { headers: { 'API-Key': apiKey } })
+            const [inventoryRes, dryersRes, millersRes] = await Promise.all([
+                fetch(`${apiUrl}/inventory?toLocationType=Warehouse&status=${status}&batchType=milling`),
+                fetch(`${apiUrl}/dryers`),
+                fetch(`${apiUrl}/millers`)
             ]);
     
             // Error handling if any fetch fails
-            if (!inventoryRes.ok || !warehousesRes.ok || !dryersRes.ok || !millersRes.ok) {
+            if (!inventoryRes.ok || !dryersRes.ok || !millersRes.ok) {
                 throw new Error('Failed to fetch data');
             }
     
             // Parse JSON responses
-            const [inventory, warehouses, dryers, millers] = await Promise.all([
+            const [inventory, dryers, millers] = await Promise.all([
                 inventoryRes.json(),
-                warehousesRes.json(),
                 dryersRes.json(),
                 millersRes.json()
             ]);
@@ -238,16 +136,13 @@ function Warehouse() {
                     toLocationId: item.transaction.toLocationId,
                     item: item.transaction.item,
                     qualityType: item.palayBatch.qualityType,
-                    // Additional fields from new structure
-                    palayVariety: item.palayBatch.palayVariety,
-                    moistureContent: item.palayBatch.qualitySpec?.moistureContent,
-                    purity: item.palayBatch.qualitySpec?.purity,
-                    damaged: item.palayBatch.qualitySpec?.damaged,
-                    supplierName: item.palayBatch.palaySupplier?.farmerName,
-                    farmLocation: `${item.palayBatch.farm?.barangay}, ${item.palayBatch.farm?.cityTown}`
+                    // rice-milling junction table
+                    millingBatchId: item.processingBatch?.id || null,
+                    quantityBags: item.processingBatch?.milledQuantityBags || null,
+                    grossWeight: item.processingBatch?.milledGrossWeight || null,
+                    netWeight: item.processingBatch?.milledNetWeight || null,
                 };
             });
-    
             setCombinedData(transformedData);
         } catch (error) {
             console.error('Error fetching warehouse inventory:', error);
@@ -260,12 +155,9 @@ function Warehouse() {
         }
     };
     
-
     const fetchDryerData = async () => {
         try {
-            const res = await fetch(`${apiUrl}/dryers`, {
-                headers: { 'API-Key': `${apiKey}` }
-            });
+            const res = await fetch(`${apiUrl}/dryers`);
             if (!res.ok) {
                 throw new Error('Failed to fetch dryer data');
             }
@@ -279,9 +171,7 @@ function Warehouse() {
 
     const fetchMillerData = async () => {
         try {
-            const res = await fetch(`${apiUrl}/millers`, {
-                headers: { 'API-Key': `${apiKey}` }
-            });
+            const res = await fetch(`${apiUrl}/millers`);
             if (!res.ok) {
                 throw new Error('Failed to fetch miller data');
             }
@@ -307,7 +197,6 @@ function Warehouse() {
         }
         
         if (selectedItem.palayStatus === 'To be Mill') {
-            console.log()
             return millerData
                 .filter(miller => miller.status === 'active')
                 .map(miller => ({
@@ -320,21 +209,18 @@ function Warehouse() {
         return [];
     };
 
-    const handleInputChange = (e) => {  
-    };
-
     const handleSendTo = async () => {
         if (!validateForm()) {
             return;
         }
     
+        setIsLoading(true);
         try {
             // Create new transaction first
             const transactionResponse = await fetch(`${apiUrl}/transactions`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': apiKey
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     ...newTransactionData,
@@ -354,8 +240,7 @@ function Warehouse() {
             const palayResponse = await fetch(`${apiUrl}/palaybatches/update`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': apiKey
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     id: selectedItem.id,
@@ -371,8 +256,7 @@ function Warehouse() {
             const oldTransactionResponse = await fetch(`${apiUrl}/transactions/update`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': apiKey
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     id: selectedItem.transactionId,
@@ -405,16 +289,18 @@ function Warehouse() {
                 detail: 'Failed to complete the process',
                 life: 3000
             });
+        } finally {
+            setIsLoading(false);
         }
     };
 
-    const handleConfirmReceive = async () => {
+    const handleReceivePalay = async () => {
+        setIsLoading(true);
         try {
             const transactionResponse = await fetch(`${apiUrl}/transactions/update`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': apiKey
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     id: selectedItem.transactionId,
@@ -445,6 +331,8 @@ function Warehouse() {
                 detail: 'Failed to update transaction',
                 life: 3000
             });
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -627,7 +515,7 @@ function Warehouse() {
     };
 
     return (
-        <StaffLayout activePage="Warehouse">
+        <StaffLayout activePage="Warehouse" user={user}>
             <Toast ref={toast} />
             <div className="flex flex-col px-10 py-2 h-full bg-[#F1F5F9]">
                 <div className="flex flex-col justify-center items-center p-10 h-1/4 rounded-lg bg-gradient-to-r from-primary to-secondary mb-2">
@@ -637,7 +525,7 @@ function Warehouse() {
                         <InputText 
                             type="search"
                             value={globalFilterValue} 
-                            onChange={(e) => setGlobalFilterValue(e.target.value)} 
+                            onChange={onGlobalFilterChange} 
                             placeholder="Tap to Search" 
                             className="w-full pl-10 pr-4 py-2 rounded-full text-white bg-transparent border border-white placeholder:text-white"
                         />
@@ -677,6 +565,13 @@ function Warehouse() {
                         <FilterButton label="Palay" icon={<Wheat className="mr-2" size={16} />} filter="palay" />
                         <FilterButton label="Rice" icon={<Wheat className="mr-2" size={16} />} filter="rice" />
                     </div>
+                    <div className="flex items-center justify-center">
+                        <RotateCw 
+                            className="w-6 h-6 text-primary cursor-pointer hover:text-secondary transition-colors" 
+                            onClick={refreshData}
+                            title="Refresh data"
+                        />
+                    </div>
                 </div>
 
                 {/* Data Table */}
@@ -690,8 +585,8 @@ function Warehouse() {
                         className="p-datatable-sm pt-5" 
                         filters={filters}
                         globalFilterFields={viewMode === 'inWarehouse' ? 
-                            ['from', 'currentlyAt', 'receivedOn', 'transportedBy', 'status'] : 
-                            ['from', 'toBeStoreAt', 'dateRequest', 'transportedBy', 'status']}
+                            ['id' , 'from', 'currentlyAt', 'receivedOn', 'transportedBy', 'status'] : 
+                            ['id' , 'from', 'toBeStoreAt', 'dateRequest', 'transportedBy', 'status']}
                         emptyMessage="No inventory found."
                         paginator
                         rows={10}
@@ -700,7 +595,7 @@ function Warehouse() {
                             field="id" 
                             header={selectedFilter === 'all' ? 'Batch ID' : (selectedFilter === 'rice' ? 'Rice Batch ID' : 'Palay Batch ID')} 
                             className="text-center" headerClassName="text-center" />
-                        <Column field="quantityInBags" header="Quantity In Bags" className="text-center" headerClassName="text-center" />
+                        <Column field="quantityInBags" header="Quantity In Bags" className="text-center" headerClassName="text-center" body={(rowData) => rowData.quantityBags ?? rowData.quantityInBags}/>
                         <Column field="from" header="From" className="text-center" headerClassName="text-center" />
                         <Column 
                             field={viewMode === 'inWarehouse' ? "currentlyAt" : "toBeStoreAt"} 
@@ -727,7 +622,7 @@ function Warehouse() {
             </div>
 
             {/* Send To Dialog */}
-            <Dialog header="Send To" visible={showSendToDialog} onHide={() => setShowSendToDialog(false)} className="w-1/3">
+            <Dialog header="Send To" visible={showSendToDialog} onHide={isLoading ? null : () => setShowSendToDialog(false)} className="w-1/3">
                 <div className="flex flex-col">
                     <div className="mb-4">
                         <label className="block mb-2">Send To</label>
@@ -800,79 +695,23 @@ function Warehouse() {
                     </div>
 
                     <div className="flex justify-between w-full gap-4 mt-4">
-                        <Button label="Cancel" className="w-1/2 bg-transparent text-primary border-primary" onClick={() => setShowSendToDialog(false)} />
-                        <Button label="Send Request" className="w-1/2 bg-primary hover:border-none" onClick={handleSendTo} />
+                        <Button label="Cancel" className="w-1/2 bg-transparent text-primary border-primary" onClick={() => setShowSendToDialog(false)} disabled={isLoading} />
+                        <Button label="Send Request" className="w-1/2 bg-primary hover:border-none" onClick={handleSendTo} disabled={isLoading}/>
                     </div>
                 </div>
             </Dialog>
 
-            {/* Accept Rice Dialog */}
-            <Dialog header="Receive Rice" visible={showRiceAcceptDialog} onHide={() => {
-                setShowRiceAcceptDialog(false);
-                setRiceAcceptFormData(initialRiceAcceptData);
-                setRiceAcceptErrors({});
-            }} className="w-1/3">
-                <div className="flex flex-col items-center gap-2">
-                    <div className="w-full">
-                        <label htmlFor="riceBatchName" className="block text-sm font-medium text-gray-700 mb-1">Rice Batch Name</label>
-                        <InputText 
-                            name="riceBatchName"
-                            value={riceAcceptFormData.riceBatchName}
-                            onChange={handleRiceAcceptInputChange}
-                            className={`w-full ring-0 ${riceAcceptErrors.riceBatchName ? 'p-invalid' : ''}`}
-                        />
-                        {riceAcceptErrors.riceBatchName && (
-                            <small className="text-red-500">{riceAcceptErrors.riceBatchName}</small>
-                        )}
-                    </div>
+            {/* Receive Rice Dialog */}
+            <ReceiveRice 
+                visible={showRiceAcceptDialog}
+                onHide={() => setShowRiceAcceptDialog(false)}
+                selectedItem={selectedItem}
+                onAcceptSuccess={fetchInventory}
+                user={user}
+            />
 
-                    <div className="w-full">
-                        <label htmlFor="riceType" className="block text-sm font-medium text-gray-700 mb-1">Rice Type</label>
-                        <InputText 
-                            name="riceType"
-                            value={riceAcceptFormData.riceType}
-                            onChange={handleRiceAcceptInputChange}
-                            className={`w-full ring-0 ${riceAcceptErrors.riceType ? 'p-invalid' : ''}`}
-                        />
-                        {riceAcceptErrors.riceType && (
-                            <small className="text-red-500">{riceAcceptErrors.riceType}</small>
-                        )}
-                    </div>
-
-                    <div className="w-full">
-                        <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">Price</label>
-                        <InputText 
-                            name="price"
-                            value={riceAcceptFormData.price}
-                            onChange={handleRiceAcceptInputChange}
-                            className={`w-full ring-0 ${riceAcceptErrors.price ? 'p-invalid' : ''}`}
-                        />
-                        {riceAcceptErrors.price && (
-                            <small className="text-red-500">{riceAcceptErrors.price}</small>
-                        )}
-                    </div>
-                    
-                    <div className="flex justify-between w-full mt-5 gap-4">
-                        <Button 
-                            label="Cancel" 
-                            className="w-1/2 bg-transparent text-primary border-primary"
-                            onClick={() => {
-                                setShowRiceAcceptDialog(false);
-                                setRiceAcceptFormData(initialRiceAcceptData);
-                                setRiceAcceptErrors({});
-                            }}
-                        />
-                        <Button 
-                            label="Confirm Receive" 
-                            className="w-1/2 bg-primary hover:border-none" 
-                            onClick={handleRiceAcceptConfirm}
-                        />
-                    </div>
-                </div>
-            </Dialog>
-
-            {/* Accept Palay Dialog */}
-            <Dialog header="Receive palay" visible={showPalayAcceptDialog} onHide={() => setShowPalayAcceptDialog(false)} className="w-1/3">
+            {/* Receive Palay Dialog */}
+            <Dialog header="Receive palay" visible={showPalayAcceptDialog} onHide={isLoading ? null : () => setShowPalayAcceptDialog(false)} className="w-1/3">
                 <div className="flex flex-col items-center gap-2">
                     <CheckCircle size={32} className="text-primary"/>
                     <p>Are you sure you want to receive this Palay?</p>
@@ -881,7 +720,8 @@ function Warehouse() {
                         <Button 
                             label="Confirm Receive" 
                             className="w-full bg-primary hover:border-none" 
-                            onClick={handleConfirmReceive} 
+                            onClick={handleReceivePalay} 
+                            disabled={isLoading}
                         />
                     </div>
                 </div>

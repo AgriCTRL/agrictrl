@@ -35,8 +35,6 @@ export function getRouter(): Router {
 
         const millingBatch = await getMillingBatch(Number(id));
 
-        console.log('millingBatch', millingBatch);
-
         res.json(millingBatch);
     });
 

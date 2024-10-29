@@ -1,6 +1,5 @@
 import express from 'express';
 import cors from 'cors';
-import { apiKeyAuth, requireAuth } from '../middleware/auth';
 
 import { getRouter as getRouterUsers } from '../entities/users/router';
 import { getRouter as getRouterQualitySpecs } from '../entities/qualityspecs/router';
@@ -17,9 +16,8 @@ import { getRouter as getRouterRiceOrder} from '../entities/riceorders/router';
 import { getRouter as getRouterTransaction} from '../entities/transactions/router';
 import { getRouter as getRouterFarm } from '../entities/farms/router';
 import { getRouter as getRouterHouseOfficeAddress } from '../entities/houseofficeaddresses/router';
-import { getRouter as getRouterRiceMillingBatches } from '../entities/ricemillingbatches/router';
+import { getRouter as getRouterRiceMillingBatches } from '../entities/riceBatchMillingBatches/router';
 import { getRouter as getRouterInventory } from '../entities/inventory/router';
-
 
 
 // TODO make this function's return type explicit https://github.com/demergent-labs/azle/issues/1860
@@ -30,25 +28,23 @@ export function initServer() {
     app.use(cors());
     app.use(express.json());
 
-    app.use(apiKeyAuth);
-
-    app.use('/users', requireAuth, getRouterUsers());
-    app.use('/qualityspecs', requireAuth, getRouterQualitySpecs());
-    app.use('/warehouses', requireAuth, getRouterWarehouses());
-    app.use('/dryers', requireAuth, getRouterDryers());
-    app.use('/millers', requireAuth, getRouterMillers());
-    app.use('/palaybatches', requireAuth, getRouterPalayBatches());
-    app.use('/ricebatches', requireAuth, getRouterRiceBatches());
-    app.use('/dryingbatches', requireAuth, getRouterDryingBatches());
-    app.use('/millingbatches', requireAuth, getRouterMillingBatches());
-    app.use('/officeaddresses', requireAuth, getRouterOfficeAddress());
-    app.use('/palaysuppliers', requireAuth, getRouterPalaySupplier());
-    app.use('/riceorders', requireAuth, getRouterRiceOrder());
-    app.use('/transactions', requireAuth, getRouterTransaction());
-    app.use('/farms', requireAuth, getRouterFarm());
-    app.use('/houseofficeaddresses', requireAuth, getRouterHouseOfficeAddress());
-    app.use('/ricemillingbatches', requireAuth, getRouterRiceMillingBatches());
-    app.use('/inventory', requireAuth, getRouterInventory());
+    app.use('/users', getRouterUsers());
+    app.use('/qualityspecs', getRouterQualitySpecs());
+    app.use('/warehouses', getRouterWarehouses());
+    app.use('/dryers', getRouterDryers());
+    app.use('/millers', getRouterMillers());
+    app.use('/palaybatches', getRouterPalayBatches());
+    app.use('/ricebatches', getRouterRiceBatches());
+    app.use('/dryingbatches', getRouterDryingBatches());
+    app.use('/millingbatches', getRouterMillingBatches());
+    app.use('/officeaddresses', getRouterOfficeAddress());
+    app.use('/palaysuppliers', getRouterPalaySupplier());
+    app.use('/riceorders', getRouterRiceOrder());
+    app.use('/transactions', getRouterTransaction());
+    app.use('/farms', getRouterFarm());
+    app.use('/houseofficeaddresses', getRouterHouseOfficeAddress());
+    app.use('/ricemillingbatches', getRouterRiceMillingBatches());
+    app.use('/inventory', getRouterInventory());
 
 
     app.get('/init-called', (_req, res) => {

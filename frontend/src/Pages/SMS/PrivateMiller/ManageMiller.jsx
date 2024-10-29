@@ -9,7 +9,6 @@ import { useAuth } from '../../Authentication/Login/AuthContext';
 
 function ManageMiller() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const apiKey = import.meta.env.VITE_API_KEY;
     const { user } = useAuth();
     const toast = React.useRef(null);
 
@@ -28,7 +27,6 @@ function ManageMiller() {
     const [userData, setUserData] = useState(null);
 
     const [editing, setEditing] = useState(false);
-    const [isSubmitting, setIsSubmitting] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [showRegistrationDialog, setShowRegistrationDialog] = useState(false);
     const [isRegistered, setIsRegistered] = useState(false);
@@ -49,19 +47,14 @@ function ManageMiller() {
     }, [userData]);
 
     const fetchUserAndMillerData = async () => {
+        setIsLoading(true);
         try {
-            setIsLoading(true);
-            
-            const userRes = await fetch(`${apiUrl}/users/${user.id}`, {
-                headers: { 'API-Key': apiKey },
-            });
+            const userRes = await fetch(`${apiUrl}/users/${user.id}`);
             
             if (!userRes.ok) throw new Error('Failed to fetch user data');
             const userData = await userRes.json();
             
-            const millersRes = await fetch(`${apiUrl}/millers`, {
-                headers: { 'API-Key': apiKey },
-            });
+            const millersRes = await fetch(`${apiUrl}/millers`);
             
             if (!millersRes.ok) throw new Error('Failed to fetch millers data');
             const millersData = await millersRes.json();
@@ -128,14 +121,13 @@ function ManageMiller() {
         e.preventDefault();
         if (!validateForm()) return;
         
-        setIsSubmitting(true);
+        setIsLoading(true);
         console.log(millerData);
         try {
             const res = await fetch(`${apiUrl}/millers`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': apiKey
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(millerData)
             });
@@ -161,7 +153,7 @@ function ManageMiller() {
                 life: 3000
             });
         } finally {
-            setIsSubmitting(false);
+            setIsLoading(false);
         }
     };
 
@@ -169,14 +161,13 @@ function ManageMiller() {
         e.preventDefault();
         if (!validateForm()) return;
         
-        setIsSubmitting(true);
+        setIsLoading(true);
         console.log(millerData)
         try {
             const res = await fetch(`${apiUrl}/millers/update`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': `${apiKey}`
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(millerData)
             });
@@ -199,7 +190,7 @@ function ManageMiller() {
                 life: 3000
             });
         } finally {
-            setIsSubmitting(false);
+            setIsLoading(false);
         }
     };
 
@@ -294,7 +285,7 @@ function ManageMiller() {
 
     if (isLoading) {
         return (
-            <PrivateMillerLayout activePage="Manage Miller">
+            <PrivateMillerLayout activePage="Manage Miller" user={user}>
                 <div className="flex items-center justify-center h-full">
                     <i className="pi pi-spin pi-spinner text-4xl"></i>
                 </div>
@@ -303,7 +294,7 @@ function ManageMiller() {
     }
 
     return (
-        <PrivateMillerLayout activePage="Manage Miller">
+        <PrivateMillerLayout activePage="Manage Miller" user={user}>
             <Toast ref={toast} />
             <div className='flex flex-col h-full w-full py-2 bg-white rounded-xl px-4'>
                 <div className="flex flex-col justify-center items-center p-10 h-1/4 rounded-lg bg-gradient-to-r from-primary to-secondary">
@@ -322,6 +313,7 @@ function ManageMiller() {
                                     label={editing ? "Cancel" : "Edit"}
                                     type="button"
                                     onClick={handleToggleEdit}
+                                    disabled={isLoading}
                                     className={`border h-12 w-24 text-white font-bold ${
                                         editing 
                                             ? 'bg-red-500 hover:bg-red-600' 
@@ -332,7 +324,7 @@ function ManageMiller() {
                             {editing && (
                                 <Button
                                     label="Save Changes"
-                                    disabled={isSubmitting}
+                                    disabled={isLoading}
                                     type="submit"
                                     className='ml-4 p-button-success border h-12 px-4 text-white font-bold bg-green-500 hover:bg-green-600'
                                 />
@@ -347,7 +339,7 @@ function ManageMiller() {
                 visible={showRegistrationDialog}
                 style={{ width: '50vw' }}
                 closable={isRegistered}
-                onHide={() => {
+                onHide={isLoading ? null : () => {
                     if (!isRegistered) {
                         return;
                     }
@@ -359,7 +351,7 @@ function ManageMiller() {
                             label="Register" 
                             icon="pi pi-check" 
                             onClick={handleRegistration} 
-                            disabled={isSubmitting}
+                            disabled={isLoading}
                             className='p-button-success'
                         />
                     </div>

@@ -18,7 +18,6 @@ import { InputTextarea } from 'primereact/inputtextarea';
 
 function Warehouse() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const apiKey = import.meta.env.VITE_API_KEY;
     const toast = useRef(null);
 
     const [warehouseData, setWarehouseData] = useState([]);
@@ -36,9 +35,7 @@ function Warehouse() {
 
     const fetchWarehouseData = async () => {
         try {
-            const res = await fetch(`${apiUrl}/warehouses`, {
-                headers: { 'API-Key': `${apiKey}` }
-            });
+            const res = await fetch(`${apiUrl}/warehouses`);
             if (!res.ok) {
                 throw new Error('Failed to fetch warehouse data');
             }

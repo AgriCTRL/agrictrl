@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import StaffLayout from '@/Layouts/StaffLayout';
 import { Carousel } from 'primereact/carousel';
 import { Fan, Loader2, Undo2, CheckCircle2 } from "lucide-react";
+import { useAuth } from '../../Authentication/Login/AuthContext';
 
 function Home({ isRightSidebarOpen }) {
+    const { user } = useAuth(); 
     const [carouselItems] = useState([
         {
             title: "Traceability Power",
@@ -37,7 +39,7 @@ function Home({ isRightSidebarOpen }) {
     ];
 
     return (
-        <StaffLayout activePage="Home">
+        <StaffLayout activePage="Home" user={user}>
             <div className={`flex flex-row p-2 bg-[#F1F5F9] h-full ${isRightSidebarOpen ? 'pr-[20%]' : ''}`}>
                 
                 {/* Personal Stats Section */}
@@ -56,8 +58,8 @@ function Home({ isRightSidebarOpen }) {
                     <div className="w-full rounded-b-md bg-white">
                         {/* Name and Position */}
                         <div className="flex flex-col items-center pt-12 pb-2">
-                            <h1 className="text-lg font-bold">Juan Pablo</h1>
-                            <h2 className="text-sm text-gray-500">Assistant Manager</h2>
+                            <h1 className="text-lg font-bold">{user.firstName + ' ' + user.lastName}</h1>
+                            <h2 className="text-sm text-gray-500">{user.jobTitlePosition}</h2>
                         </div>
 
                         <hr className="mx-2 pb-1"/>
@@ -82,7 +84,7 @@ function Home({ isRightSidebarOpen }) {
                     <div className="flex flex-row justify-between items-center">
                         <div className="flex flex-col items-center">
                             <h1 className="text-xl">Welcome Back,</h1>
-                            <h1 className="text-2xl font-bold">Juan!</h1>
+                            <h1 className="text-2xl font-bold">{user.firstName}!</h1>
                         </div>
 
                         <h1 className="text-md font-medium text-primary">Add new palay batch {'>'} </h1>

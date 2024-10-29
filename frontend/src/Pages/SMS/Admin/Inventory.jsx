@@ -17,7 +17,6 @@ import pdfExport from '../../../Components/pdfExport';
 
 function Inventory() { 
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const apiKey = import.meta.env.VITE_API_KEY;
 
     const [inventoryData, setInventoryData] = useState([]);
     const [globalFilterValue, setGlobalFilterValue] = useState('');
@@ -31,9 +30,7 @@ function Inventory() {
 
     const fetchInventoryData = async () => {
         try {
-            const response = await fetch(`${apiUrl}/palaybatches`, {
-                headers: { 'API-Key': `${apiKey}` }
-            });
+            const response = await fetch(`${apiUrl}/palaybatches`);
 
             if (!response.ok) {
                 throw new Error('Failed to fetch inventory data');

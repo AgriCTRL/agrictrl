@@ -9,7 +9,6 @@ import { ThermometerSun } from 'lucide-react';
 
 function DryerUpdate({ visible, onHide, selectedDryer, onUpdateDryer }) {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const apiKey = import.meta.env.VITE_API_KEY;
     const toast = useRef(null);
 
     const [dryerName, setDryerName] = useState('');
@@ -65,8 +64,7 @@ function DryerUpdate({ visible, onHide, selectedDryer, onUpdateDryer }) {
             const res = await fetch(`${apiUrl}/dryers/update`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': `${apiKey}`
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(updatedDryer)
             });

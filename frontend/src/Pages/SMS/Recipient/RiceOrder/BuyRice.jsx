@@ -17,7 +17,8 @@ const initialFormData = {
     date: null,
     ricePrice: '30',
     weightInKilo: '',
-    totalPrice: '₱ 0'
+    totalPrice: '₱ 0',
+    dropOffLocation: ''
 };
 
 function BuyRice({ visible, onHide, onRiceOrdered }) {
@@ -25,7 +26,6 @@ function BuyRice({ visible, onHide, onRiceOrdered }) {
     const { user } = useAuth();
     const toast = useRef(null);
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const apiKey = import.meta.env.VITE_API_KEY;
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
@@ -112,6 +112,10 @@ function BuyRice({ visible, onHide, onRiceOrdered }) {
             errors.push('Please select a delivery date');
         }
 
+        if(!formData.dropOffLocation) {
+            errors.push('Please enter drop off location');
+        }
+
         if (errors.length > 0) {
             errors.forEach(error => {
                 toast.current.show({
@@ -121,7 +125,7 @@ function BuyRice({ visible, onHide, onRiceOrdered }) {
                     life: 3000
                 });
             });
-            return false;
+            return;
         }
 
         return true;
@@ -136,7 +140,7 @@ function BuyRice({ visible, onHide, onRiceOrdered }) {
 
         const riceOrder = {
             riceRecipientId: user.id,
-            dropOffLocation: '',
+            dropOffLocation: formData.dropOffLocation,
             riceQuantityBags: formData.quantity,
             description: formData.description,
             totalCost: formData.totalPrice,
@@ -147,26 +151,21 @@ function BuyRice({ visible, onHide, onRiceOrdered }) {
             const res = await fetch(`${apiUrl}/riceorders`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': `${apiKey}`
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(riceOrder)
             })
             if(!res.ok) {
                 throw new Error('failed rice order')
             }
-            setIsLoading(false);
-            onHide();
-            onRiceOrdered();
-            setFormData(initialFormData);
             toast.current.show({
                 severity: 'success',
                 summary: 'Success',
                 detail: 'Placed order successfully!',
                 life: 3000
             });
-        }
-        catch(error) {
+            onRiceOrdered();
+        } catch (error) {
             console.error(error.message);
             toast.current.show({
                 severity: 'error',
@@ -174,6 +173,10 @@ function BuyRice({ visible, onHide, onRiceOrdered }) {
                 detail: 'Failed to place rice order. Please try again.',
                 life: 3000
             });
+        } finally {
+            setIsLoading(false);
+            onHide();
+            setFormData(initialFormData);
         }
     };
 
@@ -296,7 +299,18 @@ function BuyRice({ visible, onHide, onRiceOrdered }) {
                             </div>
                         </div>
                     </div>
-                    
+                    <div className="w-full">
+                        <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+                            Drop-off Location <span className="text-red-500">*</span></label>
+                        <InputText
+                            id="dropOffLocation"
+                            name="dropOffLocation"
+                            value={formData.dropOffLocation}
+                            onChange={handleInputChange}
+                            placeholder="Enter location"
+                            className="w-full ring-0"
+                        />
+                    </div>
                     <div className="w-full">
                         <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">Description</label>
                         <InputTextarea
