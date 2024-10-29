@@ -822,7 +822,7 @@ const Processing = () => {
                     {viewMode === 'drying' ? (
                         <>
                             <div className="w-full">
-                                <label className="block mb-2">Quantity in Bags</label>
+                                <label className="block mb-2">Dried Quantity in Bags</label>
                                 <InputText 
                                     type="number"
                                     value={newDryingData.driedQuantityBags}
@@ -831,7 +831,7 @@ const Processing = () => {
                                 />
                             </div>
                             <div className="w-full">
-                                <label className="block mb-2">Gross Weight</label>
+                                <label className="block mb-2">Dried Gross Weight</label>
                                 <InputText 
                                     type="number"
                                     value={newDryingData.driedGrossWeight}
@@ -840,7 +840,7 @@ const Processing = () => {
                                 />
                             </div>
                             <div className="w-full">
-                                <label className="block mb-2">Net Weight</label>
+                                <label className="block mb-2">Dried Net Weight</label>
                                 <InputText 
                                     type="number"
                                     value={newDryingData.driedNetWeight}
@@ -879,7 +879,7 @@ const Processing = () => {
                     ) : (
                         <>
                             <div className="w-full">
-                                <label className="block mb-2">Quantity in Bags</label>
+                                <label className="block mb-2">Milled Quantity in Bags</label>
                                 <InputText 
                                     type="number"
                                     value={newMillingData.milledQuantityBags}
@@ -888,7 +888,7 @@ const Processing = () => {
                                 />
                             </div>
                             <div className="w-full">
-                                <label className="block mb-2">Gross Weight</label>
+                                <label className="block mb-2">Milled Gross Weight</label>
                                 <InputText 
                                     type="number"
                                     value={newMillingData.milledGrossWeight}
@@ -897,7 +897,7 @@ const Processing = () => {
                                 />
                             </div>
                             <div className="w-full">
-                                <label className="block mb-2">Net Weight</label>
+                                <label className="block mb-2">Milled Net Weight</label>
                                 <InputText 
                                     type="number"
                                     value={newMillingData.milledNetWeight}
