@@ -32,6 +32,17 @@ function BuyPalay() {
         fetchPalayData();
     }, []);
 
+    useEffect(() => {
+        const newFilters = {
+            global: { value: globalFilterValue, matchMode: FilterMatchMode.CONTAINS },
+        };
+        setFilters(newFilters);
+    }, [globalFilterValue]);
+
+    const onGlobalFilterChange = (e) => {
+        setGlobalFilterValue(e.target.value);
+    };
+
     const fetchPalayData = async () => {
         try {
             const response = await fetch(`${apiUrl}/palaybatches`, {
@@ -112,7 +123,7 @@ function BuyPalay() {
                         <InputText 
                             type="search"
                             value={globalFilterValue} 
-                            onChange={(e) => setGlobalFilterValue(e.target.value)} 
+                            onChange={onGlobalFilterChange} 
                             placeholder="Tap to Search" 
                             className="w-full pl-10 pr-4 py-2 rounded-full text-white bg-transparent border border-white placeholder:text-white"
                         />
@@ -153,7 +164,7 @@ function BuyPalay() {
                             scrolldirection="both"
                             className="p-datatable-sm pt-5"
                             filters={filters}
-                            globalFilterFields={['qualityType', 'status', 'farmer', 'originFarm']}
+                            globalFilterFields={['id', 'status']}
                             emptyMessage="No inventory found."
                             paginator
                             rows={30}

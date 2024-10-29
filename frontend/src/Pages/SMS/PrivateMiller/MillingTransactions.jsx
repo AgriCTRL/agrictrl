@@ -70,6 +70,17 @@ const MillingTransactions = () => {
         fetchActiveWarehouses();
     }, [selectedFilter]);
 
+    useEffect(() => {
+        const newFilters = {
+            global: { value: globalFilterValue, matchMode: FilterMatchMode.CONTAINS },
+        };
+        setFilters(newFilters);
+    }, [globalFilterValue]);
+
+    const onGlobalFilterChange = (e) => {
+        setGlobalFilterValue(e.target.value);
+    };
+
     const fetchData = async () => {
         try {
             const processType = 'miller';
@@ -527,7 +538,7 @@ const MillingTransactions = () => {
                         <InputText 
                             type="search"
                             value={globalFilterValue} 
-                            onChange={(e) => setGlobalFilterValue(e.target.value)} 
+                            onChange={onGlobalFilterChange} 
                             placeholder="Tap to Search" 
                             className="w-full pl-10 pr-4 py-2 rounded-full text-white bg-transparent border border-white placeholder:text-white"
                         />
@@ -560,7 +571,7 @@ const MillingTransactions = () => {
                         scrollDirection="both"
                         className="p-datatable-sm pt-5" 
                         filters={filters}
-                        globalFilterFields={['location', 'from', 'transportedBy', 'palayStatus', 'processingStatus']}
+                        globalFilterFields={['processingBatchId', 'palayBatchId', 'transactionStatus', 'processingStatus']}
                         emptyMessage="No inventory found."
                         paginator
                         rows={10}

@@ -90,6 +90,17 @@ function Warehouse() {
         }
     };
 
+    useEffect(() => {
+        const newFilters = {
+            global: { value: globalFilterValue, matchMode: FilterMatchMode.CONTAINS },
+        };
+        setFilters(newFilters);
+    }, [globalFilterValue]);
+
+    const onGlobalFilterChange = (e) => {
+        setGlobalFilterValue(e.target.value);
+    };
+
     const validateRiceAcceptForm = () => {
         let newErrors = {};
         
@@ -643,7 +654,7 @@ function Warehouse() {
                         <InputText 
                             type="search"
                             value={globalFilterValue} 
-                            onChange={(e) => setGlobalFilterValue(e.target.value)} 
+                            onChange={onGlobalFilterChange} 
                             placeholder="Tap to Search" 
                             className="w-full pl-10 pr-4 py-2 rounded-full text-white bg-transparent border border-white placeholder:text-white"
                         />
@@ -703,8 +714,8 @@ function Warehouse() {
                         className="p-datatable-sm pt-5" 
                         filters={filters}
                         globalFilterFields={viewMode === 'inWarehouse' ? 
-                            ['from', 'currentlyAt', 'receivedOn', 'transportedBy', 'status'] : 
-                            ['from', 'toBeStoreAt', 'dateRequest', 'transportedBy', 'status']}
+                            ['id' , 'from', 'currentlyAt', 'receivedOn', 'transportedBy', 'status'] : 
+                            ['id' , 'from', 'toBeStoreAt', 'dateRequest', 'transportedBy', 'status']}
                         emptyMessage="No inventory found."
                         paginator
                         rows={10}

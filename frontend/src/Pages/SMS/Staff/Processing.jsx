@@ -110,6 +110,17 @@ const Processing = () => {
         fetchActiveWarehouses();
     }, [viewMode, selectedFilter]);
 
+    useEffect(() => {
+        const newFilters = {
+            global: { value: globalFilterValue, matchMode: FilterMatchMode.CONTAINS },
+        };
+        setFilters(newFilters);
+    }, [globalFilterValue]);
+
+    const onGlobalFilterChange = (e) => {
+        setGlobalFilterValue(e.target.value);
+    };
+
     const fetchData = async () => {
         try {
             // Determine processing type and location based on viewMode
@@ -692,7 +703,7 @@ const Processing = () => {
                         <InputText 
                             type="search"
                             value={globalFilterValue} 
-                            onChange={(e) => setGlobalFilterValue(e.target.value)} 
+                            onChange={onGlobalFilterChange} 
                             placeholder="Tap to Search" 
                             className="w-full pl-10 pr-4 py-2 rounded-full text-white bg-transparent border border-white placeholder:text-white"
                         />
@@ -743,7 +754,7 @@ const Processing = () => {
                             scrollDirection="both"
                             className="p-datatable-sm pt-5" 
                             filters={filters}
-                            globalFilterFields={['from', 'toBeDryAt', 'requestDate', 'startDate', 'endDate', 'transportedBy', 'status', 'dryingStatus']}
+                            globalFilterFields={['processingBatchId', 'palayBatchId', 'transactionStatus', 'processingStatus']}
                             emptyMessage="No data found."
                             paginator
                             rows={10}

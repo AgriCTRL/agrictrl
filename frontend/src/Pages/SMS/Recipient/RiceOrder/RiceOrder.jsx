@@ -28,10 +28,18 @@ function RiceOrder() {
     const [showDeclinedDetails, setShowDeclinedDetails] = useState(false);
     const [selectedDeclinedData, setSelectedDeclinedData] = useState(null);
     const [inventoryData, setInventoryData] = useState([]);
+    const [selectedFilter, setSelectedFilter] = useState('riceOrders');
 
     useEffect(() => {
         fetchData();
     }, []);
+
+    useEffect(() => {
+        const newFilters = {
+            global: { value: globalFilterValue, matchMode: FilterMatchMode.CONTAINS },
+        };
+        setFilters(newFilters);
+    }, [globalFilterValue]);
 
     const fetchData = async () => {
         try {
@@ -49,7 +57,9 @@ function RiceOrder() {
         }
     }
 
-    const [selectedFilter, setSelectedFilter] = useState('riceOrders');
+    const onGlobalFilterChange = (e) => {
+        setGlobalFilterValue(e.target.value);
+    };
 
     const getSeverity = (status) => {
         switch (status.toLowerCase()) {
@@ -119,7 +129,7 @@ function RiceOrder() {
                         <InputText 
                             type="search"
                             value={globalFilterValue} 
-                            onChange={(e) => setGlobalFilterValue(e.target.value)} 
+                            onChange={onGlobalFilterChange}
                             placeholder="Tap to Search" 
                             className="w-full pl-10 pr-4 py-2 rounded-full text-primary border border-gray-300 ring-0 placeholder:text-primary"
                         />
@@ -168,7 +178,7 @@ function RiceOrder() {
                         scrolldirection="both"
                         className="p-datatable-sm pt-5" 
                         filters={filters}
-                        globalFilterFields={['trackingId', 'qualityType', 'status', 'farmer', 'originFarm']}
+                        globalFilterFields={['id', 'status']}
                         emptyMessage="No inventory found."
                         paginator
                         rows={30}
