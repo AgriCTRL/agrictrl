@@ -146,7 +146,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
     });
 
     const [activeStep, setActiveStep] = useState(0);
-    const [loading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const [errors, setErrors] = useState({});
 
     const steps = [
@@ -328,6 +328,8 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
         const isValid = validateForm(activeStep);
         if (!isValid) return;
     
+        
+        setIsLoading(true);
         try {
             // Step 1: Create palay data first
             const palayResponse = await fetch(`${apiUrl}/palaybatches`, {
@@ -394,6 +396,8 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                 detail: 'Failed to create records',
                 life: 3000
             });
+        } finally {
+            setIsLoading(false);
         }
     };
     
@@ -641,7 +645,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
     return (
         <Dialog 
             visible={visible} 
-            onHide={onHide} 
+            onHide={isLoading ? null : onHide} 
             header={customDialogHeader} 
             modal 
             style={{ minWidth: '60vw', maxWidth: '60vw'}}
@@ -650,12 +654,13 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                     <Button 
                         label="Previous" 
                         onClick={handlePrevious} 
-                        disabled={activeStep === 0} 
+                        disabled={activeStep === 0 || isLoading} 
                         className="py-2 px-14 bg-primary"
                     />
                     <Button 
                         label={activeStep === steps.length - 1 ? 'Buy Palay' : 'Next'} 
-                        onClick={activeStep === steps.length - 1 ? handleSubmit : handleNext} 
+                        onClick={activeStep === steps.length - 1 ? handleSubmit : handleNext}
+                        disabled={isLoading} 
                         className="py-2 px-14 bg-primary"
                     />
                 </div>

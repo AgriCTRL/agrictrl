@@ -82,7 +82,6 @@ export async function createDryingBatch(dryingBatchCreate: DryingBatchCreate): P
 }
 
 export async function updateDryingBatch(dryingBatchUpdate: DryingBatchUpdate): Promise<DryingBatch> {
-    console.log('dryingBatchUpdate', dryingBatchUpdate);
 
     await DryingBatch.update(dryingBatchUpdate.id, {
         palayBatchId: dryingBatchUpdate.palayBatchId,
