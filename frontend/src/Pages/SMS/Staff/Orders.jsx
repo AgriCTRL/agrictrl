@@ -71,7 +71,7 @@ function Orders() {
 
     const fetchRiceBatches = async () => {
         try {
-            const res = await fetch(`${apiUrl}/ricebatches`, {
+            const res = await fetch(`${apiUrl}/ricebatches?isFull=true`, {
                 headers: { 'API-Key': `${apiKey}` }
             });
             const data = await res.json();
