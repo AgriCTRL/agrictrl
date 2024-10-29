@@ -294,7 +294,7 @@ function ManageMiller() {
 
     if (isLoading) {
         return (
-            <PrivateMillerLayout activePage="Manage Miller">
+            <PrivateMillerLayout activePage="Manage Miller" user={user}>
                 <div className="flex items-center justify-center h-full">
                     <i className="pi pi-spin pi-spinner text-4xl"></i>
                 </div>
@@ -303,7 +303,7 @@ function ManageMiller() {
     }
 
     return (
-        <PrivateMillerLayout activePage="Manage Miller">
+        <PrivateMillerLayout activePage="Manage Miller" user={user}>
             <Toast ref={toast} />
             <div className='flex flex-col h-full w-full py-2 bg-white rounded-xl px-4'>
                 <div className="flex flex-col justify-center items-center p-10 h-1/4 rounded-lg bg-gradient-to-r from-primary to-secondary">
