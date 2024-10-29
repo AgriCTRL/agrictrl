@@ -45,7 +45,6 @@ const initialTransactionData = {
 
 const MillingTransactions = () => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const apiKey = import.meta.env.VITE_API_KEY;
     const toast = useRef(null);
     const { user } = useAuth();
 
@@ -91,10 +90,9 @@ const MillingTransactions = () => {
             const millerType = 'Private';
             
             const [facilitiesRes, inventoryRes, warehousesRes] = await Promise.all([
-                fetch(`${apiUrl}/millers`, { headers: { 'API-Key': apiKey } }),
-                fetch(`${apiUrl}/inventory?toLocationType=${locationType}&status=${status}&batchType=${batchType}&millerType=${millerType}&userId=${user.id}`, 
-                      { headers: { 'API-Key': apiKey } }),
-                fetch(`${apiUrl}/warehouses`, { headers: { 'API-Key': apiKey } })
+                fetch(`${apiUrl}/millers`),
+                fetch(`${apiUrl}/inventory?toLocationType=${locationType}&status=${status}&batchType=${batchType}&millerType=${millerType}&userId=${user.id}`),
+                fetch(`${apiUrl}/warehouses`)
             ]);
 
             if (!facilitiesRes.ok || !inventoryRes.ok || !warehousesRes.ok) {
@@ -141,11 +139,7 @@ const MillingTransactions = () => {
 
     const fetchActiveWarehouses = async () => {
         try {
-            const response = await fetch(`${apiUrl}/warehouses?status=Active`, {
-                headers: {
-                    'API-Key': apiKey
-                }
-            });
+            const response = await fetch(`${apiUrl}/warehouses?status=Active`);
 
             if (!response.ok) {
                 throw new Error('Failed to fetch warehouses');
@@ -199,8 +193,7 @@ const MillingTransactions = () => {
             const transactionResponse = await fetch(`${apiUrl}/transactions/update`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': apiKey
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     id: selectedItem.transactionId,
@@ -218,8 +211,7 @@ const MillingTransactions = () => {
             const palayResponse = await fetch(`${apiUrl}/palaybatches/update`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': apiKey
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     id: selectedItem.palayBatchId,
@@ -248,8 +240,7 @@ const MillingTransactions = () => {
             const millingResponse = await fetch(`${apiUrl}/millingbatches`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': apiKey
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(millingBatchData)
             });
@@ -306,8 +297,7 @@ const MillingTransactions = () => {
             const response = await fetch(`${apiUrl}/millingbatches/update`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': apiKey
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(updateData)
             });
@@ -320,8 +310,7 @@ const MillingTransactions = () => {
             const palayResponse = await fetch(`${apiUrl}/palaybatches/update`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': apiKey
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     id: selectedItem.palayBatchId,
@@ -373,8 +362,7 @@ const MillingTransactions = () => {
             const updateTransactionResponse = await fetch(`${apiUrl}/transactions/update`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': apiKey
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     id: selectedItem.transactionId,
@@ -390,8 +378,7 @@ const MillingTransactions = () => {
             const palayResponse = await fetch(`${apiUrl}/palaybatches/update`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': apiKey
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     id: selectedItem.palayBatchId,
@@ -420,8 +407,7 @@ const MillingTransactions = () => {
             const createTransactionResponse = await fetch(`${apiUrl}/transactions`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': apiKey
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(newTransaction)
             });

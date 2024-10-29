@@ -36,7 +36,6 @@ const initialTransactionData = {
 
 function Warehouse() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const apiKey = import.meta.env.VITE_API_KEY;
     const toast = useRef(null);
     const { user } = useAuth();
     
@@ -72,33 +71,6 @@ function Warehouse() {
         setGlobalFilterValue(e.target.value);
     };
 
-    // const updateRiceBatchAndJunction = async (riceBatchData) => {
-    //     // Update the rice batch
-    //     await fetch(`${apiUrl}/ricebatches/${riceBatchData.id}`, {
-    //         method: 'POST',
-    //         headers: {
-    //         'Content-Type': 'application/json',
-    //         'API-Key': apiKey
-    //         },
-    //         body: JSON.stringify(riceBatchData)
-    //     });
-      
-    //     // Update the junction table
-    //     await fetch(`${apiUrl}/ricebatchMillingbatch`, {
-    //         method: 'POST',
-    //         headers: {
-    //         'Content-Type': 'application/json',
-    //         'API-Key': apiKey
-    //         },
-    //         body: JSON.stringify({
-    //         riceBatchId: riceBatchData.id,
-    //         milledQuantityBags: riceBatchData.milledQuantityBags,
-    //         milledGrossWeight: riceBatchData.milledGrossWeight,
-    //         milledNetWeight: riceBatchData.milledNetWeight
-    //         })
-    //     });
-    //   };
-
     useEffect(() => {
         fetchInventory();
         fetchDryerData();
@@ -117,11 +89,9 @@ function Warehouse() {
             
             // Fetch inventory, warehouses, dryers, and millers as needed
             const [inventoryRes, dryersRes, millersRes] = await Promise.all([
-                fetch(`${apiUrl}/inventory?toLocationType=Warehouse&status=${status}&batchType=milling`, {
-                    headers: { 'API-Key': apiKey }
-                }),
-                fetch(`${apiUrl}/dryers`, { headers: { 'API-Key': apiKey } }),
-                fetch(`${apiUrl}/millers`, { headers: { 'API-Key': apiKey } })
+                fetch(`${apiUrl}/inventory?toLocationType=Warehouse&status=${status}&batchType=milling`),
+                fetch(`${apiUrl}/dryers`),
+                fetch(`${apiUrl}/millers`)
             ]);
     
             // Error handling if any fetch fails
@@ -187,9 +157,7 @@ function Warehouse() {
     
     const fetchDryerData = async () => {
         try {
-            const res = await fetch(`${apiUrl}/dryers`, {
-                headers: { 'API-Key': `${apiKey}` }
-            });
+            const res = await fetch(`${apiUrl}/dryers`);
             if (!res.ok) {
                 throw new Error('Failed to fetch dryer data');
             }
@@ -203,9 +171,7 @@ function Warehouse() {
 
     const fetchMillerData = async () => {
         try {
-            const res = await fetch(`${apiUrl}/millers`, {
-                headers: { 'API-Key': `${apiKey}` }
-            });
+            const res = await fetch(`${apiUrl}/millers`);
             if (!res.ok) {
                 throw new Error('Failed to fetch miller data');
             }
@@ -254,8 +220,7 @@ function Warehouse() {
             const transactionResponse = await fetch(`${apiUrl}/transactions`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': apiKey
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     ...newTransactionData,
@@ -275,8 +240,7 @@ function Warehouse() {
             const palayResponse = await fetch(`${apiUrl}/palaybatches/update`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': apiKey
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     id: selectedItem.id,
@@ -292,8 +256,7 @@ function Warehouse() {
             const oldTransactionResponse = await fetch(`${apiUrl}/transactions/update`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': apiKey
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     id: selectedItem.transactionId,
@@ -337,8 +300,7 @@ function Warehouse() {
             const transactionResponse = await fetch(`${apiUrl}/transactions/update`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': apiKey
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     id: selectedItem.transactionId,

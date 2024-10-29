@@ -15,7 +15,6 @@ const initialRiceAcceptData = {
 
 const AcceptRice = ({ visible, onHide, selectedItem = {}, onAcceptSuccess, user }) => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const apiKey = import.meta.env.VITE_API_KEY;
     const toast = useRef(null);
 
 	const [isLoading, setIsLoading] = useState(false);
@@ -38,9 +37,7 @@ const AcceptRice = ({ visible, onHide, selectedItem = {}, onAcceptSuccess, user 
 
     const fetchRiceBatches = async () => {
         try {
-            const response = await fetch(`${apiUrl}/ricebatches?currentCapacity_lt=${maxBatchCapacity}&isFull=false`, {
-                headers: { 'API-Key': apiKey }
-            });
+            const response = await fetch(`${apiUrl}/ricebatches?currentCapacity_lt=${maxBatchCapacity}&isFull=false`);
             if (!response.ok) throw new Error('Failed to fetch rice batches');
             const data = await response.json();
             setRiceBatches(data);
@@ -105,8 +102,7 @@ const AcceptRice = ({ visible, onHide, selectedItem = {}, onAcceptSuccess, user 
                         await fetch(`${apiUrl}/ricebatches/update?id=${batch.id}`, {
                             method: 'POST',
                             headers: {
-                                'Content-Type': 'application/json',
-                                'API-Key': apiKey
+                                'Content-Type': 'application/json'
                             },
                             body: JSON.stringify({
                                 id: batch.id,
@@ -119,8 +115,7 @@ const AcceptRice = ({ visible, onHide, selectedItem = {}, onAcceptSuccess, user 
                         await fetch(`${apiUrl}/ricemillingbatches`, {
                             method: 'POST',
                             headers: {
-                                'Content-Type': 'application/json',
-                                'API-Key': apiKey
+                                'Content-Type': 'application/json'
                             },
                             body: JSON.stringify({
                                 riceBatchId: batch.id,
@@ -139,8 +134,7 @@ const AcceptRice = ({ visible, onHide, selectedItem = {}, onAcceptSuccess, user 
                     const createResponse = await fetch(`${apiUrl}/ricebatches`, {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json',
-                            'API-Key': apiKey
+                            'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
                             name: batch.riceBatchName,
@@ -158,8 +152,7 @@ const AcceptRice = ({ visible, onHide, selectedItem = {}, onAcceptSuccess, user 
                     await fetch(`${apiUrl}/ricemillingbatches`, {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json',
-                            'API-Key': apiKey
+                            'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
                             riceBatchId: newBatch.id,
@@ -179,8 +172,7 @@ const AcceptRice = ({ visible, onHide, selectedItem = {}, onAcceptSuccess, user 
                 await fetch(`${apiUrl}/transactions/update`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'API-Key': apiKey
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
                         id: selectedItem.transactionId,

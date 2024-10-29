@@ -16,7 +16,6 @@ import { useAuth } from '../../../Authentication/Login/AuthContext';
 
 function RiceReceive() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const apiKey = import.meta.env.VITE_API_KEY;
     const { user } = useAuth();
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [filters, setFilters] = useState({
@@ -41,9 +40,7 @@ function RiceReceive() {
 
     const fetchData = async () => {
         try {
-            const res = await fetch(`${apiUrl}/riceorders?riceRecipientId=${user.id}&status=Accepted&status=In%20Transit&status=Received`, {
-                headers: { 'API-Key': `${apiKey}` }
-            });
+            const res = await fetch(`${apiUrl}/riceorders?riceRecipientId=${user.id}&status=Accepted&status=In%20Transit&status=Received`);
             if(!res.ok) {
                 throw new Error('Failed to fetch rice orders')
             }

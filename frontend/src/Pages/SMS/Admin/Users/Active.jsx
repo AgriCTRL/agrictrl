@@ -12,7 +12,6 @@ import UserDetails from './UserDetails';
 function Active() {
     
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const apiKey = import.meta.env.VITE_API_KEY;
     const toast = useRef(null);
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [selectedUser, setSelectedUser] = useState(null);
@@ -21,9 +20,7 @@ function Active() {
 
     const fetchActiveUsers = async () => {
         try {
-            const res = await fetch(`${apiUrl}/users?status=Active`, {
-                headers: { 'API-Key': `${apiKey}` }
-            });
+            const res = await fetch(`${apiUrl}/users?status=Active`);
             if(!res.ok) {
                 throw new Error('Failed to fetch active users');
             }

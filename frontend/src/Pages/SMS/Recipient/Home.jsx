@@ -8,7 +8,6 @@ import { useNavigate } from 'react-router-dom';
 
 function Home({ isRightSidebarOpen }) {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const apiKey = import.meta.env.VITE_API_KEY;
     const { user } = useAuth();
     const navigate = useNavigate();
     const [carouselItems] = useState([
@@ -37,9 +36,7 @@ function Home({ isRightSidebarOpen }) {
 
     const fetchData = async () => {
         try {
-            const res = await fetch(`${apiUrl}/riceorders?riceRecipientId=${user.id}&status=For%20Approval`, {
-                headers: { 'API-Key': `${apiKey}`}
-            });
+            const res = await fetch(`${apiUrl}/riceorders?riceRecipientId=${user.id}&status=For%20Approval`);
             const data = await res.json();
             setRiceOrders(data);
         }

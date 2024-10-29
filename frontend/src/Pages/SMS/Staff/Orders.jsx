@@ -17,7 +17,6 @@ import { useAuth } from '../../Authentication/Login/AuthContext';
 
 function Orders() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const apiKey = import.meta.env.VITE_API_KEY;
     const toast = useRef();
     const { user } = useAuth();
 
@@ -33,9 +32,7 @@ function Orders() {
 
     const fetchRecipients = async () => {
         try {
-            const res = await fetch(`${apiUrl}/users?userType=Rice%20Recipient`, {
-                headers: { 'API-Key': `${apiKey}`}
-            });
+            const res = await fetch(`${apiUrl}/users?userType=Rice%20Recipient`);
             const data = await res.json();
             if (!res.ok) {
                 throw new Error('failed to fetch rice recipients');
@@ -52,9 +49,7 @@ function Orders() {
     
     const fetchOrders = async () => {
         try {
-            const res = await fetch(`${apiUrl}/riceorders`, {
-                headers: { 'API-Key': `${apiKey}`}
-            });
+            const res = await fetch(`${apiUrl}/riceorders`);
             const data = await res.json();
             if (!res.ok) {
                 throw new Error('failed to fetch rice orders');
@@ -71,9 +66,7 @@ function Orders() {
 
     const fetchRiceBatches = async () => {
         try {
-            const res = await fetch(`${apiUrl}/ricebatches?isFull=true`, {
-                headers: { 'API-Key': `${apiKey}` }
-            });
+            const res = await fetch(`${apiUrl}/ricebatches?isFull=true`);
             const data = await res.json();
             if (!res.ok) {
                 throw new Error('failed to fetch rice batches');
@@ -242,8 +235,7 @@ function Orders() {
             const res = await fetch(`${apiUrl}/riceorders/update`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': `${apiKey}`
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(order)
             });
@@ -292,8 +284,7 @@ function Orders() {
             const res = await fetch(`${apiUrl}/riceorders/update`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': `${apiKey}`
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(order)
             });
@@ -413,7 +404,6 @@ function Orders() {
             const transactionRes = await fetch(`${apiUrl}/transactions`, {
                 method: 'POST',
                 headers: {
-                    'API-Key': `${apiKey}`,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(transactionBody)
@@ -421,7 +411,6 @@ function Orders() {
             const riceOrderRes = await fetch(`${apiUrl}/riceorders/update`, {
                 method: 'POST',
                 headers: {
-                    'API-Key': `${apiKey}`,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(riceOrderBody)

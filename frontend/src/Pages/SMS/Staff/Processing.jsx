@@ -61,7 +61,6 @@ const initialTransactionData = {
 
 const Processing = () => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const apiKey = import.meta.env.VITE_API_KEY;
     const toast = useRef(null);
     const { user } = useAuth();
 
@@ -137,9 +136,9 @@ const Processing = () => {
                 inventoryRes,
                 warehousesRes
             ] = await Promise.all([
-                fetch(`${apiUrl}/${processType}s`, { headers: { 'API-Key': apiKey } }),
-                fetch(`${apiUrl}/inventory?toLocationType=${locationType}&status=${status}&batchType=${batchType}&millerType=${millerType}`, { headers: { 'API-Key': apiKey } }),
-                fetch(`${apiUrl}/warehouses`, { headers: { 'API-Key': apiKey } })
+                fetch(`${apiUrl}/${processType}s`),
+                fetch(`${apiUrl}/inventory?toLocationType=${locationType}&status=${status}&batchType=${batchType}&millerType=${millerType}`),
+                fetch(`${apiUrl}/warehouses`)
             ]);
     
             if (!facilitiesRes.ok || !inventoryRes.ok || !warehousesRes.ok) {
@@ -200,11 +199,7 @@ const Processing = () => {
 
     const fetchActiveWarehouses = async () => {
         try {
-            const response = await fetch(`${apiUrl}/warehouses?status=Active`, {
-                headers: {
-                    'API-Key': apiKey
-                }
-            });
+            const response = await fetch(`${apiUrl}/warehouses?status=Active`);
 
             if (!response.ok) {
                 throw new Error('Failed to fetch warehouses');
@@ -261,8 +256,7 @@ const Processing = () => {
             const transactionResponse = await fetch(`${apiUrl}/transactions/update`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': apiKey
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     id: selectedItem.transactionId,
@@ -281,8 +275,7 @@ const Processing = () => {
             const palayResponse = await fetch(`${apiUrl}/palaybatches/update`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': apiKey
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     id: selectedItem.palayBatchId,
@@ -312,8 +305,7 @@ const Processing = () => {
                 const dryingResponse = await fetch(`${apiUrl}/dryingbatches`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'API-Key': apiKey
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(dryingBatchData)
                 });
@@ -338,8 +330,7 @@ const Processing = () => {
                 const millingResponse = await fetch(`${apiUrl}/millingbatches`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'API-Key': apiKey
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(millingBatchData)
                 });
@@ -416,8 +407,7 @@ const Processing = () => {
             const response = await fetch(`${apiUrl}/${endpoint}/update`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': apiKey
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(updateData)
             });
@@ -430,8 +420,7 @@ const Processing = () => {
             const palayResponse = await fetch(`${apiUrl}/palaybatches/update`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': apiKey
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     id: selectedItem.palayBatchId,
@@ -483,8 +472,7 @@ const Processing = () => {
             const updateTransactionResponse = await fetch(`${apiUrl}/transactions/update`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': apiKey
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     id: selectedItem.transactionId,
@@ -500,8 +488,7 @@ const Processing = () => {
             const palayResponse = await fetch(`${apiUrl}/palaybatches/update`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': apiKey
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     id: selectedItem.palayBatchId,
@@ -530,8 +517,7 @@ const Processing = () => {
             const createTransactionResponse = await fetch(`${apiUrl}/transactions`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': apiKey
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(newTransaction)
             });

@@ -16,7 +16,6 @@ import { useAuth } from '../../../Authentication/Login/AuthContext';
 
 function BuyPalay() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const apiKey = import.meta.env.VITE_API_KEY;
     const toast = useRef(null);
     const { user } = useAuth();
 
@@ -45,9 +44,7 @@ function BuyPalay() {
 
     const fetchPalayData = async () => {
         try {
-            const response = await fetch(`${apiUrl}/palaybatches`, {
-                headers: { 'API-Key': `${apiKey}` }
-            });
+            const response = await fetch(`${apiUrl}/palaybatches`);
 
             if (!response.ok) {
                 throw new Error('Failed to fetch palay data');

@@ -26,7 +26,6 @@ function BuyRice({ visible, onHide, onRiceOrdered }) {
     const { user } = useAuth();
     const toast = useRef(null);
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const apiKey = import.meta.env.VITE_API_KEY;
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
@@ -152,8 +151,7 @@ function BuyRice({ visible, onHide, onRiceOrdered }) {
             const res = await fetch(`${apiUrl}/riceorders`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': `${apiKey}`
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(riceOrder)
             })

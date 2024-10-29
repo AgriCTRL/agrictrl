@@ -9,7 +9,6 @@ import { useAuth } from '../../Authentication/Login/AuthContext';
 
 function ManageMiller() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const apiKey = import.meta.env.VITE_API_KEY;
     const { user } = useAuth();
     const toast = React.useRef(null);
 
@@ -50,16 +49,12 @@ function ManageMiller() {
     const fetchUserAndMillerData = async () => {
         setIsLoading(true);
         try {
-            const userRes = await fetch(`${apiUrl}/users/${user.id}`, {
-                headers: { 'API-Key': apiKey },
-            });
+            const userRes = await fetch(`${apiUrl}/users/${user.id}`);
             
             if (!userRes.ok) throw new Error('Failed to fetch user data');
             const userData = await userRes.json();
             
-            const millersRes = await fetch(`${apiUrl}/millers`, {
-                headers: { 'API-Key': apiKey },
-            });
+            const millersRes = await fetch(`${apiUrl}/millers`);
             
             if (!millersRes.ok) throw new Error('Failed to fetch millers data');
             const millersData = await millersRes.json();
@@ -132,8 +127,7 @@ function ManageMiller() {
             const res = await fetch(`${apiUrl}/millers`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': apiKey
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(millerData)
             });
@@ -173,8 +167,7 @@ function ManageMiller() {
             const res = await fetch(`${apiUrl}/millers/update`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': `${apiKey}`
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(millerData)
             });

@@ -28,7 +28,6 @@ import { validate } from 'uuid';
 const loginUser = async (email, password, userType) => {
   const authClient = await AuthClient.create();
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
-  const apiKey = import.meta.env.VITE_API_KEY;
   const internetIdentityUrl = import.meta.env.VITE_INTERNET_IDENTITY_URL;
   
   const identityLogIn = async () => {
@@ -62,8 +61,7 @@ const loginUser = async (email, password, userType) => {
     const response = await fetch(`${apiUrl}/users/login`, {
       method: "POST",
       headers: { 
-        'Content-Type': 'application/json',
-        'API-Key': `${apiKey}`
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({ email, password, userType })
     });
@@ -82,8 +80,7 @@ const loginUser = async (email, password, userType) => {
             const res = await fetch(`${apiUrl}/users/update`, {
               method: 'POST',
               headers: { 
-                'Content-Type': 'application/json',
-                'API-Key': `${apiKey}`
+                'Content-Type': 'application/json'
               },
               body: JSON.stringify({ id: user.id, principal: newPrincipal })
             });

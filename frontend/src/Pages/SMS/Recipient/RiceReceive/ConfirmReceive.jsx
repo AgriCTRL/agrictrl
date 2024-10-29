@@ -12,7 +12,6 @@ function ConfirmReceive({ visible, onHide, data, onConfirmReceive }) {
     const [formData, setFormData] = useState([]);
     const [showConfirmation, setShowConfirmation] = useState(false);
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const apiKey = import.meta.env.VITE_API_KEY;
     const toast = useRef(null);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -48,9 +47,7 @@ function ConfirmReceive({ visible, onHide, data, onConfirmReceive }) {
         setIsLoading(true);
 
         try {
-            const getTransactionRes = await fetch(`${apiUrl}/transactions/toLocation/${data.id}`, {
-                headers: { 'API-Key': `${apiKey}` }
-            });
+            const getTransactionRes = await fetch(`${apiUrl}/transactions/toLocation/${data.id}`);
             const transactionData = await getTransactionRes.json();
             const transactionId = transactionData.id;
 
@@ -66,8 +63,7 @@ function ConfirmReceive({ visible, onHide, data, onConfirmReceive }) {
             const transactionRes = await fetch(`${apiUrl}/transactions/update`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': `${apiKey}`
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(transactionBody)
             });
@@ -75,8 +71,7 @@ function ConfirmReceive({ visible, onHide, data, onConfirmReceive }) {
             const riceOrderRes = await fetch(`${apiUrl}/riceorders/update`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'API-Key': `${apiKey}`
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(riceOrderBody)
             });

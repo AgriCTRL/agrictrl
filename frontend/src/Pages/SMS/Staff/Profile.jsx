@@ -13,7 +13,6 @@ import { useAuth } from '../../Authentication/Login/AuthContext';
 
 function Profile() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const apiKey = import.meta.env.VITE_API_KEY;
     const { user, logout } = useAuth();
     const toast = useRef(null);
     const [activeTab, setActiveTab] = useState('personal');
@@ -106,9 +105,7 @@ function Profile() {
 
     const fetchData = async () => {
         try {
-            const res = await fetch(`${apiUrl}/users/${user.id}`, {
-                headers: { 'API-Key': `${apiKey}` },
-            });
+            const res = await fetch(`${apiUrl}/users/${user.id}`);
             const data = await res.json();
             setUserData({
                 personalInfo: {
@@ -424,8 +421,7 @@ function Profile() {
             const userResponse = await fetch(`${apiUrl}/users/update`, {
                 method: 'POST',
                 headers: { 
-                    'Content-Type': 'application/json',
-                    'API-Key': `${apiKey}`
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(userUpdateData),
             });
@@ -448,8 +444,7 @@ function Profile() {
             const addressResponse = await fetch(`${apiUrl}/officeaddresses/update`, {
                 method: 'POST',
                 headers: { 
-                    'Content-Type': 'application/json',
-                    'API-Key': `${apiKey}`
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(officeAddressData),
             });

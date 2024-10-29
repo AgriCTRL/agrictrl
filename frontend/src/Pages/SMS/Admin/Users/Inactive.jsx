@@ -11,7 +11,6 @@ import UserDetails from './UserDetails';
 
 function Inactive() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const apiKey = import.meta.env.VITE_API_KEY;
     const toast = useRef(null);
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [selectedUser, setSelectedUser] = useState(null);
@@ -20,9 +19,7 @@ function Inactive() {
 
     const fetchInactiveUsers = async () => {
         try {
-            const res = await fetch(`${apiUrl}/users?status=Inactive`, {
-                headers: { 'API-Key': `${apiKey}` }
-            });
+            const res = await fetch(`${apiUrl}/users?status=Inactive`);
             if(!res.ok) {
                 throw new Error('Failed to fetch inactive users');
             }
