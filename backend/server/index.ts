@@ -17,9 +17,8 @@ import { getRouter as getRouterRiceOrder} from '../entities/riceorders/router';
 import { getRouter as getRouterTransaction} from '../entities/transactions/router';
 import { getRouter as getRouterFarm } from '../entities/farms/router';
 import { getRouter as getRouterHouseOfficeAddress } from '../entities/houseofficeaddresses/router';
-import { getRouter as getRouterRiceMillingBatches } from '../entities/ricemillingbatches/router';
+import { getRouter as getRouterRiceMillingBatches } from '../entities/riceBatchMillingBatches/router';
 import { getRouter as getRouterInventory } from '../entities/inventory/router';
-
 
 
 // TODO make this function's return type explicit https://github.com/demergent-labs/azle/issues/1860

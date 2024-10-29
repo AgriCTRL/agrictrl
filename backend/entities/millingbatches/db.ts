@@ -1,4 +1,5 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { RiceBatchMillingBatch } from '../riceBatchMillingBatches/db';
 
 @Entity()
 export class MillingBatch extends BaseEntity {
@@ -37,6 +38,9 @@ export class MillingBatch extends BaseEntity {
 
     @Column({ default: 'in progress'})
     status: string;
+
+    @OneToMany(() => RiceBatchMillingBatch, riceBatchMillingBatch => riceBatchMillingBatch.millingBatch)
+    riceBatchMillingBatches: RiceBatchMillingBatch[];
 }
 
 export type MillingBatchCreate = Pick<MillingBatch, 'dryingBatchId' | 'palayBatchId' | 'millerId' | 'millerType' | 'startDateTime' | 'endDateTime' | 'milledQuantityBags' | 'milledGrossWeight' | 'milledNetWeight' | 'millingEfficiency' | 'status' >;

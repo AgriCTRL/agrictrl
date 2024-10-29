@@ -29,7 +29,7 @@ import StaffHome from "./SMS/Staff/Home";
 import StaffBuyPalay from "./SMS/Staff/BuyPalay/BuyPalay";
 import StaffOrders from "./SMS/Staff/Orders";
 import StaffProcessing from "./SMS/Staff/Processing";
-import StaffWarehouse from "./SMS/Staff/Warehouse";
+import StaffWarehouse from "./SMS/Staff/Warehouse/Warehouse";
 import StaffProfile from "./SMS/Staff/Profile";
 
 import RecipientHome from "./SMS/Recipient/Home";
