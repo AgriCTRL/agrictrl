@@ -99,7 +99,7 @@ const AppNavbar = () => {
 
                 <Divider 
                     layout="vertical"
-                    className='bg-primary m-0 py-3 opacity-30 hidden sm:block' 
+                    className='m-0 py-3 opacity-30 hidden sm:block' 
                 />
                 <Button 
                     className='text-white hover:text-primary ring-0'

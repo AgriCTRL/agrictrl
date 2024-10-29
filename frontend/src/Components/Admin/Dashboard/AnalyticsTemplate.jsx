@@ -13,7 +13,7 @@ const AnalyticsTemplate = ({
     graphOptions
 }) => {
     return (
-        <CardComponent className="bg-white w-full flex-col gap-8">
+        <CardComponent className="bg-white w-full flex-col gap-8 col-start-1 col-end-3 row-start-1 row-end-2">
             <div className='w-full flex justify-between'>
                 <div className="title flex gap-4 text-black">
                     {headerIcon}

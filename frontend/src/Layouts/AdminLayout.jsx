@@ -110,9 +110,17 @@ function AdminLayout({ children, activePage }) {
     };
 
     return (
-        <div className="flex h-screen w-screen bg-[#F1F5F9] pr-5">
+        <div className="flex h-screen w-screen bg-[#F1F5F9] pr-6">
             {/* Sidebar */}
-            <AdminSidebarComponent expanded={expanded}> {/* Ensure full height */}
+            <AdminSidebarComponent 
+                expanded={expanded}
+                items={{
+                    user: name,
+                    avatar: '/profileAvatar.png',
+                    user_type: 'Staff',
+                    title: activePage,
+                }} 
+            > {/* Ensure full height */}
                 {sidebarItems.map((item, index) => (
                     <SidebarItem
                         key={index}

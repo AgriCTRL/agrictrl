@@ -6,10 +6,13 @@ import { Tag } from 'primereact/tag';
 import { FilterMatchMode } from 'primereact/api';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
-
-import { Search, CircleAlert, Settings2, FileX } from 'lucide-react';
+import { IconField } from 'primereact/iconfield';
+import { InputIcon } from 'primereact/inputicon';
+        
+import { Search, CircleAlert, Settings2, FileX, Download, Filter, PackageOpen } from 'lucide-react';
 
 import AdminLayout from '@/Layouts/AdminLayout';
+import EmptyRecord from '../../../Components/EmptyRecord';
 import pdfExport from '../../../Components/pdfExport';
 
 function Inventory() { 
@@ -115,34 +118,36 @@ function Inventory() {
 
     return (
         <AdminLayout activePage="Inventory">
-            <div className="flex flex-col h-full px-4 py-2">
+            <div className="flex flex-col h-full gap-4">
                 {/* Header */}
-                <div className="mb-4">
-                    <div className="flex items-center justify-between">
-                        <span className="p-input-icon-left w-1/2 mr-4">
-                            <Search className="text-primary ml-2 -translate-y-1"/>
-                            <InputText 
-                                type="search"
-                                value={globalFilterValue} 
-                                onChange={(e) => setGlobalFilterValue(e.target.value)} 
-                                placeholder="Tap to Search" 
-                                className="w-full pl-10 pr-4 py-2 rounded-lg placeholder-gray-500 text-primary border border-gray-300 ring-0 placeholder:text-primary"
-                            />
-                        </span>
+                <div className="flex items-center justify-between gap-4">
+                    <IconField iconPosition="left" className="w-1/2">
+                        <InputIcon className="pi pi-search text-light-grey"></InputIcon>
+                        <InputText 
+                            placeholder="Tap to Search" 
+                            type="search"
+                            value={globalFilterValue} 
+                            onChange={(e) => setGlobalFilterValue(e.target.value)}
+                            className='w-full ring-0 hover:border-primary focus:border-primary placeholder:text-light-grey' 
+                        />
+                    </IconField>
+                    <div className="flex justify-between w-1/2">
+                        <Button 
+                            type="button"
+                            className="flex flex-center items-center gap-4 text-primary bg-white hover:bg-white/35 border border-lightest-grey ring-0"
+                        >
+                            <Filter size={20} />
+                            <p className="font-semibold">Filters</p>
+                        </Button>
 
-                        <div className="flex flex-row w-1/2 justify-between">
-                            <Button 
-                                icon={<Settings2 className="mr-2 text-primary" />}
-                                label="Filters" 
-                                className="p-button-success text-primary border border-gray-300 rounded-md bg-white p-2 w-1/16" />
-
-                            <Button 
-                                icon={<FileX className="mr-2" />} 
-                                label="Export" 
-                                onClick={exportPdf}
-                                className="p-button-success text-primary border border-primary rounded-md bg-transparent p-2 w-1/16" />
-                        </div>
-
+                        <Button 
+                            type="button"
+                            className="flex flex-center items-center gap-4 bg-primary hover:bg-primaryHover border ring-0"
+                            onClick={exportPdf}
+                        >
+                            <Download size={20} />
+                            <p className="font-semibold">Export</p>
+                        </Button>
                     </div>
                 </div>
 
@@ -157,7 +162,7 @@ function Inventory() {
                             className="p-datatable-sm pt-5"
                             filters={filters}
                             globalFilterFields={['trackingId', 'qualityType', 'status', 'farmer', 'originFarm']}
-                            emptyMessage="No inventory found."
+                            emptyMessage="No records found."
                             paginator
                             rows={30}
                             tableStyle={{ minWidth: '3100px' }}
