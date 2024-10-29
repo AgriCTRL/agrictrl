@@ -60,7 +60,6 @@ function Warehouse() {
     const [dryerData, setDryerData] = useState([]);
 
     const [newTransactionData, setNewTransactionData] = useState(initialTransactionData);
-<<<<<<< HEAD:frontend/src/Pages/SMS/Staff/Warehouse.jsx
     
     useEffect(() => {
         const newFilters = {
@@ -73,8 +72,6 @@ function Warehouse() {
         setGlobalFilterValue(e.target.value);
     };
 
-    
-=======
     // const updateRiceBatchAndJunction = async (riceBatchData) => {
     //     // Update the rice batch
     //     await fetch(`${apiUrl}/ricebatches/${riceBatchData.id}`, {
@@ -101,7 +98,6 @@ function Warehouse() {
     //         })
     //     });
     //   };
->>>>>>> main:frontend/src/Pages/SMS/Staff/Warehouse/Warehouse.jsx
 
     useEffect(() => {
         fetchInventory();
