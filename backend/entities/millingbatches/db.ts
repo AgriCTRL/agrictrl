@@ -90,7 +90,6 @@ export async function createMillingBatch(millingBatchCreate: MillingBatchCreate)
 }
 
 export async function updateMillingBatch(millingBatchUpdate: MillingBatchUpdate): Promise<MillingBatch> {
-    console.log('millingBatchUpdate', millingBatchUpdate);
 
     await MillingBatch.update(millingBatchUpdate.id, {
         dryingBatchId: millingBatchUpdate.dryingBatchId,

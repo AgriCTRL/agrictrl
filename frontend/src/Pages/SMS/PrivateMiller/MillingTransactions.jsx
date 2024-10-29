@@ -53,6 +53,7 @@ const MillingTransactions = () => {
     const [filters, setFilters] = useState({
         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     });
+    const [isLoading, setIsLoading] = useState(false);
     const [selectedFilter, setSelectedFilter] = useState('request');
     const [selectedItem, setSelectedItem] = useState(null);
     
@@ -192,6 +193,7 @@ const MillingTransactions = () => {
             return;
         }
     
+        setIsLoading(true);
         try {
             // Update transaction status to "Received"
             const transactionResponse = await fetch(`${apiUrl}/transactions/update`, {
@@ -274,6 +276,8 @@ const MillingTransactions = () => {
                 detail: `Failed to process acceptance: ${error.message}`,
                 life: 3000
             });
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -283,6 +287,7 @@ const MillingTransactions = () => {
             return;
         }
     
+        setIsLoading(true);
         try {
             const updateData = {
                 id: selectedItem.processingBatchId,
@@ -346,6 +351,8 @@ const MillingTransactions = () => {
                 detail: `Failed to complete process: ${error.message}`,
                 life: 3000
             });
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -360,6 +367,7 @@ const MillingTransactions = () => {
             return;
         }
 
+        setIsLoading(true);
         try {
             // Update current transaction to Completed
             const updateTransactionResponse = await fetch(`${apiUrl}/transactions/update`, {
@@ -441,6 +449,8 @@ const MillingTransactions = () => {
                 detail: `Failed to process return: ${error.message}`,
                 life: 3000
             });
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -630,26 +640,26 @@ const MillingTransactions = () => {
                     </DataTable>
                     </div>
                 </div>
-
             </div>
 
             {/* Accept Dialog */}
-            <Dialog header={`Receive Palay`} visible={showAcceptDialog} onHide={() => setShowAcceptDialog(false)} className="w-1/3">
+            <Dialog header={`Receive Palay`} visible={showAcceptDialog} onHide={isLoading ? null : () => setShowAcceptDialog(false)} className="w-1/3">
                 <div className="flex flex-col items-center">
                     <p className="mb-10">Are you sure you want to receive this request?</p>
                     <div className="flex justify-between w-full gap-4">
-                        <Button label="Cancel" className="w-1/2 bg-transparent text-primary border-primary" onClick={() => setShowAcceptDialog(false)} />
+                        <Button label="Cancel" className="w-1/2 bg-transparent text-primary border-primary" onClick={() => setShowAcceptDialog(false)} disabled={isLoading}/>
                         <Button 
                             label="Confirm Receive" 
                             className="w-1/2 bg-primary hover:border-none" 
                             onClick={handleAccept}
+                            disabled={isLoading}
                         />
                     </div>
                 </div>
             </Dialog>
 
             {/* Process Dialog */}
-            <Dialog header={`Complete Milling Process`} visible={showProcessDialog} onHide={() => setProcessDialog(false)} className="w-1/3">
+            <Dialog header={`Complete Milling Process`} visible={showProcessDialog} onHide={isLoading ? null : () => setProcessDialog(false)} className="w-1/3">
                 <div className="flex flex-col gap-4">
                     <div className="w-full">
                         <label className="block mb-2">Quantity in Bags</label>
@@ -689,14 +699,14 @@ const MillingTransactions = () => {
                     </div>
                     
                     <div className="flex justify-between gap-4 mt-4">
-                        <Button label="Cancel" className="w-1/2 bg-transparent text-primary border-primary" onClick={() => setProcessDialog(false)} />
-                        <Button label="Complete Process" className="w-1/2 bg-primary hover:border-none" onClick={handleProcess} />
+                        <Button label="Cancel" className="w-1/2 bg-transparent text-primary border-primary" onClick={() => setProcessDialog(false)} disabled={isLoading}/>
+                        <Button label="Complete Process" className="w-1/2 bg-primary hover:border-none" onClick={handleProcess} disabled={isLoading}/>
                     </div>
                 </div>
             </Dialog>
 
             {/* Return Dialog */}
-            <Dialog header={`Return Rice`} visible={showReturnDialog} onHide={() => {setShowReturnDialog(false); }} className="w-1/3">
+            <Dialog header={`Return Rice`} visible={showReturnDialog} onHide={isLoading ? null : () => {setShowReturnDialog(false); }} className="w-1/3">
                 <div className="flex flex-col w-full gap-4">
                     <div className="w-full">
                         <label className="block mb-2">Warehouse</label>
@@ -755,6 +765,7 @@ const MillingTransactions = () => {
                         <Button 
                             label="Cancel" 
                             className="w-1/2 bg-transparent text-primary border-primary" 
+                            disabled={isLoading}
                             onClick={() => {
                                 setShowReturnDialog(false);
                                 setNewTransactionData(initialTransactionData);
@@ -764,6 +775,7 @@ const MillingTransactions = () => {
                             label="Confirm Return" 
                             className="w-1/2 bg-primary hover:border-none" 
                             onClick={handleReturn}
+                            disabled={isLoading}
                         />
                     </div>
                 </div>

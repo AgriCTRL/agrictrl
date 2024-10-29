@@ -73,6 +73,7 @@ const Processing = () => {
     const [viewMode, setViewMode] = useState('drying');
     const [selectedFilter, setSelectedFilter] = useState('request');
     const [selectedItem, setSelectedItem] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
     
     // Dialog states
     const [showAcceptDialog, setShowAcceptDialog] = useState(false);
@@ -150,8 +151,6 @@ const Processing = () => {
                 inventoryRes.json(),
                 warehousesRes.json()
             ]);
-
-            console.log('Raw inventory data:', inventory); // Add this for debugging
     
             // Update facility states based on viewMode
             if (viewMode === 'drying') {
@@ -253,10 +252,10 @@ const Processing = () => {
 
     const handleAccept = async () => {
         if (!selectedItem) {
-            console.error('No item selected');
             return;
         }
     
+        setIsLoading(false);
         try {
             // 1. Update transaction status to "Received"
             const transactionResponse = await fetch(`${apiUrl}/transactions/update`, {
@@ -369,15 +368,17 @@ const Processing = () => {
                 detail: `Failed to process acceptance: ${error.message}`,
                 life: 3000
             });
+        } finally {
+            setIsLoading(false);
         }
     };
 
     const handleProcess = async () => {
         if (!selectedItem) {
-            console.error('No item selected');
             return;
         }
     
+        setIsLoading(true);
         try {
             let updateData;
             let endpoint;
@@ -410,7 +411,6 @@ const Processing = () => {
                     status: 'Done'
                 };
                 endpoint = 'millingbatches';
-                console.log("updateData ", updateData)
             }
     
             const response = await fetch(`${apiUrl}/${endpoint}/update`, {
@@ -461,6 +461,8 @@ const Processing = () => {
                 detail: `Failed to complete process: ${error.message}`,
                 life: 3000
             });
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -475,6 +477,7 @@ const Processing = () => {
             return;
         }
 
+        setIsLoading(true);
         try {
             // 1. Update current transaction to Completed
             const updateTransactionResponse = await fetch(`${apiUrl}/transactions/update`, {
@@ -556,6 +559,8 @@ const Processing = () => {
                 detail: `Failed to process return: ${error.message}`,
                 life: 3000
             });
+        } finally {
+            setIsLoading(false);
         }
     };
     
@@ -820,22 +825,23 @@ const Processing = () => {
             </div>
 
             {/* Accept Dialog */}
-            <Dialog header={`Receive ${viewMode}`} visible={showAcceptDialog} onHide={() => setShowAcceptDialog(false)} className="w-1/3">
+            <Dialog header={`Receive ${viewMode}`} visible={showAcceptDialog} onHide={isLoading ? null : () => setShowAcceptDialog(false)} className="w-1/3">
                 <div className="flex flex-col items-center">
                     <p className="mb-10">Are you sure you want to receive this request?</p>
                     <div className="flex justify-between w-full gap-4">
-                        <Button label="Cancel" className="w-1/2 bg-transparent text-primary border-primary" onClick={() => setShowAcceptDialog(false)} />
+                        <Button label="Cancel" className="w-1/2 bg-transparent text-primary border-primary" onClick={() => setShowAcceptDialog(false)} disabled={isLoading}/>
                         <Button 
                             label="Confirm Receive" 
                             className="w-1/2 bg-primary hover:border-none" 
                             onClick={handleAccept}
+                            disabled={isLoading}
                         />
                     </div>
                 </div>
             </Dialog>
 
             {/* Process Dialog */}
-            <Dialog header={`Complete ${viewMode} Process`} visible={showProcessDialog} onHide={() => setProcessDialog(false)} className="w-1/3">
+            <Dialog header={`Complete ${viewMode} Process`} visible={showProcessDialog} onHide={isLoading ? null : () => setProcessDialog(false)} className="w-1/3">
                 <div className="flex flex-col gap-4">
                     {viewMode === 'drying' ? (
                         <>
@@ -885,7 +891,6 @@ const Processing = () => {
                                     ]}
                                     onChange={(e) => {
                                         setNewDryingData(prev => {
-                                            console.log('Updating drying method:', e.value);
                                             return { ...prev, dryingMethod: e.value };
                                         });
                                     }}
@@ -936,14 +941,14 @@ const Processing = () => {
                     )}
                     
                     <div className="flex justify-between gap-4 mt-4">
-                        <Button label="Cancel" className="w-1/2 bg-transparent text-primary border-primary" onClick={() => setProcessDialog(false)} />
-                        <Button label="Complete Process" className="w-1/2 bg-primary hover:border-none" onClick={handleProcess} />
+                        <Button label="Cancel" className="w-1/2 bg-transparent text-primary border-primary" onClick={() => setProcessDialog(false)} disabled={isLoading}/>
+                        <Button label="Complete Process" className="w-1/2 bg-primary hover:border-none" onClick={handleProcess} disabled={isLoading}/>
                     </div>
                 </div>
             </Dialog>
 
             {/* Return Dialog */}
-            <Dialog header={`Return ${viewMode === 'drying' ? 'Palay' : 'Rice'}`} visible={showReturnDialog} onHide={() => {setShowReturnDialog(false); }} className="w-1/3">
+            <Dialog header={`Return ${viewMode === 'drying' ? 'Palay' : 'Rice'}`} visible={showReturnDialog} onHide={isLoading ? null : () => {setShowReturnDialog(false); }} className="w-1/3">
                 <div className="flex flex-col w-full gap-4">
                     <div className="w-full">
                         <label className="block mb-2">Warehouse</label>
@@ -1006,11 +1011,13 @@ const Processing = () => {
                                 setShowReturnDialog(false);
                                 setNewTransactionData(initialTransactionData);
                             }} 
+                            disabled={isLoading}
                         />
                         <Button 
                             label="Confirm Return" 
                             className="w-1/2 bg-primary hover:border-none" 
                             onClick={handleReturn}
+                            disabled={isLoading}
                         />
                     </div>
                 </div>

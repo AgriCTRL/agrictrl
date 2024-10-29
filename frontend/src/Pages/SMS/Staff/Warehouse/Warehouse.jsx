@@ -15,7 +15,7 @@ import { Toast } from 'primereact/toast';
 import { Search, Wheat, CheckCircle, RotateCw } from "lucide-react";
 
 import { useAuth } from '../../../Authentication/Login/AuthContext';
-import AcceptRiceDialog from './AcceptRice';
+import ReceiveRice from './ReceiveRice';
 
 const initialTransactionData = {
     item: 'Palay',
@@ -44,7 +44,7 @@ function Warehouse() {
     const [filters, setFilters] = useState({
         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     });
-    const [loading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const [errors, setErrors] = useState({});
 
     const [viewMode, setViewMode] = useState('requests');
@@ -231,7 +231,6 @@ function Warehouse() {
         }
         
         if (selectedItem.palayStatus === 'To be Mill') {
-            console.log()
             return millerData
                 .filter(miller => miller.status === 'active')
                 .map(miller => ({
@@ -249,6 +248,7 @@ function Warehouse() {
             return;
         }
     
+        setIsLoading(true);
         try {
             // Create new transaction first
             const transactionResponse = await fetch(`${apiUrl}/transactions`, {
@@ -326,10 +326,13 @@ function Warehouse() {
                 detail: 'Failed to complete the process',
                 life: 3000
             });
+        } finally {
+            setIsLoading(false);
         }
     };
 
-    const handleConfirmReceive = async () => {
+    const handleReceivePalay = async () => {
+        setIsLoading(true);
         try {
             const transactionResponse = await fetch(`${apiUrl}/transactions/update`, {
                 method: 'POST',
@@ -366,6 +369,8 @@ function Warehouse() {
                 detail: 'Failed to update transaction',
                 life: 3000
             });
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -628,7 +633,7 @@ function Warehouse() {
                             field="id" 
                             header={selectedFilter === 'all' ? 'Batch ID' : (selectedFilter === 'rice' ? 'Rice Batch ID' : 'Palay Batch ID')} 
                             className="text-center" headerClassName="text-center" />
-                        <Column field="quantityInBags" header="Quantity In Bags" className="text-center" headerClassName="text-center" />
+                        <Column field="quantityInBags" header="Quantity In Bags" className="text-center" headerClassName="text-center" body={(rowData) => rowData.quantityBags ?? rowData.quantityInBags}/>
                         <Column field="from" header="From" className="text-center" headerClassName="text-center" />
                         <Column 
                             field={viewMode === 'inWarehouse' ? "currentlyAt" : "toBeStoreAt"} 
@@ -655,7 +660,7 @@ function Warehouse() {
             </div>
 
             {/* Send To Dialog */}
-            <Dialog header="Send To" visible={showSendToDialog} onHide={() => setShowSendToDialog(false)} className="w-1/3">
+            <Dialog header="Send To" visible={showSendToDialog} onHide={isLoading ? null : () => setShowSendToDialog(false)} className="w-1/3">
                 <div className="flex flex-col">
                     <div className="mb-4">
                         <label className="block mb-2">Send To</label>
@@ -728,14 +733,14 @@ function Warehouse() {
                     </div>
 
                     <div className="flex justify-between w-full gap-4 mt-4">
-                        <Button label="Cancel" className="w-1/2 bg-transparent text-primary border-primary" onClick={() => setShowSendToDialog(false)} />
-                        <Button label="Send Request" className="w-1/2 bg-primary hover:border-none" onClick={handleSendTo} />
+                        <Button label="Cancel" className="w-1/2 bg-transparent text-primary border-primary" onClick={() => setShowSendToDialog(false)} disabled={isLoading} />
+                        <Button label="Send Request" className="w-1/2 bg-primary hover:border-none" onClick={handleSendTo} disabled={isLoading}/>
                     </div>
                 </div>
             </Dialog>
 
-            {/* Accept Rice Dialog */}
-            <AcceptRiceDialog 
+            {/* Receive Rice Dialog */}
+            <ReceiveRice 
                 visible={showRiceAcceptDialog}
                 onHide={() => setShowRiceAcceptDialog(false)}
                 selectedItem={selectedItem}
@@ -743,8 +748,8 @@ function Warehouse() {
                 user={user}
             />
 
-            {/* Accept Palay Dialog */}
-            <Dialog header="Receive palay" visible={showPalayAcceptDialog} onHide={() => setShowPalayAcceptDialog(false)} className="w-1/3">
+            {/* Receive Palay Dialog */}
+            <Dialog header="Receive palay" visible={showPalayAcceptDialog} onHide={isLoading ? null : () => setShowPalayAcceptDialog(false)} className="w-1/3">
                 <div className="flex flex-col items-center gap-2">
                     <CheckCircle size={32} className="text-primary"/>
                     <p>Are you sure you want to receive this Palay?</p>
@@ -753,7 +758,8 @@ function Warehouse() {
                         <Button 
                             label="Confirm Receive" 
                             className="w-full bg-primary hover:border-none" 
-                            onClick={handleConfirmReceive} 
+                            onClick={handleReceivePalay} 
+                            disabled={isLoading}
                         />
                     </div>
                 </div>

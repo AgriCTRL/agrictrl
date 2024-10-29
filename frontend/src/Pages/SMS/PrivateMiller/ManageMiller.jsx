@@ -28,7 +28,6 @@ function ManageMiller() {
     const [userData, setUserData] = useState(null);
 
     const [editing, setEditing] = useState(false);
-    const [isSubmitting, setIsSubmitting] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [showRegistrationDialog, setShowRegistrationDialog] = useState(false);
     const [isRegistered, setIsRegistered] = useState(false);
@@ -49,9 +48,8 @@ function ManageMiller() {
     }, [userData]);
 
     const fetchUserAndMillerData = async () => {
+        setIsLoading(true);
         try {
-            setIsLoading(true);
-            
             const userRes = await fetch(`${apiUrl}/users/${user.id}`, {
                 headers: { 'API-Key': apiKey },
             });
@@ -128,7 +126,7 @@ function ManageMiller() {
         e.preventDefault();
         if (!validateForm()) return;
         
-        setIsSubmitting(true);
+        setIsLoading(true);
         console.log(millerData);
         try {
             const res = await fetch(`${apiUrl}/millers`, {
@@ -161,7 +159,7 @@ function ManageMiller() {
                 life: 3000
             });
         } finally {
-            setIsSubmitting(false);
+            setIsLoading(false);
         }
     };
 
@@ -169,7 +167,7 @@ function ManageMiller() {
         e.preventDefault();
         if (!validateForm()) return;
         
-        setIsSubmitting(true);
+        setIsLoading(true);
         console.log(millerData)
         try {
             const res = await fetch(`${apiUrl}/millers/update`, {
@@ -199,7 +197,7 @@ function ManageMiller() {
                 life: 3000
             });
         } finally {
-            setIsSubmitting(false);
+            setIsLoading(false);
         }
     };
 
@@ -322,6 +320,7 @@ function ManageMiller() {
                                     label={editing ? "Cancel" : "Edit"}
                                     type="button"
                                     onClick={handleToggleEdit}
+                                    disabled={isLoading}
                                     className={`border h-12 w-24 text-white font-bold ${
                                         editing 
                                             ? 'bg-red-500 hover:bg-red-600' 
@@ -332,7 +331,7 @@ function ManageMiller() {
                             {editing && (
                                 <Button
                                     label="Save Changes"
-                                    disabled={isSubmitting}
+                                    disabled={isLoading}
                                     type="submit"
                                     className='ml-4 p-button-success border h-12 px-4 text-white font-bold bg-green-500 hover:bg-green-600'
                                 />
@@ -347,7 +346,7 @@ function ManageMiller() {
                 visible={showRegistrationDialog}
                 style={{ width: '50vw' }}
                 closable={isRegistered}
-                onHide={() => {
+                onHide={isLoading ? null : () => {
                     if (!isRegistered) {
                         return;
                     }
@@ -359,7 +358,7 @@ function ManageMiller() {
                             label="Register" 
                             icon="pi pi-check" 
                             onClick={handleRegistration} 
-                            disabled={isSubmitting}
+                            disabled={isLoading}
                             className='p-button-success'
                         />
                     </div>
