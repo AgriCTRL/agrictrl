@@ -81,9 +81,6 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
     const toast = useRef(null);
     const { user } = useAuth();
 
-    const [palayId, setPalayId] = useState(null);
-    const palayIdRef = useRef(null); 
-
     const [userData, setUserData] = useState(null);
     const [warehouseData, setWarehouseData] = useState([]);
     const [palayData, setPalayData] = useState({
@@ -152,18 +149,6 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
         { label: 'Farmer', icon: <UserIcon /> },
         { label: 'Palay Info', icon: <CheckIcon /> },
         { label: 'Logistics', icon: <TruckIcon /> }
-    ];
-
-    const options = [
-        { label: 'Station A', value: 'stationA', location: 'Location A' }, 
-        { label: 'Station B', value: 'stationB', location: 'Location B' }, 
-        { label: 'Station C', value: 'stationC', location: 'Location C' }
-    ]; 
-
-    const locationTypeOptions = [
-        { label: 'Warehouse', value: 'warehouse' }, 
-        { label: 'Dryer', value: 'dryer', }, 
-        { label: 'Miller', value: 'miller' }
     ];
 
     const locationOptions = warehouseData
@@ -270,24 +255,6 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
             ...prevState,
             [name]: value,
             status: value === 'Wet' ? 'To be Dry' : value === 'Dry' ? 'To be Mill' : prevState.status
-        }));
-    };
-    
-    const handleStationChange = (e) => {
-        const selectedStation = options.find(option => option.value === e.value);
-        setPalayData(prevState => ({
-            ...prevState,
-            buyingStationName: selectedStation ? selectedStation.label : '',
-            buyingStationLoc: selectedStation ? selectedStation.location : ''
-        }));
-    };
-    
-    const handleLocationType = (e) => {
-        const selectedType = locationTypeOptions.find(option => option.value === e.target.value);
-        setTransactionData(prevState => ({
-            ...prevState,
-            toLocationType: selectedType ? selectedType.label : '',
-            [e.target.name]: e.target.value
         }));
     };
     
@@ -417,10 +384,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
             transactionData={transactionData}
             handlePalayInputChange={handlePalayInputChange}
             handleTransactionInputChange={handleTransactionInputChange}
-            handleStationChange={handleStationChange}
-            handleLocationType={handleLocationType}
             handleLocationId={handleLocationId}
-            options={options}
             locationOptions={locationOptions}
             errors={errors}
         />
@@ -655,6 +619,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                         onClick={activeStep === steps.length - 1 ? handleSubmit : handleNext}
                         disabled={isLoading} 
                         className="py-2 px-14 bg-primary"
+                        loading={isLoading}
                     />
                 </div>
             }

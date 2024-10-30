@@ -15,19 +15,21 @@ export function getRouter(): Router {
     router.get(
         '/',
         async (
-            req: Request<any, any, any, { limit?: string; offset?: string; toLocationType?: string; status?: string }>,
+            req: Request<any, any, any, { limit?: string; offset?: string; toLocationId?: string; toLocationType?: string; status?: string }>,
             res
         ) => {
             const limit = Number(req.query.limit ?? -1);
             const offset = Number(req.query.offset ?? 0);
+            const toLocationId = req.query.toLocationId ? Number(req.query.toLocationId) : undefined;
             const toLocationType = req.query.toLocationType;
             const status = req.query.status;
-
-            const transactions = await getTransactions(limit, offset, toLocationType, status);
-
+    
+            const transactions = await getTransactions(limit, offset, toLocationId, toLocationType, status);
+    
             res.json(transactions);
         }
     );
+    
 
     router.get('/count', async (_req, res) => {
         res.json(await countTransactions());
@@ -43,9 +45,10 @@ export function getRouter(): Router {
 
     router.get('/toLocation/:toLocationId', async (req, res) => {
         const { toLocationId } = req.params;
-
-        const transaction = await getTransactionByToLocationId(Number(toLocationId));
-
+        const toLocationType = req.query.toLocationType as string | undefined;
+    
+        const transaction = await getTransactionByToLocationId(Number(toLocationId), toLocationType);
+    
         res.json(transaction);
     });
 

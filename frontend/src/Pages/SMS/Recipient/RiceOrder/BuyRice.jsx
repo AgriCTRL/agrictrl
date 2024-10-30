@@ -2,11 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
-import { Dropdown } from 'primereact/dropdown';
 import { Calendar } from 'primereact/calendar';
 import { Wheat } from 'lucide-react';
 import { InputTextarea } from 'primereact/inputtextarea';
-import { Divider } from 'primereact/divider';
 import { useAuth } from '../../../Authentication/Login/AuthContext';
 import { Toast } from 'primereact/toast';
 
@@ -22,17 +20,62 @@ const initialFormData = {
 };
 
 function BuyRice({ visible, onHide, onRiceOrdered }) {
-    const [formData, setFormData] = useState(initialFormData);
+    
     const { user } = useAuth();
     const toast = useRef(null);
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
+
+    const [formData, setFormData] = useState(initialFormData);
+    const [riceBatchData, setRiceBatchData] = useState([]);
+    const [totalAvailableQuantity, setTotalAvailableQuantity] = useState(0);
+    const [averagePrice, setAveragePrice] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
+    const [errors, setErrors] = useState({});
 
     useEffect(() => {
         if (visible) {
+            fetchRiceBatchData();
             setFormData(initialFormData);
+            setErrors({});
         }
     }, [visible]);
+
+
+    const fetchRiceBatchData = async () => {
+        try {
+            const res = await fetch(`${apiUrl}/ricebatches`);
+            if (!res.ok) {
+                throw new Error('Failed to fetch rice batch data');
+            }
+            const data = await res.json();
+            
+            // Filter for ricebatches that are for sale
+            const forSaleRiceBatches = data.filter(batch => batch.forSale === true);
+            setRiceBatchData(forSaleRiceBatches);
+
+            // Calculate total available quantity
+            const totalQuantity = forSaleRiceBatches.reduce((sum, batch) => sum + batch.currentCapacity, 0);
+            setTotalAvailableQuantity(totalQuantity);
+
+            // Calculate average price
+            const avgPrice = forSaleRiceBatches.reduce((sum, batch) => sum + batch.price, 0) / forSaleRiceBatches.length;
+            setAveragePrice(avgPrice || 0);
+
+            // Update form data with new average price
+            setFormData(prev => ({
+                ...prev,
+                ricePrice: avgPrice.toFixed(2)
+            }));
+        } catch (error) {
+            console.log(error.message);
+            toast.current.show({ 
+                severity: 'error', 
+                summary: 'Error', 
+                detail: 'Failed to fetch rice batch data', 
+                life: 3000 
+            });
+        }
+    };
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -41,6 +84,26 @@ function BuyRice({ visible, onHide, onRiceOrdered }) {
             if (value && !/^\d*$/.test(value)) {
                 return;
             }
+
+            // Check if quantity exceeds available amount
+            const numValue = parseInt(value) || 0;
+            if (numValue > totalAvailableQuantity) {
+                toast.current.show({
+                    severity: 'warn',
+                    summary: 'Invalid Quantity',
+                    detail: `Maximum available quantity is ${totalAvailableQuantity} bags. Value has been adjusted.`,
+                    life: 3000
+                });
+                
+                // Set the value to maximum available quantity
+                setFormData(prevState => ({
+                    ...prevState,
+                    quantity: totalAvailableQuantity.toString()
+                }));
+                updateWeightAndPrice(totalAvailableQuantity.toString());
+                return;
+            }
+
             setFormData(prevState => ({
                 ...prevState,
                 [name]: value
@@ -58,9 +121,7 @@ function BuyRice({ visible, onHide, onRiceOrdered }) {
         const bags = parseInt(quantity) || 0;
         const weightInKilo = bags * 50;
         
-        let pricePerKilo = 30;
-
-        const totalPrice = weightInKilo * pricePerKilo;
+        const totalPrice = weightInKilo * averagePrice;
 
         setFormData(prevState => ({
             ...prevState,
@@ -100,37 +161,7 @@ function BuyRice({ visible, onHide, onRiceOrdered }) {
             }));
         }
     };
-
-    const validateForm = () => {
-        const errors = [];
-
-        if (!formData.quantity) {
-            errors.push('Please enter quantity of bags');
-        }
-
-        if (!formData.date) {
-            errors.push('Please select a delivery date');
-        }
-
-        if(!formData.dropOffLocation) {
-            errors.push('Please enter drop off location');
-        }
-
-        if (errors.length > 0) {
-            errors.forEach(error => {
-                toast.current.show({
-                    severity: 'warn',
-                    summary: 'Required Field',
-                    detail: error,
-                    life: 3000
-                });
-            });
-            return;
-        }
-
-        return true;
-    };
-
+    
     const handleSubmit = async () => {
         if (!validateForm()) {
             return;
@@ -185,10 +216,74 @@ function BuyRice({ visible, onHide, onRiceOrdered }) {
         onHide();
     };
 
-    const customDialogHeader = (
-        <div className="flex items-center space-x-2">
-            <Wheat size={22} className="text-black" />
-            <h3 className="text-md font-bold text-black">Order Rice</h3>
+    const validateForm = () => {
+        let newErrors = {};
+
+        // Quantity validation
+        if (!formData.quantity.trim()) {
+            newErrors.quantity = "Quantity in bags is required";
+            toast.current.show({
+                severity: 'warn',
+                summary: 'Warning',
+                detail: 'Quantity in bags is required',
+                life: 5000
+            });
+        } else if (parseInt(formData.quantity) <= 0) {
+            newErrors.quantity = "Quantity must be greater than 0";
+            toast.current.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Quantity must be greater than 0',
+                life: 5000
+            });
+        }
+
+        // Date validation
+        if (!formData.date) {
+            newErrors.date = "Delivery date is required";
+            toast.current.show({
+                severity: 'warn',
+                summary: 'Warning',
+                detail: 'Delivery date is required',
+                life: 5000
+            });
+        }
+
+        // Drop-off location validation
+        if (!formData.dropOffLocation.trim()) {
+            newErrors.dropOffLocation = "Drop-off location is required";
+            toast.current.show({
+                severity: 'warn',
+                summary: 'Warning',
+                detail: 'Drop-off location is required',
+                life: 5000
+            });
+        }
+
+        //Description validation
+        if (!formData.description.trim()) {
+            newErrors.description = "Description is required";
+            toast.current.show({
+                severity: 'warn',
+                summary: 'Warning',
+                detail: 'Drop-off location is required',
+                life: 5000
+            });
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    const DialogHeader = (
+        <div className="flex items-center justify-between w-full">
+            <div className="flex items-center space-x-2">
+                <Wheat size={22} className="text-black" />
+                <h3 className="text-md font-bold text-black">Order Rice</h3>
+            </div>
+            <div className="text-3xl text-gray-600 mr-10">
+                Rice For Sale: {totalAvailableQuantity} Bags
+            </div>
         </div>
     );
 
@@ -198,7 +293,7 @@ function BuyRice({ visible, onHide, onRiceOrdered }) {
             <Dialog 
                 visible={visible} 
                 onHide={isLoading ? null : onHide}
-                header={customDialogHeader} 
+                header={DialogHeader} 
                 modal 
                 style={{ minWidth: '60vw', maxWidth: '60vw' }}
                 footer={
@@ -242,8 +337,9 @@ function BuyRice({ visible, onHide, onRiceOrdered }) {
                                     value={formData.quantity}
                                     onChange={handleInputChange}
                                     placeholder="Enter quantity"
-                                    className='w-full focus:ring-0'
+                                    className="w-full focus:ring-0"
                                 />
+                                {errors.quantity && <p className="text-red-500 text-xs mt-1">{errors.quantity}</p>}
                             </div>
 
                             <div className="w-full mt-4">
@@ -256,9 +352,10 @@ function BuyRice({ visible, onHide, onRiceOrdered }) {
                                     value={formData.date ? new Date(formData.date) : null}
                                     onChange={handleDateChange}
                                     placeholder="Select date"
-                                    className="rig-0 w-full placeholder:text-gray-400 focus:shadow-none custom-calendar"
+                                    className="ring-0 w-full placeholder:text-gray-400 focus:shadow-none custom-calendar"
                                     minDate={new Date()}
                                 />
+                                {errors.date && <p className="text-red-500 text-xs mt-1">{errors.date}</p>}
                             </div>
                         </div>
 
@@ -300,8 +397,9 @@ function BuyRice({ visible, onHide, onRiceOrdered }) {
                         </div>
                     </div>
                     <div className="w-full">
-                        <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-                            Drop-off Location <span className="text-red-500">*</span></label>
+                        <label htmlFor="dropOffLocation" className="block text-sm font-medium text-gray-700 mb-1">
+                            Drop-off Location <span className="text-red-500">*</span>
+                        </label>
                         <InputText
                             id="dropOffLocation"
                             name="dropOffLocation"
@@ -310,6 +408,7 @@ function BuyRice({ visible, onHide, onRiceOrdered }) {
                             placeholder="Enter location"
                             className="w-full ring-0"
                         />
+                        {errors.dropOffLocation && <p className="text-red-500 text-xs mt-1">{errors.dropOffLocation}</p>}
                     </div>
                     <div className="w-full">
                         <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">Description</label>
@@ -321,6 +420,7 @@ function BuyRice({ visible, onHide, onRiceOrdered }) {
                             placeholder="Enter description"
                             className="w-full ring-0"
                         />
+                        {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}
                     </div>
                 </div>
             </Dialog>

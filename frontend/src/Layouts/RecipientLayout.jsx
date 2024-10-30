@@ -12,7 +12,7 @@ function RecipientLayout({ children, activePage, user }) {
         { text: 'Home', link: '/recipient' },
         { text: 'Rice Order', link: '/recipient/order' },
         { text: 'Rice Receive', link: '/recipient/receive' },
-        { text: 'History', link: '/recipient/history' }
+        // { text: 'History', link: '/recipient/history' }
     ];
 
     const toggleRightSidebar = () => {
