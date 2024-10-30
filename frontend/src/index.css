@@ -207,9 +207,21 @@
 
     .p-selectbutton {
         .p-button.p-highlight {
-            background: #ffffff !important;
-            color: #444444 !important;
             font-weight: 600;
+        }
+
+        &.login-select-button {
+            .p-button.p-highlight {
+                background: #ffffff !important;
+                color: #444444 !important;
+            }
+        }
+
+        &.admin-select-button {
+            .p-button.p-highlight {
+                background: #00C261 !important;
+                color: #ffffff !important;
+            }
         }
     }
 

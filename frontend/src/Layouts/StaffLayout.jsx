@@ -12,7 +12,7 @@ function StaffLayout({ children, activePage, user }) {
         { text: 'Procurement', link: '/staff/buy' },
         { text: 'Warehouse', link: '/staff/warehouse' },
         { text: 'Processing', link: '/staff/processing' },
-        { text: 'Orders', link: '/staff/orders' },
+        { text: 'Distribution', link: '/staff/distribution' },
     ];
 
     const toggleRightSidebar = () => {

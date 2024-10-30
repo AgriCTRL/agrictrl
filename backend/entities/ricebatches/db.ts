@@ -30,12 +30,14 @@ export class RiceBatch extends BaseEntity {
     @Column({ default: false })
     isFull: boolean; 
 
+    @Column({ default: false })
+    forSale: boolean;
+
     @OneToMany(() => RiceBatchMillingBatch, riceBatchMillingBatch => riceBatchMillingBatch.riceBatch)
     riceBatchMillingBatches: RiceBatchMillingBatch[];
-    
 }
 
-export type RiceBatchCreate = Pick<RiceBatch, 'name' | 'dateReceived' | 'riceType' | 'warehouseId' | 'price' | 'currentCapacity' | 'maxCapacity' | 'isFull' >;
+export type RiceBatchCreate = Pick<RiceBatch, 'name' | 'dateReceived' | 'riceType' | 'warehouseId' | 'price' | 'currentCapacity' | 'maxCapacity' | 'isFull' | 'forSale' >;
 export type RiceBatchUpdate = Pick<RiceBatch, 'id'> & Partial<RiceBatchCreate>;
 
 function getCurrentPST(): Date {
@@ -85,13 +87,12 @@ export async function createRiceBatch(riceBatchCreate: RiceBatchCreate): Promise
     riceBatch.currentCapacity = riceBatchCreate.currentCapacity;
     riceBatch.maxCapacity = riceBatchCreate.maxCapacity;
     riceBatch.isFull = riceBatchCreate.isFull;
-
+    riceBatch.forSale = riceBatchCreate.forSale; // Set forSale field
 
     return await riceBatch.save();
 }
 
 export async function updateRiceBatch(riceBatchUpdate: RiceBatchUpdate): Promise<RiceBatch> {
-    // Make sure that the id is provided before trying to update
     if (!riceBatchUpdate.id) {
         throw new Error(`updateRiceBatch: Missing id parameter.`);
     }
@@ -104,7 +105,8 @@ export async function updateRiceBatch(riceBatchUpdate: RiceBatchUpdate): Promise
         price: riceBatchUpdate.price,
         currentCapacity: riceBatchUpdate.currentCapacity,
         maxCapacity: riceBatchUpdate.maxCapacity,
-        isFull: riceBatchUpdate.isFull
+        isFull: riceBatchUpdate.isFull,
+        forSale: riceBatchUpdate.forSale // Update forSale field
     });
 
     const riceBatch = await getRiceBatch(riceBatchUpdate.id);
@@ -115,4 +117,3 @@ export async function updateRiceBatch(riceBatchUpdate: RiceBatchUpdate): Promise
 
     return riceBatch;
 }
-

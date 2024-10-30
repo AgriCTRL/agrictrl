@@ -8,10 +8,7 @@ const LogisticsInfoForm = ({
     transactionData, 
     handlePalayInputChange, 
     handleTransactionInputChange,
-    handleStationChange,
-    handleLocationType,
     handleLocationId,
-    options,
     locationOptions, 
     errors 
   }) => {
@@ -24,7 +21,6 @@ const LogisticsInfoForm = ({
                         id="buyingStationName"
                         name="buyingStationName"
                         value={palayData.buyingStationName}
-                        options={options}
                         onChange={handlePalayInputChange}
                         placeholder="Enter buying station name"
                         className="ring-0 w-full placeholder:text-gray-400"
@@ -80,7 +76,6 @@ const LogisticsInfoForm = ({
                             id="sendToWarehouse"
                             name="sendToWarehouse"
                             value={transactionData.toLocationType}
-                            onChange={handleLocationType} 
                             placeholder="Select location"
                             className="ring-0 w-full placeholder:text-gray-400"
                             disabled

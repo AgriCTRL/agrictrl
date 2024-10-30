@@ -8,12 +8,14 @@ import { FilterMatchMode } from 'primereact/api';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { Dialog } from 'primereact/dialog';
-import { Calendar } from 'primereact/calendar';
 import { Dropdown } from 'primereact/dropdown';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Toast } from 'primereact/toast';
 
-import { useAuth } from '../../Authentication/Login/AuthContext';
+import { useAuth } from '../../../Authentication/Login/AuthContext';
+import AcceptDialog from './AcceptDialog';
+import ProcessDialog from './ProcessDialog';
+import ReturnDialog from './ReturnDialog';
 
 const initialDryingData = {
     palayBatchId: '',
@@ -95,7 +97,7 @@ const Processing = () => {
         method: '',
         type: '',
         moistureContent: '',
-        quantityInBags: '',
+        palayQuantityBags: '',
         grossWeight: '',
         netWeight: '',
         facility: '',
@@ -116,6 +118,10 @@ const Processing = () => {
         };
         setFilters(newFilters);
     }, [globalFilterValue]);
+
+    const refreshData = () => {
+        fetchData();
+    }
 
     const onGlobalFilterChange = (e) => {
         setGlobalFilterValue(e.target.value);
@@ -166,14 +172,14 @@ const Processing = () => {
                     palayBatchId: item.palayBatch.id,
                     transactionId: item.transaction.id,
                     processingBatchId: item.processingBatch?.id,
-                    quantityInBags: item.palayBatch.quantityBags,
+                    palayQuantityBags: item.palayBatch.quantityBags,
                     grossWeight: item.palayBatch.grossWeight,
                     netWeight: item.palayBatch.netWeight,
                     from: warehouses.find(w => w.id === item.transaction.fromLocationId)?.facilityName || 'Unknown Warehouse',
                     location: facilities.find(f => f.id === item.transaction.toLocationId)?.[`${processType}Name`] || 'Unknown Facility',
                     toLocationId: item.transaction.toLocationId, // Adjust based on response structure
                     millerType: millerType,
-                    dryingMethod: item.processingBatch?.dryingMethod || null,  // Adjust based on response structure
+                    dryingMethod: item.processingBatch?.dryingMethod || null,
                     requestDate: item.transaction.sendDateTime ? new Date(item.transaction.sendDateTime).toLocaleDateString() : '',
                     startDate: item.processingBatch?.startDateTime ? new Date(item.processingBatch.startDateTime).toLocaleDateString() : '',
                     endDate: item.processingBatch?.endDateTime ? new Date(item.processingBatch.endDateTime).toLocaleDateString() : '',
@@ -181,7 +187,8 @@ const Processing = () => {
                     transportedBy: item.transaction.transporterName,
                     palayStatus: item.palayBatch.status,
                     transactionStatus: item.transaction.status,
-                    processingStatus: item.processingBatch?.status || null
+                    processingStatus: item.processingBatch?.status || null,
+                    batchQuantityBags: item.processingBatch?.milledQuantityBags || item.processingBatch?.driedQuantityBags || null,
                 };
             });
     
@@ -224,7 +231,7 @@ const Processing = () => {
     
     const handleActionClick = (rowData) => {
         setSelectedItem(rowData);
-        
+    
         switch (rowData.transactionStatus?.toLowerCase()) {
             case 'pending':
                 setShowAcceptDialog(true);
@@ -239,6 +246,7 @@ const Processing = () => {
                     }
                     setProcessDialog(true);
                 } else if (rowData.processingStatus?.toLowerCase() === 'done') {
+                    setNewTransactionData(initialTransactionData); // Reset the form data
                     setShowReturnDialog(true);
                 }
                 break;
@@ -250,7 +258,7 @@ const Processing = () => {
             return;
         }
     
-        setIsLoading(false);
+        setIsLoading(true);
         try {
             // 1. Update transaction status to "Received"
             const transactionResponse = await fetch(`${apiUrl}/transactions/update`, {
@@ -350,7 +358,7 @@ const Processing = () => {
                 detail: `${viewMode === 'drying' ? 'Drying' : 'Milling'} process started successfully`,
                 life: 3000
             });
-    
+            refreshData();
         } catch (error) {
             console.error('Error in handleAccept:', error);
             toast.current.show({
@@ -441,7 +449,7 @@ const Processing = () => {
                 detail: `${viewMode === 'drying' ? 'Drying' : 'Milling'} process completed successfully`,
                 life: 3000
             });
-    
+            refreshData();
         } catch (error) {
             console.error('Error in handleProcess:', error);
             toast.current.show({
@@ -536,7 +544,7 @@ const Processing = () => {
                 detail: 'Return process initiated successfully',
                 life: 3000
             });
-
+            refreshData();
         } catch (error) {
             console.error('Error in handleReturn:', error);
             toast.current.show({
@@ -755,7 +763,11 @@ const Processing = () => {
                                 <Column field="processingBatchId" header={viewMode === 'drying' ? "Drying Batch ID" : "Milling Batch ID"} className="text-center" headerClassName="text-center" />
                             )}
                             <Column field="palayBatchId" header="Palay Batch ID" className="text-center" headerClassName="text-center" />
-                            <Column field="quantityInBags" header="Quantity In Bags" className="text-center" headerClassName="text-center" />
+                            <Column 
+                                field="quantity" header="Quantity in Bags" 
+                                body={(rowData) => rowData.batchQuantityBags ?? rowData.palayQuantityBags}
+                                className="text-center" headerClassName="text-center" 
+                            />
                             <Column field="grossWeight" header="Gross Weight" className="text-center" headerClassName="text-center" />
                             <Column field="netWeight" header="Net Weight" className="text-center" headerClassName="text-center" />
                             {viewMode === 'drying' && (selectedFilter === 'return') && (
@@ -810,204 +822,39 @@ const Processing = () => {
                 </div>
             </div>
 
-            {/* Accept Dialog */}
-            <Dialog header={`Receive ${viewMode}`} visible={showAcceptDialog} onHide={isLoading ? null : () => setShowAcceptDialog(false)} className="w-1/3">
-                <div className="flex flex-col items-center">
-                    <p className="mb-10">Are you sure you want to receive this request?</p>
-                    <div className="flex justify-between w-full gap-4">
-                        <Button label="Cancel" className="w-1/2 bg-transparent text-primary border-primary" onClick={() => setShowAcceptDialog(false)} disabled={isLoading}/>
-                        <Button 
-                            label="Confirm Receive" 
-                            className="w-1/2 bg-primary hover:border-none" 
-                            onClick={handleAccept}
-                            disabled={isLoading}
-                        />
-                    </div>
-                </div>
-            </Dialog>
+            <AcceptDialog
+                visible={showAcceptDialog}
+                onAccept={handleAccept}
+                viewMode={viewMode}
+                onCancel={() => setShowAcceptDialog(false)}
+                isLoading={isLoading}
+                selectedItem={selectedItem}
+            />
 
-            {/* Process Dialog */}
-            <Dialog header={`Complete ${viewMode} Process`} visible={showProcessDialog} onHide={isLoading ? null : () => setProcessDialog(false)} className="w-1/3">
-                <div className="flex flex-col gap-4">
-                    {viewMode === 'drying' ? (
-                        <>
-                            <div className="w-full">
-                                <label className="block mb-2">Dried Quantity in Bags</label>
-                                <InputText 
-                                    type="number"
-                                    value={newDryingData.driedQuantityBags}
-                                    onChange={(e) => setNewDryingData(prev => ({...prev, driedQuantityBags: e.target.value}))}
-                                    className="w-full ring-0"
-                                />
-                            </div>
-                            <div className="w-full">
-                                <label className="block mb-2">Dried Gross Weight</label>
-                                <InputText 
-                                    type="number"
-                                    value={newDryingData.driedGrossWeight}
-                                    onChange={(e) => setNewDryingData(prev => ({...prev, driedGrossWeight: e.target.value}))}
-                                    className="w-full ring-0"
-                                />
-                            </div>
-                            <div className="w-full">
-                                <label className="block mb-2">Dried Net Weight</label>
-                                <InputText 
-                                    type="number"
-                                    value={newDryingData.driedNetWeight}
-                                    onChange={(e) => setNewDryingData(prev => ({...prev, driedNetWeight: e.target.value}))}
-                                    className="w-full ring-0"
-                                />
-                            </div>
-                            <div className="w-full">
-                                <label className="block mb-2">Moisture Content</label>
-                                <InputText 
-                                    type="number"
-                                    value={newDryingData.moistureContent}
-                                    onChange={(e) => setNewDryingData(prev => ({...prev, moistureContent: e.target.value}))}
-                                    className="w-full ring-0"
-                                />
-                            </div>
-                            <div className="w-full">
-                                <label className="block mb-2">Drying Method</label>
-                                <Dropdown 
-                                    value={newDryingData.dryingMethod}
-                                    options={[
-                                        { label: "Sun Dry", value: "Sun Dry" },
-                                        { label: "Machine Dry", value: "Machine Dry" }
-                                    ]}
-                                    onChange={(e) => {
-                                        setNewDryingData(prev => {
-                                            return { ...prev, dryingMethod: e.value };
-                                        });
-                                    }}
-                                    className="w-full"
-                                    placeholder="Select Drying Method"
-                                />
-                            </div>
-                        </>
-                    ) : (
-                        <>
-                            <div className="w-full">
-                                <label className="block mb-2">Milled Quantity in Bags</label>
-                                <InputText 
-                                    type="number"
-                                    value={newMillingData.milledQuantityBags}
-                                    onChange={(e) => setNewMillingData(prev => ({...prev, milledQuantityBags: e.target.value}))}
-                                    className="w-full ring-0"
-                                />
-                            </div>
-                            <div className="w-full">
-                                <label className="block mb-2">Milled Gross Weight</label>
-                                <InputText 
-                                    type="number"
-                                    value={newMillingData.milledGrossWeight}
-                                    onChange={(e) => setNewMillingData(prev => ({...prev, milledGrossWeight: e.target.value}))}
-                                    className="w-full ring-0"
-                                />
-                            </div>
-                            <div className="w-full">
-                                <label className="block mb-2">Milled Net Weight</label>
-                                <InputText 
-                                    type="number"
-                                    value={newMillingData.milledNetWeight}
-                                    onChange={(e) => setNewMillingData(prev => ({...prev, milledNetWeight: e.target.value}))}
-                                    className="w-full ring-0"
-                                />
-                            </div>
-                            <div className="w-full">
-                                <label className="block mb-2">Milling Efficiency</label>
-                                <InputText 
-                                    type="number"
-                                    value={newMillingData.millingEfficiency}
-                                    onChange={(e) => setNewMillingData(prev => ({...prev, millingEfficiency: e.target.value}))}
-                                    className="w-full ring-0"
-                                />
-                            </div>
-                        </>
-                    )}
-                    
-                    <div className="flex justify-between gap-4 mt-4">
-                        <Button label="Cancel" className="w-1/2 bg-transparent text-primary border-primary" onClick={() => setProcessDialog(false)} disabled={isLoading}/>
-                        <Button label="Complete Process" className="w-1/2 bg-primary hover:border-none" onClick={handleProcess} disabled={isLoading}/>
-                    </div>
-                </div>
-            </Dialog>
+            <ProcessDialog
+                visible={showProcessDialog}
+                viewMode={viewMode}
+                newDryingData={newDryingData}
+                newMillingData={newMillingData}
+                onProcessComplete={handleProcess}
+                onCancel={() => setProcessDialog(false)}
+                isLoading={isLoading}
+                setNewDryingData={setNewDryingData}
+                setNewMillingData={setNewMillingData}
+                selectedItem={selectedItem}
+            />
 
-            {/* Return Dialog */}
-            <Dialog header={`Return ${viewMode === 'drying' ? 'Palay' : 'Rice'}`} visible={showReturnDialog} onHide={isLoading ? null : () => {setShowReturnDialog(false); }} className="w-1/3">
-                <div className="flex flex-col w-full gap-4">
-                    <div className="w-full">
-                        <label className="block mb-2">Warehouse</label>
-                        <Dropdown 
-                            value={newTransactionData.toLocationId}
-                            options={warehouses} 
-                            onChange={(e) => setNewTransactionData(prev => ({
-                                ...prev,
-                                toLocationId: e.value,
-                                toLocationName: warehouses.find(w => w.value === e.value)?.label
-                            }))}
-                            placeholder="Select a warehouse" 
-                            className="w-full ring-0" 
-                        />
-                    </div>
-
-                    <div className="w-full">
-                        <label className="block mb-2">Transported By</label>
-                        <InputText 
-                            value={newTransactionData.transporterName}
-                            onChange={(e) => setNewTransactionData(prev => ({
-                                ...prev,
-                                transporterName: e.target.value
-                            }))}
-                            className="w-full ring-0" 
-                        />
-                    </div>
-
-                    <div className="w-full">
-                        <label className="block mb-2">Transport Description</label>
-                        <InputTextarea 
-                            value={newTransactionData.transporterDesc}
-                            onChange={(e) => setNewTransactionData(prev => ({
-                                ...prev,
-                                transporterDesc: e.target.value
-                            }))}
-                            className="w-full ring-0" 
-                            rows={3}
-                        />
-                    </div>
-
-                    <div className="w-full">
-                        <label className="block mb-2">Remarks</label>
-                        <InputTextarea 
-                            value={newTransactionData.remarks}
-                            onChange={(e) => setNewTransactionData(prev => ({
-                                ...prev,
-                                remarks: e.target.value
-                            }))}
-                            className="w-full ring-0" 
-                            rows={3}
-                        />
-                    </div>
-                    
-                    <div className="flex justify-between gap-4 mt-4">
-                        <Button 
-                            label="Cancel" 
-                            className="w-1/2 bg-transparent text-primary border-primary" 
-                            onClick={() => {
-                                setShowReturnDialog(false);
-                                setNewTransactionData(initialTransactionData);
-                            }} 
-                            disabled={isLoading}
-                        />
-                        <Button 
-                            label="Confirm Return" 
-                            className="w-1/2 bg-primary hover:border-none" 
-                            onClick={handleReturn}
-                            disabled={isLoading}
-                        />
-                    </div>
-                </div>
-            </Dialog>
+            <ReturnDialog
+                visible={showReturnDialog}
+                viewMode={viewMode}
+                newTransactionData={newTransactionData}
+                onReturn={handleReturn}
+                onCancel={() => setShowReturnDialog(false)}
+                isLoading={isLoading}
+                setNewTransactionData={setNewTransactionData}
+                warehouses={warehouses}
+                selectedItem={selectedItem}
+            />
         </StaffLayout>
     );
 }

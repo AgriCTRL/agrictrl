@@ -1,13 +1,17 @@
-import React, { useContext, createContext } from 'react';
+import React, { useContext, createContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronFirst, ChevronLast } from 'lucide-react';
+
 import { Button } from 'primereact/button';
 import { Divider } from 'primereact/divider';
+import { Tooltip } from 'primereact/tooltip';
+import { Avatar } from 'primereact/avatar';
+
+import { ChevronDown, ChevronFirst, ChevronLast, User } from 'lucide-react';
 import { LogOut } from 'lucide-react';
 import { useAuth } from '../Pages/Authentication/Login/AuthContext';
         
 const SidebarContext = createContext()
-function AdminSidebarComponent({ children, expanded }) {
+function AdminSidebarComponent({ children, expanded, items }) {
     const navigate = useNavigate();
     const { logout } = useAuth();
 
@@ -23,43 +27,44 @@ function AdminSidebarComponent({ children, expanded }) {
 
     return (
         <aside className="h-full">
-            <nav className={`h-full flex flex-col items-center py-5 ${
-                expanded ? 'px-10' : 'pl-4 pr-10'
-            }`}>
-                <div className="flex items-center justify-start w-full py-4">
+            <nav className={`h-full flex flex-col items-center py-4 px-6`}>
+                <div className={`flex items-center w-full py-2 gap-4 ${expanded ? 'justify-start' : 'justify-center'}`}>
                     <img 
-                        src={`${expanded ? '/favicon_expanded.ico' : '/favicon.ico'}`} 
-                        className={`overflow-hidden transition-all cursor-pointer ${
-                            expanded ? 'w-[15rem]' : 'w-[52px]'
-                        }`} 
+                        src='/favicon.ico'
+                        className={`overflow-hidden transition-all cursor-pointer`} 
                         alt="AgriCTRL sibebar logo"
+                        width="45"
                     />
+                    {expanded &&
+                        <p className='text-2xl font-semibold text-primary'>AgriCTRL+</p>
+                    }
                 </div>
-                
+
+                <Divider />
+
                 <SidebarContext.Provider value={{ expanded }}>
-                    <ul className='flex-1'>{children}</ul>
+                    <ul className={`flex-1 w-full flex flex-col gap-4`}>
+                        {children}
+                    </ul>
                 </SidebarContext.Provider>
                 
                 <div className='w-full flex flex-col items-center'>
-                <Divider pt={{ 
-                    root: { 
-                        className: 'bg-primary h-px',
-                    } 
-                }} />
-                    <Button onClick={logoutButton} className={`relative rounded-md flex text-primary bg-transparent border-none  items-center py-4 group ${
-                        expanded ? 'w-full px-10 gap-10' : 'px-4 w-fit gap-0'
-                    }`} 
-                        aria-label="Logout"
+                    <Divider pt={{ 
+                        root: { 
+                            className: 'bg-primary h-px',
+                        } 
+                    }} />
+                    <Button 
+                        onClick={logoutButton}
+                        className={`w-full gap-5 border-none ring-0 bg-transparent text-primary hover:text-white hover:bg-primary
+                            ${expanded 
+                                ? 'px-5' 
+                                : 'p-4 justify-center'
+                            }
+                        `}
                     >
                         <LogOut size={20} />
-                        
-                        <span className={`overflow-hidden transition-all text-left text-primary
-                            ${
-                                expanded ? 'w-32' : 'w-0'
-                            }
-                        `}>
-                            Logout
-                        </span>
+                        {expanded && <p className='font-semibold'>Logout</p>}
                     </Button>
                 </div>
             </nav>
@@ -70,42 +75,34 @@ function AdminSidebarComponent({ children, expanded }) {
 function SidebarItem({ icon, text, active, link }) {
     const { expanded } = useContext(SidebarContext);
     const navigate = useNavigate();
+    const [btnName] = useState(`sidebar-item-${text}`);
     
     return (
-        <li className={`
-            relative flex items-center py-4 my-4 
-            font-medium rounded-md cursor-pointer
-            transition-colors group z-50
-            ${
-                active
-                    ? 'bg-gradient-to-r from-secondary to-primary text-white'
-                    : 'hover:bg-primary hover:text-white text-primary'
-            }
-            ${
-                expanded ? 'px-10 gap-10' : 'px-4 w-fit gap-0'
-            }`}
-            onClick={() => navigate(link)}
-        >
-            {icon}
-            <span 
-                className={`overflow-hidden transition-all ${
-                    expanded ? "w-32" : "w-0"
-                }`}
+        <li className={`${expanded ? 'w-72' : 'w-full'}`}>
+            <Button 
+                onClick={() => navigate(link)}
+                className={`${btnName} w-full gap-5 border-none ring-0
+                    ${active
+                        ? 'bg-gradient-to-r from-secondary to-primary text-white'
+                        : 'hover:bg-primary hover:text-white text-primary bg-transparent'
+                    }
+                    ${expanded 
+                        ? 'px-5' 
+                        : 'p-4 justify-center'
+                    }
+                `}
             >
-                {text}
-            </span>
-
-            {!expanded && (
-                <div 
-                    className={`
-                        absolute left-full rounded-md p-4
-                        bg-primary tex-white text-sm
-                        invisible opacity-20 translate-x-6 transition-all
-                        group-hover:visible group-hover:opacity-100 group-hover:translate-x-8
-                    `}>
-                        {text}
-                </div>
-            )}
+                {icon}
+                {expanded && <p className='font-semibold'>{text}</p>}
+            </Button>
+            {!expanded &&
+                <Tooltip 
+                    target={`.${btnName}`}
+                    className='ml-5'
+                >
+                    <span className='p-4'>{text}</span>
+                </Tooltip>
+            }
         </li>
     );
 }

@@ -13,7 +13,6 @@ import { InputText } from 'primereact/inputtext';
 import ConfirmReceive from './ConfirmReceive';
 import { useAuth } from '../../../Authentication/Login/AuthContext';
 
-
 function RiceReceive() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const { user } = useAuth();
@@ -29,7 +28,7 @@ function RiceReceive() {
 
     useEffect(() => {
         fetchData();
-    }, []);
+    }, [selectedFilter]);
 
     useEffect(() => {
         const newFilters = {
@@ -77,8 +76,9 @@ function RiceReceive() {
     const actionBodyTemplate = (rowData) => {
         if (rowData.status === 'In Transit') {
             return (
-                <CircleAlert  
-                    className="text-red-500 cursor-pointer"
+                <Button 
+                    label="Receive"
+                    className="p-button-success p-button-sm" 
                     onClick={() => handleReceiveClick(rowData)}
                 />
             );
@@ -101,6 +101,7 @@ function RiceReceive() {
             ...rowData,
             dateBought: new Date(rowData.dateBought)
         });
+        console.log(rowData);
         setShowConfirmReceive(true);
     };
 
@@ -186,6 +187,7 @@ function RiceReceive() {
                 visible={showConfirmReceive}
                 onHide={() => setShowConfirmReceive(false)}
                 data={selectedOrderData}
+                user={user}
                 onConfirmReceive={fetchData}
             />
         </RecipientLayout> 

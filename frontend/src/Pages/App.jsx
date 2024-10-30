@@ -27,21 +27,21 @@ import AdminProfile from "./SMS/Admin/Profile";
 
 import StaffHome from "./SMS/Staff/Home";
 import StaffBuyPalay from "./SMS/Staff/BuyPalay/BuyPalay";
-import StaffOrders from "./SMS/Staff/Orders";
-import StaffProcessing from "./SMS/Staff/Processing";
+import StaffDistribution from "./SMS/Staff/Distribution/Distribution";
+import StaffProcessing from "./SMS/Staff/Processing/Processing";
 import StaffWarehouse from "./SMS/Staff/Warehouse/Warehouse";
 import StaffProfile from "./SMS/Staff/Profile";
 
 import RecipientHome from "./SMS/Recipient/Home";
 import RecipientRiceOrder from "./SMS/Recipient/RiceOrder/RiceOrder";
 import RecipientRiceReceive from "./SMS/Recipient/RiceReceive/RiceReceive";
-import RecipientHistory from "./SMS/Recipient/History";
+// import RecipientHistory from "./SMS/Recipient/History";
 import RecipientProfile from "./SMS/Recipient/Profile";
 
 import PrivateMillerHome from "./SMS/PrivateMiller/Home";
 import PrivateMillerMillingTransactions from "./SMS/PrivateMiller/MillingTransactions";
 import PrivateMillerManageMiller from "./SMS/PrivateMiller/ManageMiller";
-import PrivateMillerHistory from "./SMS/PrivateMiller/History";
+// import PrivateMillerHistory from "./SMS/PrivateMiller/History";
 import PrivateMillerProfile from "./SMS/PrivateMiller/Profile";
 
 const ProtectedRoute = ({ children, allowedUserTypes }) => {
@@ -175,7 +175,7 @@ function StaffRoutes() {
         <Routes>
             <Route index element={<StaffHome />} />
             <Route path="buy" element={<StaffBuyPalay />} />
-            <Route path="orders" element={<StaffOrders />} />
+            <Route path="distribution" element={<StaffDistribution />} />
             <Route path="processing" element={<StaffProcessing />} />
             <Route path="warehouse" element={<StaffWarehouse />} />
             <Route path="profile" element={<StaffProfile />} />
@@ -189,7 +189,7 @@ function RecipientRoutes() {
             <Route index element={<RecipientHome />} />
             <Route path="order" element={<RecipientRiceOrder />} />
             <Route path="receive" element={<RecipientRiceReceive />} />
-            <Route path="history" element={<RecipientHistory />} />
+            {/* <Route path="history" element={<RecipientHistory />} /> */}
             <Route path="profile" element={<RecipientProfile />} />
         </Routes>
     );
@@ -201,7 +201,7 @@ function PrivateMillerRoutes() {
             <Route index element={<PrivateMillerHome />} />
             <Route path="transactions" element={<PrivateMillerMillingTransactions />} />
             <Route path="facility" element={<PrivateMillerManageMiller />} />
-            <Route path="history" element={<PrivateMillerHistory />} />
+            {/* <Route path="history" element={<PrivateMillerHistory />} /> */}
             <Route path="profile" element={<PrivateMillerProfile />} />
         </Routes>
     );

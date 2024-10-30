@@ -6,47 +6,49 @@ import {
 } from "lucide-react";
 import CardComponent from '../../CardComponent';
 
+import { Button } from 'primereact/button';
+        
 const Stats = (statsData) => {
     const [stats, setStats] = useState([
         {
             label: "Partner Farmers",
-            icon: <HeartHandshake size={20}/>,
+            icon: <HeartHandshake size={20} />,
             count: 0,
-            className: "border-r border-lightest-grey",
         },
         {
             label: "Total Palays",
-            icon: <Wheat size={20}/>,
+            icon: <Wheat size={20} />,
             count: 0,
-            className: "border-r border-lightest-grey",
         },
         {
             label: "Total Rice",
-            icon: <Wheat size={20}/>,
+            icon: <Wheat size={20} />,
             count: 0,
-            className: "border-r border-lightest-grey",
         },
         {
             label: "Rice Sold",
-            icon: <Building2 size={20}/>,
+            icon: <Building2 size={20} />,
             count: 0,
         },
     ])
     return (
-        <CardComponent className="bg-white transition hover:shadow-lg">
+        <div className='grid grid-cols-4 gap-4'>
             {stats.map((stat, index) => (
                 <CardComponent 
                     key={index} 
-                    className={`bg-white flex-1 flex-col gap-4 justify-center rounded-none ${index === (stats.length - 1) ? '' : stat.className}`}
+                    className="bg-white flex gap-4 justify-between rounded-lg transition hover:shadow-lg"
                 >
-                    <div className='flex gap-4 text-black'>
-                        {stat.icon}
-                        <p className='font-bold'>{stat.label}</p>
+                    <Button
+                        icon={stat.icon}
+                        className='h-fit bg-gradient-to-t from-secondary to-primary text-white'
+                    />
+                    <div className='text-end'>
+                        <small>{stat.label}</small>
+                        <h1 className='text-3xl text-black font-semibold'>{stat.count}</h1>
                     </div>
-                    <h1 className='text-heading text-primary text-center font-bold'>{stat.count}</h1>
                 </CardComponent>
             ))}
-        </CardComponent>
+        </div>
     )
 }
 
