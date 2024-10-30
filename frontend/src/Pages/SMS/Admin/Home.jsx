@@ -40,11 +40,11 @@ function Home() {
                 </div>
                 <div className="absolute bg-gradient-to-r from-[#2A2A2A] to-transparent inset-0 flex flex-col gap-4 p-10">
                     <div className="text-green-400 flex items-center gap-4">
-                        <Wheat />
+                        <Wheat size={20} />
                         <p>What We Offer</p>
                     </div>
                     <h1 className="text-white text-heading font-bold mb-2">{item.title}</h1>
-                    <p className="text-white mb-4">{item.description}</p>
+                    <p className="text-white">{item.description}</p>
                 </div>
             </div>
         );
@@ -73,42 +73,45 @@ function Home() {
                 </section>
         
                 <section className='flex flex-col gap-4'>
-                    <p className="font-bold text-black">Quick Links</p>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div>
+                        <p className="font-bold text-black">Quick Links</p>
+                        <small className="text-black">Access essential tools and information quickly and easily.</small>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                         <CardComponent 
-                            className="bg-white text-primary cursor-pointer flex-col gap-4 py-6 items-center transition-transform duration-300 hover:bg-primary hover:text-white"
+                            className="bg-white text-primary cursor-pointer flex-col gap-2 py-4 items-center transition hover:bg-primary hover:text-white"
                             onClick={() => navigate('/admin/dashboard')}
                         >
-                            <LayoutDashboard size={40}/>
-                            <span className='font-bold'>Dashboard</span>
+                            <LayoutDashboard size={30}/>
+                            <span className='font-semibold'>Dashboard</span>
                         </CardComponent>
                         <CardComponent 
-                            className="bg-white text-primary cursor-pointer flex-col gap-4 py-6 items-center transition-transform duration-300 hover:bg-primary hover:text-white"
+                            className="bg-white text-primary cursor-pointer flex-col gap-2 py-4 items-center transition hover:bg-primary hover:text-white"
                             onClick={() => navigate('/admin/tracking')}
                         >
-                            <MapPin size={40}/>
-                            <span className='font-bold'>Tracking</span>
+                            <MapPin size={30}/>
+                            <span className='font-semibold'>Tracking</span>
                         </CardComponent>
                         <CardComponent 
-                            className="bg-white text-primary cursor-pointer flex-col gap-4 py-6 items-center transition-transform duration-300 hover:bg-primary hover:text-white"
+                            className="bg-white text-primary cursor-pointer flex-col gap-2 py-4 items-center transition hover:bg-primary hover:text-white"
                             onClick={() => navigate('/admin/inventory')}
                         >
-                            <Layers size={40}/>
-                            <span className='font-bold'>Inventory</span>
+                            <Layers size={30}/>
+                            <span className='font-semibold'>Inventory</span>
                         </CardComponent>
                         <CardComponent 
-                            className="bg-white text-primary cursor-pointer flex-col gap-4 py-6 items-center transition-transform duration-300 hover:bg-primary hover:text-white"
+                            className="bg-white text-primary cursor-pointer flex-col gap-2 py-4 items-center transition hover:bg-primary hover:text-white"
                             onClick={() => navigate('/admin/facilities')}
                         >
-                            <Building2 size={40}/>
-                            <span className='font-bold'>Facilities</span>
+                            <Building2 size={30}/>
+                            <span className='font-semibold'>Facilities</span>
                         </CardComponent>
                         <CardComponent 
-                            className="bg-white text-primary cursor-pointer flex-col gap-4 py-6 items-center transition-transform duration-300 hover:bg-primary hover:text-white"
+                            className="bg-white text-primary cursor-pointer flex-col gap-2 py-4 items-center transition hover:bg-primary hover:text-white"
                             onClick={() => navigate('/admin/users')}
                         >
-                            <Users size={40}/>
-                            <span className='font-bold'>Users</span>
+                            <Users size={30}/>
+                            <span className='font-semibold'>Users</span>
                         </CardComponent>
                     </div>
                 </section>

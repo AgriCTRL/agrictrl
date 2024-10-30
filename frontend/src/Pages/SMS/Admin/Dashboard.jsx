@@ -96,7 +96,7 @@ function Dashboard() {
 
     return (
         <AdminLayout activePage="Dashboard">
-            <div className="flex flex-col gap-8">
+            <div className="flex flex-col gap-4">
                 <Stats stats={null} />
 
                 <div className='grid grid-flow-col grid-rows-3 grid-cols-3 gap-4'>
