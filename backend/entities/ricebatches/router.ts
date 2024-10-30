@@ -43,11 +43,11 @@ export function getRouter(): Router {
     router.post(
         '/',
         async (
-            req: Request<any, any, { name: string; dateReceived: Date; riceType: string; warehouseId: number; price: number; currentCapacity: number; maxCapacity: number; isFull: boolean; }>,
+            req: Request<any, any, { name: string; dateReceived: Date; riceType: string; warehouseId: number; price: number; currentCapacity: number; maxCapacity: number; isFull: boolean; forSale: boolean; }>,
             res
         ) => {
-            const { name, dateReceived, riceType, warehouseId, price, currentCapacity, maxCapacity, isFull } = req.body;
-
+            const { name, dateReceived, riceType, warehouseId, price, currentCapacity, maxCapacity, isFull, forSale } = req.body;
+    
             const riceBatch = await createRiceBatch({
                 name,
                 dateReceived,
@@ -56,9 +56,10 @@ export function getRouter(): Router {
                 price,
                 currentCapacity,
                 maxCapacity,
-                isFull
+                isFull,
+                forSale
             });
-
+    
             res.json(riceBatch);
         }
     );
@@ -69,18 +70,17 @@ export function getRouter(): Router {
 }
 
 async function updateHandler(
-    req: Request<any, any, { id?: number; name?: string; dateReceived?: Date; riceType?: string; warehouseId?: number; price?: number; currentCapacity?: number; maxCapacity?: number; isFull?: boolean; }>,
+    req: Request<any, any, { id?: number; name?: string; dateReceived?: Date; riceType?: string; warehouseId?: number; price?: number; currentCapacity?: number; maxCapacity?: number; isFull?: boolean; forSale?: boolean; }>,
     res: Response
 ): Promise<void> {
-    // Extract id from query or body
     const id = Number(req.query.id) || req.body.id;
 
     if (!id) {
         res.status(400).json({ error: 'Missing id parameter.' });
-        return; // Ensure we return void here
+        return;
     }
 
-    const { name, dateReceived, riceType, warehouseId, price, currentCapacity, maxCapacity, isFull } = req.body;
+    const { name, dateReceived, riceType, warehouseId, price, currentCapacity, maxCapacity, isFull, forSale } = req.body;
 
     const riceBatch = await updateRiceBatch({
         id,
@@ -91,7 +91,8 @@ async function updateHandler(
         price,
         currentCapacity,
         maxCapacity,
-        isFull 
+        isFull,
+        forSale // Include forSale field in the update
     });
 
     res.json(riceBatch);

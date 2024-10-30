@@ -13,7 +13,7 @@ const initialRiceAcceptData = {
     maxCapacity: 'maxBatchCapacity'
 };
 
-const AcceptRice = ({ visible, onHide, selectedItem = {}, onAcceptSuccess, user }) => {
+const AcceptRice = ({ visible, onHide, selectedItem = {}, onAcceptSuccess, user, refreshData }) => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const toast = useRef(null);
 
@@ -57,7 +57,7 @@ const AcceptRice = ({ visible, onHide, selectedItem = {}, onAcceptSuccess, user 
         }
     };
 
-    const handleReceive = async () => {
+    const handleReceiveRice = async () => {
 
 		setIsLoading(true);
         try {
@@ -192,8 +192,9 @@ const AcceptRice = ({ visible, onHide, selectedItem = {}, onAcceptSuccess, user 
 
             onAcceptSuccess();
             onHide();
+            refreshData();
         } catch (error) {
-            console.error('Error in handleReceive:', error);
+            console.error('Error in handleReceiveRice:', error);
             toast.current.show({
                 severity: 'error',
                 summary: 'Error',
@@ -293,7 +294,7 @@ const AcceptRice = ({ visible, onHide, selectedItem = {}, onAcceptSuccess, user 
     const dialogFooter = (
         <div className="flex justify-end gap-2">
             <Button label="Cancel" icon="pi pi-times" onClick={handleClose} className="p-button-text" disabled={isLoading}/>
-            <Button label="Accept Rice" icon="pi pi-check" onClick={handleReceive} autoFocus disabled={isLoading}/>
+            <Button label="Accept Rice" icon="pi pi-check" onClick={handleReceiveRice} autoFocus disabled={isLoading} loading={isLoading}/>
         </div>
     );
 

@@ -77,8 +77,12 @@ function getCurrentPST(): Date {
 //     });
 // }
 
-export async function getTransactions(limit: number, offset: number, toLocationType?: string, status?: string): Promise<Transaction[]> {
+export async function getTransactions(limit: number, offset: number, toLocationId?: number, toLocationType?: string, status?: string): Promise<Transaction[]> {
     let whereClause: any = {};
+
+    if (toLocationId !== undefined) {
+        whereClause.toLocationId = toLocationId;
+    }
 
     if (toLocationType) {
         whereClause.toLocationType = toLocationType;
@@ -87,7 +91,7 @@ export async function getTransactions(limit: number, offset: number, toLocationT
     if (status) {
         whereClause.status = status;
     }
-    
+
     return await Transaction.find({
         where: whereClause,
         take: limit,
@@ -95,11 +99,16 @@ export async function getTransactions(limit: number, offset: number, toLocationT
     });
 }
 
-export async function getTransactionByToLocationId(toLocationId: number): Promise<Transaction | null> {
+
+export async function getTransactionByToLocationId(toLocationId: number, toLocationType?: string): Promise<Transaction | null> {
+    const whereClause: any = { toLocationId };
+
+    if (toLocationType) {
+        whereClause.toLocationType = toLocationType;
+    }
+
     return await Transaction.findOne({
-        where: {
-            toLocationId
-        }
+        where: whereClause
     });
 }
 
