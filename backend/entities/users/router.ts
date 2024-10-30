@@ -67,7 +67,8 @@ export function getRouter(): Router {
                 password: string;
                 status: string;
                 isVerified: boolean;
-                dateCreated: Date }>,
+                dateCreated: Date;
+                code: string }>,
             res
         ) => {
             const { principal,
@@ -92,7 +93,8 @@ export function getRouter(): Router {
                 password,
                 status,
                 isVerified,
-                dateCreated } = req.body;
+                dateCreated,
+                code } = req.body;
 
             const officeAddress = await createOfficeAddress({
                 region: region,
@@ -121,7 +123,8 @@ export function getRouter(): Router {
                 password,
                 status,
                 isVerified,
-                dateCreated
+                dateCreated,
+                code
             });
 
             res.json(user);
@@ -148,6 +151,42 @@ export function getRouter(): Router {
         }
     });
 
+    router.post('/forgotpassword', async (req, res) => {
+        const { email } = req.body;
+
+        try {
+            const user = await User.findOne({
+                where: { email }
+            });
+
+            if (user) {
+                res.json(user.id);
+            } else {
+                res.status(404).json({ message: 'Email not found' });
+            }
+        } catch (error) {
+            res.status(500).json({ message: 'An error has occured' });
+        }
+    })
+
+    router.post('/verifycode', async (req, res) => {
+        const { email, code } = req.body;
+
+        try {
+            const user = await User.findOne({
+                where: { email, code }
+            });
+
+            if (user) {
+                res.json(user.id);
+            } else {
+                res.status(404).json({ message: 'Code does not match' });
+            }
+        } catch (error) {
+            res.status(500).json({ message: 'An error has occured' });
+        }
+    })
+
     return router;
 }
 
@@ -170,7 +209,8 @@ async function updateHandler(
         password?: string;
         status?: string;
         isVerified?: boolean;
-        dateCreated?: Date }>,
+        dateCreated?: Date;
+        code?: string }>,
     res: Response
 ): Promise<void> {
     const { id,
@@ -191,7 +231,8 @@ async function updateHandler(
         password,
         status,
         isVerified,
-        dateCreated } = req.body;
+        dateCreated,
+        code } = req.body;
 
     const user = await updateUser({
         id,
@@ -212,7 +253,8 @@ async function updateHandler(
         password,
         status,
         isVerified,
-        dateCreated
+        dateCreated,
+        code
     });
 
     res.json(user);

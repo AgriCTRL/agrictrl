@@ -71,11 +71,14 @@ export class User extends BaseEntity {
     @Column({ default: false })
     isVerified: boolean;
 
+    @Column({ nullable: true })
+    code: string;
+
     @Column()
     dateCreated: Date;
 }
 
-export type UserCreate = Pick<User, 'principal' | 'firstName' | 'lastName' | 'gender' | 'birthDate' | 'contactNumber' | 'userType' | 'organizationName' | 'jobTitlePosition' | 'branchRegion' | 'branchOffice' | 'validId' | 'validIdName' | 'officeAddressId' | 'email' | 'password' | 'status' | 'isVerified' | 'dateCreated' > &
+export type UserCreate = Pick<User, 'principal' | 'firstName' | 'lastName' | 'gender' | 'birthDate' | 'contactNumber' | 'userType' | 'organizationName' | 'jobTitlePosition' | 'branchRegion' | 'branchOffice' | 'validId' | 'validIdName' | 'officeAddressId' | 'email' | 'password' | 'status' | 'isVerified' | 'dateCreated' | 'code' > &
 { officeAddressId: OfficeAddress['id'] };
 export type UserUpdate = Pick<User, 'id'> & Partial<UserCreate>;
 
@@ -175,7 +178,8 @@ export async function updateUser(userUpdate: UserUpdate): Promise<User> {
         email: userUpdate.email,
         password: userUpdate.password,
         status: userUpdate.status,
-        isVerified: userUpdate.isVerified
+        isVerified: userUpdate.isVerified,
+        code: userUpdate.code
     });
 
     const user = await getUser(userUpdate.id);
