@@ -382,8 +382,31 @@ function Profile() {
             if (!addressResponse.ok) {
                 throw new Error('Failed to update office address');
             }
-    
-            toast.current.show({severity:'success', summary: 'Success', detail:'Profile updated successfully!', life: 3000});
+            
+            // Update localStorage with new user data
+            const updatedUserData = {
+                ...user,
+                firstName: userData.personalInfo.firstName,
+                lastName: userData.personalInfo.lastName,
+                gender: userData.personalInfo.gender,
+                birthDate: userData.personalInfo.birthDate,
+                contactNumber: userData.personalInfo.contactNumber,
+                organizationName: userData.accountDetails.organizationName,
+                jobTitlePosition: userData.accountDetails.jobTitlePosition,
+                branchRegion: userData.accountDetails.branchRegion,
+                branchOffice: userData.accountDetails.branchOffice,
+                email: userData.passwordInfo.email,
+                officeAddress: {
+                    id: user.officeAddressId,
+                    region: userData.officeAddress.region,
+                    province: userData.officeAddress.province,
+                    cityTown: userData.officeAddress.cityTown,
+                    barangay: userData.officeAddress.barangay,
+                    street: userData.officeAddress.street,
+                }
+            };
+            localStorage.setItem('user', JSON.stringify(updatedUserData));
+            window.location.reload();
         } catch (error) {
             console.error('Error updating user data:', error);
             toast.current.show({severity:'error', summary: 'Error', detail:'Failed to update profile. Please try again.', life: 5000});
