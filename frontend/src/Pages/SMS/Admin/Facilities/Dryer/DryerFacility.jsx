@@ -1,18 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
-
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
 import { Tag } from 'primereact/tag';
 import { InputText } from 'primereact/inputtext';
 import { Toast } from 'primereact/toast';
-
-import { Search, Settings2, FileX, Filter, Download, Plus } from 'lucide-react';
-
-import DryerRegister from './DryerRegister';
-import DryerUpdate from './DryerUpdate';
 import { IconField } from 'primereact/iconfield';
 import { InputIcon } from 'primereact/inputicon';
+import { Plus, Download } from 'lucide-react';
+import DryerRegister from './DryerRegister';
+import DryerUpdate from './DryerUpdate';
 
 function DryerFacility() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -112,10 +109,16 @@ function DryerFacility() {
         />
     );
 
+    // Set filters for searching by ID, name, and status
+    const filterByGlobal = (value) => {
+        setFilters({
+            global: { value: value, matchMode: 'equals' },
+        });
+    };
+
     return (
         <div className="flex flex-col h-full gap-4">
             <Toast ref={toast} />
-            {/* top buttons */}
             <div className="w-full flex items-center justify-between gap-4">
                 <IconField iconPosition="left" className="w-1/2">
                     <InputIcon className="pi pi-search text-light-grey"></InputIcon>
@@ -123,19 +126,14 @@ function DryerFacility() {
                         placeholder="Tap to Search" 
                         type="search"
                         value={globalFilterValue} 
-                        onChange={(e) => setGlobalFilterValue(e.target.value)}
+                        onChange={(e) => {
+                            setGlobalFilterValue(e.target.value);
+                            filterByGlobal(e.target.value); // Update filters on input change
+                        }}
                         className='w-full ring-0 hover:border-primary focus:border-primary placeholder:text-light-grey' 
                     />
                 </IconField>
-                <div className="flex justify-between w-1/2">
-                    <Button 
-                        type="button"
-                        className="flex flex-center items-center gap-4 text-primary bg-white hover:bg-white/35 border border-lightest-grey ring-0"
-                    >
-                        <Filter size={20} />
-                        <p className="font-semibold">Filters</p>
-                    </Button>
-
+                <div className="flex justify-end w-1/2">
                     <div className='flex gap-4'>
                         <Button 
                             type="button"
@@ -157,7 +155,6 @@ function DryerFacility() {
                 </div>
             </div>
 
-            {/* table */}
             <div className="flex-grow flex flex-col overflow-hidden rounded-lg shadow">
                 <div className="flex-grow overflow-auto bg-white">
                     <DataTable 
@@ -166,8 +163,8 @@ function DryerFacility() {
                         scrollHeight="flex"
                         scrolldirection="both"
                         className="p-datatable-sm px-5 pt-5"
-                        filters={filters}
-                        globalFilterFields={['id', 'facilityName', 'location', 'status']}
+                        filters={filters} // Pass filters here
+                        globalFilterFields={['id', 'dryerName', 'status']}
                         emptyMessage="No inventory found."
                         paginator
                         paginatorClassName="border-t-2 border-gray-300"
@@ -177,7 +174,7 @@ function DryerFacility() {
                         <Column field="dryerName" header="Dryer Name" className="text-center" headerClassName="text-center"/>
                         <Column field="location" header="Location" className="text-center" headerClassName="text-center"/>
                         <Column field="capacity" header="Capacity (mt/hrs)" className="text-center" headerClassName="text-center"/>
-                        <Column field="processing" header="Processing" className="text-center" headerClassName="text-center"/>
+                        {/* <Column field="processing" header="Processing" className="text-center" headerClassName="text-center"/> */}
                         <Column field="status" header="Status" body={statusBodyTemplate} className="text-center" headerClassName="text-center"/>
                         <Column body={actionBodyTemplate} exportable={false} className="text-center" headerClassName="text-center"/>
                     </DataTable>

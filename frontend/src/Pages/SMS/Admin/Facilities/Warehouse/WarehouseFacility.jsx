@@ -14,7 +14,6 @@ import WarehouseUpdate from './WarehouseUpdate';
 import pdfExport from '../../../../../Components/pdfExport';
 import { IconField } from 'primereact/iconfield';
 import { InputIcon } from 'primereact/inputicon';
-import { InputTextarea } from 'primereact/inputtextarea';
 
 function Warehouse() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -114,6 +113,12 @@ function Warehouse() {
         />
     );
 
+    const filterByGlobal = (value) => {
+        setFilters({
+            global: { value: value, matchMode: 'equals' },
+        });
+    };
+
     const exportPdf = () => {
         const columns = ['ID', 'Warehouse Name', 'Location', 'Branch', 'Capacity (mt)', 'Current Stock (mt)', 'Status'];
         const data = warehouseData.map(warehouse => [
@@ -139,19 +144,21 @@ function Warehouse() {
                     <InputText
                         placeholder="Tap to Search" 
                         type="search"
-                        value={globalFilterValue} 
-                        onChange={(e) => setGlobalFilterValue(e.target.value)}
+                        onChange={(e) => {
+                            setGlobalFilterValue(e.target.value);
+                            filterByGlobal(e.target.value);
+                        }}
                         className='w-full ring-0 hover:border-primary focus:border-primary placeholder:text-light-grey' 
                     />
                 </IconField>
-                <div className="flex justify-between w-1/2">
-                    <Button 
+                <div className="flex justify-end w-1/2">
+                    {/* <Button 
                         type="button"
                         className="flex flex-center items-center gap-4 text-primary bg-white hover:bg-white/35 border border-lightest-grey ring-0"
                     >
                         <Filter size={20} />
                         <p className="font-semibold">Filters</p>
-                    </Button>
+                    </Button> */}
 
                     <div className='flex gap-4'>
                         <Button 

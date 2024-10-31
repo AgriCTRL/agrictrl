@@ -234,11 +234,31 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
 
     const handlePalayInputChange = (e) => {
         const { name, value } = e.target;
-        setPalayData(prevState => ({
-            ...prevState,
-            [name]: value
-        }));
-    }; 
+        
+        // Create a new state update function
+        setPalayData(prevState => {
+            // If quantityBags is changed, automatically calculate gross and net weight
+            if (name === 'quantityBags') {
+                // Each bag is 50 kg for gross weight
+                const grossWeight = value ? parseInt(value) * 50 : '';
+                // Each bag loses 1 kg in weight
+                const netWeight = value ? (parseInt(value) * 50 - parseInt(value)) : '';
+                
+                return {
+                    ...prevState,
+                    [name]: value,
+                    grossWeight: grossWeight.toString(),
+                    netWeight: netWeight.toString()
+                };
+            }
+            
+            // For all other inputs, just update normally
+            return {
+                ...prevState,
+                [name]: value
+            };
+        });
+    };
 
     const handleTransactionInputChange = (e) => {
         const { name, value } = e.target;

@@ -112,6 +112,12 @@ function MillerFacility() {
         />
     );
 
+    const filterByGlobal = (value) => {
+        setFilters({
+            global: { value: value, matchMode: 'equals' },
+        });
+    };
+
     return (
         <div className="flex flex-col h-full gap-4">
             <Toast ref={toast} />
@@ -123,18 +129,21 @@ function MillerFacility() {
                         placeholder="Tap to Search" 
                         type="search"
                         value={globalFilterValue} 
-                        onChange={(e) => setGlobalFilterValue(e.target.value)}
+                        onChange={(e) => {
+                            setGlobalFilterValue(e.target.value);
+                            filterByGlobal(e.target.value);
+                        }}
                         className='w-full ring-0 hover:border-primary focus:border-primary placeholder:text-light-grey' 
                     />
                 </IconField>
-                <div className="flex justify-between w-1/2">
-                    <Button 
+                <div className="flex justify-end w-1/2">
+                    {/* <Button 
                         type="button"
                         className="flex flex-center items-center gap-4 text-primary bg-white hover:bg-white/35 border border-lightest-grey ring-0"
                     >
                         <Filter size={20} />
                         <p className="font-semibold">Filters</p>
-                    </Button>
+                    </Button> */}
 
                     <div className='flex gap-4'>
                         <Button 
@@ -167,7 +176,7 @@ function MillerFacility() {
                         scrolldirection="both"
                         className="p-datatable-sm px-5 pt-5"
                         filters={filters}
-                        globalFilterFields={['id', 'millerName', 'location', 'status']}
+                        globalFilterFields={['id', 'millerName', 'status']}
                         emptyMessage="No inventory found."
                         paginator
                         paginatorClassName="border-t-2 border-gray-300"
@@ -177,7 +186,7 @@ function MillerFacility() {
                         <Column field="millerName" header="Miller Name" className="text-center" headerClassName="text-center"/>
                         <Column field="location" header="Location" className="text-center" headerClassName="text-center"/>
                         <Column field="capacity" header="Capacity (mt)" className="text-center" headerClassName="text-center"/>
-                        <Column field="processing" header="Processing" className="text-center" headerClassName="text-center"/>
+                        {/* <Column field="processing" header="Processing" className="text-center" headerClassName="text-center"/> */}
                         <Column field="category" header="Category" className="text-center" headerClassName="text-center"/>
                         <Column field="type" header="Type" className="text-center" headerClassName="text-center"/>
                         <Column field="status" header="Status" body={statusBodyTemplate} className="text-center" headerClassName="text-center"/>

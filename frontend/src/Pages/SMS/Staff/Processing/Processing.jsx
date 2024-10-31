@@ -143,7 +143,7 @@ const Processing = () => {
                 warehousesRes
             ] = await Promise.all([
                 fetch(`${apiUrl}/${processType}s`),
-                fetch(`${apiUrl}/inventory?toLocationType=${locationType}&status=${status}&batchType=${batchType}&millerType=${millerType}`),
+                fetch(`${apiUrl}/inventory?toLocationType=${locationType}&status=${status}&batchType=drying&batchType=milling&millerType=${millerType}`),
                 fetch(`${apiUrl}/warehouses`)
             ]);
     
@@ -166,29 +166,32 @@ const Processing = () => {
     
             // Combine and structure the data based on the backend associations
             const transformedData = inventory.map(item => {
-                const millerType = facilities.find(f => f.id === item.transaction.toLocationId)?.type || null;
-
+                // Determine the batch type, prioritizing millingbatch if present
+                const batchData = item.processingBatch?.millingBatch || item.processingBatch?.dryingBatch || {};
+            
                 return {
                     palayBatchId: item.palayBatch.id,
                     transactionId: item.transaction.id,
-                    processingBatchId: item.processingBatch?.id,
+                    processingBatchId: batchData.id,
                     palayQuantityBags: item.palayBatch.quantityBags,
                     grossWeight: item.palayBatch.grossWeight,
                     netWeight: item.palayBatch.netWeight,
                     from: warehouses.find(w => w.id === item.transaction.fromLocationId)?.facilityName || 'Unknown Warehouse',
                     location: facilities.find(f => f.id === item.transaction.toLocationId)?.[`${processType}Name`] || 'Unknown Facility',
-                    toLocationId: item.transaction.toLocationId, // Adjust based on response structure
-                    millerType: millerType,
-                    dryingMethod: item.processingBatch?.dryingMethod || null,
+                    toLocationId: item.transaction.toLocationId,
+                    millerType: facilities.find(f => f.id === item.transaction.toLocationId)?.type || null,
+                    dryingMethod: batchData.dryingMethod || null,
                     requestDate: item.transaction.sendDateTime ? new Date(item.transaction.sendDateTime).toLocaleDateString() : '',
-                    startDate: item.processingBatch?.startDateTime ? new Date(item.processingBatch.startDateTime).toLocaleDateString() : '',
-                    endDate: item.processingBatch?.endDateTime ? new Date(item.processingBatch.endDateTime).toLocaleDateString() : '',
+                    startDate: batchData.startDateTime ? new Date(batchData.startDateTime).toLocaleDateString() : '',
+                    endDate: batchData.endDateTime ? new Date(batchData.endDateTime).toLocaleDateString() : '',
                     moistureContent: item.palayBatch.qualitySpec?.moistureContent || '',
                     transportedBy: item.transaction.transporterName,
                     palayStatus: item.palayBatch.status,
                     transactionStatus: item.transaction.status,
-                    processingStatus: item.processingBatch?.status || null,
-                    batchQuantityBags: item.processingBatch?.milledQuantityBags || item.processingBatch?.driedQuantityBags || null,
+                    processingStatus: batchData.status || null,
+                    batchQuantityBags: item.processingBatch.millingBatch?.milledQuantityBags || item.processingBatch.dryingBatch?.driedQuantityBags || null,
+                    batchNetWeight: item.processingBatch.millingBatch?.milledNetWeight || item.processingBatch.dryingBatch?.driedNetWeight || null,
+                    batchGrossWeight: item.processingBatch.millingBatch?.milledGrossWeight || item.processingBatch.dryingBatch?.driedGrossWeight || null,
                 };
             });
     
@@ -248,6 +251,7 @@ const Processing = () => {
                 } else if (rowData.processingStatus?.toLowerCase() === 'done') {
                     setNewTransactionData(initialTransactionData); // Reset the form data
                     setShowReturnDialog(true);
+                    console.log(rowData);
                 }
                 break;
         }
@@ -317,34 +321,46 @@ const Processing = () => {
                     },
                     body: JSON.stringify(dryingBatchData)
                 });
-
+    
                 if (!dryingResponse.ok) {
                     throw new Error('Failed to create drying batch');
                 }
             } else {
-                const millingBatchData = {
-                    dryingBatchId: '',
-                    palayBatchId: selectedItem.palayBatchId,
-                    millerId: selectedItem.toLocationId,
-                    millerType: '',
-                    startDateTime: '',
-                    endDateTime: '',
-                    milledQuantityBags: '',
-                    milledNetWeight: '',
-                    millingEfficiency: '',
-                    status: 'In Progress'
-                };
+                // Get all milling batches and check if one exists for this palay batch
+                const millingBatchesResponse = await fetch(`${apiUrl}/millingbatches`);
+                const millingBatches = await millingBatchesResponse.json();
                 
-                const millingResponse = await fetch(`${apiUrl}/millingbatches`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(millingBatchData)
-                });
-
-                if (!millingResponse.ok) {
-                    throw new Error('Failed to create milling batch');
+                const existingMillingBatch = millingBatches.find(
+                    batch => batch.palayBatchId === selectedItem.palayBatchId
+                );
+    
+                if (!existingMillingBatch) {
+                    const millingBatchData = {
+                        dryingBatchId: '', // This should be populated if coming from drying
+                        palayBatchId: selectedItem.palayBatchId,
+                        millerId: selectedItem.toLocationId,
+                        millerType: '',
+                        startDateTime: '',
+                        endDateTime: '',
+                        milledQuantityBags: '',
+                        milledNetWeight: '',
+                        millingEfficiency: '',
+                        status: 'In Progress'
+                    };
+                    
+                    const millingResponse = await fetch(`${apiUrl}/millingbatches`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(millingBatchData)
+                    });
+    
+                    if (!millingResponse.ok) {
+                        throw new Error('Failed to create milling batch');
+                    }
+                } else {
+                    console.log('Milling batch already exists for this palay batch');
                 }
             }
     
@@ -398,7 +414,6 @@ const Processing = () => {
             } else {
                 updateData = {
                     id: selectedItem.processingBatchId,
-                    dryingBatchId: '0',
                     palayBatchId: selectedItem.palayBatchId,
                     millerId: selectedItem.toLocationId,
                     millerType: selectedItem.millerType,
@@ -473,7 +488,7 @@ const Processing = () => {
             });
             return;
         }
-
+    
         setIsLoading(true);
         try {
             // 1. Update current transaction to Completed
@@ -487,11 +502,11 @@ const Processing = () => {
                     status: 'Completed'
                 })
             });
-
+    
             if (!updateTransactionResponse.ok) {
                 throw new Error('Failed to update current transaction');
             }
-
+    
             // 2. Update palay batch with new status
             const palayResponse = await fetch(`${apiUrl}/palaybatches/update`, {
                 method: 'POST',
@@ -503,15 +518,42 @@ const Processing = () => {
                     currentlyAt: newTransactionData.toLocationName
                 })
             });
-
+    
             if (!palayResponse.ok) {
                 throw new Error('Failed to update palay batch');
             }
-
-            // 3. Create new transaction for return
+    
+            // 3. If this is a drying batch, create a new milling batch
+            if (viewMode === 'drying') {
+                const millingBatchData = {
+                    dryingBatchId: selectedItem.processingBatchId,
+                    palayBatchId: selectedItem.palayBatchId,
+                    millerId: '',
+                    millerType: '',
+                    endDateTime: '',
+                    milledQuantityBags: '',
+                    milledNetWeight: '',
+                    millingEfficiency: '',
+                    status: 'In Progress'
+                };
+    
+                const createMillingBatchResponse = await fetch(`${apiUrl}/millingbatches`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(millingBatchData)
+                });
+    
+                if (!createMillingBatchResponse.ok) {
+                    throw new Error('Failed to create milling batch');
+                }
+            }
+    
+            // 4. Create new transaction for return
             const newTransaction = {
                 ...newTransactionData,
-                item: viewMode === 'drying' ? 'Palay' : 'Rice',
+                item: 'Palay',
                 itemId: selectedItem.palayBatchId,
                 fromLocationType: viewMode === 'drying' ? 'Dryer' : 'Miller',
                 fromLocationId: selectedItem.toLocationId,
@@ -521,7 +563,7 @@ const Processing = () => {
                 status: 'Pending',
                 receiveDateTime: null,
             };
-
+    
             const createTransactionResponse = await fetch(`${apiUrl}/transactions`, {
                 method: 'POST',
                 headers: {
@@ -529,11 +571,11 @@ const Processing = () => {
                 },
                 body: JSON.stringify(newTransaction)
             });
-
+    
             if (!createTransactionResponse.ok) {
                 throw new Error('Failed to create return transaction');
             }
-
+    
             await fetchData();
             setShowReturnDialog(false);
             setNewTransactionData(initialTransactionData);
@@ -768,8 +810,20 @@ const Processing = () => {
                                 body={(rowData) => rowData.batchQuantityBags ?? rowData.palayQuantityBags}
                                 className="text-center" headerClassName="text-center" 
                             />
-                            <Column field="grossWeight" header="Gross Weight" className="text-center" headerClassName="text-center" />
-                            <Column field="netWeight" header="Net Weight" className="text-center" headerClassName="text-center" />
+                            <Column 
+                                field="grossweight" 
+                                header="Gross Weight" 
+                                className="text-center" 
+                                headerClassName="text-center" 
+                                body={(rowData) => rowData.batchGrossWeight ?? rowData.grossWeight}
+                            />
+                            <Column 
+                                field="netweight" 
+                                header="Net Weight" 
+                                className="text-center" 
+                                headerClassName="text-center" 
+                                body={(rowData) => rowData.batchNetWeight ?? rowData.netWeight}
+                            />
                             {viewMode === 'drying' && (selectedFilter === 'return') && (
                                <Column field="moistureContent" header="Moisture Content" className="text-center" headerClassName="text-center" />
                             )}  

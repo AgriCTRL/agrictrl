@@ -89,6 +89,12 @@ function Inventory() {
         });
     };
 
+    const filterByGlobal = (value) => {
+        setFilters({
+            global: { value, matchMode: 'contains' }, // Keep 'contains' for flexible matching
+        });
+    };
+
     const exportPdf = () => {
         const columns = ['ID', 'Date Planted', 'Date Harvested', 'Date Bought', 'Quantity in Bags', 'Gross Weight', 'Net Weight', 'Quality Type', 'Moisture Content', 'Purity', 'Damaged', 'Price', 'Farmer', 'Origin Farm', 'Current Location', 'Status'];
         const data = inventoryData.map(inventory => [
@@ -124,18 +130,21 @@ function Inventory() {
                             placeholder="Tap to Search" 
                             type="search"
                             value={globalFilterValue} 
-                            onChange={(e) => setGlobalFilterValue(e.target.value)}
+                            onChange={(e) => {
+                                setGlobalFilterValue(e.target.value);
+                                filterByGlobal(e.target.value); // Update filters on input change
+                            }}
                             className='w-full ring-0 hover:border-primary focus:border-primary placeholder:text-light-grey' 
                         />
                     </IconField>
-                    <div className="flex justify-between w-1/2">
-                        <Button 
+                    <div className="flex justify-end w-1/2">
+                        {/* <Button 
                             type="button"
                             className="flex flex-center items-center gap-4 text-primary bg-white hover:bg-white/35 border border-lightest-grey ring-0"
                         >
                             <Filter size={20} />
                             <p className="font-semibold">Filters</p>
-                        </Button>
+                        </Button> */}
 
                         <Button 
                             type="button"
@@ -158,7 +167,7 @@ function Inventory() {
                             scrolldirection="both"
                             className="p-datatable-sm pt-5"
                             filters={filters}
-                            globalFilterFields={['trackingId', 'qualityType', 'status', 'farmer', 'originFarm']}
+                            globalFilterFields={['id', 'qualityType ', 'status', 'farmer']}
                             emptyMessage="No records found."
                             paginator
                             rows={30}

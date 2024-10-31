@@ -45,20 +45,32 @@ function AdminNavbarComponent({ items, expanded, onToggleExpanded }) {
                     <h1 className="text-2xl font-semibold text-primary">{items.title}</h1>
                 </div>
                 <div className='flex items-center gap-4'>
-                    <Button 
+                    {/* <Button 
                         icon={<Bell size={20} />}
                         text
                         rounded
                         className='text-primary ring-0'
-                    />
-                    <Divider 
+                    /> */}
+                    {/* <Divider 
                         layout="vertical"
                         className='m-0 py-2' 
-                    />
-                    <Button 
+                    /> */}
+                    <div className="flex gap-4">
+                        <Avatar 
+                            image={items.avatar ?? null} 
+                            icon={<User size={18} />}
+                            shape="circle"
+                            className="cursor-pointer border-primary border text-primary bg-tag-grey"
+                        />
+                        <div className="flex flex-col items-center">
+                            <small className='font-semibold text-black'>{items.user ? items.user : 'username'}</small>                        
+                            <small className='text-light-grey'>{items.user_type.toLowerCase()}</small>                        
+                        </div>
+                    </div>
+                    {/* <Button 
                         className='p-2 gap-4 ring-0'
                         text
-                        onClick={(e) => op.current.toggle(e)}
+                        // onClick={(e) => op.current.toggle(e)}
                     >
                         <Avatar 
                             image={items.avatar ?? null} 
@@ -71,7 +83,7 @@ function AdminNavbarComponent({ items, expanded, onToggleExpanded }) {
                             <small className='text-light-grey'>{items.user_type.toLowerCase()}</small>                        
                         </div>
                         <ChevronDown size={18} />
-                    </Button>
+                    </Button> */}
                     <OverlayPanel ref={op} className='w-60'>
                         <div className='gap-4 flex flex-col'>
                             <div className='flex items-center gap-4'>

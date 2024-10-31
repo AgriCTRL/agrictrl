@@ -1,399 +1,291 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '@/Layouts/AdminLayout';
-
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Timeline } from 'primereact/timeline';
-import { Tag } from 'primereact/tag';
 import { InputText } from 'primereact/inputtext';
 import { Divider } from 'primereact/divider';
-        
+import { Tag } from 'primereact/tag';
+
 import { 
-    AlertCircle, 
-    ChevronDown, 
-    ChevronUp, 
-    Search, 
-    Wheat, 
-    ThermometerSun, 
-    Factory, 
-    WheatOff, 
-    RefreshCcw, 
-    PackageCheck, 
-    MapPin, 
-    Shovel, 
-    FactoryIcon 
+    AlertCircle, ChevronDown, ChevronUp, Search, Wheat, 
+    ThermometerSun, Factory, MapPin, Shovel 
 } from 'lucide-react';
 
 import emptyIllustration from '@/images/illustrations/space.svg';
 import CardComponent from '../../../Components/CardComponent';
 
-//TODO: rice recipients tracking
-
 const Tracking = () => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    const [transactions, setTransactions] = useState([]);
     const [filteredTransactions, setFilteredTransactions] = useState([]);
     const [expandedRows, setExpandedRows] = useState(null);
     const [globalFilter, setGlobalFilter] = useState(null);
-    const [selectedStatus, setSelectedStatus] = useState(null);
+    const [selectedStatus, setSelectedStatus] = useState('palay');
+    const [loading, setLoading] = useState(true);
     const [statuses, setStatuses] = useState([
         {
             label: 'Palay', 
             icon: <Wheat className='text-primary' />
         },
         {
-            label: 'Processing', 
-            icon: <RefreshCcw className='text-primary' />
+            label: 'Drying', 
+            icon: <ThermometerSun className='text-primary' />
+        },
+        {
+            label: 'Milling', 
+            icon: <Factory className='text-primary' />
         },
         {
             label: 'Rice', 
             icon: <Wheat className='text-primary' />
         },
-        {
-            label: 'Delivered', 
-            icon: <PackageCheck className='text-primary' />
-        },
     ]);
-    const searchPlaceholders = [
-        "batch ID",
-        "ID",
-        "Tracking ID",
-        "status"
-    ];
-    const [searchPlaceholder, setSearchPlaceholder] = useState(searchPlaceholders[0]);
-
-    // test data use states
-    const [transactions, setTransactions] = useState([
-        {
-            id: 1,
-            batchNo: 1,
-            tracking_id: 12345,
-            warehouse: "Main Warehouse",
-            date_received: '2023-08-16',
-            quantity: 10,
-            farmers: {
-                id: 1,
-                name: "Batitang Rice Farmers Organization"
-            },
-            status: "Delivered",
-            drying: {
-                "date_received": "2023-08-18",
-                "warehouse": "Drying Facility A"
-            },
-            milling: {
-                "date_received": "2023-09-18",
-                "warehouse": "Milling Facility A"
-            },
-            delivery: {
-                "date": "2023-10-18",
-                "warehouse": "Delivery Facility A"
-            }
-        },
-        {
-            id: 2,
-            batchNo: 2,
-            tracking_id: 67890,
-            warehouse: "Main Warehouse",
-            date_received: '2023-08-16',
-            quantity: 10,
-            farmers: {
-                id: 2,
-                name: "Mang Juan Dela Cruz"
-            },
-            status: 'Rice',
-            drying: {
-                "date_received": "2023-08-18",
-                "warehouse": "Drying Facility B"
-            },
-            milling: {
-                "date_received": "2023-09-18",
-                "warehouse": "Milling Facility B"
-            },
-            delivery: null
-        },
-        {
-            id: 3,
-            batchNo: 3,
-            tracking_id: 24680,
-            warehouse: "Main Warehouse",
-            date_received: '2023-08-16',
-            quantity: 10,
-            farmers: {
-                id: 3,
-                name: "Rapido Romualdo"
-            },
-            status: 'Milling',
-            drying: {
-                "date_received": "2023-08-18",
-                "warehouse": "Drying Facility C"
-            },
-            milling: {
-                "date_received": "2023-09-18",
-                "warehouse": "Milling Facility C"
-            },
-            delivery: null
-        },
-        {
-            id: 4,
-            tracking_id: 54321,
-            batchNo: 4,
-            warehouse: "Main Warehouse",
-            date_received: '2023-08-16',
-            quantity: 10,
-            farmers: {
-                id: 4,
-                name: "Mang Juan Dela Cruz Farming Red"
-            },
-            status: 'Drying',
-            drying: {
-                "date_received": "2023-08-18",
-                "warehouse": "Drying Facility D"
-            },
-            milling: null,
-            delivery: null
-        }
-    ]);
-
-    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         fetchTransactions();
-    }, []);
+    }, [selectedStatus]);
 
     useEffect(() => {
         filterTransactions();
     }, [transactions, selectedStatus, globalFilter]);
 
-    useEffect(() => {
-        const intervalId = setInterval(() => {
-            setSearchPlaceholder(prev => 
-                searchPlaceholders[(searchPlaceholders.indexOf(prev) + 1) % searchPlaceholders.length]
-            );
-        }, 2000);
-
-        return () => clearInterval(intervalId); 
-    }, [])
+    const getStatusFromPalayBatch = (palayBatch, processingBatch, riceDetails) => {
+        // Check for rice status (has rice batch or status is Milled)
+        if (riceDetails?.riceBatch || palayBatch.status === 'Milled') {
+            return 'rice';
+        }
+    
+        // Check for milling status
+        if (processingBatch?.millingBatch || palayBatch.status === 'In Milling') {
+            return 'milling';
+        }
+    
+        // Check for drying status
+        if (processingBatch?.dryingBatch || palayBatch.status === 'In Drying') {
+            return 'drying';
+        }
+    
+        // Default to palay status
+        return 'palay';
+    };  
 
     const fetchTransactions = async () => {
         setLoading(true);
         try {
-        const [
-            palayBatchesRes,
-            warehousesRes,
-            dryingProcessesRes,
-            dryersRes,
-            millingProcessesRes,
-            millersRes,
-            riceBatchesRes
-        ] = await Promise.all([
-            fetch(`${apiUrl}/palaybatches`),
-            fetch(`${apiUrl}/warehouses`),
-            fetch(`${apiUrl}/dryingprocesses`),
-            fetch(`${apiUrl}/dryers`),
-            fetch(`${apiUrl}/millingprocesses`),
-            fetch(`${apiUrl}/millers`),
-            fetch(`${apiUrl}/ricebatches`),
-        ]);
+            const response = await fetch(`${apiUrl}/inventory/enhanced`);
+            const data = await response.json();
+            
+            // Transform and filter the data based on current status and item type
+            const transformedData = data
+                .filter(item => {
+                    // First filter for Palay transactions
+                    const hasOnlyPalayTransactions = item.transactions?.every(t => t.item === "Palay") ?? true;
+                    return hasOnlyPalayTransactions;
+                })
+                .map(item => transformTransactionData(item))
+                .filter(item => item.status === selectedStatus);
 
-        const [
-            palayBatches,
-            warehouses,
-            dryingProcesses,
-            dryers,
-            millingProcesses,
-            millers,
-            riceBatches
-        ] = await Promise.all([
-            palayBatchesRes.json(),
-            warehousesRes.json(),
-            dryingProcessesRes.json(),
-            dryersRes.json(),
-            millingProcessesRes.json(),
-            millersRes.json(),
-            riceBatchesRes.json()
-        ]);
-
-        const processedTransactions = palayBatches.map(batch => {
-            const timeline = [];
-
-            // Palay status
-            const palayWarehouse = warehouses.find(w => w.id === batch.warehouseId);
-            timeline.push({
-            status: 'PALAY',
-            date: new Date(batch.dateReceived).toISOString(),
-            location: palayWarehouse ? palayWarehouse.location : 'Unknown'
-            });
-
-            // Drying status
-            const dryingProcess = dryingProcesses.find(dp => dp.palayBatchId === batch.id);
-            if (dryingProcess) {
-            const dryer = dryers.find(d => d.id === dryingProcess.dryerId);
-            timeline.push({
-                status: 'DRYING',
-                date: dryingProcess.dateSent,
-                location: dryer ? dryer.location : 'Unknown'
-            });
-            }
-
-            // Milling status
-            const millingProcess = millingProcesses.find(mp => mp.palayBatchId === batch.id);
-            if (millingProcess) {
-            const miller = millers.find(m => m.id === millingProcess.millerId);
-            timeline.push({
-                status: 'MILLING',
-                date: millingProcess.dateSent,
-                location: miller ? miller.location : 'Unknown'
-            });
-            }
-
-            // Rice status
-            const riceBatch = riceBatches.find(rb => rb.palayBatchId === batch.id);
-            if (riceBatch) {
-            const riceWarehouse = warehouses.find(w => w.id === riceBatch.warehouseId);
-            timeline.push({
-                status: 'RICE',
-                date: riceBatch.dateReceived,
-                location: riceWarehouse ? riceWarehouse.location : 'Unknown'
-            });
-            }
-
-            return {
-            id: batch.id,
-            batchNo: batch.id.toString(),
-            status: batch.status,
-            timeline: timeline.sort((a, b) => new Date(b.date) - new Date(a.date))
-            };
-        });
-
-        // setTransactions(processedTransactions);
+            setTransactions(transformedData);
         } catch (error) {
-        console.error('Error fetching transactions:', error);
-        // setTransactions([]);
+            console.error('Error fetching transactions:', error);
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
-    const filterTransactions = () => {
-        const processingStatuses = new Set(["milling", "drying", "harvested", "planted palay"]);
-        
-        let filtered = [];
-        
-        if (selectedStatus) {
-            filtered = transactions.filter((transaction) => {
-                let transaction_status = transaction.status.toLowerCase();
-                if (processingStatuses.has(transaction_status)) {
-                    transaction_status = "processing";
-                }
+    const transformTransactionData = (item) => {
+        const status = getStatusFromPalayBatch(
+            item.palayBatch,
+            item.processingBatch,
+            item.riceDetails
+        );
 
-                return transaction_status === selectedStatus
-            });
+        const timelineEvents = generateTimelineEvents(item);
+        
+        return {
+            id: item.palayBatch.id,
+            tracking_id: `PB-${item.palayBatch.id}`,
+            batchNo: item.palayBatch.id,
+            farmers: {
+                id: item.palayBatch.palaySupplierId,
+                name: item.palayBatch.palaySupplier?.farmerName || 'Unknown Farmer'
+            },
+            status: status,
+            timeline: timelineEvents,
+            warehouse: item.palayBatch.currentlyAt,
+            date_received: item.palayBatch.dateBought,
+            quantity: item.palayBatch.quantityBags,
+            drying: item.processingBatch?.dryingBatch ? {
+                date_received: item.processingBatch.dryingBatch.startDateTime,
+                warehouse: `Dryer ${item.processingBatch.dryingBatch.dryerId}`
+            } : null,
+            milling: item.processingBatch?.millingBatch ? {
+                date_received: item.processingBatch.millingBatch.startDateTime,
+                warehouse: `Miller ${item.processingBatch.millingBatch.millerId}`
+            } : null
+        };
+    };
+
+    const transformTransactionToEvent = (transaction) => {
+        // Determine the event type based on the transaction details
+        let type = transaction.item.toUpperCase();
+        let location = '';
+    
+        // Set location based on the toLocationType and toLocationId
+        switch (transaction.toLocationType) {
+            case 'Warehouse':
+                location = `Warehouse ${transaction.toLocationId}`;
+                break;
+            case 'Dryer':
+                type = 'TO DRYING';
+                location = `Dryer ${transaction.toLocationId}`;
+                break;
+            case 'Miller':
+                type = 'TO MILLING';
+                location = `Miller ${transaction.toLocationId}`;
+                break;
+            default:
+                location = `${transaction.toLocationType} ${transaction.toLocationId}`;
         }
+    
+        // Special cases for transitions
+        if (transaction.fromLocationType === 'Dryer' && transaction.toLocationType === 'Warehouse') {
+            type = 'FROM DRYING';
+        } else if (transaction.fromLocationType === 'Miller' && transaction.toLocationType === 'Warehouse') {
+            type = 'FROM MILLING';
+        }
+    
+        return {
+            type,
+            receiveDateTime: transaction.receiveDateTime,
+            sendDateTime: transaction.sendDateTime,
+            location,
+            remarks: transaction.remarks
+        };
+    };
+    
+    const generateTimelineEvents = (item) => {
+        // Transform transactions into events
+        const events = item.transactions?.map(transformTransactionToEvent) || [];
+        
+        // Use the provided generateTimeline function
+        return generateTimeline(
+            events,
+            item.processingBatch,
+            item.riceDetails
+        );
+    };
+    
+    const generateTimeline = (events, processingBatch, riceDetails) => {
+        const timeline = [];
+    
+        // Add events based on the current status and available data
+        if (events.length > 0) {
+            timeline.push(...events.map(event => ({
+                status: event.type,
+                date: event.receiveDateTime || event.sendDateTime,
+                location: event.location,
+                remarks: event.remarks
+            })));
+        }
+    
+        // Sort timeline by date
+        return timeline.sort((a, b) => new Date(a.date) - new Date(b.date));
+    };
 
+    const handleStatusChange = (newStatus) => {
+        // Can't unselect status, can only change to a different one
+        if (newStatus !== selectedStatus) {
+            setSelectedStatus(newStatus.toLowerCase());
+        }
+    };
+
+    const StatusSelector = () => (
+        <div className="bg-gradient-to-r from-secondary to-primary rounded-lg p-4 mb-4">
+            <div className="flex justify-between items-center px-20">
+                {statuses.map((status, index) => (
+                    <React.Fragment key={index}>
+                        <div 
+                            className={`flex flex-col px-4 items-center cursor-pointer 
+                                ${selectedStatus.toLowerCase() === status.label.toLowerCase() ? 'opacity-100' : 'opacity-70'}`}
+                            onClick={() => handleStatusChange(status.label)}
+                        >
+                            <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center mb-2">
+                                {status.icon}
+                            </div>
+                            <div className="text-sm text-white capitalize">{status.label}</div>
+                        </div>
+                        {index < statuses.length - 1 && <Divider />}
+                    </React.Fragment>
+                ))}
+            </div>
+        </div>
+    );
+
+    const filterTransactions = () => {
+        let filtered = [...transactions];
+        
         if (globalFilter) {
-            filtered = transactions.filter((transaction) => 
-                transaction.id.toString().includes(globalFilter) ||
-                transaction.batchNo.toString().includes(globalFilter) ||
-                transaction.tracking_id.toString().includes(globalFilter) ||
-                transaction.status.toLowerCase().includes(globalFilter.toLowerCase())
+            filtered = filtered.filter(transaction => 
+                transaction.batchNo.toString().toLowerCase().includes(globalFilter.toLowerCase()) ||
+                transaction.farmers.name.toLowerCase().includes(globalFilter.toLowerCase())
             );
         }
-
+        
         setFilteredTransactions(filtered);
     };
 
-    const toggleRow = (rowData) => {
-        setExpandedRows((prevExpandedRows) => {
-            if (prevExpandedRows && prevExpandedRows[rowData.id]) {
-                return {};
+    const expandedContent = (rowData) => {
+        const customizedMarker = (item) => {
+            switch (item.status) {
+                case 'PALAY':
+                    return <Wheat className="text-green-500" />;
+                case 'TO DRYING':
+                case 'FROM DRYING':
+                    return <ThermometerSun className="text-yellow-500" />;
+                case 'TO MILLING':
+                case 'FROM MILLING':
+                    return <Factory className="text-blue-500" />;
+                case 'RICE':
+                    return <Wheat className="text-gray-500" />;
+                default:
+                    return <AlertCircle className="text-red-500" />;
             }
-            return { [rowData.id]: true };
-        });
-    };
-
-    // test row expansion template
-    const rowExpansionTemplate = (data) => {
-        const timeline = [
-            {
-                status: 'palay',
-                icon: <Wheat className='text-primary' size={16} />,
-                date: data.date_received,
-                location: data.warehouse
-            },
-            {
-                status: 'drying',
-                icon: <ThermometerSun className='text-primary' size={16} />,
-                date: data.drying?.date_received,
-                location: data.drying?.warehouse
-            },
-            {
-                status: 'milling',
-                icon: <Factory className='text-primary' size={16} />,
-                date: data.milling?.date_received,
-                location: data.milling?.warehouse
-            },
-            {
-                status: 'rice',
-                icon: <Wheat className='text-primary' size={16} />,
-                date: data.palay?.date_received,
-                location: data.palay?.warehouse
-            },
-            {
-                status: 'delivered',
-                icon: <PackageCheck className='text-primary' size={16} />,
-                date: data.delivery?.date,
-                location: data.delivery?.warehouse
-            }
-        ];
-
-        const statusIndexMap = {
-            'palay': 0,
-            'drying': 1,
-            'milling': 2,
-            'rice': 3,
-            'delivered': 4
         };
-
-        const currentStatusIndex = statusIndexMap[data.status.toLowerCase()] ?? 0;
-
-        const filteredTimeline = timeline.slice(0, currentStatusIndex + 1);
-
+    
         return (
-            <div className="flex items-center justify-center">
-                <Timeline 
-                    value={filteredTimeline} 
-                    opposite={(item) =>
-                        <div className='flex flex-col items-end'>
-                            <p className='text-primary font-semibold'>{item.status}</p>
-                            <small className='flex gap-2 items-center'><MapPin size={16}/> {item.location}</small>
-                        </div>
-                    } 
-                    content={(item) => 
-                        <small className="text-color-secondary">
-                            {item.date}
-                        </small>
-                    } 
-                    marker={(item) => 
-                        <div className='rounded-full border border-primary p-2 mb-4'>
-                            {item.icon}
-                        </div>
-                    }
-                    className="tracking py-4"
-                />
-            </div>
+            <Timeline
+                value={rowData.timeline}
+                align="alternate"
+                className="p-4"
+                marker={customizedMarker}
+                content={(item) => (
+                    <div className="text-sm">
+                        <div className="font-bold">{item.status}</div>
+                        <div>{new Date(item.date).toLocaleString('en-US', { 
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric'
+                        })}</div>
+                        <div>{item.location}</div>
+                        {item.remarks && <div className="text-gray-500">{item.remarks}</div>}
+                    </div>
+                )}
+            />
         );
     };
 
-    const expansionBodyTemplate = (rowData) => {
+    const rowExpansionTemplate = (data) => {
+        return expandedRows && expandedRows[data.id] ? expandedContent(data) : null;
+    };
+
+    const headerTemplate = (icon, text) => {
         return (
-        <button
-            onClick={() => toggleRow(rowData)}
-            className="p-2 rounded-full hover:bg-gray-200"
-        >
-            {expandedRows && expandedRows[rowData.id] ? (
-            <ChevronUp className="w-5 h-5" />
-            ) : (
-            <ChevronDown className="w-5 h-5" />
-            )}
-        </button>
+            <div className="flex items-center gap-2">
+                {icon}
+                <span className="font-semibold">{text}</span>
+            </div>
         );
     };
 
@@ -404,14 +296,6 @@ const Tracking = () => {
         </div>
     );
 
-    const headerTemplate = (icon, label) => {
-        return (
-            <span className="flex items-center gap-2 text-primary">
-                {icon} <p className="font-semibold text-primary">{label}</p>
-            </span>
-        )
-    }
-
     return (
         <AdminLayout activePage="Tracking">
             <div className="flex flex-col gap-4 py-4 w-full h-full bg-[#F1F5F9]">
@@ -421,33 +305,16 @@ const Tracking = () => {
                         <InputText
                             type="search"
                             onChange={(e) => setGlobalFilter(e.target.value)}
-                            placeholder={`Search by ${searchPlaceholder}`}
                             className="w-full pl-12 pr-4 py-4 rounded-lg placeholder-primary text-primary border-transparent focus:border-primary hover:border-primary ring-0"
                         />
                     </span>
                 </div>
 
-                <div className="bg-gradient-to-r from-secondary to-primary rounded-lg p-4 mb-4">
-                    <div className="flex justify-between items-center px-20">
-                        {statuses.map((status, index) => (
-                            <>
-                                <div 
-                                    key={index} 
-                                    className={`flex flex-col px-4 items-center cursor-pointer ${selectedStatus?.toLowerCase() === status.label.toLowerCase() ? 'opacity-100' : 'opacity-70'}`}
-                                    onClick={() => setSelectedStatus(selectedStatus?.toLowerCase() === status.label.toLowerCase() ? null : status.label.toLowerCase())}
-                                >
-                                    <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center mb-2">
-                                        {status.icon}
-                                    </div>
-                                    <div className="text-sm text-white capitalize">{status.label}</div>
-                                </div>
-                                <Divider className={`${index === statuses.length - 1 ? 'hidden' : 'block'}`} />
-                            </>
-                        ))}
-                    </div>
-                </div>
+                <StatusSelector />
                 
-                {filteredTransactions.length === 0 ? (
+                {loading ? (
+                    <div>Loading...</div>
+                ) : filteredTransactions.length === 0 ? (
                     emptyData()
                 ) : (
                     <CardComponent className="bg-white">
