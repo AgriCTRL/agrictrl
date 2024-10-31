@@ -45,6 +45,8 @@ const Finishing = ({ setConfirmPasswordValid, credsInfo }) => {
             placeholder="Enter your email" 
             className="w-full focus:ring-0 focus:border-primary hover:border-primary"
             invalid={!credsInfo.email}
+            keyfilter={'email'}
+            maxLength={50}
           />
           {!credsInfo.email &&
             <small className='p-error'>Please input your email.</small>
@@ -63,7 +65,8 @@ const Finishing = ({ setConfirmPasswordValid, credsInfo }) => {
             className="w-full"
             inputClassName='ring-0 focus:border-primary hover:border-primary'
             toggleMask
-            feedback={false} 
+            maxLength={50}
+            minLength={8}
             invalid={!credsInfo.password}
           />
           {!credsInfo.password &&

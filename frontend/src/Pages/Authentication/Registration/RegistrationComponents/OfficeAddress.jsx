@@ -258,6 +258,7 @@ const OfficeAddress = ({ addressInfo }) => {
               className="w-full focus:ring-0" 
               placeholder="#123 Sample Street"
               invalid={!addressInfo.street}
+              maxLength={100}
             />
             {!addressInfo.street &&
               <small className='p-error'>Street is required.</small>

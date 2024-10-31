@@ -234,4 +234,9 @@
             }
         }
     }
+
+    .p-datepicker table td > span.p-highlight {
+        background: #00C261 !important;
+        color: #ffffff !important;
+    }
 }

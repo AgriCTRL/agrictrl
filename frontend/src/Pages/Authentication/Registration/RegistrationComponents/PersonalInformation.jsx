@@ -1,5 +1,7 @@
 import React from 'react';
 import { InputText } from 'primereact/inputtext';
+import { InputMask } from 'primereact/inputmask';
+        
 import { Dropdown } from 'primereact/dropdown';
 import { Calendar } from 'primereact/calendar';
 import { useRegistration } from '../RegistrationContext';
@@ -8,6 +10,12 @@ import { Divider } from 'primereact/divider';
 const PersonalInformation = ({ personalInfo }) => {
   const { registrationData, updateRegistrationData } = useRegistration();
   const { firstName, lastName, gender, birthDate, contactNumber } = registrationData.personalInfo;
+
+  let today = new Date();
+  let year = today.getFullYear();
+  let maxYear = year - 18;
+  let maxDate = new Date();
+  maxDate.setFullYear(maxYear);
 
   const genderOptions = [
     { label: 'Male', value: 'Male' },
@@ -22,9 +30,7 @@ const PersonalInformation = ({ personalInfo }) => {
 
   const handleContactNumberChange = (e) => {
     const value = e.target.value;
-    if (/^\d{0,11}$/.test(value)) {
-      handleInputChange('contactNumber', value);
-    }
+    handleInputChange('contactNumber', value);
   };
 
   const handleDateChange = (e) => {
@@ -56,6 +62,8 @@ const PersonalInformation = ({ personalInfo }) => {
               className="w-full focus:ring-0 focus:border-primary hover:border-primary"
               placeholder="First name"
               invalid={!personalInfo.firstName}
+              keyfilter={/^[a-zA-Z\s]/}
+              maxLength={50}
             />
             {(!personalInfo.firstName) &&
               <small className='p-error'>Please input your first name.</small>
@@ -71,6 +79,8 @@ const PersonalInformation = ({ personalInfo }) => {
               className="w-full focus:ring-0 focus:border-primary hover:border-primary" 
               placeholder="Last name"
               invalid={!personalInfo.lastName} 
+              keyfilter={/^[a-zA-Z\s]/}
+              maxLength={50}
             />
             {(!personalInfo.lastName) &&
               <small className='p-error'>Please input your last name.</small>
@@ -105,6 +115,7 @@ const PersonalInformation = ({ personalInfo }) => {
               className="ring-0 w-full focus:shadow-none custom-calendar focus:border-primary hover:border-primary" 
               showIcon
               invalid={!personalInfo.birthDate}
+              maxDate={maxDate}
             />
             {(!personalInfo.birthDate) &&
               <small className='p-error'>Please input your birthdate.</small>
@@ -114,13 +125,13 @@ const PersonalInformation = ({ personalInfo }) => {
 
         <div className="flex flex-col gap-2 w-full">
           <label htmlFor="contactNumber" className="block text-sm text-black">Contact Number</label>
-          <InputText 
-            id="contactNumber" 
-            value={contactNumber} 
-            onChange={handleContactNumberChange} 
-            className="w-full focus:ring-0 focus:border-primary hover:border-primary" 
-            placeholder="+63 9" 
-            type="tel"
+          <InputMask
+            id="contactNumber"
+            mask="(+63) 9** *** ****"
+            placeholder="(+63) 9** *** ****"
+            value={contactNumber}
+            onChange={handleContactNumberChange}
+            className="w-full focus:ring-0 focus:border-primary hover:border-primary"
             invalid={!personalInfo.contactNumber}
           />
           {(!personalInfo.contactNumber) &&

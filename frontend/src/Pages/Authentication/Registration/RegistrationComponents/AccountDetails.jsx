@@ -148,6 +148,7 @@ const AccountDetails = ({ setSelectedFile, contactInfo }) => {
               placeholder="organization name"
               className="w-full focus:ring-0"
               invalid={!contactInfo.organizationName}
+              maxLength={50}
             />
             {!contactInfo.organizationName &&
               <small className='p-error'>Please input your organization name.</small>
@@ -163,9 +164,11 @@ const AccountDetails = ({ setSelectedFile, contactInfo }) => {
               placeholder="job title"
               className="w-full focus:ring-0"
               invalid={!contactInfo.jobTitlePosition}
+              keyfilter={/^[a-zA-Z\s]/}
+              maxLength={50}
             />
             {!contactInfo.jobTitlePosition &&
-              <small className='p-error'>Please input your organization name.</small>
+              <small className='p-error'>Please input your job title.</small>
             }
           </div>
         </div>
