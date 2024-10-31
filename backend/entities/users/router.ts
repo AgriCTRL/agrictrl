@@ -1,5 +1,6 @@
 import express, { Request, Response, Router } from 'express';
 import CryptoJS from 'crypto-js';
+import { sendVerificationEmail } from '../../utils/emailService';
 
 import { createOfficeAddress } from '../officeaddresses/db';
 import {
@@ -179,6 +180,26 @@ export function getRouter(): Router {
         } catch (error) {
             console.error('Error decrypting or updating user:', error);
             res.status(500).json({ message: 'Failed to register user' });
+        }
+    });
+
+    router.post('/sendverification', async (req, res) => {
+        const { encryptedPayload } = req.body;
+
+        try {
+            const decryptedPayload = decryptData(encryptedPayload);
+            const { email, code } = JSON.parse(decryptedPayload);
+            
+            try {
+                await sendVerificationEmail(email, code);
+            } catch (emailError) {
+                console.error('Failed to send verification email:', emailError);
+                return res.status(500).json({ message: 'Failed to send verification email' });
+            }
+            res.json(null);
+        } catch (error) {
+            console.error('Error processing request:', error);
+            res.status(500).json({ message: 'An error occurred' });
         }
     });
 

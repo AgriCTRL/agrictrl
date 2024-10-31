@@ -22,21 +22,7 @@ const ForgotPassword = () => {
   const [isLoading, setIsLoading] = useState(false);
   const toast = useRef(null);
 
-  const sendVerificationCode = (email, code) => {
-    const templateParams = {
-      to_email: email,
-      verification_code: code,
-    };
-  
-    emailjs.send('service_cl7y98r', 'template_6csvcht', templateParams, 'bZ2aS5B6vgxk3J5LJ')
-      .then((response) => {
-        console.log('Email sent successfully:', response.status, response.text);
-      }, (err) => {
-        console.error('Failed to send email:', err);
-      });
-  };
-
-	const handleVerificationCodeChange = (index, value, event) => {
+  const handleVerificationCodeChange = (index, value, event) => {
 		const newVerificationCode = [...verificationCode];
 		newVerificationCode[index] = value;
 		setVerificationCode(newVerificationCode);
@@ -95,20 +81,33 @@ const ForgotPassword = () => {
       
       const generatedCode = generateCode();
 
-      sendVerificationCode(email, generatedCode);
-
       const codeBody = {
-        id: user.id,
+        email,
         code: generatedCode
       }
       const codePayload = CryptoJS.AES.encrypt(JSON.stringify(codeBody), secretKey).toString();
-      
-      const codeRes = await fetch(`${apiUrl}/users/update`, {
+
+      const codeRes = await fetch(`${apiUrl}/users/sendverification`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ encryptedPayload: codePayload })
       });
       if (!codeRes.ok) {
+        throw new Error ('failed to update code')
+      }
+
+      const updateCodeBody = {
+        id: user.id,
+        code: generatedCode
+      }
+      const updateCodePayload = CryptoJS.AES.encrypt(JSON.stringify(updateCodeBody), secretKey).toString();
+      
+      const updateCodeRes = await fetch(`${apiUrl}/users/update`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ encryptedPayload: updateCodePayload })
+      });
+      if (!updateCodeRes.ok) {
         throw new Error ('failed to update code')
       }
       setCurrentStep(currentStep + 1);
