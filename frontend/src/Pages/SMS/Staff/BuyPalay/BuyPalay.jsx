@@ -133,13 +133,13 @@ function BuyPalay() {
                 {/* Buttons & Search bar */}
                 <div className="flex items-center space-x-2 justify-between mb-2 py-2">
                     <div className="flex flex-row space-x-2 items-center w-1/2 drop-shadow-md">
-                        <Button className="p-2 px-3 rounded-lg text-md font-medium text-white bg-primary ring-0">All</Button>
+                        {/* <Button className="p-2 px-3 rounded-lg text-md font-medium text-white bg-primary ring-0">All</Button>
                         <Button 
                             icon={<Settings2 className="mr-2 text-primary" />}
                             label="Filters" 
-                            className="p-button-success text-primary border border-gray-300 rounded-full bg-white p-2 w-1/16 ring-0" />
+                            className="p-button-success text-primary border border-gray-300 rounded-full bg-white p-2 w-1/16 ring-0" /> */}
                         <RotateCw 
-                            className="w-6 h-6 text-primary cursor-pointer hover:text-secondary transition-colors" 
+                            className="w-6 h-6 ml-5 text-primary cursor-pointer hover:text-secondary transition-colors" 
                             onClick={fetchPalayData}
                             title="Refresh data"
                         />

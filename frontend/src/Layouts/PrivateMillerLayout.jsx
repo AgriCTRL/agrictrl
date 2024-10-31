@@ -44,11 +44,11 @@ function PrivateMillerLayout({ children, activePage, user }) {
                         ))}
                     </div>
                     <div className='flex items-center gap-10'>
-                        <Bell 
+                        {/* <Bell 
                             className="cursor-pointer text-black" 
                             size={20} 
                             onClick={toggleRightSidebar} 
-                        />
+                        /> */}
                         <div className='flex items-center gap-4'>
                             <Avatar 
                                 image="/profileAvatar.png"
