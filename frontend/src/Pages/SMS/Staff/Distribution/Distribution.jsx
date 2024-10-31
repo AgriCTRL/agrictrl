@@ -330,6 +330,10 @@ function Distribution() {
         });
     };
 
+    const orderIdBodyTemplate = (rowData) => {
+        return `0304-${rowData.id}`;
+    };
+
     const filteredData = ordersData.filter(item => {
         switch(selectedFilter) {
             case 'request':
@@ -414,7 +418,7 @@ function Distribution() {
                         paginator
                         rows={10}
                     > 
-                        <Column field="id" header="Order ID" className="text-center" headerClassName="text-center" />
+                        <Column field="id" header="Order ID" body={orderIdBodyTemplate} className="text-center" headerClassName="text-center" />
                         <Column field="dropOffLocation" header="To Be Deliver At" className="text-center" headerClassName="text-center" />
                         <Column field="riceQuantityBags" header="Bags to Deliver" className="text-center" headerClassName="text-center" />
                         <Column field="orderDate" header="Date Ordered" body={(rowData) => dateBodyTemplate(rowData, 'orderDate')} className="text-center" headerClassName="text-center" />

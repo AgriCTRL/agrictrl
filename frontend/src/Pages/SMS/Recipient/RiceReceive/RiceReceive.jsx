@@ -96,6 +96,10 @@ function RiceReceive() {
         });
     };
 
+    const orderIdBodyTemplate = (rowData) => {
+        return `0304-${rowData.id}`;
+    };
+
     const handleReceiveClick = (rowData) => {
         setSelectedOrderData({
             ...rowData,
@@ -170,7 +174,7 @@ function RiceReceive() {
                         paginator
                         rows={30}
                     > 
-                        <Column field="id" header="Order ID" className="text-center" headerClassName="text-center" />
+                        <Column field="id" header="Order ID" body={orderIdBodyTemplate} className="text-center" headerClassName="text-center" />
                         <Column field="orderDate" header="Date Ordered" body={(rowData) => dateBodyTemplate(rowData, 'orderDate')} className="text-center" headerClassName="text-center" />
                         <Column field="riceQuantityBags" header="Quantity in Bags" className="text-center" headerClassName="text-center" />
                         <Column field="totalCost" header="Price" className="text-center" headerClassName="text-center" />
