@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { InputText } from 'primereact/inputtext';
@@ -6,6 +6,7 @@ import { Button } from 'primereact/button';
 import { Password } from 'primereact/password';
 import { Divider } from 'primereact/divider';
 import { SelectButton } from 'primereact/selectbutton';
+import { Toast } from 'primereact/toast';
 
 import { 
 	Wheat, 
@@ -35,26 +36,28 @@ const loginUser = async (email, password, userType) => {
     const height = 500;
     const left = (window.screen.width / 2) - (width / 2);
     const top = (window.screen.height / 2) - (height / 2) - 25;
-    await new Promise((resolve, reject) => {
+    
+    return new Promise((resolve, reject) => {
       authClient.login({
           identityProvider: `${internetIdentityUrl}`,
           onSuccess: resolve,
-          onError: reject,
+          onError: () => reject(new Error('Failed to login internet identity.')),
           windowOpenerFeatures: `width=${width},height=${height},left=${left},top=${top}`
       });
     });
-  }
+  };
 
   const getPrincipal = async () => {
     try {
-        const isAuthenticated = await authClient.isAuthenticated();
-        if (isAuthenticated) {
-            const identity = authClient.getIdentity();
-            return identity.getPrincipal().toText();
-        }
+      const isAuthenticated = await authClient.isAuthenticated();
+      if (isAuthenticated) {
+          const identity = authClient.getIdentity();
+          return identity.getPrincipal().toText();
+      }
     } catch (error) {
-        console.log(error.message);
+      console.log(error.message);
     }
+    return null;  // Return null if no principal is found
   };
   
   try {
@@ -65,16 +68,23 @@ const loginUser = async (email, password, userType) => {
       },
       body: JSON.stringify({ email, password, userType })
     });
+
     if (!response.ok) {
       throw new Error('Failed to fetch users');
     }
+
     const user = await response.json();
 
     if (user) {
       if(userType === 'Admin') {
-        await identityLogIn();
-        const newPrincipal = await getPrincipal();
+        try {
+          await identityLogIn();  // If login fails, it will throw an error
+        } catch (error) {
+          return { success: false, message: error.message };
+        }
 
+        const newPrincipal = await getPrincipal();
+        
         if (newPrincipal) {
           if (user.principal === null) {
             const res = await fetch(`${apiUrl}/users/update`, {
@@ -91,7 +101,7 @@ const loginUser = async (email, password, userType) => {
             
             user.principal = newPrincipal;
           } else if (user.principal !== newPrincipal) {
-            return { success: false, message: 'Principal mismatch' };
+            return { success: false, message: 'Invalid internet identity' };
           }
         } else {
           return { success: false, message: 'Failed to get principal' };
@@ -99,15 +109,16 @@ const loginUser = async (email, password, userType) => {
       }
       return { success: true, user };
     } else {
-      return { success: false, message: 'Invalid credentials' };
+      return { success: false, message: 'Wrong credentials' };
     }
   } catch (error) {
     console.error('Login error:', error);
-    return { success: false, message: 'An error occurred during login' };
+    return { success: false, message: 'Invalid user type, email or password' };
   }
-}
+};
 
 const LoginPage = () => {
+	const toast = useRef(null);
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [userType, setUserType] = useState(null);
@@ -171,10 +182,20 @@ const LoginPage = () => {
 				navigate('/miller');
 				break;
 				default:
-				alert('Invalid user type');
+                    toast.current.show({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'Invalid user type',
+                        life: 3000
+                	});
 			}
 			} else {
-				alert(result.message);
+				toast.current.show({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: result.message,
+                    life: 3000
+                });
 			}
 		}
 	};
@@ -219,6 +240,13 @@ const LoginPage = () => {
 
 	return (
 		<div className="h-fit md:h-screen w-screen flex flex-col-reverse md:flex-row md:gap-10 p-0 md:p-10">
+			<Toast 
+				ref={toast} 
+				pt={{
+					root: { className: 'bg-opacity-100' },
+					message: { className: 'bg-white shadow-lg' }
+				}}
+			/>
 			{/* Left side */}
 			<div className="flex flex-col items-center justify-between h-full w-full md:w-[45%] p-10 gap-4 rounded-2xl">
 				<div className="h-full w-full flex flex-col justify-start gap-6">
@@ -257,7 +285,7 @@ const LoginPage = () => {
 							/>
 							{userTypeError && 
 								<small id="userType-help" className='p-error'>
-									Please input your user type.
+									Please select your user type.
 								</small>
 							}
 						</div>

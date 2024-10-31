@@ -190,6 +190,18 @@ function Profile() {
     };
 
     const handleInputChange = (section, field, value) => {
+        if (section === 'personalInfo' && field === 'contactNumber') {
+            // Only allow numbers and limit to 11 digits
+            const numbersOnly = value.replace(/[^\d]/g, '').slice(0, 11);
+            setUserData(prev => ({
+                ...prev,
+                personalInfo: {
+                    ...prev.personalInfo,
+                    contactNumber: numbersOnly
+                }
+            }));
+            return;
+        }
         if (section === 'officeAddress') {
             if (field === 'region') {
                 const selectedRegion = regionOptions.find(r => r.value === value);
@@ -439,7 +451,7 @@ function Profile() {
         if (!userData.personalInfo.contactNumber.trim()) {
             newErrors.contactNumber = "Contact number is required";
             toast.current.show({severity:'error', summary: 'Error', detail:'Contact number is required', life: 5000});
-        } else if (!/^\d{10,}$/.test(userData.personalInfo.contactNumber)) {
+        } else if (!/^\d{11,}$/.test(userData.personalInfo.contactNumber)) {
             newErrors.contactNumber = "Invalid contact number format";
             toast.current.show({severity:'error', summary: 'Error', detail:'Invalid contact number format', life: 5000});
         }

@@ -209,7 +209,7 @@ const OfficeAddress = ({ addressInfo }) => {
                 className="ring-0 w-full"
                 invalid={!addressInfo.province}
               />
-              {!addressInfo.province &&
+              {region && !province && provinceOptions.length > 0 &&
                 <small className='p-error'>Province is required.</small>
               }
             </div>
@@ -226,7 +226,7 @@ const OfficeAddress = ({ addressInfo }) => {
               className="ring-0 w-full placeholder:text-gray-400"
               invalid={!addressInfo.cityTown}
             />
-            {!addressInfo.cityTown &&
+            {province && !cityTown && cityTownOptions.length > 0 &&
               <small className='p-error'>City is required.</small>
             }
           </div>
@@ -244,7 +244,7 @@ const OfficeAddress = ({ addressInfo }) => {
               className="ring-0 w-full placeholder:text-gray-400"
               invalid={!addressInfo.barangay}
             />
-            {!addressInfo.barangay &&
+            {cityTown && !barangay && barangayOptions.length > 0 &&
               <small className='p-error'>Barangay is required.</small>
             }
           </div>

@@ -211,6 +211,18 @@ function Profile() {
     };
 
     const handleInputChange = (section, field, value) => {
+        if (section === 'personalInfo' && field === 'contactNumber') {
+            // Only allow numbers and limit to 11 digits
+            const numbersOnly = value.replace(/[^\d]/g, '').slice(0, 11);
+            setUserData(prev => ({
+                ...prev,
+                personalInfo: {
+                    ...prev.personalInfo,
+                    contactNumber: numbersOnly
+                }
+            }));
+            return;
+        }
         if (section === 'officeAddress') {
             if (field === 'region') {
                 const selectedRegion = regionOptions.find(r => r.value === value);
@@ -482,7 +494,7 @@ function Profile() {
         if (!userData.personalInfo.contactNumber.trim()) {
             newErrors.contactNumber = "Contact number is required";
             toast.current.show({severity:'error', summary: 'Error', detail:'Contact number is required', life: 5000});
-        } else if (!/^\d{10,}$/.test(userData.personalInfo.contactNumber)) {
+        } else if (!/^\d{11,}$/.test(userData.personalInfo.contactNumber)) {
             newErrors.contactNumber = "Invalid contact number format";
             toast.current.show({severity:'error', summary: 'Error', detail:'Invalid contact number format', life: 5000});
         }
@@ -532,17 +544,48 @@ function Profile() {
         }
     
         // Password
-        if (!userData.passwordInfo.email.trim()) {
-            newErrors.email = "Email is required";
-            toast.current.show({severity:'error', summary: 'Error', detail:'Email is required', life: 5000});
-        }
         if (userData.passwordInfo.password || userData.passwordInfo.confirmPassword) {
-            if (userData.passwordInfo.password !== userData.passwordInfo.confirmPassword) {
-                newErrors.password = "Passwords do not match";
-                toast.current.show({severity:'error', summary: 'Error', detail:'Passwords do not match', life: 5000});
-            } else if (userData.passwordInfo.password.length < 8) {
-                newErrors.password = "Password must be at least 8 characters long";
-                toast.current.show({severity:'error', summary: 'Error', detail:'Password must be at least 8 characters long', life: 5000});
+            // First check if either password field is empty
+            if (!userData.passwordInfo.password) {
+                newErrors.password = "Password is required when confirm password is provided";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Password is required when confirm password is provided', life: 5000});
+            }
+            if (!userData.passwordInfo.confirmPassword) {
+                newErrors.confirmPassword = "Confirm password is required when password is provided";
+                toast.current.show({severity:'error', summary: 'Error', detail:'Confirm password is required when password is provided', life: 5000});
+            }
+
+            // Then validate password requirements if password is provided
+            if (userData.passwordInfo.password) {
+                const passwordRegex = {
+                    lowercase: /[a-z]/,
+                    uppercase: /[A-Z]/,
+                    number: /[0-9]/,
+                    minLength: 8
+                };
+
+                if (userData.passwordInfo.password.length < passwordRegex.minLength) {
+                    newErrors.password = "Password must be at least 8 characters long";
+                    toast.current.show({severity:'error', summary: 'Error', detail:'Password must be at least 8 characters long', life: 5000});
+                }
+                if (!passwordRegex.lowercase.test(userData.passwordInfo.password)) {
+                    newErrors.password = "Password must contain at least one lowercase letter";
+                    toast.current.show({severity:'error', summary: 'Error', detail:'Password must contain at least one lowercase letter', life: 5000});
+                }
+                if (!passwordRegex.uppercase.test(userData.passwordInfo.password)) {
+                    newErrors.password = "Password must contain at least one uppercase letter";
+                    toast.current.show({severity:'error', summary: 'Error', detail:'Password must contain at least one uppercase letter', life: 5000});
+                }
+                if (!passwordRegex.number.test(userData.passwordInfo.password)) {
+                    newErrors.password = "Password must contain at least one number";
+                    toast.current.show({severity:'error', summary: 'Error', detail:'Password must contain at least one number', life: 5000});
+                }
+
+                // Finally check if passwords match after all other validations
+                if (userData.passwordInfo.password !== userData.passwordInfo.confirmPassword) {
+                    newErrors.confirmPassword = "Passwords do not match";
+                    toast.current.show({severity:'error', summary: 'Error', detail:'Passwords do not match', life: 5000});
+                }
             }
         }
     
@@ -777,7 +820,7 @@ function Profile() {
                             toggleMask
                             feedback={false}
                         />
-                        {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
+                        {/* {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>} */}
                     </div>
                 </div>
             )}
