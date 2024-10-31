@@ -654,6 +654,7 @@ const MillingTransactions = () => {
                             value={newMillingData.milledQuantityBags}
                             onChange={(e) => setNewMillingData(prev => ({...prev, milledQuantityBags: e.target.value}))}
                             className="w-full ring-0"
+                            keyfilter="int"
                         />
                     </div>
                     <div className="w-full">
@@ -663,6 +664,7 @@ const MillingTransactions = () => {
                             value={newMillingData.milledGrossWeight}
                             onChange={(e) => setNewMillingData(prev => ({...prev, milledGrossWeight: e.target.value}))}
                             className="w-full ring-0"
+                            keyfilter="int"
                         />
                     </div>
                     <div className="w-full">
@@ -672,6 +674,7 @@ const MillingTransactions = () => {
                             value={newMillingData.milledNetWeight}
                             onChange={(e) => setNewMillingData(prev => ({...prev, milledNetWeight: e.target.value}))}
                             className="w-full ring-0"
+                            keyfilter="int"
                         />
                     </div>
                     <div className="w-full">
@@ -681,6 +684,7 @@ const MillingTransactions = () => {
                             value={newMillingData.millingEfficiency}
                             onChange={(e) => setNewMillingData(prev => ({...prev, millingEfficiency: e.target.value}))}
                             className="w-full ring-0"
+                            keyfilter="int"
                         />
                     </div>
                     
@@ -718,6 +722,8 @@ const MillingTransactions = () => {
                                 transporterName: e.target.value
                             }))}
                             className="w-full ring-0" 
+                            maxLength={50}
+                            keyfilter="alphanum"
                         />
                     </div>
 
@@ -731,6 +737,7 @@ const MillingTransactions = () => {
                             }))}
                             className="w-full ring-0" 
                             rows={3}
+                            maxLength={250}
                         />
                     </div>
 
@@ -744,6 +751,7 @@ const MillingTransactions = () => {
                             }))}
                             className="w-full ring-0" 
                             rows={3}
+                            maxLength={250}
                         />
                     </div>
                     

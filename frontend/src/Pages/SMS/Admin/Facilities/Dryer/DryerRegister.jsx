@@ -121,6 +121,7 @@ function DryerRegister({ visible, onHide, onDryerRegistered }) {
                                 value={dryerName}
                                 onChange={(e) => setDryerName(e.target.value)}
                                 className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
+                                maxLength={50}
                             />
                         </div>
 
@@ -132,6 +133,7 @@ function DryerRegister({ visible, onHide, onDryerRegistered }) {
                                 type='number'
                                 onChange={(e) => setCapacity(e.target.value)}
                                 className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
+                                keyfilter="int"
                             />
                         </div>
 
@@ -142,6 +144,7 @@ function DryerRegister({ visible, onHide, onDryerRegistered }) {
                                 value={location}
                                 onChange={(e) => setLocation(e.target.value)}
                                 className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
+                                maxLength={50}
                             />
                         </div>
 
@@ -153,6 +156,7 @@ function DryerRegister({ visible, onHide, onDryerRegistered }) {
                                 type='number'
                                 onChange={(e) => setContactNumber(e.target.value)}
                                 className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
+                                maxLength={15}
                             />
                         </div>
 
@@ -163,6 +167,8 @@ function DryerRegister({ visible, onHide, onDryerRegistered }) {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
+                                keyfilter="email"
+                                maxLength={50}
                             />
                         </div>
 

@@ -324,6 +324,8 @@ function BuyRice({ visible, onHide, onRiceOrdered }) {
                                     value={formData.riceType}
                                     className="ring-0 w-full placeholder:text-gray-400"
                                     disabled
+                                    keyfilter="alphanum"
+                                    maxLength={50}
                                 />
                             </div>
 
@@ -338,6 +340,7 @@ function BuyRice({ visible, onHide, onRiceOrdered }) {
                                     onChange={handleInputChange}
                                     placeholder="Enter quantity"
                                     className="w-full focus:ring-0"
+                                    keyfilter="int"
                                 />
                                 {errors.quantity && <p className="text-red-500 text-xs mt-1">{errors.quantity}</p>}
                             </div>
@@ -368,6 +371,7 @@ function BuyRice({ visible, onHide, onRiceOrdered }) {
                                     disabled
                                     value={formData.ricePrice}
                                     className='w-full focus:ring-0 text-center'
+                                    keyfilter="int"
                                 />
                             </div>
 
@@ -379,6 +383,7 @@ function BuyRice({ visible, onHide, onRiceOrdered }) {
                                     disabled
                                     value={formData.weightInKilo}
                                     className='w-full focus:ring-0 text-center'
+                                    keyfilter="int"
                                 />
                             </div>
 
@@ -392,6 +397,7 @@ function BuyRice({ visible, onHide, onRiceOrdered }) {
                                     disabled
                                     value={formData.totalPrice}
                                     className='w-full focus:ring-0 text-center'
+                                    keyfilter="int"
                                 />
                             </div>
                         </div>
@@ -407,6 +413,7 @@ function BuyRice({ visible, onHide, onRiceOrdered }) {
                             onChange={handleInputChange}
                             placeholder="Enter location"
                             className="w-full ring-0"
+                            maxLength={250}
                         />
                         {errors.dropOffLocation && <p className="text-red-500 text-xs mt-1">{errors.dropOffLocation}</p>}
                     </div>
@@ -419,6 +426,7 @@ function BuyRice({ visible, onHide, onRiceOrdered }) {
                             onChange={handleInputChange}
                             placeholder="Enter description"
                             className="w-full ring-0"
+                            maxLength={250}
                         />
                         {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}
                     </div>

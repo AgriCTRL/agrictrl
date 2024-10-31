@@ -212,6 +212,7 @@ const ForgotPassword = () => {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email here"
               className="w-full focus:ring-0"
+              keyfilter="email"
             />
           </div>
         );
@@ -247,6 +248,7 @@ const ForgotPassword = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
                 inputClassName='w-full ring-0'
+                maxLength={50}
               />
             </div>
             <div className="mb-4 w-full">
@@ -259,6 +261,7 @@ const ForgotPassword = () => {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Enter your password"
                 inputClassName='w-full ring-0'
+                maxLength={50}
               />
             </div>
           </>

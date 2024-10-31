@@ -26,31 +26,56 @@ const UserDetails = ({ userType, visible, onHide, selectedUser, onUserUpdated, o
     <div className="grid grid-cols-2 gap-4 h-full">
         <div>
           <label className="block mb-2 text-md font-medium text-gray-700">First Name</label>
-          <InputText value={selectedUser.firstName} disabled className="w-full" />
+          <InputText 
+            value={selectedUser.firstName} 
+            disabled 
+            className="w-full" 
+            keyfilter={/^[a-zA-Z\s]/}
+            maxLength={50}
+          />
         </div>
 
         <div>
           <label className="block mb-2 text-md font-medium text-gray-700">Last Name</label>
-          <InputText value={selectedUser.lastName} disabled className="w-full" />
+          <InputText 
+            value={selectedUser.lastName} 
+            disabled 
+            className="w-full" 
+            keyfilter={/^[a-zA-Z\s]/}
+            maxLength={50}
+          />
         </div>
 
         <div>
           <label className="block mb-2 text-md font-medium text-gray-700">Gender</label>
-          <InputText value={selectedUser.gender} disabled className="w-full" />
+          <InputText 
+            value={selectedUser.gender} 
+            disabled 
+            className="w-full" 
+            keyfilter="alpha"
+            maxLength={15}
+          />
         </div>
 
         <div>
           <label className="block mb-2 text-md font-medium text-gray-700">Birth Date</label>
           <InputText value={new Date(selectedUser.birthDate).toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-        })} disabled className="w-full" />
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+            })} disabled className="w-full" 
+          />
         </div>
 
         <div>
           <label className="block mb-2 text-md font-medium text-gray-700">Contact Number</label>
-          <InputText value={selectedUser.contactNumber} disabled className="w-full" />
+          <InputText 
+            value={selectedUser.contactNumber} 
+            disabled 
+            className="w-full" 
+            keyfilter="alphanum"
+            maxLength={15}
+          />
         </div>
     </div>
   );
@@ -59,26 +84,55 @@ const UserDetails = ({ userType, visible, onHide, selectedUser, onUserUpdated, o
     <div className="grid grid-cols-2 gap-4 h-full">
       <div>
         <label className="block mb-2 text-md font-medium text-gray-700">User Type</label>
-        <InputText value={selectedUser.userType} disabled className="w-full" />
+        <InputText 
+          value={selectedUser.userType} 
+          disabled 
+          className="w-full" 
+          keyfilter="alpha"
+          maxLength={25}
+        />
       </div>
       <div>
         <label className="block mb-2 text-md font-medium text-gray-700">Organization Name</label>
-        <InputText value={selectedUser.organizationName} disabled className="w-full" />
+        <InputText 
+          value={selectedUser.organizationName} 
+          disabled 
+          className="w-full" 
+          maxLength={50}
+        />
       </div>
       <div>
         <label className="block mb-2 text-md font-medium text-gray-700">Job Title/Position</label>
-        <InputText value={selectedUser.jobTitlePosition} disabled className="w-full" />
+        <InputText 
+          value={selectedUser.jobTitlePosition} 
+          disabled 
+          className="w-full" 
+          maxLength={50}
+          keyfilter="alphanum"
+        />
       </div>
       { selectedUser.userType === 'NFA Branch Staff' && (
         <div>
           <label className="block mb-2 text-md font-medium text-gray-700">Region</label>
-          <InputText value={selectedUser.branchRegion} disabled className="w-full" />
+          <InputText 
+            value={selectedUser.branchRegion} 
+            disabled 
+            className="w-full" 
+            maxLength={50}
+            keyfilter="alphanum"
+          />
         </div>
       )}
       { selectedUser.userType === 'NFA Branch Staff' && (
         <div>
           <label className="block mb-2 text-md font-medium text-gray-700">Branch Office</label>
-          <InputText value={selectedUser.branchOffice} disabled className="w-full" />
+          <InputText 
+            value={selectedUser.branchOffice} 
+            disabled 
+            className="w-full"
+            maxLength={50}
+            keyfilter="alphanum"
+          />
         </div>
       )}
     </div>
@@ -88,25 +142,50 @@ const UserDetails = ({ userType, visible, onHide, selectedUser, onUserUpdated, o
     <div className="grid grid-cols-2 gap-4 h-full">
       <div>
         <label className="block mb-2 text-md font-medium text-gray-700">Region</label>
-        <InputText value={selectedUser.officeAddress.region} disabled className="w-full" />
+        <InputText 
+          value={selectedUser.officeAddress.region} 
+          disabled 
+          className="w-full" 
+          maxLength={50}
+        />
       </div>
       { selectedUser.officeAddress.region !== 'National Capital Region' && (
         <div>
           <label className="block mb-2 text-md font-medium text-gray-700">Province</label>
-          <InputText value={selectedUser.officeAddress.province} disabled className="w-full" />
+          <InputText 
+            value={selectedUser.officeAddress.province} 
+            disabled 
+            className="w-full" 
+            maxLength={50}
+          />
         </div>
       )}
       <div>
         <label className="block mb-2 text-md font-medium text-gray-700">City/Town</label>
-        <InputText value={selectedUser.officeAddress.cityTown} disabled className="w-full" />
+        <InputText 
+          value={selectedUser.officeAddress.cityTown} 
+          disabled 
+          className="w-full" 
+          maxLength={50}
+        />
       </div>
       <div>
         <label className="block mb-2 text-md font-medium text-gray-700">Barangay</label>
-        <InputText value={selectedUser.officeAddress.barangay} disabled className="w-full" />
+        <InputText 
+          value={selectedUser.officeAddress.barangay} 
+          disabled 
+          className="w-full" 
+          maxLength={50}
+        />
       </div>
       <div>
         <label className="block mb-2 text-md font-medium text-gray-700">Street</label>
-        <InputText value={selectedUser.officeAddress.street} disabled className="w-full" />
+        <InputText 
+          value={selectedUser.officeAddress.street} 
+          disabled 
+          className="w-full" 
+          maxLength={50}
+        />
       </div>
     </div>
   );

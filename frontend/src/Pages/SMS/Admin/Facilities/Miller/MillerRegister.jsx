@@ -131,6 +131,7 @@ function MillerRegister({ visible, onHide, onMillerRegistered }) {
                                 value={millerName}
                                 onChange={(e) => setMillerName(e.target.value)}
                                 className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
+                                maxLength={50}
                             />
                         </div>
 
@@ -153,6 +154,7 @@ function MillerRegister({ visible, onHide, onMillerRegistered }) {
                                 value={capacity}
                                 onChange={(e) => setCapacity(e.target.value)}
                                 className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
+                                keyfilter="int"
                             />
                         </div>
 
@@ -163,6 +165,7 @@ function MillerRegister({ visible, onHide, onMillerRegistered }) {
                                 value={location}
                                 onChange={(e) => setLocation(e.target.value)}
                                 className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
+                                maxLength={50}
                             />
                         </div>
 
@@ -184,6 +187,8 @@ function MillerRegister({ visible, onHide, onMillerRegistered }) {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
+                                maxLength={50}
+                                keyfilter="email"
                             />
                         </div>
 

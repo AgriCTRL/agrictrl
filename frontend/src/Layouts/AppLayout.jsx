@@ -1,11 +1,8 @@
 import { React } from 'react';
 import { Link as ScrollLink } from 'react-scroll';
 
-import { InputText } from 'primereact/inputtext';
-import { Button } from 'primereact/button';
 import { Image } from 'primereact/image';
 
-import SimpleParallax from "simple-parallax-js";
 import AppNavbar from '../Components/AppNavbar';
 import SocialsSection from '../Pages/Landing/components/SocialsSection';
 

@@ -122,6 +122,7 @@ function WarehouseUpdate({ visible, onHide, selectedWarehouse, onUpdateWarehouse
                                 value={facilityName}
                                 onChange={(e) => setFacilityName(e.target.value)}
                                 className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
+                                maxLength={50}
                             />
                         </div>
 
@@ -132,6 +133,7 @@ function WarehouseUpdate({ visible, onHide, selectedWarehouse, onUpdateWarehouse
                                 value={nfaBranch}
                                 onChange={(e) => setNfaBranch(e.target.value)}
                                 className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
+                                maxLength={50}
                             />
                         </div>
 
@@ -143,6 +145,7 @@ function WarehouseUpdate({ visible, onHide, selectedWarehouse, onUpdateWarehouse
                                 type='number'
                                 onChange={(e) => setTotalCapacity(e.target.value)}
                                 className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
+                                keyfilter="int"
                             />
                         </div>
 
@@ -153,6 +156,7 @@ function WarehouseUpdate({ visible, onHide, selectedWarehouse, onUpdateWarehouse
                                 value={location}
                                 onChange={(e) => setLocation(e.target.value)}
                                 className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0" 
+                                maxLength={50}
                             />
                         </div>
 
@@ -163,6 +167,8 @@ function WarehouseUpdate({ visible, onHide, selectedWarehouse, onUpdateWarehouse
                                 value={contactNumber}
                                 onChange={(e) => setContactNumber(e.target.value)}
                                 className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
+                                maxLength={15}
+                                keyfilter="alphanum"
                             />
                         </div>
 
@@ -173,6 +179,8 @@ function WarehouseUpdate({ visible, onHide, selectedWarehouse, onUpdateWarehouse
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
+                                keyfilter="email"
+                                maxLength={50}
                             />
                         </div>
 

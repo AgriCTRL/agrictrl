@@ -30,6 +30,12 @@ function Profile() {
     const [branchRegionOptions, setBranchRegionOptions] = useState([]);
     const [branchOfficeOptions, setBranchOfficeOptions] = useState([]);
 
+    let today = new Date();
+    let year = today.getFullYear();
+    let maxYear = year - 18;
+    let maxDate = new Date();
+    maxDate.setFullYear(maxYear);
+
     useEffect(() => {
         fetchData();
         fetchRegions();
@@ -617,6 +623,8 @@ function Profile() {
                     onChange={(e) => handleInputChange('personalInfo', 'firstName', e.target.value)}
                     disabled={!editing}
                     className="w-full focus:ring-0"
+                    keyfilter={/^[a-zA-Z\s]/}
+                    maxLength={50}
                 />
                 {errors.firstName && <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>}
             </div>
@@ -627,6 +635,8 @@ function Profile() {
                     onChange={(e) => handleInputChange('personalInfo', 'lastName', e.target.value)}
                     disabled={!editing}
                     className="w-full focus:ring-0"
+                    keyfilter={/^[a-zA-Z\s]/}
+                    maxLength={50}
                 />
                 {errors.lastName && <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>}
             </div>
@@ -649,6 +659,7 @@ function Profile() {
                     disabled={!editing}
                     dateFormat="mm/dd/yy"
                     className="w-full rounded-md"
+                    maxDate={maxDate}
                 />
                 {errors.birthDate && <p className="text-red-500 text-xs mt-1">{errors.birthDate}</p>}
             </div>
@@ -685,6 +696,7 @@ function Profile() {
                     onChange={(e) => handleInputChange('accountDetails', 'organizationName', e.target.value)}
                     disabled={!editing}
                     className="w-full focus:ring-0"
+                    maxLength={50}
                 />
                 {errors.organizationName && <p className="text-red-500 text-xs mt-1">{errors.organizationName}</p>}
             </div>
@@ -695,6 +707,8 @@ function Profile() {
                     onChange={(e) => handleInputChange('accountDetails', 'jobTitlePosition', e.target.value)}
                     disabled={!editing}
                     className="w-full focus:ring-0"
+                    keyfilter={/^[a-zA-Z\s]/}
+                    maxLength={50}
                 />
                 {errors.jobTitlePosition && <p className="text-red-500 text-xs mt-1">{errors.jobTitlePosition}</p>}
             </div>
@@ -778,6 +792,7 @@ function Profile() {
                     onChange={(e) => handleInputChange('officeAddress', 'street', e.target.value)}
                     disabled={!editing}
                     className="w-full focus:ring-0"
+                    maxLength={100}
                 />
                 {errors.street && <p className="text-red-500 text-xs mt-1">{errors.street}</p>}
             </div>
@@ -793,6 +808,7 @@ function Profile() {
                     onChange={(e) => handleInputChange('passwordInfo', 'email', e.target.value)}
                     disabled={!editing}
                     className="w-full focus:ring-0"
+                    maxLength={50}
                 />
                 {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
             </div>
@@ -806,6 +822,8 @@ function Profile() {
                             onChange={(e) => handleInputChange('passwordInfo', 'password', e.target.value)}
                             disabled={!editing}
                             inputClassName="w-full p-3 ring-0"
+                            maxLength={50}
+                            minLength={8}
                             toggleMask
                         />
                         {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}

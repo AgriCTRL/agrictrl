@@ -210,6 +210,7 @@ function ManageMiller() {
                     onChange={(e) => handleChange('millerName', e.target.value)}
                     disabled={!editing && !isRegistrationForm}
                     className="w-full ring-0"
+                    maxLength={50}
                 />
             </div>
             <div className="flex gap-4 w-full">
@@ -229,6 +230,8 @@ function ManageMiller() {
                         value={millerData.type}
                         disabled
                         className="ring-0 w-full placeholder:text-gray-400"
+                        maxLength={50}
+                        keyfilter="alphanum"
                     />
                 </div>
             </div>
@@ -240,6 +243,8 @@ function ManageMiller() {
                         onChange={(e) => handleChange('location', e.target.value)}
                         disabled={!editing && !isRegistrationForm}
                         className="w-full ring-0"
+                        maxLength={50}
+                        keyfilter="alphanum"
                     />
                 </div>
                 <div className="w-full">
@@ -249,6 +254,7 @@ function ManageMiller() {
                         onChange={(e) => handleChange('capacity', e.target.value)}
                         disabled={!editing && !isRegistrationForm}
                         className="w-full ring-0"
+                        keyfilter="int"
                     />
                 </div>
             </div>
@@ -259,6 +265,8 @@ function ManageMiller() {
                         value={userData.personalInfo.contactNumber}
                         disabled
                         className="w-full ring-0"
+                        maxLength={50}
+                        keyfilter="alphanum"
                     />
                 </div>
                 <div className="w-full">
@@ -267,6 +275,8 @@ function ManageMiller() {
                         value={userData.passwordInfo.email}
                         disabled
                         className="w-full ring-0"
+                        maxLength={50}
+                        keyfilter="email"
                     />
                 </div>
             </div>
@@ -277,6 +287,8 @@ function ManageMiller() {
                     value={millerData.status}
                     disabled
                     className={`w-full text-gray-950 ring-0 bg-${millerData.status === "active" ? "primary" : "red-500"}`}
+                    maxLength={50}
+                    keyfilter="alphanum"
                 />
             </div>
             

@@ -132,6 +132,7 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
                                 onChange={(e) => setMillerName(e.target.value)}
                                 className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
                                 disabled={type === "Private"}
+                                maxLength={50}
                             />
                         </div>
 
@@ -155,6 +156,7 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
                                 onChange={(e) => setCapacity(e.target.value)}
                                 className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
                                 disabled={type === "Private"}
+                                keyfilter="int"
                             />
                         </div>
 
@@ -166,6 +168,7 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
                                 onChange={(e) => setLocation(e.target.value)}
                                 className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
                                 disabled={type === "Private"}
+                                maxLength={100}
                             />
                         </div>
 
@@ -177,6 +180,8 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
                                 onChange={(e) => setContactNumber(e.target.value)}
                                 className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
                                 disabled={type === "Private"}
+                                maxLength={15}
+                                keyfilter="alphanum"
                             />
                         </div>
 
@@ -188,6 +193,8 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
                                 onChange={(e) => setEmail(e.target.value)}
                                 className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
                                 disabled={type === "Private"}
+                                maxLength={50}
+                                keyfilter="email"
                             />
                         </div>
 
