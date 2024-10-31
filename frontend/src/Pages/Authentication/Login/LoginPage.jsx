@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { InputText } from 'primereact/inputtext';
@@ -114,10 +114,21 @@ const LoginPage = () => {
 	const [emailError, setEmailError] = useState(false);
 	const [userTypeError, setUserTypeError] = useState(false);
 	const [passwordError, setPasswordError] = useState(false);
-
+	const [rememberMe, setRememberMe] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const navigate = useNavigate();
 	const { login } = useAuth();
+
+	useEffect(() => {
+		const rememberedUser = localStorage.getItem('rememberedUser');
+		if (rememberedUser) {
+		  const { email, password, userType } = JSON.parse(rememberedUser);
+		  setEmail(email);
+		  setPassword(password);
+		  setUserType(userType);
+		  setRememberMe(true);
+		}
+	}, []);
 
   	const userTypes = [
 		{ label: 'NFA Branch Staff', value: 'NFA Branch Staff' },
@@ -135,6 +146,15 @@ const LoginPage = () => {
 			setLoading(false);
 	
 			if (result.success) {
+				if (rememberMe) {
+					localStorage.setItem('rememberedUser', JSON.stringify({
+					  email,
+					  password,
+					  userType
+					}));
+				  } else {
+					localStorage.removeItem('rememberedUser');
+				  }
 			login({ ...result.user, userType });
 	
 			switch (userType) {
@@ -296,7 +316,13 @@ const LoginPage = () => {
 							<a href="#" onClick={forgotButton} className="text-sm font-medium text-primary hover:underline">Forgot Password</a>
 						</div>
 						<div className="flex items-center">
-							<input type="checkbox" id="remember" className="mr-2" />
+							<input
+								type="checkbox"
+								id="remember"
+								className="mr-2"
+								checked={rememberMe}
+								onChange={(e) => setRememberMe(e.target.checked)}
+							/>
 							<label htmlFor="remember" className="text-black">Remember Me</label>
 						</div>
 					</div>
