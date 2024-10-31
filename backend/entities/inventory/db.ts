@@ -3,18 +3,11 @@ import { PalayBatch } from '../palaybatches/db';
 import { DryingBatch } from '../dryingbatches/db';
 import { MillingBatch } from '../millingbatches/db';
 import { Miller } from '../millers/db';
+import { ProcessingType, InventoryFilters, ProcessingBatch, RiceDetails, RiceInventoryFilters, RiceInventoryItem } from './types';
+import { EnhancedInventoryItem, InventoryItem } from './types';
 import { RiceBatchMillingBatch } from '../riceBatchMillingBatches/db';
 import { RiceBatch } from '../ricebatches/db';
 import { RiceOrder } from '../riceorders/db';
-
-import { EnhancedInventoryItem, InventoryFilters, ProcessingBatch, RiceDetails, RiceInventoryFilters, RiceInventoryItem } from './types';
-import { FindOptionsWhere } from 'typeorm';
-
-export interface InventoryItem {
-    transaction: Transaction;
-    palayBatch: PalayBatch | null;
-    processingBatch?: DryingBatch | MillingBatch | null;
-}
 
 export async function getInventory(
     toLocationType: string,
@@ -45,13 +38,24 @@ export async function getInventory(
                     relations: { qualitySpec: true, palaySupplier: true, farm: true },
                 });
 
-                let processingBatch = null;
+                // Initialize processingBatch object
+                const processingBatch: ProcessingBatch = {};
+
+                // Conditionally set drying or milling batch based on batchType
                 if (batchType === 'drying') {
-                    processingBatch = await DryingBatch.findOne({ 
+                    processingBatch.dryingBatch = await DryingBatch.findOne({ 
                         where: { palayBatchId: transaction.itemId }
                     });
                 } else if (batchType === 'milling') {
-                    processingBatch = await MillingBatch.findOne({ 
+                    processingBatch.millingBatch = await MillingBatch.findOne({ 
+                        where: { palayBatchId: transaction.itemId }
+                    });
+                } else {
+                    // If no specific batchType is provided, fetch both if they exist
+                    processingBatch.dryingBatch = await DryingBatch.findOne({ 
+                        where: { palayBatchId: transaction.itemId }
+                    });
+                    processingBatch.millingBatch = await MillingBatch.findOne({ 
                         where: { palayBatchId: transaction.itemId }
                     });
                 }
@@ -59,7 +63,7 @@ export async function getInventory(
                 return {
                     transaction,
                     palayBatch: palayBatch || null,
-                    processingBatch: processingBatch || null,
+                    processingBatch: processingBatch,
                 };
             })
         );
@@ -173,90 +177,6 @@ export async function getEnhancedInventory(
         return inventoryItems;
     } catch (error) {
         console.error('Error in getEnhancedInventory:', error);
-        throw error;
-    }
-}
-
-export async function getRiceInventory(
-    filters: RiceInventoryFilters
-): Promise<RiceInventoryItem[]> {
-    try {
-        // Start with rice batches query
-        let riceBatchQuery = RiceBatch.createQueryBuilder('riceBatch')
-            .leftJoinAndSelect('riceBatch.warehouse', 'warehouse');
-
-        if (filters.riceBatchStatus) {
-            riceBatchQuery = riceBatchQuery
-                .where('riceBatch.status = :status', { status: filters.riceBatchStatus });
-        }
-
-        const riceBatches = await riceBatchQuery.getMany();
-
-        // Map through rice batches to get related data
-        const inventoryItems: RiceInventoryItem[] = await Promise.all(
-            riceBatches.map(async (riceBatch) => {
-                // Get rice orders for this rice batch
-                const riceOrders = await RiceOrder.find({
-                    where: {
-                        riceBatchId: riceBatch.id,
-                        ...(filters.riceOrderStatus && { status: filters.riceOrderStatus })
-                    }
-                });
-
-                // Get milling batch details through junction table
-                const riceBatchMillingBatch = await RiceBatchMillingBatch.findOne({
-                    where: {
-                        riceBatchId: riceBatch.id,
-                        ...(filters.millingBatchId && { millingBatchId: filters.millingBatchId })
-                    }
-                });
-
-                if (!riceBatchMillingBatch) {
-                    throw new Error(`No milling batch found for rice batch ${riceBatch.id}`);
-                }
-
-                // Get the milling batch
-                const millingBatch = await MillingBatch.findOne({
-                    where: { id: riceBatchMillingBatch.millingBatchId }
-                });
-
-                if (!millingBatch) {
-                    throw new Error(`Milling batch ${riceBatchMillingBatch.millingBatchId} not found`);
-                }
-
-                // Get palay batch associated with the milling batch
-                const palayBatch = await PalayBatch.findOne({
-                    where: { id: millingBatch.palayBatchId },
-                    relations: ['qualitySpec', 'palaySupplier', 'farm']
-                });
-
-                if (!palayBatch) {
-                    throw new Error(`Palay batch ${millingBatch.palayBatchId} not found`);
-                }
-
-                // Get all transactions where palayBatch.id is included in the item_ids array
-                const transactions = await Transaction.createQueryBuilder('transaction')
-                    .where(':palayBatchId = ANY(transaction.item_ids)', { palayBatchId: palayBatch.id.toString() })
-                    .getMany();
-
-                return {
-                    riceBatch,
-                    riceOrders,
-                    millingDetails: {
-                        riceBatchMillingBatch,
-                        millingBatch
-                    },
-                    palayDetails: {
-                        palayBatch,
-                        transactions
-                    }
-                };
-            })
-        );
-
-        return inventoryItems;
-    } catch (error) {
-        console.error('Error in getRiceInventory:', error);
         throw error;
     }
 }

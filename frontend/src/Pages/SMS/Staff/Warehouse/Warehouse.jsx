@@ -74,7 +74,7 @@
                 
                 // Fetch all required data
                 const [inventoryRes, dryersRes, millersRes, riceBatchesRes] = await Promise.all([
-                    fetch(`${apiUrl}/inventory?toLocationType=Warehouse&status=${status}&batchType=milling`),
+                    fetch(`${apiUrl}/inventory?toLocationType=Warehouse&status=${status}&batchType=drying&batchType=milling`),
                     fetch(`${apiUrl}/dryers`),
                     fetch(`${apiUrl}/millers`),
                     viewMode === 'inWarehouse' ? fetch(`${apiUrl}/ricebatches`) : Promise.resolve(null)
@@ -96,13 +96,15 @@
                 // Transform inventory data
                 const transformedInventory = inventory.map(item => ({
                     id: item.palayBatch.id,
-                    palayQuantityBags: item.palayBatch.quantityBags,
+                    palayQuantityBags: item.processingBatch?.milledQuantityBags || 
+                                    item.processingBatch?.driedQuantityBags || 
+                                    item.palayBatch.quantityBags,  // Prioritize milling > drying > palay
                     from: getLocationName(item, dryers, millers),
                     toBeStoreAt: item.palayBatch.currentlyAt,
                     currentlyAt: item.palayBatch.currentlyAt,
                     palayStatus: item.palayBatch.status,
-                    dateRequest: new Date(item.transaction.sendDateTime).toLocaleDateString(),
-                    receivedOn: new Date(item.transaction.receiveDateTime).toLocaleDateString(),
+                    dateRequest: item.transaction.sendDateTime ? new Date(item.transaction.sendDateTime).toLocaleDateString() : '',
+                    receivedOn: item.transaction.receiveDateTime ? new Date(item.transaction.receiveDateTime).toLocaleDateString() : '',
                     transportedBy: item.transaction.transporterName,
                     transactionStatus: item.transaction.status,
                     fromLocationType: item.transaction.fromLocationType,
@@ -110,12 +112,13 @@
                     toLocationId: item.transaction.toLocationId,
                     item: item.transaction.item,
                     qualityType: item.palayBatch.qualityType,
-                    millingBatchId: item.processingBatch?.id || null,
-                    batchQuantityBags: item.processingBatch?.milledQuantityBags || item.processingBatch?.driedQuantityBags || null,
+                    millingBatchId: item.processingBatch.millingBatch?.id || null,
+                    batchQuantityBags: item.processingBatch.millingBatch?.milledQuantityBags || item.processingBatch.dryingBatch?.driedQuantityBags || null,
                     grossWeight: item.processingBatch?.milledGrossWeight || null,
                     netWeight: item.processingBatch?.milledNetWeight || null,
                 }));
-        
+
+                // Combine with rice batches if in 'inWarehouse' view mode
                 if (viewMode === 'inWarehouse' && riceBatches) {
                     // Transform rice batches to match the data structure
                     const transformedRiceBatches = riceBatches.map(riceBatch => ({
@@ -123,7 +126,7 @@
                         palayQuantityBags: riceBatch.currentCapacity,
                         from: 'Miller',
                         currentlyAt: warehouseData.find(w => w.id === riceBatch.warehouseId)?.facilityName,
-                        receivedOn: new Date(riceBatch.dateReceived).toLocaleDateString(),
+                        receivedOn: riceBatch.dateReceived ? new Date(riceBatch.dateReceived).toLocaleDateString() : '',
                         transportedBy: 'Internal Transfer',
                         palayStatus: 'Milled',
                         item: 'Rice',
@@ -134,16 +137,14 @@
                         warehouseId: riceBatch.warehouseId,
                         forSale: riceBatch.forSale
                     }));
-        
-                    // Combine palay batches (excluding Milled status) with rice batches
-                    const filteredInventory = transformedInventory.filter(item => 
-                        item.palayStatus !== 'Milled'
-                    );
-                    
+
+                    // Combine palay batches (excluding 'Milled' status) with rice batches
+                    const filteredInventory = transformedInventory.filter(item => item.palayStatus !== 'Milled');
                     setCombinedData([...filteredInventory, ...transformedRiceBatches]);
                 } else {
                     setCombinedData(transformedInventory);
                 }
+
             } catch (error) {
                 console.error('Error fetching warehouse inventory:', error);
                 toast.current.show({

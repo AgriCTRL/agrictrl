@@ -13,6 +13,8 @@ export interface ProcessingBatch {
     millingBatch?: MillingBatch | null;
 }
 
+
+
 export interface RiceDetails {
     // Keep existing fields for backward compatibility
     riceBatchMillingBatch?: RiceBatchMillingBatch;
@@ -22,6 +24,12 @@ export interface RiceDetails {
     allRiceBatchMillingBatches: RiceBatchMillingBatch[];
     allRiceBatches: RiceBatch[];
     allRiceOrders: RiceOrder[];
+}
+
+export interface InventoryItem {
+    transaction: Transaction;
+    palayBatch: PalayBatch | null;
+    processingBatch: ProcessingBatch;
 }
 
 export interface EnhancedInventoryItem {

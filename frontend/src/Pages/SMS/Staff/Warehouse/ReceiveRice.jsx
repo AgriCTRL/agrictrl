@@ -27,7 +27,6 @@ const AcceptRice = ({ visible, onHide, selectedItem = {}, onAcceptSuccess, user,
     useEffect(() => {
         if (visible) {
             fetchRiceBatches();
-            console.log("selectedItem: ", selectedItem.palayQuantityBags)
         }
     }, [visible]);
 
@@ -72,7 +71,7 @@ const AcceptRice = ({ visible, onHide, selectedItem = {}, onAcceptSuccess, user,
                 return;
             }
 
-            const requiredBags = selectedItem?.palayQuantityBags || 0;
+            const requiredBags = selectedItem?.batchQuantityBags || 0;
             if (totalBagsEntered !== requiredBags) {
                 toast.current.show({
                     severity: 'error',
@@ -85,8 +84,8 @@ const AcceptRice = ({ visible, onHide, selectedItem = {}, onAcceptSuccess, user,
 
             // Calculate weights per bag
             const weightPerBag = {
-                gross: selectedItem?.grossWeight ? selectedItem.grossWeight / selectedItem.palayQuantityBags : 0,
-                net: selectedItem?.netWeight ? selectedItem.netWeight / selectedItem.palayQuantityBags : 0
+                gross: selectedItem?.grossWeight ? selectedItem.grossWeight / selectedItem.batchQuantityBags : 0,
+                net: selectedItem?.netWeight ? selectedItem.netWeight / selectedItem.batchQuantityBags : 0
             };
 
             // Process each batch
@@ -210,7 +209,7 @@ const AcceptRice = ({ visible, onHide, selectedItem = {}, onAcceptSuccess, user,
     const handleInputChange = (batchIndex, field, value) => {
         const updatedInputs = [...batchInputs];
         const currentBatch = updatedInputs[batchIndex];
-        const totalQuantityBags = selectedItem?.palayQuantityBags || 0;
+        const totalQuantityBags = selectedItem?.batchQuantityBags || 0;
         const remainingTotalBags = totalQuantityBags - (totalBagsEntered - (currentBatch.bagsToStore || 0));
 
         if (field === 'bagsToStore') {
@@ -286,7 +285,7 @@ const AcceptRice = ({ visible, onHide, selectedItem = {}, onAcceptSuccess, user,
             <div className="flex items-center gap-2">
                 <span className="font-medium">Bags of Rice to Store:</span>
                 <span className="px-2 py-1 bg-gray-100 rounded">
-                    {totalBagsEntered} / {selectedItem?.palayQuantityBags || 0}
+                    {totalBagsEntered} / {selectedItem?.batchQuantityBags || 0}
                 </span>
             </div>
         </div>
@@ -354,7 +353,7 @@ const AcceptRice = ({ visible, onHide, selectedItem = {}, onAcceptSuccess, user,
                                 min={0}
                                 max={Math.min(
                                     batch.id ? maxBatchCapacity - batch.currentCapacity : maxBatchCapacity,
-                                    (selectedItem?.palayQuantityBags || 0) - (totalBagsEntered - (batch.bagsToStore || 0))
+                                    (selectedItem?.batchQuantityBags || 0) - (totalBagsEntered - (batch.bagsToStore || 0))
                                 )}
                                 className="w-full"
                             />

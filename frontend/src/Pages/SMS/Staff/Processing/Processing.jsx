@@ -143,7 +143,7 @@ const Processing = () => {
                 warehousesRes
             ] = await Promise.all([
                 fetch(`${apiUrl}/${processType}s`),
-                fetch(`${apiUrl}/inventory?toLocationType=${locationType}&status=${status}&batchType=${batchType}&millerType=${millerType}`),
+                fetch(`${apiUrl}/inventory?toLocationType=${locationType}&status=${status}&batchType=drying&batchType=milling&millerType=${millerType}`),
                 fetch(`${apiUrl}/warehouses`)
             ]);
     
@@ -166,29 +166,32 @@ const Processing = () => {
     
             // Combine and structure the data based on the backend associations
             const transformedData = inventory.map(item => {
-                const millerType = facilities.find(f => f.id === item.transaction.toLocationId)?.type || null;
-
+                // Determine the batch type, prioritizing millingbatch if present
+                const batchData = item.processingBatch?.millingBatch || item.processingBatch?.dryingBatch || {};
+            
                 return {
                     palayBatchId: item.palayBatch.id,
                     transactionId: item.transaction.id,
-                    processingBatchId: item.processingBatch?.id,
+                    processingBatchId: batchData.id,
                     palayQuantityBags: item.palayBatch.quantityBags,
                     grossWeight: item.palayBatch.grossWeight,
                     netWeight: item.palayBatch.netWeight,
                     from: warehouses.find(w => w.id === item.transaction.fromLocationId)?.facilityName || 'Unknown Warehouse',
                     location: facilities.find(f => f.id === item.transaction.toLocationId)?.[`${processType}Name`] || 'Unknown Facility',
-                    toLocationId: item.transaction.toLocationId, // Adjust based on response structure
-                    millerType: millerType,
-                    dryingMethod: item.processingBatch?.dryingMethod || null,
+                    toLocationId: item.transaction.toLocationId,
+                    millerType: facilities.find(f => f.id === item.transaction.toLocationId)?.type || null,
+                    dryingMethod: batchData.dryingMethod || null,
                     requestDate: item.transaction.sendDateTime ? new Date(item.transaction.sendDateTime).toLocaleDateString() : '',
-                    startDate: item.processingBatch?.startDateTime ? new Date(item.processingBatch.startDateTime).toLocaleDateString() : '',
-                    endDate: item.processingBatch?.endDateTime ? new Date(item.processingBatch.endDateTime).toLocaleDateString() : '',
+                    startDate: batchData.startDateTime ? new Date(batchData.startDateTime).toLocaleDateString() : '',
+                    endDate: batchData.endDateTime ? new Date(batchData.endDateTime).toLocaleDateString() : '',
                     moistureContent: item.palayBatch.qualitySpec?.moistureContent || '',
                     transportedBy: item.transaction.transporterName,
                     palayStatus: item.palayBatch.status,
                     transactionStatus: item.transaction.status,
-                    processingStatus: item.processingBatch?.status || null,
-                    batchQuantityBags: item.processingBatch?.milledQuantityBags || item.processingBatch?.driedQuantityBags || null,
+                    processingStatus: batchData.status || null,
+                    batchQuantityBags: item.processingBatch.millingBatch?.milledQuantityBags || item.processingBatch.dryingBatch?.driedQuantityBags || null,
+                    batchNetWeight: item.processingBatch.millingBatch?.milledNetWeight || item.processingBatch.dryingBatch?.driedNetWeight || null,
+                    batchGrossWeight: item.processingBatch.millingBatch?.milledGrossWeight || item.processingBatch.dryingBatch?.driedGrossWeight || null,
                 };
             });
     
@@ -807,8 +810,20 @@ const Processing = () => {
                                 body={(rowData) => rowData.batchQuantityBags ?? rowData.palayQuantityBags}
                                 className="text-center" headerClassName="text-center" 
                             />
-                            <Column field="grossWeight" header="Gross Weight" className="text-center" headerClassName="text-center" />
-                            <Column field="netWeight" header="Net Weight" className="text-center" headerClassName="text-center" />
+                            <Column 
+                                field="grossweight" 
+                                header="Gross Weight" 
+                                className="text-center" 
+                                headerClassName="text-center" 
+                                body={(rowData) => rowData.batchGrossWeight ?? rowData.grossWeight}
+                            />
+                            <Column 
+                                field="netweight" 
+                                header="Net Weight" 
+                                className="text-center" 
+                                headerClassName="text-center" 
+                                body={(rowData) => rowData.batchNetWeight ?? rowData.netWeight}
+                            />
                             {viewMode === 'drying' && (selectedFilter === 'return') && (
                                <Column field="moistureContent" header="Moisture Content" className="text-center" headerClassName="text-center" />
                             )}  
