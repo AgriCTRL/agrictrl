@@ -511,7 +511,7 @@ const Processing = () => {
             // 3. Create new transaction for return
             const newTransaction = {
                 ...newTransactionData,
-                item: viewMode === 'drying' ? 'Palay' : 'Rice',
+                item: 'Palay',
                 itemId: selectedItem.palayBatchId,
                 fromLocationType: viewMode === 'drying' ? 'Dryer' : 'Miller',
                 fromLocationId: selectedItem.toLocationId,
