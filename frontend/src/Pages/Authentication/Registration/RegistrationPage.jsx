@@ -21,6 +21,7 @@ import OfficeAddress from "./RegistrationComponents/OfficeAddress";
 import Finishing from "./RegistrationComponents/Finishing";
 import { RegistrationProvider, useRegistration } from "./RegistrationContext";
 import { Divider } from "primereact/divider";
+import CryptoJS from 'crypto-js';
 
 
 // Step configuration
@@ -52,6 +53,7 @@ const CustomStepLabel = ({ icon, isActive }) => {
 
 const RegistrationPageContent = () => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
+  const secretKey = import.meta.env.VITE_HASH_KEY;
   const [activeStep, setActiveStep] = useState(0);
   const [prevStep, setPrevStep] = useState(null);
   const [nextStep, setNextStep] = useState(null);
@@ -155,12 +157,14 @@ const RegistrationPageContent = () => {
         ...registrationData.finishingDetails,
       };
 
+      const encryptedPayload = CryptoJS.AES.encrypt(JSON.stringify(registrationPayload), secretKey).toString();
+
       const res = await fetch(`${apiUrl}/users`, {
         method: "POST",
         headers: { 
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(registrationPayload),
+        body: JSON.stringify({ encryptedPayload }),
       });
 
       if (!res.ok) {

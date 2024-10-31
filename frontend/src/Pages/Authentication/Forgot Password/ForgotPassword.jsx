@@ -7,6 +7,7 @@ import { Password } from 'primereact/password';
 import { Divider } from 'primereact/divider';
 import { Toast } from 'primereact/toast';
 import emailjs from 'emailjs-com';
+import CryptoJS from 'crypto-js';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
@@ -17,6 +18,7 @@ const ForgotPassword = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const navigate = useNavigate();
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
+  const secretKey = import.meta.env.VITE_HASH_KEY;
   const [isLoading, setIsLoading] = useState(false);
   const toast = useRef(null);
 
@@ -77,31 +79,34 @@ const ForgotPassword = () => {
 
   const handleEmailSubmit = async () => {    
     setIsLoading(true);
-    const emailBody = { email };
+    const emailPayload = CryptoJS.AES.encrypt(JSON.stringify(email), secretKey).toString();
     try {
       const res = await fetch(`${apiUrl}/users/forgotpassword`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(emailBody)
+        body: JSON.stringify({ encryptedPayload: emailPayload })
       });
       if (!res.ok) {
         throw new Error ('email is not existing')
       }
-      const id = await res.json();
+      const encryptedResponse = await res.json();
+      const bytes = CryptoJS.AES.decrypt(encryptedResponse.data, secretKey);
+	    const user = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
       
       const generatedCode = generateCode();
 
       sendVerificationCode(email, generatedCode);
 
       const codeBody = {
-        id,
+        id: user.id,
         code: generatedCode
       }
+      const codePayload = CryptoJS.AES.encrypt(JSON.stringify(codeBody), secretKey).toString();
       
       const codeRes = await fetch(`${apiUrl}/users/update`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(codeBody)
+        body: JSON.stringify({ encryptedPayload: codePayload })
       });
       if (!codeRes.ok) {
         throw new Error ('failed to update code')
@@ -117,18 +122,21 @@ const ForgotPassword = () => {
   const handleVerifyCode = async () => {
     setIsLoading(true);
     const codeString = getVerificationCodeAsString();
-    const body = { email, code: codeString };
-
+    const verifyBody = { email, code: codeString };
+    const verifyPayload = CryptoJS.AES.encrypt(JSON.stringify(verifyBody), secretKey).toString();
     try {
       const res = await fetch(`${apiUrl}/users/verifycode`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(body)
+        body: JSON.stringify({ encryptedPayload: verifyPayload })
       })
       if(!res.ok) {
         throw new Error ('code cannot be verified')
       }
-      setUserId(await res.json());
+      const encryptedResponse = await res.json();
+      const bytes = CryptoJS.AES.decrypt(encryptedResponse.data, secretKey);
+	    const user = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+      setUserId(user.id);
       setCurrentStep(currentStep + 1);
     } catch (error) {
       toast.current.show({ severity: 'error', summary: 'Error', detail: 'Wrong verification code, please try again.', life: 3000 });
@@ -155,11 +163,12 @@ const ForgotPassword = () => {
 
     setIsLoading(true);
     const passwordBody = { id: userId, password };
+    const encryptedPayload = CryptoJS.AES.encrypt(JSON.stringify(passwordBody), secretKey).toString();
     try {
       const res = await fetch(`${apiUrl}/users/update`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(passwordBody)
+        body: JSON.stringify({ encryptedPayload })
       })
       if(!res.ok) {
         throw new Error ('failed to update password')

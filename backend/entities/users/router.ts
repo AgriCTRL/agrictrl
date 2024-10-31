@@ -1,4 +1,5 @@
 import express, { Request, Response, Router } from 'express';
+import CryptoJS from 'crypto-js';
 
 import { createOfficeAddress } from '../officeaddresses/db';
 import {
@@ -9,6 +10,17 @@ import {
     updateUser
 } from './db';
 import { User } from './db';
+
+const encryptionKey = 'pupladderized';
+
+function encryptData(data: any): string {
+    return CryptoJS.AES.encrypt(JSON.stringify(data), encryptionKey).toString();
+}
+
+function decryptData(cipherText: string): string {
+    const bytes = CryptoJS.AES.decrypt(cipherText, encryptionKey);
+    return bytes.toString(CryptoJS.enc.Utf8);
+}
 
 export function getRouter(): Router {
     const router = express.Router();
@@ -25,8 +37,9 @@ export function getRouter(): Router {
             const status = req.query.status;
 
             const users = await getUsers(limit, offset, userType, status);
-
             res.json(users);
+            // const encryptedData = encryptData(users);
+            // res.json({ data: encryptedData });
         }
     );
 
@@ -42,69 +55,83 @@ export function getRouter(): Router {
         res.json(user);
     });
 
-    router.post(
-        '/',
-        async (
-            req: Request<any, any, { principal: string;
-                firstName: string;
-                lastName: string;
-                gender: string;
-                birthDate: Date;
-                contactNumber: string;
-                userType: string
-                organizationName: string;
-                jobTitlePosition: string;
-                branchRegion: string;
-                branchOffice: string;
-                validId: string;
-                validIdName: string;
-                region: string;
-                province: string;
-                cityTown: string;
-                barangay: string;
-                street: string;
-                email: string;
-                password: string;
-                status: string;
-                isVerified: boolean;
-                dateCreated: Date;
-                code: string }>,
-            res
-        ) => {
-            const { principal,
-                firstName,
-                lastName,
-                gender,
-                birthDate,
-                contactNumber,
-                userType,
-                organizationName,
-                jobTitlePosition,
-                branchRegion,
-                branchOffice,
-                validId,
-                validIdName,
-                region,
-                province,
-                cityTown,
-                barangay,
-                street,
-                email,
-                password,
-                status,
-                isVerified,
-                dateCreated,
-                code } = req.body;
+    router.post('/', async (req, res) => {
+            const { encryptedPayload } = req.body;
 
-            const officeAddress = await createOfficeAddress({
-                region: region,
-                province: province,
-                cityTown: cityTown,
-                barangay: barangay,
-                street: street
-            });
+            try {
+                const decryptedPayload = decryptData(encryptedPayload);
+                const {
+                    principal,
+                    firstName,
+                    lastName,
+                    gender,
+                    birthDate,
+                    contactNumber,
+                    userType,
+                    organizationName,
+                    jobTitlePosition,
+                    branchRegion,
+                    branchOffice,
+                    validId,
+                    validIdName,
+                    region,
+                    province,
+                    cityTown,
+                    barangay,
+                    street,
+                    email,
+                    password,
+                    status,
+                    isVerified,
+                    dateCreated,
+                    code
+                } = JSON.parse(decryptedPayload);
+    
+                const officeAddress = await createOfficeAddress({
+                    region: region,
+                    province: province,
+                    cityTown: cityTown,
+                    barangay: barangay,
+                    street: street
+                });
+    
+                const user = await createUser({
+                    principal,
+                    firstName,
+                    lastName,
+                    gender,
+                    birthDate,
+                    contactNumber,
+                    userType,
+                    organizationName,
+                    jobTitlePosition,
+                    branchRegion,
+                    branchOffice,
+                    validId,
+                    validIdName,
+                    officeAddressId: officeAddress.id,
+                    email,
+                    password,
+                    status,
+                    isVerified,
+                    dateCreated,
+                    code
+                });
+    
+                res.json(null);
+            } catch (error) {
+                console.error('Error decrypting or registering user:', error);
+                res.status(500).json({ message: 'Failed to register user' });
+            }
+        }
+    );
 
-            const user = await createUser({
+    router.post('/update', async (req, res) => {
+        const { encryptedPayload } = req.body;
+
+        try {
+            const decryptedPayload = decryptData(encryptedPayload);
+            const { id,
                 principal,
                 firstName,
                 lastName,
@@ -118,7 +145,28 @@ export function getRouter(): Router {
                 branchOffice,
                 validId,
                 validIdName,
-                officeAddressId: officeAddress.id,
+                email,
+                password,
+                status,
+                isVerified,
+                dateCreated,
+                code } = JSON.parse(decryptedPayload);
+        
+            const user = await updateUser({
+                id,
+                principal,
+                firstName,
+                lastName,
+                gender,
+                birthDate,
+                contactNumber,
+                userType,
+                organizationName,
+                jobTitlePosition,
+                branchRegion,
+                branchOffice,
+                validId,
+                validIdName,
                 email,
                 password,
                 status,
@@ -127,24 +175,28 @@ export function getRouter(): Router {
                 code
             });
 
-            res.json(user);
+            res.json(null);
+        } catch (error) {
+            console.error('Error decrypting or updating user:', error);
+            res.status(500).json({ message: 'Failed to register user' });
         }
-    );
-
-    router.post('/update', updateHandler);
+    });
 
     router.post('/login', async (req, res) => {
-        const { email, password, userType } = req.body;
+        const { encryptedPayload } = req.body;
 
         try {
+            const decryptedPayload = decryptData(encryptedPayload);
+            const { email, password, userType } = JSON.parse(decryptedPayload);
             const user = await User.findOne({ 
             where: { email, password, userType, isVerified: true } 
             });
 
             if (user) {
-            res.json(user);
+                const encryptedData = encryptData(user);
+                res.json({ data: encryptedData });
             } else {
-            res.status(404).json({ message: 'Invalid credentials' });
+                res.status(404).json({ message: 'Invalid credentials' });
             }
         } catch (error) {
             res.status(500).json({ message: 'An error occurred during login' });
@@ -152,15 +204,18 @@ export function getRouter(): Router {
     });
 
     router.post('/forgotpassword', async (req, res) => {
-        const { email } = req.body;
+        const { encryptedPayload } = req.body;
 
         try {
+            const decryptedPayload = decryptData(encryptedPayload);
+            const { email } = JSON.parse(decryptedPayload);
             const user = await User.findOne({
                 where: { email }
             });
 
             if (user) {
-                res.json(user.id);
+                const encryptedData = encryptData(user);
+                res.json({ data: encryptedData });
             } else {
                 res.status(404).json({ message: 'Email not found' });
             }
@@ -170,15 +225,18 @@ export function getRouter(): Router {
     })
 
     router.post('/verifycode', async (req, res) => {
-        const { email, code } = req.body;
-
+        const { encryptedPayload } = req.body;
+            
         try {
+            const decryptedPayload = decryptData(encryptedPayload);
+            const { email, code } = JSON.parse(decryptedPayload);
             const user = await User.findOne({
                 where: { email, code }
             });
 
             if (user) {
-                res.json(user.id);
+                const encryptedData = encryptData(user);
+                res.json({ data: encryptedData });
             } else {
                 res.status(404).json({ message: 'Code does not match' });
             }
@@ -188,74 +246,4 @@ export function getRouter(): Router {
     })
 
     return router;
-}
-
-async function updateHandler(
-    req: Request<any, any, { id: number;
-        principal?: string;
-        firstName?: string;
-        lastName?: string;
-        gender?: string;
-        birthDate?: Date;
-        contactNumber?: string;
-        userType?: string;
-        organizationName?: string;
-        jobTitlePosition?: string;
-        branchRegion?: string;
-        branchOffice?: string;
-        validId?: string;
-        validIdName?: string;
-        email?: string;
-        password?: string;
-        status?: string;
-        isVerified?: boolean;
-        dateCreated?: Date;
-        code?: string }>,
-    res: Response
-): Promise<void> {
-    const { id,
-        principal,
-        firstName,
-        lastName,
-        gender,
-        birthDate,
-        contactNumber,
-        userType,
-        organizationName,
-        jobTitlePosition,
-        branchRegion,
-        branchOffice,
-        validId,
-        validIdName,
-        email,
-        password,
-        status,
-        isVerified,
-        dateCreated,
-        code } = req.body;
-
-    const user = await updateUser({
-        id,
-        principal,
-        firstName,
-        lastName,
-        gender,
-        birthDate,
-        contactNumber,
-        userType,
-        organizationName,
-        jobTitlePosition,
-        branchRegion,
-        branchOffice,
-        validId,
-        validIdName,
-        email,
-        password,
-        status,
-        isVerified,
-        dateCreated,
-        code
-    });
-
-    res.json(user);
 }

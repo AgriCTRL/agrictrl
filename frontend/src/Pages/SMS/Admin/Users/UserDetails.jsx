@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { TabView, TabPanel } from 'primereact/tabview';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
+import CryptoJS from 'crypto-js';
 
 const UserDetails = ({ userType, visible, onHide, selectedUser, onUserUpdated, onStatusUpdated }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const secretKey = import.meta.env.VITE_HASH_KEY;
 
   useEffect(() => {
     if (visible) {
@@ -139,12 +141,14 @@ const UserDetails = ({ userType, visible, onHide, selectedUser, onUserUpdated, o
     try {
       const apiUrl = import.meta.env.VITE_API_BASE_URL;
       const newIsVerified = newStatus === 'Active';
+      const payload = { id: selectedUser.id, status: newStatus, isVerified: newIsVerified };
+      const encryptedPayload = CryptoJS.AES.encrypt(JSON.stringify(payload), secretKey).toString();
       const response = await fetch(`${apiUrl}/users/update`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ id: selectedUser.id, status: newStatus, isVerified: newIsVerified }),
+        body: JSON.stringify({ encryptedPayload })
       });
 
       if (!response.ok) {
