@@ -8,11 +8,13 @@ import { Button } from 'primereact/button';
 import { Password } from 'primereact/password';
 import { Divider } from 'primereact/divider';
 import { Toast } from 'primereact/toast';
+import CryptoJS from 'crypto-js';
 
 import { useAuth } from '../../Authentication/Login/AuthContext';
 
 function Profile() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    const secretKey = import.meta.env.VITE_HASH_KEY;
     const { user, logout } = useAuth();
     const toast = useRef(null);
     const [activeTab, setActiveTab] = useState('personal');
@@ -364,6 +366,8 @@ function Profile() {
             if (userData.passwordInfo.password) {
                 userData.password = userData.passwordInfo.password;
             }
+
+            const encryptedPayload = CryptoJS.AES.encrypt(JSON.stringify(userUpdateData), secretKey).toString();
     
             // Update user data
             const userResponse = await fetch(`${apiUrl}/users/update`, {
@@ -371,7 +375,7 @@ function Profile() {
                 headers: { 
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(userUpdateData),
+                body: JSON.stringify({ encryptedPayload }),
             });
     
             if (!userResponse.ok) {

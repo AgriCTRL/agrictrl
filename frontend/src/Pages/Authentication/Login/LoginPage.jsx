@@ -7,6 +7,7 @@ import { Password } from 'primereact/password';
 import { Divider } from 'primereact/divider';
 import { SelectButton } from 'primereact/selectbutton';
 import { Toast } from 'primereact/toast';
+import CryptoJS from 'crypto-js';
 
 import { 
 	Wheat, 
@@ -30,6 +31,7 @@ const loginUser = async (email, password, userType) => {
   const authClient = await AuthClient.create();
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const internetIdentityUrl = import.meta.env.VITE_INTERNET_IDENTITY_URL;
+  const secretKey = import.meta.env.VITE_HASH_KEY;
   
   const identityLogIn = async () => {
     const width = 500;
@@ -59,6 +61,10 @@ const loginUser = async (email, password, userType) => {
     }
     return null;  // Return null if no principal is found
   };
+
+  const loginPayload = { email, password, userType };
+
+  const encryptedPayload = CryptoJS.AES.encrypt(JSON.stringify(loginPayload), secretKey).toString();
   
   try {
     const response = await fetch(`${apiUrl}/users/login`, {
@@ -66,14 +72,17 @@ const loginUser = async (email, password, userType) => {
       headers: { 
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ email, password, userType })
+      body: JSON.stringify({ encryptedPayload })
     });
 
     if (!response.ok) {
       throw new Error('Failed to fetch users');
     }
 
-    const user = await response.json();
+    const encryptedResponse = await response.json();
+
+	const bytes = CryptoJS.AES.decrypt(encryptedResponse.data, secretKey);
+	const user = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
 
     if (user) {
       if(userType === 'Admin') {
@@ -87,12 +96,15 @@ const loginUser = async (email, password, userType) => {
         
         if (newPrincipal) {
           if (user.principal === null) {
+			const payload = { id: user.id, principal: newPrincipal };
+			const encryptedPayload = CryptoJS.AES.encrypt(JSON.stringify(payload), secretKey).toString();
+
             const res = await fetch(`${apiUrl}/users/update`, {
               method: 'POST',
               headers: { 
                 'Content-Type': 'application/json'
               },
-              body: JSON.stringify({ id: user.id, principal: newPrincipal })
+              body: JSON.stringify({ encryptedPayload })
             });
 
             if (!res.ok) {
@@ -129,6 +141,18 @@ const LoginPage = () => {
 	const [loading, setLoading] = useState(false);
 	const navigate = useNavigate();
 	const { login } = useAuth();
+	// const secretKey = import.meta.env.VITE_HASH_KEY;
+
+	// useEffect(() => {
+	// 	const updatePayload = {
+	// 		id: 1,
+	// 		userType: "Admin",
+	// 		isVerified: true,
+	// 		status: "Active"
+	// 	}
+	// 	const encryptedPayload = CryptoJS.AES.encrypt(JSON.stringify(updatePayload), secretKey).toString();
+	// 	console.log({encryptedPayload});
+	// }, []);
 
 	useEffect(() => {
 		const rememberedUser = localStorage.getItem('rememberedUser');
