@@ -248,6 +248,7 @@ const Processing = () => {
                 } else if (rowData.processingStatus?.toLowerCase() === 'done') {
                     setNewTransactionData(initialTransactionData); // Reset the form data
                     setShowReturnDialog(true);
+                    console.log(rowData);
                 }
                 break;
         }
@@ -317,34 +318,46 @@ const Processing = () => {
                     },
                     body: JSON.stringify(dryingBatchData)
                 });
-
+    
                 if (!dryingResponse.ok) {
                     throw new Error('Failed to create drying batch');
                 }
             } else {
-                const millingBatchData = {
-                    dryingBatchId: '',
-                    palayBatchId: selectedItem.palayBatchId,
-                    millerId: selectedItem.toLocationId,
-                    millerType: '',
-                    startDateTime: '',
-                    endDateTime: '',
-                    milledQuantityBags: '',
-                    milledNetWeight: '',
-                    millingEfficiency: '',
-                    status: 'In Progress'
-                };
+                // Get all milling batches and check if one exists for this palay batch
+                const millingBatchesResponse = await fetch(`${apiUrl}/millingbatches`);
+                const millingBatches = await millingBatchesResponse.json();
                 
-                const millingResponse = await fetch(`${apiUrl}/millingbatches`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(millingBatchData)
-                });
-
-                if (!millingResponse.ok) {
-                    throw new Error('Failed to create milling batch');
+                const existingMillingBatch = millingBatches.find(
+                    batch => batch.palayBatchId === selectedItem.palayBatchId
+                );
+    
+                if (!existingMillingBatch) {
+                    const millingBatchData = {
+                        dryingBatchId: '', // This should be populated if coming from drying
+                        palayBatchId: selectedItem.palayBatchId,
+                        millerId: selectedItem.toLocationId,
+                        millerType: '',
+                        startDateTime: '',
+                        endDateTime: '',
+                        milledQuantityBags: '',
+                        milledNetWeight: '',
+                        millingEfficiency: '',
+                        status: 'In Progress'
+                    };
+                    
+                    const millingResponse = await fetch(`${apiUrl}/millingbatches`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(millingBatchData)
+                    });
+    
+                    if (!millingResponse.ok) {
+                        throw new Error('Failed to create milling batch');
+                    }
+                } else {
+                    console.log('Milling batch already exists for this palay batch');
                 }
             }
     
@@ -398,7 +411,6 @@ const Processing = () => {
             } else {
                 updateData = {
                     id: selectedItem.processingBatchId,
-                    dryingBatchId: '0',
                     palayBatchId: selectedItem.palayBatchId,
                     millerId: selectedItem.toLocationId,
                     millerType: selectedItem.millerType,
@@ -473,7 +485,7 @@ const Processing = () => {
             });
             return;
         }
-
+    
         setIsLoading(true);
         try {
             // 1. Update current transaction to Completed
@@ -487,11 +499,11 @@ const Processing = () => {
                     status: 'Completed'
                 })
             });
-
+    
             if (!updateTransactionResponse.ok) {
                 throw new Error('Failed to update current transaction');
             }
-
+    
             // 2. Update palay batch with new status
             const palayResponse = await fetch(`${apiUrl}/palaybatches/update`, {
                 method: 'POST',
@@ -503,12 +515,39 @@ const Processing = () => {
                     currentlyAt: newTransactionData.toLocationName
                 })
             });
-
+    
             if (!palayResponse.ok) {
                 throw new Error('Failed to update palay batch');
             }
-
-            // 3. Create new transaction for return
+    
+            // 3. If this is a drying batch, create a new milling batch
+            if (viewMode === 'drying') {
+                const millingBatchData = {
+                    dryingBatchId: selectedItem.processingBatchId,
+                    palayBatchId: selectedItem.palayBatchId,
+                    millerId: '',
+                    millerType: '',
+                    endDateTime: '',
+                    milledQuantityBags: '',
+                    milledNetWeight: '',
+                    millingEfficiency: '',
+                    status: 'In Progress'
+                };
+    
+                const createMillingBatchResponse = await fetch(`${apiUrl}/millingbatches`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(millingBatchData)
+                });
+    
+                if (!createMillingBatchResponse.ok) {
+                    throw new Error('Failed to create milling batch');
+                }
+            }
+    
+            // 4. Create new transaction for return
             const newTransaction = {
                 ...newTransactionData,
                 item: 'Palay',
@@ -521,7 +560,7 @@ const Processing = () => {
                 status: 'Pending',
                 receiveDateTime: null,
             };
-
+    
             const createTransactionResponse = await fetch(`${apiUrl}/transactions`, {
                 method: 'POST',
                 headers: {
@@ -529,11 +568,11 @@ const Processing = () => {
                 },
                 body: JSON.stringify(newTransaction)
             });
-
+    
             if (!createTransactionResponse.ok) {
                 throw new Error('Failed to create return transaction');
             }
-
+    
             await fetchData();
             setShowReturnDialog(false);
             setNewTransactionData(initialTransactionData);

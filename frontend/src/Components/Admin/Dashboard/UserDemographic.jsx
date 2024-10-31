@@ -5,7 +5,7 @@ import { Users } from 'lucide-react'
 import CardComponent from '../../CardComponent'
 import AnalyticsTemplate from './AnalyticsTemplate';
 
-const UserDemographic = () =>  {
+const UserDemographic = ({ supplierCategories }) =>  {
     const [chartData, setChartData] = useState({});
     const [chartOptions, setChartOptions] = useState({});
 
@@ -14,7 +14,7 @@ const UserDemographic = () =>  {
             labels: ['Farmer Organization', 'Individual Farmer'],
             datasets: [
                 {
-                    data: [19, 10],
+                    data: [supplierCategories.coop, supplierCategories.individual],
                     backgroundColor: [
                         '#005155',
                         '#00C261',
@@ -33,10 +33,10 @@ const UserDemographic = () =>  {
 
         setChartData(data);
         setChartOptions(options);
-    }, []);
+    }, [supplierCategories]);
 
     return (
-        <CardComponent className="bg-white transition hover:shadow-lg row-start-2 row-end-3">
+        <CardComponent className="bg-white transition hover:shadow-lg row-start-2 col-start-1 row-end-2">
             <AnalyticsTemplate
                 headerIcon={<Users size={20}/>}
                 headerText="Supplier Category"
@@ -50,4 +50,4 @@ const UserDemographic = () =>  {
     )
 }
 
-export default UserDemographic
+export default UserDemographic;

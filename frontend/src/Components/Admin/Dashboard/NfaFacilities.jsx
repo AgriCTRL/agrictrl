@@ -1,74 +1,37 @@
 import React, { useState, useEffect } from 'react';
-import { Wheat } from 'lucide-react'
-
-import { Button } from 'primereact/button'
-
+import { Building } from 'lucide-react';
 import AnalyticsTemplate from './AnalyticsTemplate';
-import CardComponent from '../../CardComponent'
+import CardComponent from '../../CardComponent';
 
-const NfaFacilities = () => {
+const NfaFacilities = ({ warehousesCount, dryersCount, millersCount }) => {
     const [chartData, setChartData] = useState({});
     const [chartOptions, setChartOptions] = useState({});
 
     useEffect(() => {
-        const documentStyle = getComputedStyle(document.documentElement);
-        const textColor = documentStyle.getPropertyValue('--text-color');
-        const textColorSecondary = documentStyle.getPropertyValue('--text-color-secondary');
-        const surfaceBorder = documentStyle.getPropertyValue('--surface-border');
         const data = {
-            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+            labels: ['Warehouses', 'Dryers', 'Millers'],
             datasets: [
                 {
                     type: 'bar',
-                    label: 'Wet',
-                    backgroundColor: '#005155',
-                    data: [50, 25, 12, 48, 90, 76, 42]
-                },
-                {
-                    type: 'bar',
-                    label: 'Dry',
-                    backgroundColor: '#00C261',
-                    data: [21, 84, 24, 75, 37, 65, 34]
-                },
-                {
-                    type: 'bar',
-                    label: 'Milled',
-                    backgroundColor: '#009E4F',
-                    data: [41, 52, 24, 74, 23, 21, 32]
+                    backgroundColor: ['#005155', '#00C261', '#009E4F'],
+                    data: [warehousesCount, dryersCount, millersCount]
                 }
             ]
         };
+
         const options = {
             maintainAspectRatio: false,
             aspectRatio: 1.2,
             plugins: {
-                tooltips: {
-                    mode: 'index',
-                    intersect: false
-                },
                 legend: {
-                    labels: {
-                        color: textColor
-                    }
+                    display: false
                 }
             },
             scales: {
-                x: {
-                    stacked: true,
-                    ticks: {
-                        color: textColorSecondary
-                    },
-                    grid: {
-                        color: surfaceBorder
-                    }
-                },
                 y: {
-                    stacked: true,
+                    beginAtZero: true,
                     ticks: {
-                        color: textColorSecondary
-                    },
-                    grid: {
-                        color: surfaceBorder
+                        stepSize: 1
                     }
                 }
             }
@@ -76,19 +39,19 @@ const NfaFacilities = () => {
 
         setChartData(data);
         setChartOptions(options);
-    }, []);
+    }, [warehousesCount, dryersCount, millersCount]);
 
     return (
-        <CardComponent className="bg-white col-start-1 col-end-3 row-start-3 row-end-4 transition hover:shadow-lg">
+        <CardComponent className="bg-white col-start-2 col-end-4 row-start-2 row-end-2 transition hover:shadow-lg">
             <AnalyticsTemplate
-                headerIcon={<Wheat size={20}/>}
+                headerIcon={<Building size={20}/>}
                 headerText="NFA Facilities"
-                // graphType="bar"
-                // graphData={chartData}
-                // graphOptions={chartOptions}
+                graphType="bar"
+                graphData={chartData}
+                graphOptions={chartOptions}
             />
         </CardComponent>
-    )
-}
+    );
+};
 
 export default NfaFacilities;

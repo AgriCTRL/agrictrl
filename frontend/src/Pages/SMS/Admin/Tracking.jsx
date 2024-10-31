@@ -8,8 +8,8 @@ import { Divider } from 'primereact/divider';
 import { Tag } from 'primereact/tag';
 
 import { 
-    AlertCircle, ChevronDown, ChevronUp, Search, Wheat, RefreshCcw,
-    WheatOff, ThermometerSun, Factory, PackageCheck, MapPin, Shovel 
+    AlertCircle, ChevronDown, ChevronUp, Search, Wheat, 
+    ThermometerSun, Factory, MapPin, Shovel 
 } from 'lucide-react';
 
 import emptyIllustration from '@/images/illustrations/space.svg';
@@ -29,16 +29,16 @@ const Tracking = () => {
             icon: <Wheat className='text-primary' />
         },
         {
-            label: 'Processing', 
-            icon: <RefreshCcw className='text-primary' />
+            label: 'Drying', 
+            icon: <ThermometerSun className='text-primary' />
+        },
+        {
+            label: 'Milling', 
+            icon: <Factory className='text-primary' />
         },
         {
             label: 'Rice', 
             icon: <Wheat className='text-primary' />
-        },
-        {
-            label: 'Delivered', 
-            icon: <PackageCheck className='text-primary' />
         },
     ]);
 
@@ -51,25 +51,24 @@ const Tracking = () => {
     }, [transactions, selectedStatus, globalFilter]);
 
     const getStatusFromPalayBatch = (palayBatch, processingBatch, riceDetails) => {
-        // Check for delivered status first (complete data)
-        if (riceDetails?.riceOrder) {
-            return 'delivered';
-        }
-    
-        // Check for rice status (has rice batch but no order OR status is Milled)
+        // Check for rice status (has rice batch or status is Milled)
         if (riceDetails?.riceBatch || palayBatch.status === 'Milled') {
             return 'rice';
         }
     
-        // Check for processing status
-        if (processingBatch?.dryingBatch || processingBatch?.millingBatch || 
-            palayBatch.status === 'In Drying' || palayBatch.status === 'In Milling') {
-            return 'processing';
+        // Check for milling status
+        if (processingBatch?.millingBatch || palayBatch.status === 'In Milling') {
+            return 'milling';
+        }
+    
+        // Check for drying status
+        if (processingBatch?.dryingBatch || palayBatch.status === 'In Drying') {
+            return 'drying';
         }
     
         // Default to palay status
         return 'palay';
-    };
+    };  
 
     const fetchTransactions = async () => {
         setLoading(true);
@@ -77,8 +76,13 @@ const Tracking = () => {
             const response = await fetch(`${apiUrl}/inventory/enhanced`);
             const data = await response.json();
             
-            // Transform and filter the data based on current status
+            // Transform and filter the data based on current status and item type
             const transformedData = data
+                .filter(item => {
+                    // First filter for Palay transactions
+                    const hasOnlyPalayTransactions = item.transactions?.every(t => t.item === "Palay") ?? true;
+                    return hasOnlyPalayTransactions;
+                })
                 .map(item => transformTransactionData(item))
                 .filter(item => item.status === selectedStatus);
 
@@ -140,10 +144,6 @@ const Tracking = () => {
             case 'Miller':
                 type = 'TO MILLING';
                 location = `Miller ${transaction.toLocationId}`;
-                break;
-            case 'Distribution':
-                type = 'TO DISTRIBUTION';  // Changed from 'DELIVERED' to 'TO DISTRIBUTION'
-                location = transaction.remarks || 'Distribution Center';
                 break;
             default:
                 location = `${transaction.toLocationType} ${transaction.toLocationId}`;
@@ -248,9 +248,7 @@ const Tracking = () => {
                 case 'FROM MILLING':
                     return <Factory className="text-blue-500" />;
                 case 'RICE':
-                    return <WheatOff className="text-gray-500" />;
-                case 'TO DISTRIBUTION':
-                    return <PackageCheck className="text-purple-500" />;
+                    return <Wheat className="text-gray-500" />;
                 default:
                     return <AlertCircle className="text-red-500" />;
             }

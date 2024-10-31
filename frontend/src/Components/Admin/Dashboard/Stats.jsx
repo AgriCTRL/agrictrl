@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { 
     Wheat, 
     HeartHandshake,
@@ -8,29 +8,35 @@ import CardComponent from '../../CardComponent';
 
 import { Button } from 'primereact/button';
         
-const Stats = (statsData) => {
-    const [stats, setStats] = useState([
+const Stats = ({ 
+    partnerFarmersCount, 
+    totalPalaysCount, 
+    totalRiceCount, 
+    riceSoldCount 
+}) => {
+    const stats = [
         {
             label: "Partner Farmers",
             icon: <HeartHandshake size={20} />,
-            count: 0,
+            count: partnerFarmersCount,
         },
         {
             label: "Total Palays",
             icon: <Wheat size={20} />,
-            count: 0,
+            count: totalPalaysCount,
         },
         {
             label: "Total Rice",
             icon: <Wheat size={20} />,
-            count: 0,
+            count: totalRiceCount,
         },
         {
             label: "Rice Sold",
             icon: <Building2 size={20} />,
-            count: 0,
+            count: riceSoldCount,
         },
-    ])
+    ];
+
     return (
         <div className='grid grid-cols-4 gap-4'>
             {stats.map((stat, index) => (
@@ -52,4 +58,4 @@ const Stats = (statsData) => {
     )
 }
 
-export default Stats
+export default Stats;
