@@ -135,13 +135,13 @@ function DryerFacility() {
                 </IconField>
                 <div className="flex justify-end w-1/2">
                     <div className='flex gap-4'>
-                        <Button 
+                        {/* <Button 
                             type="button"
                             className="flex flex-center items-center gap-4 bg-primary hover:bg-primaryHover border ring-0"
                         >
                             <Download size={20} />
                             <p className="font-semibold">Export</p>
-                        </Button>
+                        </Button> */}
 
                         <Button 
                             type="button"

@@ -99,13 +99,13 @@ function Active() {
                     />
                 </IconField>
                 <div className="flex justify-end w-1/2">
-                    <Button 
+                    {/* <Button 
                         type="button"
                         className="flex flex-center items-center gap-4 bg-primary hover:bg-primaryHover border ring-0"
                     >
                         <Download size={20} />
                         <p className="font-semibold">Export</p>
-                    </Button>
+                    </Button> */}
                 </div>
             </div>
 

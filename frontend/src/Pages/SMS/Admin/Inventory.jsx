@@ -13,7 +13,7 @@ import { Search, CircleAlert, Settings2, FileX, Download, Filter, PackageOpen } 
 
 import AdminLayout from '@/Layouts/AdminLayout';
 import EmptyRecord from '../../../Components/EmptyRecord';
-import pdfExport from '../../../Components/pdfExport';
+import pdfLandscapeExport from '../../../Components/pdfLandscapeExport';
 
 function Inventory() { 
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -94,20 +94,19 @@ function Inventory() {
             global: { value, matchMode: 'contains' }, // Keep 'contains' for flexible matching
         });
     };
+    
+    const formatDate = (isoString) => {
+        const date = new Date(isoString);
+        return date.toISOString().slice(0, 10); // Gets the YYYY-MM-DD part
+    };
 
     const exportPdf = () => {
-        const columns = ['ID', 'Date Planted', 'Date Harvested', 'Date Bought', 'Quantity in Bags', 'Gross Weight', 'Net Weight', 'Quality Type', 'Moisture Content', 'Purity', 'Damaged', 'Price', 'Farmer', 'Origin Farm', 'Current Location', 'Status'];
+        const columns = ['ID', 'Date Bought', 'Quantity in Bags', 'Quality Type', 'Price', 'Farmer', 'Origin Farm', 'Current Location', 'Status'];
         const data = inventoryData.map(inventory => [
             inventory.id,
-            inventory.plantedDate,
-            inventory.harvestedDate,
-            inventory.dateBought,
+            formatDate(inventory.dateBought),
             inventory.quantityBags,
-            inventory.grossWeight,
-            inventory.netWeight,
             inventory.qualityType,
-            inventory.qualitySpec.moistureContent,
-            inventory.qualitySpec.purity,
             inventory.price,
             inventory.palaySupplier.farmerName,
             inventory.farm.region,
@@ -116,7 +115,7 @@ function Inventory() {
             
         ]);
 
-        pdfExport('Inventory Data Export', columns, data);
+        pdfLandscapeExport('Inventory Data Export', columns, data);
     };
 
     return (

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import CardComponent from '@/Components/CardComponent';
+import { Button } from 'primereact/button';
+import { FileDown } from 'lucide-react';
 
-import { 
-    Warehouse
-} from "lucide-react";
+import dashboardPdfExport from '@/Components/dashboardPdfExport ';
 
 import Stats from '@/Components/Admin/Dashboard/Stats';
 import UserDemographic from '@/Components/Admin/Dashboard/UserDemographic';
@@ -12,6 +12,8 @@ import NfaFacilities from '@/Components/Admin/Dashboard/NfaFacilities';
 import MillingStatusChart from '@/Components/Admin/Dashboard/MillingStatusChart';
 import ProcessingStatusChart from '@/Components/Admin/Dashboard/ProcessingStatusChart';
 import WetDryInventoryChart from '@/Components/Admin/Dashboard/WetDryInventoryChart';
+import InventoryAnalytics from '@/Components/Admin/Dashboard/InventoryAnalytics';
+import MonthlyBatchCountAnalytics from '@/Components/Admin/Dashboard/MonthlyBatchCountAnalytics';
 
 function Dashboard() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -37,7 +39,7 @@ function Dashboard() {
     const [warehousesCount, setWarehousesCount] = useState(0);
     const [dryersCount, setDryersCount] = useState(0);
     const [millersCount, setMillersCount] = useState(0);
-    
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -121,54 +123,77 @@ function Dashboard() {
         fetchData();
     }, [])
 
+    const handleExport = () => {
+        const exportData = {
+            partnerFarmersCount,
+            totalPalaysCount,
+            totalRiceCount,
+            riceSoldCount,
+            supplierCategories,
+            warehousesCount,
+            dryersCount,
+            millersCount,
+            palayBatches
+        };
+        
+        dashboardPdfExport(exportData);
+    };
+
     return (
-        <AdminLayout activePage="Dashboard">
-            <div className="flex flex-col gap-4">
-                <Stats 
-                    partnerFarmersCount={partnerFarmersCount}
-                    totalPalaysCount={totalPalaysCount}
-                    totalRiceCount={totalRiceCount}
-                    riceSoldCount={riceSoldCount}
-                />
-
-                <div className='grid grid-flow-col grid-rows-2 grid-cols-3 gap-4'>
-                    {/* <PalayInventory palayBatches={palayBatches} /> */}
-
-                    <UserDemographic supplierCategories={supplierCategories} />
-
-                    <NfaFacilities 
-                        warehousesCount={warehousesCount}
-                        dryersCount={dryersCount}
-                        millersCount={millersCount}
+        
+        <div className="relative">
+            <AdminLayout activePage="Dashboard">
+                <div className="flex flex-col gap-4">
+                    <Stats 
+                        partnerFarmersCount={partnerFarmersCount}
+                        totalPalaysCount={totalPalaysCount}
+                        totalRiceCount={totalRiceCount}
+                        riceSoldCount={riceSoldCount}
                     />
 
-                    <CardComponent className="bg-white transition hover:shadow-lg">
-                        <MillingStatusChart palayBatches={palayBatches} />
-                    </CardComponent>
+                    <div className='grid grid-rows-3 grid-cols-3 gap-4'>
+                        {/* <PalayInventory palayBatches={palayBatches} /> */}
 
-                    <CardComponent className="bg-white col-span-1 transition hover:shadow-lg">
-                        <WetDryInventoryChart palayBatches={palayBatches} />
-                    </CardComponent>
+                        <UserDemographic supplierCategories={supplierCategories} />
 
-                    <CardComponent className="bg-white transition hover:shadow-lg">
-                        <ProcessingStatusChart palayBatches={palayBatches} />
-                    </CardComponent>
-                    
-                    {/* <CardComponent className="bg-white transition hover:shadow-lg row-start-2 row-end-4">
-                        <CardComponent className="bg-white w-full flex-col gap-4">
-                            <div className='w-full flex justify-between'>
-                                <div className="title flex gap-4 text-black">
-                                    <Warehouse size={20}/>
-                                    <p className='font-bold'>Warehouse Capacity</p>
-                                </div>
-                            </div>
-                            <div className='graph'>
-                            </div>
+                        <CardComponent className="bg-white transition hover:shadow-lg row-span-1">
+                            <ProcessingStatusChart palayBatches={palayBatches} />
                         </CardComponent>
-                    </CardComponent> */}
+
+                        <CardComponent className="bg-white transition hover:shadow-lg">
+                            <InventoryAnalytics/>
+                        </CardComponent>
+
+                        <CardComponent className="bg-white transition hover:shadow-lg">
+                            <WetDryInventoryChart palayBatches={palayBatches} />
+                        </CardComponent>
+
+                        <CardComponent className="bg-white transition hover:shadow-lg">
+                            <MillingStatusChart palayBatches={palayBatches} />
+                        </CardComponent>
+
+                        <CardComponent className="bg-white transition hover:shadow-lg">
+                            <MonthlyBatchCountAnalytics apiUrl={apiUrl} />
+                        </CardComponent>
+
+                        <NfaFacilities 
+                            warehousesCount={warehousesCount}
+                            dryersCount={dryersCount}
+                            millersCount={millersCount}
+                        />
+                    </div>
                 </div>
+            </AdminLayout>
+            <div className="fixed right-14 bottom-20 z-50">
+            <Button
+                onClick={handleExport}
+                className="rounded-lg shadow-2xl hover:shadow-2xl transition-shadow duration-200 bg-primary flex items-center gap-2 px-4 py-4"
+            >
+                <FileDown className="w-5 h-5" />
+                <span>Export PDF</span>
+            </Button>
             </div>
-        </AdminLayout>
+      </div>
     );
 }
 

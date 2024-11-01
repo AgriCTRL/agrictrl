@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Wheat } from 'lucide-react';
-import AnalyticsTemplate from './AnalyticsTemplate';
+import { Chart } from 'primereact/chart';
+import CardComponent from '../../CardComponent';
 
 const ProcessingStatusChart = ({ palayBatches }) => {
     const [chartData, setChartData] = useState({});
@@ -33,21 +34,6 @@ const ProcessingStatusChart = ({ palayBatches }) => {
                 legend: {
                     labels: {
                         color: textColor,
-                        generateLabels: (chart) => {
-                            return chart.data.datasets.map((dataset) => {
-                                return {
-                                    text: dataset.label,
-                                    fillStyle: 'transparent',
-                                    hidden: false,
-                                    lineCap: 'butt',
-                                    lineDash: [],
-                                    lineDashOffset: 0,
-                                    lineJoin: 'miter',
-                                    strokeStyle: 'transparent',
-                                    pointStyle: 'line'
-                                };
-                            });
-                        }
                     }
                 }
             }
@@ -55,13 +41,17 @@ const ProcessingStatusChart = ({ palayBatches }) => {
     }, [palayBatches]);
 
     return (
-        <AnalyticsTemplate
-            headerIcon={<Wheat size={20} />}
-            headerText="Processing Status (net weight)"
-            graphType="bar"
-            graphData={chartData}
-            graphOptions={chartOptions}
-        />
+        <CardComponent className="w-full flex-col gap-8">
+            <div className='w-full flex justify-between'>
+                <div className="title flex gap-4 text-black">
+                    <Wheat size={20} />
+                    <p className='font-bold'>Processing Status (net weight)</p>
+                </div>
+            </div>
+            <div className="graph">
+                <Chart id="processing-status-chart" type="bar" data={chartData} options={chartOptions} className="graph"/>
+            </div>
+        </CardComponent>
     );
 };
 

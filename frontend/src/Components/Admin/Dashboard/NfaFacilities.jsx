@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Building } from 'lucide-react';
-import AnalyticsTemplate from './AnalyticsTemplate';
 import CardComponent from '../../CardComponent';
+import { Chart } from 'primereact/chart';
 
 const NfaFacilities = ({ warehousesCount, dryersCount, millersCount }) => {
     const [chartData, setChartData] = useState({});
@@ -42,14 +42,16 @@ const NfaFacilities = ({ warehousesCount, dryersCount, millersCount }) => {
     }, [warehousesCount, dryersCount, millersCount]);
 
     return (
-        <CardComponent className="bg-white col-start-2 col-end-4 row-start-2 row-end-2 transition hover:shadow-lg">
-            <AnalyticsTemplate
-                headerIcon={<Building size={20}/>}
-                headerText="NFA Facilities"
-                graphType="bar"
-                graphData={chartData}
-                graphOptions={chartOptions}
-            />
+        <CardComponent className="bg-white w-full flex-col gap-8 col-span-3">
+            <div className='w-full flex justify-between'>
+                <div className="title flex gap-4 text-black">
+                    <Building size={20} />
+                    <p className='font-bold'>NFA Facilities</p>
+                </div>
+            </div>
+            <div className={`graph`}>
+                <Chart type="bar" data={chartData} options={chartOptions} className={`graph`} />
+            </div>
         </CardComponent>
     );
 };

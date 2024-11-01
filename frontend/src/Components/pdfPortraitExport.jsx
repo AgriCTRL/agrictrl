@@ -4,7 +4,8 @@ import 'jspdf-autotable';
 const pdfExport = async (title, columns, data) => {
     const doc = new jsPDF('portrait');
 
-    const imgUrl = '/pdf_bg.png';
+    // Load the background image once and convert it to base64
+    const imgUrl = '/pdf_bg_pt.png';
     const img = await fetch(imgUrl).then(res => res.blob());
     const reader = new FileReader();
 
@@ -13,7 +14,7 @@ const pdfExport = async (title, columns, data) => {
         const base64Image = reader.result;
 
         // Add background image to cover the whole page
-        doc.addImage(base64Image, 'PNG', 0, 0, 210, 297); // Adjust width/height for Portrait A4
+        doc.addImage(base64Image, 'PNG', 0, 0, 210, 297); // A4
 
         //current date
         const currentDate = new Date().toLocaleDateString();
