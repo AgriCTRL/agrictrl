@@ -86,7 +86,6 @@ const ProcessDialog = ({ visible, viewMode, newDryingData, newMillingData, onPro
 };
 
 
-
   const calculateWeights = (quantity) => {
     const bagWeight = 50; // Assuming 50kg per bag
     return {
