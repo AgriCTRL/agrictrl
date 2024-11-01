@@ -108,7 +108,7 @@ const MillingTransactions = () => {
             const transformedData = inventory.map(item => ({
                 palayBatchId: item.palayBatch?.id,
                 transactionId: item.transaction?.id,
-                processingBatchId: item.processingBatch?.id,
+                processingBatchId: item.processingBatch.millingBatch?.id,
                 quantityInBags: item.palayBatch?.quantityBags || 0,
                 grossWeight: item.palayBatch?.grossWeight || 0,
                 netWeight: item.palayBatch?.netWeight || 0,
@@ -117,12 +117,12 @@ const MillingTransactions = () => {
                 toLocationId: item.transaction?.toLocationId,
                 millerType: 'Private',
                 requestDate: item.transaction?.sendDateTime ? new Date(item.transaction.sendDateTime).toLocaleDateString() : '',
-                startDate: item.processingBatch?.startDateTime ? new Date(item.processingBatch.startDateTime).toLocaleDateString() : '',
-                endDate: item.processingBatch?.endDateTime ? new Date(item.processingBatch.endDateTime).toLocaleDateString() : '',
+                startDate: item.processingBatch.millingBatch?.startDateTime ? new Date(item.processingBatch.millingBatch.startDateTime).toLocaleDateString() : '',
+                endDate: item.processingBatch.millingBatch?.endDateTime ? new Date(item.processingBatch.millingBatch.endDateTime).toLocaleDateString() : '',
                 transportedBy: item.transaction?.transporterName || '',
                 palayStatus: item.palayBatch?.status || '',
                 transactionStatus: item.transaction?.status || '',
-                processingStatus: item.processingBatch?.status || null
+                processingStatus: item.processingBatch.millingBatch?.status || null
             }));
 
             setCombinedData(transformedData);
