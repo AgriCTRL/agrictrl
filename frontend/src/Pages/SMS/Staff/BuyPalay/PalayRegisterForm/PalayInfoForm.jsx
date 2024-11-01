@@ -215,6 +215,8 @@ const PalayInfoForm = ({ palayData, handlePalayInputChange, handleQualityTypeInp
                         onChange={handlePalayInputChange}  
                         placeholder="Enter Palay Variety"
                         className="w-full ring-0"
+                        keyfilter="alphanum"
+                        maxLength={50}
                     />
                     {errors.palayVariety && <p className="text-red-500 text-xs mt-1">{errors.palayVariety}</p>}
                 </div>
@@ -229,6 +231,7 @@ const PalayInfoForm = ({ palayData, handlePalayInputChange, handleQualityTypeInp
                         type="number"
                         placeholder="Enter price"
                         className="w-full ring-0"
+                        keyfilter="money"
                     />
                     {errors.price && <p className="text-red-500 text-xs mt-1">{errors.price}</p>}
                 </div>
@@ -259,6 +262,7 @@ const PalayInfoForm = ({ palayData, handlePalayInputChange, handleQualityTypeInp
                         type="number"
                         placeholder="Enter quantity"
                         className="w-full ring-0"
+                        keyfilter="num"
                     />
                     {errors.quantityBags && <p className="text-red-500 text-xs mt-1">{errors.quantityBags}</p>}
                 </div>
@@ -272,6 +276,7 @@ const PalayInfoForm = ({ palayData, handlePalayInputChange, handleQualityTypeInp
                         type="number"
                         placeholder="Enter gross weight"
                         className="w-full ring-0"
+                        keyfilter="num"
                     />
                     {errors.grossWeight && <p className="text-red-500 text-xs mt-1">{errors.grossWeight}</p>}
                 </div>
@@ -285,6 +290,7 @@ const PalayInfoForm = ({ palayData, handlePalayInputChange, handleQualityTypeInp
                         type="number"
                         placeholder="Enter net weight"
                         className="w-full ring-0"
+                        keyfilter="num"
                     />
                     {errors.netWeight && <p className="text-red-500 text-xs mt-1">{errors.netWeight}</p>}
                 </div>
@@ -318,6 +324,7 @@ const PalayInfoForm = ({ palayData, handlePalayInputChange, handleQualityTypeInp
                         type="number"
                         placeholder="Enter moisture %"
                         className="w-full ring-0"
+                        keyfilter="num"
                     />
                     {errors.moistureContent && <p className="text-red-500 text-xs mt-1">{errors.moistureContent}</p>}
                 </div>
@@ -331,6 +338,7 @@ const PalayInfoForm = ({ palayData, handlePalayInputChange, handleQualityTypeInp
                         type="number"
                         placeholder="Enter purity %"
                         className="w-full ring-0"
+                        keyfilter="num"
                     />
                     {errors.purity && <p className="text-red-500 text-xs mt-1">{errors.purity}</p>}
                 </div>
@@ -344,6 +352,7 @@ const PalayInfoForm = ({ palayData, handlePalayInputChange, handleQualityTypeInp
                         type="number"
                         placeholder="Enter damaged %"
                         className="w-full ring-0"
+                        keyfilter="num"
                     />
                     {errors.damaged && <p className="text-red-500 text-xs mt-1">{errors.damaged}</p>}
                 </div>
@@ -361,6 +370,7 @@ const PalayInfoForm = ({ palayData, handlePalayInputChange, handleQualityTypeInp
                         type="number"
                         placeholder="Enter farm size"
                         className="w-full ring-0"
+                        keyfilter="num"
                     />
                     {errors.farmSize && <p className="text-red-500 text-xs mt-1">{errors.farmSize}</p>}
                 </div>
@@ -448,6 +458,7 @@ const PalayInfoForm = ({ palayData, handlePalayInputChange, handleQualityTypeInp
                             onChange={handlePalayInputChange}  
                             placeholder="Street"
                             className="w-full ring-0"
+                            maxLength={50}
                         />
                         {errors.farmStreet && <p className="text-red-500 text-xs mt-1">{errors.farmStreet}</p>}
                     </div>
@@ -467,6 +478,7 @@ const PalayInfoForm = ({ palayData, handlePalayInputChange, handleQualityTypeInp
                     type="number"
                     placeholder="Enter estimated capital"
                     className="w-full ring-0"
+                    keyfilter="num"
                 />
                 {errors.estimatedCapital && <p className="text-red-500 text-xs mt-1">{errors.estimatedCapital}</p>}
             </div>

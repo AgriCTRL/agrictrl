@@ -55,7 +55,8 @@ const ReturnDialog = ({ visible, viewMode, newTransactionData, onReturn, onCance
           <InputText 
             value={newTransactionData.transporterName} 
             onChange={(e) => setNewTransactionData(prev => ({ ...prev, transporterName: e.target.value }))}
-            className="w-full ring-0" 
+            className="w-full ring-0"
+            maxLength={50}
           />
         </div>
 
@@ -66,6 +67,7 @@ const ReturnDialog = ({ visible, viewMode, newTransactionData, onReturn, onCance
             onChange={(e) => setNewTransactionData(prev => ({ ...prev, transporterDesc: e.target.value }))}
             className="w-full ring-0" 
             rows={3} 
+            maxLength={250}
           />
         </div>
 
@@ -76,6 +78,7 @@ const ReturnDialog = ({ visible, viewMode, newTransactionData, onReturn, onCance
             onChange={(e) => setNewTransactionData(prev => ({ ...prev, remarks: e.target.value }))}
             className="w-full ring-0" 
             rows={3} 
+            maxLength={250}
           />
         </div>
 

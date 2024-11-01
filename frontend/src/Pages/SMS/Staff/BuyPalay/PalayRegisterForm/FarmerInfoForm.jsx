@@ -9,6 +9,12 @@ const FarmerInfoForm = ({ palayData, handlePalayInputChange, errors }) => {
   const [cityTownOptions, setCityTownOptions] = useState([]);
   const [barangayOptions, setBarangayOptions] = useState([]);
 
+  let today = new Date();
+  let year = today.getFullYear();
+  let maxYear = year - 18;
+  let maxDate = new Date();
+  maxDate.setFullYear(maxYear);
+
   useEffect(() => {
     fetchRegions();
   }, []);
@@ -227,8 +233,10 @@ const FarmerInfoForm = ({ palayData, handlePalayInputChange, errors }) => {
             name="farmerName"
             value={palayData.farmerName}
             onChange={handlePalayInputChange} 
-            placeholder="Enter your name" 
+            placeholder="Enter your name"
             className="w-full ring-0"
+            keyfilter={/^[a-zA-Z\s]/}
+            maxLength={50}
           />
           {errors.farmerName && <p className="text-red-500 text-xs mt-1">{errors.farmerName}</p>}
         </div>
@@ -245,6 +253,7 @@ const FarmerInfoForm = ({ palayData, handlePalayInputChange, errors }) => {
                 placeholder="Select birthdate"
                 showIcon
                 className="ring-0 w-full placeholder:text-gray-400 focus:shadow-none custom-calendar"
+                maxDate={maxDate}
               />
               {errors.birthDate && <p className="text-red-500 text-xs mt-1">{errors.birthDate}</p>}
             </div>
@@ -273,6 +282,7 @@ const FarmerInfoForm = ({ palayData, handlePalayInputChange, errors }) => {
               onChange={handlePalayInputChange} 
               placeholder="Enter number of farmers"
               className="w-full ring-0"
+              keyfilter="int"
             />
             {errors.numOfFarmer && <p className="text-red-500 text-xs mt-1">{errors.numOfFarmer}</p>}
           </div>
@@ -289,6 +299,8 @@ const FarmerInfoForm = ({ palayData, handlePalayInputChange, errors }) => {
             onChange={handlePalayInputChange}  
             placeholder="Enter your email"
             className="w-full ring-0"
+            keyfilter="email"
+            maxLength={50}
           />
           {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
         </div>
@@ -302,6 +314,8 @@ const FarmerInfoForm = ({ palayData, handlePalayInputChange, errors }) => {
             onChange={handlePalayInputChange} 
             placeholder="Enter your phone number"
             className="w-full ring-0"
+            keyfilter="alphanum"
+            maxLength={15}
           />
           {errors.contactNumber && <p className="text-red-500 text-xs mt-1">{errors.contactNumber}</p>}
         </div>
@@ -366,6 +380,7 @@ const FarmerInfoForm = ({ palayData, handlePalayInputChange, errors }) => {
               onChange={handlePalayInputChange}  
               placeholder="Street"
               className="w-full ring-0"
+              maxLength={50}
             />
             {errors.palaySupplierStreet && <p className="text-red-500 text-xs mt-1">{errors.palaySupplierStreet}</p>}
           </div>

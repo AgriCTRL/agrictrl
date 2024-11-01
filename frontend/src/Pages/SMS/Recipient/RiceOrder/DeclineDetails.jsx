@@ -69,6 +69,8 @@ function DeclinedDetails({ visible, onHide, data }) {
                             value={formData.riceType}
                             disabled
                             className='w-full focus:ring-0'
+                            keyfilter="alphanum"
+                            maxLength={50}
                         />
                     </div>
 
@@ -80,6 +82,8 @@ function DeclinedDetails({ visible, onHide, data }) {
                             value={formData.orderId}
                             disabled
                             className='w-full focus:ring-0'
+                            keyfilter="alphanum"
+                            maxLength={10}
                         />
                     </div>
                 </div>
@@ -93,6 +97,7 @@ function DeclinedDetails({ visible, onHide, data }) {
                             value={formData.quantity}
                             disabled
                             className='w-full focus:ring-0'
+                            keyfilter="int"
                         />
                     </div>
 
@@ -104,6 +109,7 @@ function DeclinedDetails({ visible, onHide, data }) {
                             value={formatDate(formData.date)}
                             disabled
                             className="rig-0 w-full placeholder:text-gray-400 focus:shadow-none custom-calendar"
+                            maxLength={25}
                         />
                     </div>
                 </div>
@@ -117,6 +123,7 @@ function DeclinedDetails({ visible, onHide, data }) {
                         value={formData.reason}
                         disabled
                         className="w-full"
+                        maxLength={250}
                     />
                 </div>
             </div>

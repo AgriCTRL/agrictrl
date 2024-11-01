@@ -25,6 +25,8 @@ const DeclineDetails = ({
                         value={declinedDetails.orderID}
                         disabled
                         className="w-full bg-gray-50"
+                        keyfilter="alphanum"
+                        maxLength={25}
                     />
                 </div>
                 
@@ -34,6 +36,7 @@ const DeclineDetails = ({
                         value={declinedDetails.quantity}
                         disabled
                         className="w-full bg-gray-50"
+                        keyfilter="num"
                     />
                 </div>
 

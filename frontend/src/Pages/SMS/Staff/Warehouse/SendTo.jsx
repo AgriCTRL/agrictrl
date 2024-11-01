@@ -189,6 +189,8 @@ const SendTo = ({ visible, onHide, selectedItem, onSendSuccess, user, dryerData,
                             value={selectedItem?.palayStatus === 'To be Dry' ? 'Dryer' : 'Miller'}
                             disabled
                             className="w-full"
+                            keyfilter={/^[a-zA-Z\s]/}
+                            maxLength={50}
                         />
                     </div>
 
@@ -225,6 +227,8 @@ const SendTo = ({ visible, onHide, selectedItem, onSendSuccess, user, dryerData,
                                 setErrors(prev => ({...prev, transporterName: ''}));
                             }}
                             className={`w-full ring-0 ${errors.transporterName ? 'p-invalid' : ''}`}
+                            keyfilter={/^[a-zA-Z\s]/}
+                            maxLength={50}
                         />
                         {errors.transporterName && <p className="text-red-500 text-xs mt-1">{errors.transporterName}</p>}
                     </div>
@@ -240,6 +244,7 @@ const SendTo = ({ visible, onHide, selectedItem, onSendSuccess, user, dryerData,
                                 setErrors(prev => ({...prev, transporterDesc: ''}));
                             }}
                             className={`w-full ring-0 ${errors.transporterDesc ? 'p-invalid' : ''}`}
+                            maxLength={250}
                         />
                         {errors.transporterDesc && <p className="text-red-500 text-xs mt-1">{errors.transporterDesc}</p>}
                     </div>
@@ -255,6 +260,7 @@ const SendTo = ({ visible, onHide, selectedItem, onSendSuccess, user, dryerData,
                                 setErrors(prev => ({...prev, remarks: ''}));
                             }}
                             className={`w-full ring-0 ${errors.remarks ? 'p-invalid' : ''}`}
+                            maxLength={250}
                         />
                         {errors.remarks && <p className="text-red-500 text-xs mt-1">{errors.remarks}</p>}
                     </div>

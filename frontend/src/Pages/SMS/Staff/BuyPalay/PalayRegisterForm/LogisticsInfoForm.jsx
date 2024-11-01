@@ -24,6 +24,7 @@ const LogisticsInfoForm = ({
                         onChange={handlePalayInputChange}
                         placeholder="Enter buying station name"
                         className="ring-0 w-full placeholder:text-gray-400"
+                        maxLength={50}
                     />
                     {errors.buyingStationName && <p className="text-red-500 text-xs mt-1">{errors.buyingStationName}</p>}
                 </div>
@@ -37,6 +38,7 @@ const LogisticsInfoForm = ({
                         onChange={handlePalayInputChange}
                         placeholder="Enter buying station location"
                         className='w-full focus:ring-0'
+                        maxLength={50}
                     />
                     {errors.buyingStationLoc && <p className="text-red-500 text-xs mt-1">{errors.buyingStationLoc}</p>}
                 </div>
@@ -51,6 +53,7 @@ const LogisticsInfoForm = ({
                     onChange={handleTransactionInputChange}  
                     placeholder="Enter transport"
                     className='w-full focus:ring-0'
+                    maxLength={50}
                 />
                 {errors.transporterName && <p className="text-red-500 text-xs mt-1">{errors.transporterName}</p>}
             </div>
@@ -64,6 +67,7 @@ const LogisticsInfoForm = ({
                     onChange={handleTransactionInputChange}  
                     placeholder="Enter description"
                     className="w-full ring-0"
+                    maxLength={250}
                 />
                 {errors.transporterDesc && <p className="text-red-500 text-xs mt-1">{errors.transporterDesc}</p>}
             </div>
@@ -79,6 +83,7 @@ const LogisticsInfoForm = ({
                             placeholder="Select location"
                             className="ring-0 w-full placeholder:text-gray-400"
                             disabled
+                            maxLength={50}
                         />
                         {errors.toLocationType && <p className="text-red-500 text-xs mt-1">{errors.toLocationType}</p>}
                     </div>
@@ -106,6 +111,7 @@ const LogisticsInfoForm = ({
                     onChange={handleTransactionInputChange} 
                     placeholder="Enter Remarks"
                     className="w-full ring-0"
+                    maxLength={250}
                 />
                 {errors.remarks && <p className="text-red-500 text-xs mt-1">{errors.remarks}</p>}
             </div>

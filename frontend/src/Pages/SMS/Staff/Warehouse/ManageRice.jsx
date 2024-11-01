@@ -97,6 +97,8 @@ const ManageRice = ({ visible, onHide, selectedItem, onUpdateSuccess, user, refr
                                 value={selectedItem?.riceBatchName || ''}
                                 disabled
                                 className="p-inputtext-sm"
+                                keyfilter="alphanum"
+                                maxLength={50}
                             />
                         </div>
                         <div className="flex flex-col gap-2">
@@ -106,6 +108,7 @@ const ManageRice = ({ visible, onHide, selectedItem, onUpdateSuccess, user, refr
                                 value={selectedItem?.currentlyAt || ''}
                                 disabled
                                 className="p-inputtext-sm"
+                                maxLength={50}
                             />
                         </div>
                     </div>
@@ -118,6 +121,7 @@ const ManageRice = ({ visible, onHide, selectedItem, onUpdateSuccess, user, refr
                                 value={selectedItem?.currentCapacity || 0}
                                 disabled
                                 className="p-inputtext-sm"
+                                keyfilter="num"
                             />
                         </div>
                         <div className="flex flex-col gap-2">
@@ -127,6 +131,7 @@ const ManageRice = ({ visible, onHide, selectedItem, onUpdateSuccess, user, refr
                                 value={selectedItem?.maxCapacity || 0}
                                 disabled
                                 className="p-inputtext-sm"
+                                keyfilter="num"
                             />
                         </div>
                     </div>

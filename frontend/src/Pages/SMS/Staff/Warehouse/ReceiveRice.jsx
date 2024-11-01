@@ -321,6 +321,8 @@ const AcceptRice = ({ visible, onHide, selectedItem = {}, onAcceptSuccess, user,
                                     disabled={!!batch.id}
                                     onChange={(e) => handleInputChange(index, 'riceBatchName', e.target.value)}
                                     className="w-full"
+                                    keyfilter="alphanum"
+                                    maxLength={50}
                                 />
                             </div>
                             <div>
@@ -330,6 +332,7 @@ const AcceptRice = ({ visible, onHide, selectedItem = {}, onAcceptSuccess, user,
                                     disabled={!!batch.id}
                                     onChange={(e) => handleInputChange(index, 'price', e.target.value)}
                                     className="w-full"
+                                    keyfilter="money"
                                 />
                             </div>
                         </div>
@@ -341,6 +344,8 @@ const AcceptRice = ({ visible, onHide, selectedItem = {}, onAcceptSuccess, user,
                                     value={`${batch.currentCapacity} / ${maxBatchCapacity}`}
                                     disabled={!!batch.id}
                                     className="w-full"
+                                    keyfilter="alphanum"
+                                    maxLength={50}
                                 />
                             </div>
                         )}

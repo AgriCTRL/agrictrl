@@ -283,6 +283,7 @@ const SendOrder = ({ visible, onHide, riceBatchesData, selectedOrder, user, onUp
                             value={selectedOrder?.riceQuantityBags || ''}
                             disabled
                             className="w-full focus:ring-0 bg-gray-50"
+                            keyfilter="num"
                         />
                     </div>
 
@@ -293,6 +294,7 @@ const SendOrder = ({ visible, onHide, riceBatchesData, selectedOrder, user, onUp
                             value={sendOrderData.dropOffLocation}
                             disabled
                             className="w-full focus:ring-0 bg-gray-50"
+                            maxLength={50}
                         />
                     </div>
 
@@ -303,6 +305,7 @@ const SendOrder = ({ visible, onHide, riceBatchesData, selectedOrder, user, onUp
                             value={sendOrderData.description}
                             disabled
                             className="w-full ring-0 bg-gray-50"
+                            maxLength={250}
                         />
                     </div>
 
@@ -317,6 +320,7 @@ const SendOrder = ({ visible, onHide, riceBatchesData, selectedOrder, user, onUp
                             onChange={handleInputChange}
                             placeholder="Enter transporter name"
                             className="w-full focus:ring-0"
+                            maxLength={50}
                         />
                     </div>
 
@@ -331,6 +335,7 @@ const SendOrder = ({ visible, onHide, riceBatchesData, selectedOrder, user, onUp
                             onChange={handleInputChange}
                             placeholder="Enter transporter description"
                             className="w-full ring-0"
+                            maxLength={250}
                         />
                     </div>
 
@@ -343,6 +348,7 @@ const SendOrder = ({ visible, onHide, riceBatchesData, selectedOrder, user, onUp
                             onChange={handleInputChange}
                             placeholder="Enter remarks"
                             className="w-full ring-0"
+                            maxLength={250}
                         />
                     </div>
 

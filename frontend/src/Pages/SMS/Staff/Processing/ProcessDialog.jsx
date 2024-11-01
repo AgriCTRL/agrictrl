@@ -115,19 +115,38 @@ const ProcessDialog = ({ visible, viewMode, newDryingData, newMillingData, onPro
                 value={newDryingData.driedQuantityBags}
                 onChange={(e) => handleInputChange('driedQuantityBags', e.target.value)}
                 className="w-full ring-0"
+                keyfilter="num"
               />
             </div>
             <div className="w-full">
               <label className="block mb-2">Dried Gross Weight (Kg)</label>
-              <InputText type="number" value={newDryingData.driedGrossWeight} onChange={(e) => setNewDryingData((prev) => ({ ...prev, driedGrossWeight: e.target.value }))} className="w-full ring-0" />
+              <InputText 
+                type="number" 
+                value={newDryingData.driedGrossWeight} 
+                onChange={(e) => setNewDryingData((prev) => ({ ...prev, driedGrossWeight: e.target.value }))} 
+                className="w-full ring-0" 
+                keyfilter="num"
+              />
             </div>
             <div className="w-full">
               <label className="block mb-2">Dried Net Weight (Kg)</label>
-              <InputText type="number" value={newDryingData.driedNetWeight} onChange={(e) => setNewDryingData((prev) => ({ ...prev, driedNetWeight: e.target.value }))} className="w-full ring-0" />
+              <InputText 
+                type="number" 
+                value={newDryingData.driedNetWeight} 
+                onChange={(e) => setNewDryingData((prev) => ({ ...prev, driedNetWeight: e.target.value }))} 
+                className="w-full ring-0" 
+                keyfilter="num"
+              />
             </div>
             <div className="w-full">
               <label className="block mb-2">Moisture Content (%)</label>
-              <InputText type="number" value={newDryingData.moistureContent} onChange={(e) => setNewDryingData((prev) => ({ ...prev, moistureContent: e.target.value }))} className="w-full ring-0" />
+              <InputText 
+                type="number" 
+                value={newDryingData.moistureContent} 
+                onChange={(e) => setNewDryingData((prev) => ({ ...prev, moistureContent: e.target.value }))} 
+                className="w-full ring-0" 
+                keyfilter="num"
+              />
             </div>
             <div className="w-full">
               <label className="block mb-2">Drying Method</label>
@@ -152,19 +171,38 @@ const ProcessDialog = ({ visible, viewMode, newDryingData, newMillingData, onPro
                 value={newMillingData.milledQuantityBags}
                 onChange={(e) => handleInputChange('milledQuantityBags', e.target.value)}
                 className="w-full ring-0"
+                keyfilter="num"
               />
             </div>
             <div className="w-full">
               <label className="block mb-2">Milled Gross Weight (Kg)</label>
-              <InputText type="number" value={newMillingData.milledGrossWeight} onChange={(e) => setNewMillingData((prev) => ({ ...prev, milledGrossWeight: e.target.value }))} className="w-full ring-0" />
+              <InputText 
+                type="number" 
+                value={newMillingData.milledGrossWeight} 
+                onChange={(e) => setNewMillingData((prev) => ({ ...prev, milledGrossWeight: e.target.value }))} 
+                className="w-full ring-0" 
+                keyfilter="num"
+              />
             </div>
             <div className="w-full">
               <label className="block mb-2">Milled Net Weight (Kg)</label>
-              <InputText type="number" value={newMillingData.milledNetWeight} onChange={(e) => setNewMillingData((prev) => ({ ...prev, milledNetWeight: e.target.value }))} className="w-full ring-0" />
+              <InputText 
+                type="number" 
+                value={newMillingData.milledNetWeight} 
+                onChange={(e) => setNewMillingData((prev) => ({ ...prev, milledNetWeight: e.target.value }))} 
+                className="w-full ring-0" 
+                keyfilter="num"
+              />
             </div>
             <div className="w-full">
               <label className="block mb-2">Milling Efficiency (%)</label>
-              <InputText type="number" value={newMillingData.millingEfficiency} onChange={(e) => setNewMillingData((prev) => ({ ...prev, millingEfficiency: e.target.value }))} className="w-full ring-0" />
+              <InputText 
+                type="number" 
+                value={newMillingData.millingEfficiency} 
+                onChange={(e) => setNewMillingData((prev) => ({ ...prev, millingEfficiency: e.target.value }))} 
+                className="w-full ring-0" 
+                keyfilter="num"
+              />
             </div>
           </>
         )}

@@ -187,6 +187,8 @@ function ConfirmReceive({ visible, onHide, data, user, onConfirmReceive }) {
                                 value={formData.riceType}
                                 disabled
                                 className='w-full focus:ring-0'
+                                keyfilter="alphanum"
+                                maxLength={50}
                             />
                         </div>
 
@@ -198,6 +200,8 @@ function ConfirmReceive({ visible, onHide, data, user, onConfirmReceive }) {
                                 value={formData.orderId}
                                 disabled
                                 className='w-full focus:ring-0'
+                                keyfilter="alphanum"
+                                maxLength={25}
                             />
                         </div>
                     </div>
@@ -210,6 +214,7 @@ function ConfirmReceive({ visible, onHide, data, user, onConfirmReceive }) {
                             value={formData.quantity}
                             disabled
                             className='w-full focus:ring-0'
+                            keyfilter="int"
                         />
                     </div>
 
@@ -224,6 +229,7 @@ function ConfirmReceive({ visible, onHide, data, user, onConfirmReceive }) {
                                 value={formatDate(formData.date)}
                                 disabled
                                 className="rig-0 w-full placeholder:text-gray-400 focus:shadow-none custom-calendar"
+                                maxLength={25}
                             />
                         </div>
 
@@ -235,6 +241,7 @@ function ConfirmReceive({ visible, onHide, data, user, onConfirmReceive }) {
                                 disabled
                                 value={formData.price}
                                 className='w-full focus:ring-0'
+                                keyfilter="int"
                             />
                         </div>
                     </div>
@@ -247,6 +254,7 @@ function ConfirmReceive({ visible, onHide, data, user, onConfirmReceive }) {
                             value={formData.dropOffLocation}
                             disabled
                             className="w-full"
+                            maxLength={100}
                         />
                     </div>
 
@@ -258,6 +266,7 @@ function ConfirmReceive({ visible, onHide, data, user, onConfirmReceive }) {
                             value={formData.description}
                             disabled
                             className="w-full"
+                            maxLength={250}
                         />
                     </div>
                 </div>

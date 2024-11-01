@@ -34,6 +34,7 @@ const DeclineOrder = ({
                         value={declineReason}
                         onChange={(e) => onReasonChange(e.target.value)}
                         className="w-full ring-0"
+                        maxLength={250}
                     />
                 </div>
                 <div className="flex justify-between w-full gap-4">
