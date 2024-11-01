@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Wheat } from 'lucide-react';
-import AnalyticsTemplate from './AnalyticsTemplate';
+import { Chart } from 'primereact/chart';
+import CardComponent from '../../CardComponent';
 
 const MillingStatusChart = ({ palayBatches }) => {
     const [chartData, setChartData] = useState({});
@@ -33,36 +34,25 @@ const MillingStatusChart = ({ palayBatches }) => {
             plugins: {
                 legend: {
                     labels: {
-                        color: textColor,
-                        generateLabels: (chart) => {
-                            return chart.data.datasets.map((dataset) => {
-                                return {
-                                    text: dataset.label,
-                                    fillStyle: 'transparent',
-                                    hidden: false,
-                                    lineCap: 'butt',
-                                    lineDash: [],
-                                    lineDashOffset: 0,
-                                    lineJoin: 'miter',
-                                    strokeStyle: 'transparent',
-                                    pointStyle: 'line'
-                                };
-                            });
-                        }
+                        color: textColor
                     }
                 }
             }
-        });        
+        });
     }, [palayBatches]);
 
     return (
-        <AnalyticsTemplate
-            headerIcon={<Wheat size={20} />}
-            headerText="Milling Status (net weight)"
-            graphType="bar"
-            graphData={chartData}
-            graphOptions={chartOptions}
-        />
+        <CardComponent className="bg-white w-full flex-col gap-8">
+            <div className='w-full flex justify-between'>
+                <div className="title flex gap-4 text-black">
+                    <Wheat size={20} />
+                    <p className='font-bold'>Milling Status (net weight)</p>
+                </div>
+            </div>
+            <div className="graph">
+                <Chart id="milling-status-chart" type="bar" data={chartData} options={chartOptions} className="graph"/>
+            </div>
+        </CardComponent>
     );
 };
 

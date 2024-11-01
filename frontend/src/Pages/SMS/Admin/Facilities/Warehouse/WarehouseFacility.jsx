@@ -11,7 +11,7 @@ import { Search, Settings2, FileX, Filter, Download, Plus } from 'lucide-react';
 
 import WarehouseRegister from './WarehouseRegister';
 import WarehouseUpdate from './WarehouseUpdate';
-import pdfExport from '../../../../../Components/pdfExport';
+import pdfPortraitExport from '../../../../../Components/pdfPortraitExport';
 import { IconField } from 'primereact/iconfield';
 import { InputIcon } from 'primereact/inputicon';
 
@@ -131,7 +131,7 @@ function Warehouse() {
             warehouse.status
         ]);
 
-        pdfExport('Warehouse Data Export', columns, data);
+        pdfPortraitExport('Warehouse Data Export', columns, data);
     };
 
     return (
@@ -161,14 +161,14 @@ function Warehouse() {
                     </Button> */}
 
                     <div className='flex gap-4'>
-                        <Button 
+                        {/* <Button 
                             type="button"
                             className="flex flex-center items-center gap-4 bg-primary hover:bg-primaryHover border ring-0"
                             onClick={exportPdf}
                         >
                             <Download size={20} />
                             <p className="font-semibold">Export</p>
-                        </Button>
+                        </Button> */}
 
                         <Button 
                             type="button"
@@ -203,7 +203,7 @@ function Warehouse() {
                         <Column field="location" header="Location" className="text-center" headerClassName="text-center"/>
                         <Column field="nfaBranch" header="Branch" className="text-center" headerClassName="text-center"/>
                         <Column field="totalCapacity" header="Capacity (mt)" className="text-center" headerClassName="text-center"/>
-                        <Column field="currentStock" header="Current Stock (mt)" className="text-center" headerClassName="text-center"/>
+                        {/* <Column field="currentStock" header="Current Stock (mt)" className="text-center" headerClassName="text-center"/> */}
                         <Column field="status" header="Status" body={statusBodyTemplate} className="text-center" headerClassName="text-center"/>
                         <Column body={actionBodyTemplate} exportable={false} className="text-center" headerClassName="text-center" />
                     </DataTable>

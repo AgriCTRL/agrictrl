@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Wheat } from 'lucide-react';
-import AnalyticsTemplate from './AnalyticsTemplate';
+import { Chart } from 'primereact/chart';
+import CardComponent from '../../CardComponent';
 
 const WetDryInventoryChart = ({ palayBatches }) => {
     const [chartData, setChartData] = useState({});
@@ -49,13 +50,17 @@ const WetDryInventoryChart = ({ palayBatches }) => {
     }, [palayBatches]);
 
     return (
-        <AnalyticsTemplate
-            headerIcon={<Wheat size={20} />}
-            headerText="Palay Inventory (Batch Count)"
-            graphType="bar"
-            graphData={chartData}
-            graphOptions={chartOptions}
-        />
+        <CardComponent className="bg-white w-full flex-col gap-8 col-span-2">
+            <div className='w-full flex justify-between'>
+                <div className="title flex gap-4 text-black">
+                    <Wheat size={20} />
+                    <p className='font-bold'>Palay Inventory (Batch Count)</p>
+                </div>
+            </div>
+            <div className="graph">
+                <Chart id="wet-dry-inventory-chart" type="bar" data={chartData} options={chartOptions} className="graph"/>
+            </div>
+        </CardComponent>
     );
 };
 

@@ -110,13 +110,13 @@ function Inactive() {
                         <p className="font-semibold">Filters</p>
                     </Button> */}
 
-                    <Button 
+                    {/* <Button 
                         type="button"
                         className="flex flex-center items-center gap-4 bg-primary hover:bg-primaryHover border ring-0"
                     >
                         <Download size={20} />
                         <p className="font-semibold">Export</p>
-                    </Button>
+                    </Button> */}
                 </div>
             </div>
 

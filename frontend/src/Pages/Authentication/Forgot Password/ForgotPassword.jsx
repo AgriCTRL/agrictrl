@@ -257,6 +257,7 @@ const ForgotPassword = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
                 inputClassName='w-full ring-0'
+                className="w-full"
                 maxLength={50}
               />
             </div>
@@ -270,6 +271,7 @@ const ForgotPassword = () => {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Enter your password"
                 inputClassName='w-full ring-0'
+                className="w-full"
                 maxLength={50}
               />
             </div>
