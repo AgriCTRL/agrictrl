@@ -1,12 +1,12 @@
 // riceBatchMillingBatches/db.ts
-import { BaseEntity, Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn, Column } from 'typeorm';
+import { BaseEntity, Entity, PrimaryColumn, ManyToOne, JoinColumn, Column, BeforeInsert } from 'typeorm';
 import { RiceBatch } from '../ricebatches/db';
 import { MillingBatch } from '../millingbatches/db';
 
 @Entity()
 export class RiceBatchMillingBatch extends BaseEntity {
-    @PrimaryGeneratedColumn()
-    id: number;
+    @PrimaryColumn('varchar', { length: 10 })
+    id: string;
 
     @Column()
     riceQuantityBags: number;
@@ -24,7 +24,7 @@ export class RiceBatchMillingBatch extends BaseEntity {
     riceBatch: RiceBatch;
 
     @Column()
-    riceBatchId: number;
+    riceBatchId: string;
 
     @ManyToOne(() => MillingBatch, millingBatch => millingBatch.riceBatchMillingBatches, {
         onDelete: 'CASCADE'
@@ -33,21 +33,39 @@ export class RiceBatchMillingBatch extends BaseEntity {
     millingBatch: MillingBatch;
 
     @Column()
-    millingBatchId: number;
+    millingBatchId: string;
+
+    @BeforeInsert()
+    async generateId() {
+        const prefix = '030441';
+        const lastOrder = await RiceBatchMillingBatch.find({
+            order: { id: 'DESC' },
+            take: 1
+        });
+
+        let nextNumber = 1;
+        if (lastOrder.length > 0) {
+            const lastId = lastOrder[0].id;
+            const lastNumber = parseInt(lastId.slice(-4));
+            nextNumber = lastNumber + 1;
+        }
+
+        this.id = `${prefix}${nextNumber.toString().padStart(4, '0')}`;
+    }
 }
 
 export interface RiceBatchMillingBatchCreate {
-    riceBatchId: number;
-    millingBatchId: number;
+    riceBatchId: string;
+    millingBatchId: string;
     riceQuantityBags: number;
     riceGrossWeight: number;
     riceNetWeight: number;
 }
 
 export interface RiceBatchMillingBatchUpdate {
-    id: number;
-    riceBatchId?: number;
-    millingBatchId?: number;
+    id: string;
+    riceBatchId?: string;
+    millingBatchId?: string;
     riceQuantityBags?: number;
     riceGrossWeight?: number;
     riceNetWeight?: number;
@@ -66,7 +84,7 @@ export async function getRiceBatchMillingBatches(
 }
 
 export async function getRiceBatchMillingBatch(
-    id: number,
+    id: string,
     relations: boolean = true
 ): Promise<RiceBatchMillingBatch | null> {
     return await RiceBatchMillingBatch.findOne({
@@ -76,7 +94,7 @@ export async function getRiceBatchMillingBatch(
 }
 
 export async function getRiceBatchMillingBatchesByRiceBatch(
-    riceBatchId: number,
+    riceBatchId: string,
     relations: boolean = true
 ): Promise<RiceBatchMillingBatch[]> {
     return await RiceBatchMillingBatch.find({
@@ -86,7 +104,7 @@ export async function getRiceBatchMillingBatchesByRiceBatch(
 }
 
 export async function getRiceBatchMillingBatchesByMillingBatch(
-    millingBatchId: number,
+    millingBatchId: string,
     relations: boolean = true
 ): Promise<RiceBatchMillingBatch[]> {
     return await RiceBatchMillingBatch.find({

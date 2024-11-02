@@ -3,21 +3,22 @@ import {
     Column,
     Entity,
     ManyToOne,
-    PrimaryGeneratedColumn
+    PrimaryColumn,
+    BeforeInsert
 } from 'typeorm';
 
 import { getHouseOfficeAddress, HouseOfficeAddress } from '../houseofficeaddresses/db';
 
 @Entity()
 export class PalaySupplier extends BaseEntity {
-    @PrimaryGeneratedColumn()
-    id: number;
+    @PrimaryColumn('varchar', { length: 10 })
+    id: string;
 
     @Column()
     farmerName: string;
 
     @Column()
-    houseOfficeAddressId: number;
+    houseOfficeAddressId: string;
 
     @ManyToOne(() => HouseOfficeAddress)
     houseOfficeAddress: HouseOfficeAddress;
@@ -39,6 +40,24 @@ export class PalaySupplier extends BaseEntity {
 
     @Column({ nullable: true })
     gender: string;
+
+    @BeforeInsert()
+    async generateId() {
+        const prefix = '030412';
+        const lastOrder = await PalaySupplier.find({
+            order: { id: 'DESC' },
+            take: 1
+        });
+
+        let nextNumber = 1;
+        if (lastOrder.length > 0) {
+            const lastId = lastOrder[0].id;
+            const lastNumber = parseInt(lastId.slice(-4));
+            nextNumber = lastNumber + 1;
+        }
+
+        this.id = `${prefix}${nextNumber.toString().padStart(4, '0')}`;
+    }
 }
 
 export type PalaySupplierCreate = Pick<PalaySupplier, 'farmerName' | 'houseOfficeAddressId' | 'category' | 'numOfFarmer' | 'contactNumber' | 'email' | 'birthDate' | 'gender'>;
@@ -54,7 +73,7 @@ export async function getPalaySuppliers(limit: number, offset: number): Promise<
     });
 }
 
-export async function getPalaySupplier(id: number): Promise<PalaySupplier | null> {
+export async function getPalaySupplier(id: string): Promise<PalaySupplier | null> {
     return await PalaySupplier.findOne({
         where: {
             id

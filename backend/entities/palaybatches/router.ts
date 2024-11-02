@@ -37,7 +37,7 @@ export function getRouter(): Router {
     router.get('/:id', async (req, res) => {
         const { id } = req.params;
 
-        const palayBatch = await getPalayBatch(Number(id));
+        const palayBatch = await getPalayBatch(String(id));
 
         res.json(palayBatch);
     });
@@ -183,7 +183,7 @@ export function getRouter(): Router {
 }
 
 async function updateHandler(
-    req: Request<any, any, { id: number;
+    req: Request<any, any, { id: string;
         palayVariety?: string
         dateBought?: Date;
         buyingStationName?: string;

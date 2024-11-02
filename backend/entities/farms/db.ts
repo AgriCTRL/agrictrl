@@ -1,12 +1,12 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity, Column, Entity, PrimaryColumn, BeforeInsert } from 'typeorm';
 
 @Entity()
 export class Farm extends BaseEntity {
-    @PrimaryGeneratedColumn()
-    id: number;
+    @PrimaryColumn('varchar', { length: 10 })
+    id: string;
 
     @Column()
-    palaySupplierId: number;
+    palaySupplierId: string;
 
     @Column()
     farmSize: number;
@@ -25,6 +25,24 @@ export class Farm extends BaseEntity {
 
     @Column()
     street: string;
+
+    @BeforeInsert()
+    async generateId() {
+        const prefix = '030414';
+        const lastOrder = await Farm.find({
+            order: { id: 'DESC' },
+            take: 1
+        });
+
+        let nextNumber = 1;
+        if (lastOrder.length > 0) {
+            const lastId = lastOrder[0].id;
+            const lastNumber = parseInt(lastId.slice(-4));
+            nextNumber = lastNumber + 1;
+        }
+
+        this.id = `${prefix}${nextNumber.toString().padStart(4, '0')}`;
+    }
 }
 
 export type FarmCreate = Pick<Farm, 'palaySupplierId' | 'farmSize' | 'region' | 'province' | 'cityTown' | 'barangay' | 'street'>;
@@ -37,7 +55,7 @@ export async function getFarms(limit: number, offset: number): Promise<Farm[]> {
     });
 }
 
-export async function getFarm(id: number): Promise<Farm | null> {
+export async function getFarm(id: string): Promise<Farm | null> {
     return await Farm.findOne({
         where: {
             id

@@ -34,7 +34,7 @@ export function getRouter(): Router {
     router.get('/:id', async (req, res) => {
         const { id } = req.params;
 
-        const palaySupplier = await getPalaySupplier(Number(id));
+        const palaySupplier = await getPalaySupplier(String(id));
 
         res.json(palaySupplier);
     });
@@ -98,7 +98,7 @@ export function getRouter(): Router {
 }
 
 async function updateHandler(
-    req: Request<any, any, { id: number;
+    req: Request<any, any, { id: string;
         farmerName?: string;
         category?: string;
         numOfFarmer?: number;

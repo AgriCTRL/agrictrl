@@ -1,9 +1,9 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity, Column, Entity, PrimaryColumn, BeforeInsert } from 'typeorm';
 
 @Entity()
 export class QualitySpec extends BaseEntity {
-    @PrimaryGeneratedColumn()
-    id: number;
+    @PrimaryColumn('varchar', { length: 10 })
+    id: string;
 
     @Column()
     moistureContent: number;
@@ -13,6 +13,24 @@ export class QualitySpec extends BaseEntity {
 
     @Column()
     damaged: number;
+
+    @BeforeInsert()
+    async generateId() {
+        const prefix = '030411';
+        const lastOrder = await QualitySpec.find({
+            order: { id: 'DESC' },
+            take: 1
+        });
+
+        let nextNumber = 1;
+        if (lastOrder.length > 0) {
+            const lastId = lastOrder[0].id;
+            const lastNumber = parseInt(lastId.slice(-4));
+            nextNumber = lastNumber + 1;
+        }
+
+        this.id = `${prefix}${nextNumber.toString().padStart(4, '0')}`;
+    }
 }
 
 export type QualitySpecCreate = Pick<QualitySpec, 'moistureContent' | 'purity' | 'damaged'>;
@@ -25,7 +43,7 @@ export async function getQualitySpecs(limit: number, offset: number): Promise<Qu
     });
 }
 
-export async function getQualitySpec(id: number): Promise<QualitySpec | null> {
+export async function getQualitySpec(id: string): Promise<QualitySpec | null> {
     return await QualitySpec.findOne({
         where: {
             id
