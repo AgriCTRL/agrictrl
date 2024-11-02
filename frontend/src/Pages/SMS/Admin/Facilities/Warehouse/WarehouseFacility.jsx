@@ -115,7 +115,7 @@ function Warehouse() {
 
     const filterByGlobal = (value) => {
         setFilters({
-            global: { value: value, matchMode: 'equals' },
+            global: { value: value, matchMode: 'contains' },
         });
     };
 
@@ -202,8 +202,8 @@ function Warehouse() {
                         <Column field="facilityName" header="Warehouse Name" className="text-center" headerClassName="text-center"/>
                         <Column field="location" header="Location" className="text-center" headerClassName="text-center"/>
                         <Column field="nfaBranch" header="Branch" className="text-center" headerClassName="text-center"/>
-                        <Column field="totalCapacity" header="Capacity (mt)" className="text-center" headerClassName="text-center"/>
-                        {/* <Column field="currentStock" header="Current Stock (mt)" className="text-center" headerClassName="text-center"/> */}
+                        <Column field="totalCapacity" header="Capacity (bags)" className="text-center" headerClassName="text-center"/>
+                        <Column field="currentStock" header="Current Stock (bags)" className="text-center" headerClassName="text-center"/>
                         <Column field="status" header="Status" body={statusBodyTemplate} className="text-center" headerClassName="text-center"/>
                         <Column body={actionBodyTemplate} exportable={false} className="text-center" headerClassName="text-center" />
                     </DataTable>

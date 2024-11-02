@@ -144,6 +144,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
     const [activeStep, setActiveStep] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
     const [errors, setErrors] = useState({});
+    const [sameAsHomeAddress, setSameAsHomeAddress] = useState(false);
 
     const steps = [
         { label: 'Farmer', icon: <UserIcon /> },
@@ -152,9 +153,17 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
     ];
 
     const locationOptions = warehouseData
-    .filter(warehouse => warehouse.status === 'active')
+    .filter(warehouse => {
+        // Check both capacity and warehouse name
+        const canAccommodate = warehouse.status === 'active' && 
+                             (warehouse.totalCapacity - warehouse.currentStock) >= parseInt(palayData.quantityBags || 0);
+        const isPalayWarehouse = warehouse.facilityName.toLowerCase().includes('palay');
+        
+        return canAccommodate && isPalayWarehouse;
+    })
     .map(warehouse => ({
-        label: warehouse.facilityName,
+        label: `${warehouse.facilityName} (Available: ${warehouse.totalCapacity - warehouse.currentStock} bags)`,
+        name: `${warehouse.facilityName}`,
         value: warehouse.id
     }));
 
@@ -177,6 +186,11 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
             }));
         }
     }, [userData]);
+
+    const refreshData = () => {
+        fetchUserData();
+        fetchWarehouseData();
+    }
 
     const fetchUserData = async () => {
         try {
@@ -235,28 +249,32 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
     const handlePalayInputChange = (e) => {
         const { name, value } = e.target;
         
-        // Create a new state update function
         setPalayData(prevState => {
-            // If quantityBags is changed, automatically calculate gross and net weight
-            if (name === 'quantityBags') {
-                // Each bag is 50 kg for gross weight
-                const grossWeight = value ? parseInt(value) * 50 : '';
-                // Each bag loses 1 kg in weight
-                const netWeight = value ? (parseInt(value) * 50 - parseInt(value)) : '';
-                
-                return {
-                    ...prevState,
-                    [name]: value,
-                    grossWeight: grossWeight.toString(),
-                    netWeight: netWeight.toString()
-                };
-            }
-            
-            // For all other inputs, just update normally
-            return {
+            let updates = {
                 ...prevState,
                 [name]: value
             };
+            
+            // If checkbox is checked and home address fields are changed, update farm address
+            if (sameAsHomeAddress && name.startsWith('palaySupplier')) {
+                const farmField = name.replace('palaySupplier', 'farm');
+                updates[farmField] = value;
+            }
+            
+            // Handle quantity bags calculation as before
+            if (name === 'quantityBags') {
+                updates.grossWeight = value ? (parseInt(value) * 50).toString() : '';
+                updates.netWeight = value ? (parseInt(value) * 50 - parseInt(value)).toString() : '';
+                
+                setTransactionData(prev => ({
+                    ...prev,
+                    toLocationId: '',
+                }));
+                
+                updates.currentlyAt = '';
+            }
+            
+            return updates;
         });
     };
 
@@ -277,6 +295,33 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
             status: value === 'Wet' ? 'To be Dry' : value === 'Dry' ? 'To be Mill' : prevState.status
         }));
     };
+
+    const handleSameAddressChange = (e) => {
+        const checked = e.target.checked;
+        setSameAsHomeAddress(checked);
+        
+        if (checked) {
+            // If checked, copy the home/office address values to farm address
+            setPalayData(prev => ({
+                ...prev,
+                farmRegion: prev.palaySupplierRegion,
+                farmProvince: prev.palaySupplierProvince,
+                farmCityTown: prev.palaySupplierCityTown,
+                farmBarangay: prev.palaySupplierBarangay,
+                farmStreet: prev.palaySupplierStreet
+            }));
+        } else {
+            // If unchecked, reset farm address fields
+            setPalayData(prev => ({
+                ...prev,
+                farmRegion: '',
+                farmProvince: '',
+                farmCityTown: '',
+                farmBarangay: '',
+                farmStreet: ''
+            }));
+        }
+    };
     
     const handleLocationId = (e) => {
         const selectedOption = locationOptions.find(option => option.value === e.value);
@@ -288,7 +333,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
     
         setPalayData(prevState => ({
             ...prevState,
-            currentlyAt: selectedOption.label,
+            currentlyAt: selectedOption.name,
         }));
     };
 
@@ -309,8 +354,8 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
     const handleSubmit = async () => {
         const isValid = validateForm(activeStep);
         if (!isValid) return;
+        console.log(palayData);
     
-        
         setIsLoading(true);
         try {
             // Step 1: Create palay data first
@@ -343,7 +388,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                 },
                 body: JSON.stringify({
                     ...transactionData,
-                    itemId: palayId  // Use the palay batch ID here
+                    itemId: palayId
                 })
             });
     
@@ -351,8 +396,29 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                 throw new Error('Failed to submit transaction data');
             }
     
-            const transactionResult = await transactionResponse.json();
-            const transactionId = transactionResult.id;
+            // Step 3: Find the target warehouse and update its stock
+            const targetWarehouse = warehouseData.find(warehouse => warehouse.id === transactionData.toLocationId);
+            
+            if (!targetWarehouse) {
+                throw new Error('Target warehouse not found');
+            }
+    
+            const newStock = Number(palayData.quantityBags) + Number(targetWarehouse.currentStock);
+    
+            const warehouseResponse = await fetch(`${apiUrl}/warehouses/update`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    id: transactionData.toLocationId,
+                    currentStock: newStock
+                })
+            });
+    
+            if (!warehouseResponse.ok) {
+                throw new Error('Failed to update warehouse stock');
+            }
     
             // Reset states and show success message
             setPalayData(initialPalayData);
@@ -368,12 +434,13 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
             onPalayRegistered(palayResult);
             onHide();
     
+            refreshData();
         } catch (error) {
             console.error('Error:', error);
             toast.current.show({
                 severity: 'error',
                 summary: 'Error',
-                detail: 'Failed to create records',
+                detail: error.message || 'Failed to create records',
                 life: 3000
             });
         } finally {
@@ -395,6 +462,8 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
             handlePalayInputChange={handlePalayInputChange}
             handleQualityTypeInputChange={handleQualityTypeInputChange}
             errors={errors}
+            handleSameAddressChange={handleSameAddressChange}
+            sameAsHomeAddress={sameAsHomeAddress}
         />
     );
 
