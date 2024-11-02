@@ -92,20 +92,29 @@ const Processing = () => {
     const [newMillingData, setNewMillingData] = useState(initialMillingData);
     const [newTransactionData, setNewTransactionData] = useState(initialMillingData);
 
-    const [formData, setFormData] = useState({
-        dateProcessed: new Date(),
-        method: '',
-        type: '',
-        moistureContent: '',
-        palayQuantityBags: '',
-        grossWeight: '',
-        netWeight: '',
-        facility: '',
-        efficiency: '',
-        transportedBy: '',
-        description: '',
-        remarks: ''
-    });
+    const filteredWarehouses = warehouses
+    .filter(warehouse => {
+      const requiredQuantity = viewMode === 'drying' 
+        ? parseInt(newDryingData?.driedQuantityBags || 0)
+        : parseInt(newMillingData?.milledQuantityBags || 0);
+
+      // Check warehouse capacity
+      const hasEnoughCapacity = warehouse.status === 'active' && 
+                               (warehouse.totalCapacity - warehouse.currentStock) >= requiredQuantity;
+
+      // Check warehouse type based on viewMode
+      const warehouseName = warehouse.facilityName.toLowerCase();
+      const isCorrectType = viewMode === 'drying' 
+        ? warehouseName.includes('palay')
+        : warehouseName.includes('rice');
+
+      return hasEnoughCapacity && isCorrectType;
+    })
+    .map(warehouse => ({
+      label: `${warehouse.facilityName} (Available: ${warehouse.totalCapacity - warehouse.currentStock} bags)`,
+      name: warehouse.facilityName,
+      value: warehouse.id
+    }));
 
     useEffect(() => {
         fetchData();
@@ -133,7 +142,6 @@ const Processing = () => {
             const processType = viewMode === 'drying' ? 'dryer' : 'miller';
             const locationType = viewMode === 'drying' ? 'Dryer' : 'Miller';
             const status = selectedFilter === 'request' ? 'Pending' : 'Received';
-            const batchType = viewMode === 'drying' ? 'drying' : 'milling';
             const millerType = 'In House';
             
             // Fetch all required data in parallel
@@ -143,7 +151,7 @@ const Processing = () => {
                 warehousesRes
             ] = await Promise.all([
                 fetch(`${apiUrl}/${processType}s`),
-                fetch(`${apiUrl}/inventory?toLocationType=${locationType}&status=${status}&batchType=drying&batchType=milling&millerType=${millerType}`),
+                fetch(`${apiUrl}/inventory?toLocationType=${locationType}&status=${status}&batchType=drying&batchType=drying&millerType=${millerType}`),
                 fetch(`${apiUrl}/warehouses`)
             ]);
     
@@ -180,7 +188,7 @@ const Processing = () => {
                     location: facilities.find(f => f.id === item.transaction.toLocationId)?.[`${processType}Name`] || 'Unknown Facility',
                     toLocationId: item.transaction.toLocationId,
                     millerType: facilities.find(f => f.id === item.transaction.toLocationId)?.type || null,
-                    dryingMethod: batchData.dryingMethod || null,
+                    dryingMethod: batchData.dryingMethod || '',
                     requestDate: item.transaction.sendDateTime ? new Date(item.transaction.sendDateTime).toLocaleDateString() : '',
                     startDate: batchData.startDateTime ? new Date(batchData.startDateTime).toLocaleDateString() : '',
                     endDate: batchData.endDateTime ? new Date(batchData.endDateTime).toLocaleDateString() : '',
@@ -189,12 +197,13 @@ const Processing = () => {
                     palayStatus: item.palayBatch.status,
                     transactionStatus: item.transaction.status,
                     processingStatus: batchData.status || null,
-                    batchQuantityBags: item.processingBatch.millingBatch?.milledQuantityBags || item.processingBatch.dryingBatch?.driedQuantityBags || null,
-                    batchNetWeight: item.processingBatch.millingBatch?.milledNetWeight || item.processingBatch.dryingBatch?.driedNetWeight || null,
-                    batchGrossWeight: item.processingBatch.millingBatch?.milledGrossWeight || item.processingBatch.dryingBatch?.driedGrossWeight || null,
+                    batchQuantityBags: item.batchData?.milledQuantityBags || item.batchData?.driedQuantityBags || null,
+                    batchNetWeight: item.batchData?.milledNetWeight || item.batchData?.driedNetWeight || null,
+                    batchGrossWeight: item.batchData?.milledGrossWeight || item.batchData?.driedGrossWeight || null,
                 };
             });
-    
+           
+            console.log(transformedData.processingBatchId);
             setCombinedData(transformedData);
         } catch (error) {
             console.error('Error fetching data:', error);
@@ -216,11 +225,7 @@ const Processing = () => {
             }
 
             const data = await response.json();
-            const formattedWarehouses = data.map(warehouse => ({
-                label: warehouse.facilityName,
-                value: warehouse.id
-            }));
-            setWarehouses(formattedWarehouses);
+            setWarehouses(data);
         } catch (error) {
             console.error('Error fetching warehouses:', error);
             toast.current.show({
@@ -304,13 +309,13 @@ const Processing = () => {
                 const dryingBatchData = {
                     palayBatchId: selectedItem.palayBatchId,
                     dryerId: selectedItem.toLocationId,
-                    startDateTime: '',
-                    endDateTime: '',
-                    dryingMethod: '',
-                    driedQuantityBags: '',
-                    driedGrossWeight: '',
-                    driedNetWeight: '',
-                    moistureContent: '',
+                    startDateTime: '0',
+                    endDateTime: '0',
+                    dryingMethod: '0',
+                    driedQuantityBags: '0',
+                    driedGrossWeight: '0',
+                    driedNetWeight: '0',
+                    moistureContent: '0',
                     status: 'In Progress'
                 };
                 
@@ -336,15 +341,15 @@ const Processing = () => {
     
                 if (!existingMillingBatch) {
                     const millingBatchData = {
-                        dryingBatchId: '', // This should be populated if coming from drying
+                        dryingBatchId: '0',
                         palayBatchId: selectedItem.palayBatchId,
                         millerId: selectedItem.toLocationId,
-                        millerType: '',
-                        startDateTime: '',
-                        endDateTime: '',
-                        milledQuantityBags: '',
-                        milledNetWeight: '',
-                        millingEfficiency: '',
+                        millerType: '0',
+                        startDateTime: '0',
+                        endDateTime: '0',
+                        milledQuantityBags: '0',
+                        milledNetWeight: '0',
+                        millingEfficiency: '0',
                         status: 'In Progress'
                     };
                     
@@ -528,12 +533,12 @@ const Processing = () => {
                 const millingBatchData = {
                     dryingBatchId: selectedItem.processingBatchId,
                     palayBatchId: selectedItem.palayBatchId,
-                    millerId: '',
-                    millerType: '',
-                    endDateTime: '',
-                    milledQuantityBags: '',
-                    milledNetWeight: '',
-                    millingEfficiency: '',
+                    millerId: '0',
+                    millerType: '0',
+                    endDateTime: '0',
+                    milledQuantityBags: '0',
+                    milledNetWeight: '0',
+                    millingEfficiency: '0',
                     status: 'In Progress'
                 };
     
@@ -559,9 +564,9 @@ const Processing = () => {
                 fromLocationId: selectedItem.toLocationId,
                 toLocationType: 'Warehouse',
                 senderId: user.id,
-                receiverId: null,
+                receiverId: '0',
                 status: 'Pending',
-                receiveDateTime: null,
+                receiveDateTime: '0',
             };
     
             const createTransactionResponse = await fetch(`${apiUrl}/transactions`, {
@@ -906,8 +911,10 @@ const Processing = () => {
                 onCancel={() => setShowReturnDialog(false)}
                 isLoading={isLoading}
                 setNewTransactionData={setNewTransactionData}
-                warehouses={warehouses}
+                filteredWarehouses={filteredWarehouses}
                 selectedItem={selectedItem}
+                newDryingData={newDryingData}
+                newMillingData={newMillingData}
             />
         </StaffLayout>
     );

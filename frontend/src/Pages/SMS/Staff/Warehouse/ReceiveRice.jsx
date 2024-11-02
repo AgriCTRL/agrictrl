@@ -18,7 +18,7 @@ const AcceptRice = ({ visible, onHide, selectedItem = {}, onAcceptSuccess, user,
     const toast = useRef(null);
 
 	const [isLoading, setIsLoading] = useState(false);
-    const [maxBatchCapacity, setMaxBatchCapacity] = useState(100);
+    const [maxBatchCapacity, setMaxBatchCapacity] = useState(500);
     
     const [riceBatches, setRiceBatches] = useState([]);
     const [batchInputs, setBatchInputs] = useState([]);
@@ -360,6 +360,10 @@ const AcceptRice = ({ visible, onHide, selectedItem = {}, onAcceptSuccess, user,
                                     batch.id ? maxBatchCapacity - batch.currentCapacity : maxBatchCapacity,
                                     (selectedItem?.batchQuantityBags || 0) - (totalBagsEntered - (batch.bagsToStore || 0))
                                 )}
+                                disabled={
+                                    batch.bagsToStore >=
+                                    (batch.id ? maxBatchCapacity - batch.currentCapacity : maxBatchCapacity)
+                                }
                                 className="w-full"
                             />
                         </div>
