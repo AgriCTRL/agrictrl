@@ -98,7 +98,7 @@
                     id: item.palayBatch.id,
                     palayQuantityBags: item.processingBatch?.milledQuantityBags || 
                                     item.processingBatch?.driedQuantityBags || 
-                                    item.palayBatch.quantityBags,  // Prioritize milling > drying > palay
+                                    item.palayBatch.quantityBags,
                     from: getLocationName(item, dryers, millers),
                     toBeStoreAt: item.palayBatch.currentlyAt,
                     currentlyAt: item.palayBatch.currentlyAt,
@@ -110,6 +110,7 @@
                     fromLocationType: item.transaction.fromLocationType,
                     transactionId: item.transaction.id,
                     toLocationId: item.transaction.toLocationId,
+                    fromLocationId: item.transaction.fromLocationId,
                     item: item.transaction.item,
                     qualityType: item.palayBatch.qualityType,
                     millingBatchId: item.processingBatch.millingBatch?.id || null,
@@ -206,11 +207,11 @@
                     setShowPalayAcceptDialog(true);
                 } else if (rowData.palayStatus === 'Milled') {
                     setShowRiceAcceptDialog(true);
-                    console.log(rowData);
                 }
             } else if (viewMode === 'inWarehouse') {
                 setSelectedItem(rowData);
                 setShowSendToDialog(true);
+                console.log(rowData);
             }
         };
 
@@ -547,6 +548,7 @@
                     dryerData={dryerData}
                     millerData={millerData}
                     refreshData={refreshData}
+                    warehouseData={warehouseData}
                 />
 
                 <ReceiveRice 

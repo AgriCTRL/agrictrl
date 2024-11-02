@@ -23,7 +23,7 @@ const initialNewTransactionData = {
     remarks: ''
 };
 
-const SendTo = ({ visible, onHide, selectedItem, onSendSuccess, user, dryerData, millerData, refreshData }) => {
+const SendTo = ({ visible, onHide, selectedItem, onSendSuccess, user, dryerData, millerData, refreshData, warehouseData }) => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const toast = useRef(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -147,6 +147,29 @@ const SendTo = ({ visible, onHide, selectedItem, onSendSuccess, user, dryerData,
 
             if (!oldTransactionResponse.ok) {
                 throw new Error('Failed to update Old transaction');
+            }
+
+            //update warehouse
+            const targetWarehouse = warehouseData.find(warehouse => warehouse.id === selectedItem.toLocationId);
+
+            if (!targetWarehouse) {
+                throw new Error('Target warehouse not found');
+            }
+
+            const currentStock =  Number(targetWarehouse.currentStock) - Number(selectedItem.palayQuantityBags);
+            const warehouseResponse = await fetch(`${apiUrl}/warehouses/update`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    id: selectedItem.toLocationId,
+                    currentStock: currentStock
+                })
+            });
+
+            if (!warehouseResponse.ok) {
+                throw new Error('Failed to update warehouse stock');
             }
     
             onSendSuccess();

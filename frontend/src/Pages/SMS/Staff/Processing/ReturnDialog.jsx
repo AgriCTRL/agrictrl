@@ -22,14 +22,14 @@ const initialTransactionData = {
   remarks: ''
 };
 
-const ReturnDialog = ({ visible, viewMode, newTransactionData, onReturn, onCancel, isLoading, setNewTransactionData, warehouses }) => {
-  // Function to reset data and close the dialog
-  const handleHide = () => {
-    if (!isLoading) {
-      setNewTransactionData(initialTransactionData);
-      onCancel();
-    }
-  };
+const ReturnDialog = ({ visible, viewMode, newTransactionData, onReturn, onCancel, isLoading, setNewTransactionData, filteredWarehouses}) => {
+	// Function to reset data and close the dialog
+	const handleHide = () => {
+		if (!isLoading) {
+		setNewTransactionData(initialTransactionData);
+		onCancel();
+		}
+	};  
 
   return (
     <Dialog 
@@ -43,8 +43,12 @@ const ReturnDialog = ({ visible, viewMode, newTransactionData, onReturn, onCance
           <label className="block mb-2">Warehouse</label>
           <Dropdown 
             value={newTransactionData.toLocationId} 
-            options={warehouses} 
-            onChange={(e) => setNewTransactionData(prev => ({ ...prev, toLocationId: e.value, toLocationName: warehouses.find(w => w.value === e.value)?.label }))}
+            options={filteredWarehouses} 
+            onChange={(e) => setNewTransactionData(prev => ({ 
+				...prev, 
+				toLocationId: e.value, 
+				toLocationName: filteredWarehouses.find(w => w.value === e.value)?.name 
+			  }))}
             placeholder="Select a warehouse" 
             className="w-full ring-0" 
           />

@@ -85,6 +85,7 @@ const Finishing = ({ setConfirmPasswordValid, credsInfo }) => {
             inputClassName='ring-0 focus:border-primary hover:border-primary'
             feedback={false} 
             invalid={!credsInfo.confirmPassword}
+            toggleMask
           />
           {!credsInfo.confirmPassword &&
             <small className='p-error'>Please input your password.</small>

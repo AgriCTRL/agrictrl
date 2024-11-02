@@ -1,9 +1,10 @@
 import { Transaction } from '../transactions/db';
+import { In } from 'typeorm';
 import { PalayBatch } from '../palaybatches/db';
 import { DryingBatch } from '../dryingbatches/db';
 import { MillingBatch } from '../millingbatches/db';
 import { Miller } from '../millers/db';
-import { ProcessingType, InventoryFilters, ProcessingBatch, RiceDetails, RiceInventoryFilters, RiceInventoryItem } from './types';
+import {  InventoryFilters, ProcessingBatch, RiceDetails, DBTransaction, ProcessedTransaction } from './types';
 import { EnhancedInventoryItem, InventoryItem } from './types';
 import { RiceBatchMillingBatch } from '../riceBatchMillingBatches/db';
 import { RiceBatch } from '../ricebatches/db';
@@ -18,10 +19,22 @@ export async function getInventory(
 ): Promise<InventoryItem[]> {
     try {
         let transactionQuery = Transaction.createQueryBuilder('transaction')
+            .select([
+                'transaction.id',
+                'transaction.status',
+                'transaction.sendDateTime',
+                'transaction.receiveDateTime',
+                'transaction.transporterName',
+                'transaction.fromLocationType',
+                'transaction.toLocationType',
+                'transaction.fromLocationId',
+                'transaction.toLocationId',
+                'transaction.itemId',
+                'transaction.item'
+            ])
             .where('transaction.toLocationType = :locationType', { locationType: toLocationType })
             .andWhere(status ? 'transaction.status = :status' : '1=1', { status });
 
-        // Filter by miller type and userId if toLocationType is Miller
         if (toLocationType === 'Miller' && millerType) {
             transactionQuery = transactionQuery
                 .leftJoin(Miller, 'miller', 'miller.id = transaction.toLocationId')
@@ -32,38 +45,145 @@ export async function getInventory(
         const transactions = await transactionQuery.getMany();
 
         const inventoryItems: InventoryItem[] = await Promise.all(
-            transactions.map(async (transaction) => {
-                const palayBatch = await PalayBatch.findOne({
-                    where: { id: transaction.itemId },
-                    relations: { qualitySpec: true, palaySupplier: true, farm: true },
-                });
-
-                // Initialize processingBatch object
-                const processingBatch: ProcessingBatch = {};
-
-                // Conditionally set drying or milling batch based on batchType
-                if (batchType === 'drying') {
-                    processingBatch.dryingBatch = await DryingBatch.findOne({ 
-                        where: { palayBatchId: transaction.itemId }
-                    });
-                } else if (batchType === 'milling') {
-                    processingBatch.millingBatch = await MillingBatch.findOne({ 
-                        where: { palayBatchId: transaction.itemId }
-                    });
-                } else {
-                    // If no specific batchType is provided, fetch both if they exist
-                    processingBatch.dryingBatch = await DryingBatch.findOne({ 
-                        where: { palayBatchId: transaction.itemId }
-                    });
-                    processingBatch.millingBatch = await MillingBatch.findOne({ 
-                        where: { palayBatchId: transaction.itemId }
-                    });
+            transactions.map(async (transaction: DBTransaction) => {
+                let palayBatch = null;
+                if (transaction.itemId) {
+                    palayBatch = await PalayBatch.createQueryBuilder('palayBatch')
+                        .select([
+                            'palayBatch.id',
+                            'palayBatch.status',
+                            'palayBatch.buyingStationLoc',
+                            'palayBatch.quantityBags',
+                            'palayBatch.grossWeight',
+                            'palayBatch.netWeight',
+                            'palayBatch.currentlyAt',
+                            'palayBatch.qualityType',
+                            'qualitySpec.moistureContent'
+                        ])
+                        .leftJoin('palayBatch.qualitySpec', 'qualitySpec')
+                        .where('palayBatch.id = :id', { id: transaction.itemId })
+                        .getOne();
                 }
 
+                const processingBatch: ProcessingBatch = {};
+
+                if (batchType === 'drying') {
+                    const dryingBatch = await DryingBatch.createQueryBuilder('dryingBatch')
+                        .select([
+                            'dryingBatch.id',
+                            'dryingBatch.status',
+                            'dryingBatch.startDateTime',
+                            'dryingBatch.endDateTime',
+                            'dryingBatch.driedQuantityBags',
+                            'dryingBatch.driedNetWeight',
+                            'dryingBatch.driedGrossWeight',
+                            'dryingBatch.dryingMethod',
+                            'dryingBatch.palayBatchId'
+                        ])
+                        .where('dryingBatch.palayBatchId = :palayBatchId', { palayBatchId: transaction.itemId })
+                        .getOne();
+
+                    if (dryingBatch) {
+                        processingBatch.dryingBatch = {
+                            ...dryingBatch,
+                            startDateTime: dryingBatch.startDateTime ? dryingBatch.startDateTime.toISOString() : null,
+                            endDateTime: dryingBatch.endDateTime ? dryingBatch.endDateTime.toISOString() : null,
+                            driedQuantityBags: dryingBatch.driedQuantityBags || null,
+                            driedNetWeight: dryingBatch.driedNetWeight || null,
+                            driedGrossWeight: dryingBatch.driedGrossWeight || null,
+                            dryingMethod: dryingBatch.dryingMethod || ''
+                        };
+                    }
+                } else if (batchType === 'milling') {
+                    const millingBatch = await MillingBatch.createQueryBuilder('millingBatch')
+                        .select([
+                            'millingBatch.id',
+                            'millingBatch.status',
+                            'millingBatch.startDateTime',
+                            'millingBatch.endDateTime',
+                            'millingBatch.milledQuantityBags',
+                            'millingBatch.milledNetWeight',
+                            'millingBatch.milledGrossWeight',
+                            'millingBatch.palayBatchId'
+                        ])
+                        .where('millingBatch.palayBatchId = :palayBatchId', { palayBatchId: transaction.itemId })
+                        .getOne();
+
+                    if (millingBatch) {
+                        processingBatch.millingBatch = {
+                            ...millingBatch,
+                            startDateTime: millingBatch.startDateTime ? millingBatch.startDateTime.toISOString() : null,
+                            endDateTime: millingBatch.endDateTime ? millingBatch.endDateTime.toISOString() : null,
+                            milledQuantityBags: millingBatch.milledQuantityBags || null,
+                            milledNetWeight: millingBatch.milledNetWeight || null,
+                            milledGrossWeight: millingBatch.milledGrossWeight || null
+                        };
+                    }
+                } else {
+                    // If no specific batchType is provided, try to fetch both
+                    const dryingBatch = await DryingBatch.createQueryBuilder('dryingBatch')
+                        .select([
+                            'dryingBatch.id',
+                            'dryingBatch.status',
+                            'dryingBatch.startDateTime',
+                            'dryingBatch.endDateTime',
+                            'dryingBatch.driedQuantityBags',
+                            'dryingBatch.driedNetWeight',
+                            'dryingBatch.driedGrossWeight',
+                            'dryingBatch.dryingMethod',
+                            'dryingBatch.palayBatchId'
+                        ])
+                        .where('dryingBatch.palayBatchId = :palayBatchId', { palayBatchId: transaction.itemId })
+                        .getOne();
+
+                    const millingBatch = await MillingBatch.createQueryBuilder('millingBatch')
+                        .select([
+                            'millingBatch.id',
+                            'millingBatch.status',
+                            'millingBatch.startDateTime',
+                            'millingBatch.endDateTime',
+                            'millingBatch.milledQuantityBags',
+                            'millingBatch.milledNetWeight',
+                            'millingBatch.milledGrossWeight',
+                            'millingBatch.palayBatchId'
+                        ])
+                        .where('millingBatch.palayBatchId = :palayBatchId', { palayBatchId: transaction.itemId })
+                        .getOne();
+
+                    if (dryingBatch) {
+                        processingBatch.dryingBatch = {
+                            ...dryingBatch,
+                            startDateTime: dryingBatch.startDateTime ? dryingBatch.startDateTime.toISOString() : null,
+                            endDateTime: dryingBatch.endDateTime ? dryingBatch.endDateTime.toISOString() : null,
+                            driedQuantityBags: dryingBatch.driedQuantityBags || null,
+                            driedNetWeight: dryingBatch.driedNetWeight || null,
+                            driedGrossWeight: dryingBatch.driedGrossWeight || null,
+                            dryingMethod: dryingBatch.dryingMethod || ''
+                        };
+                    }
+
+                    if (millingBatch) {
+                        processingBatch.millingBatch = {
+                            ...millingBatch,
+                            startDateTime: millingBatch.startDateTime ? millingBatch.startDateTime.toISOString() : null,
+                            endDateTime: millingBatch.endDateTime ? millingBatch.endDateTime.toISOString() : null,
+                            milledQuantityBags: millingBatch.milledQuantityBags || null,
+                            milledNetWeight: millingBatch.milledNetWeight || null,
+                            milledGrossWeight: millingBatch.milledGrossWeight || null
+                        };
+                    }
+                }
+
+                const processedTransaction: ProcessedTransaction = {
+                    ...transaction,
+                    sendDateTime: transaction.sendDateTime.toISOString(),
+                    receiveDateTime: transaction.receiveDateTime.toISOString()
+                };
+
                 return {
-                    transaction,
-                    palayBatch: palayBatch || null,
-                    processingBatch: processingBatch,
+                    transaction: processedTransaction,
+                    palayBatch,
+                    processingBatch,
                 };
             })
         );
@@ -81,13 +201,11 @@ export async function getEnhancedInventory(
     try {
         // Start with palay batches query
         let palayBatchQuery = PalayBatch.createQueryBuilder('palayBatch')
-            .leftJoinAndSelect('palayBatch.qualitySpec', 'qualitySpec')
-            .leftJoinAndSelect('palayBatch.palaySupplier', 'palaySupplier')
-            .leftJoinAndSelect('palayBatch.farm', 'farm');
+            .leftJoinAndSelect('palayBatch.qualitySpec', 'qualitySpec');
 
         if (filters.palayBatchStatus) {
             palayBatchQuery = palayBatchQuery
-                .where('palayBatch.status = :status', { status: filters.palayBatchStatus });
+                .andWhere('palayBatch.status = :status', { status: filters.palayBatchStatus });
         }
 
         const palayBatches = await palayBatchQuery.getMany();
@@ -95,72 +213,81 @@ export async function getEnhancedInventory(
         // Map through palay batches to get related data
         const inventoryItems: EnhancedInventoryItem[] = await Promise.all(
             palayBatches.map(async (palayBatch) => {
-                // Get related transactions
-                const transactions = await Transaction.createQueryBuilder('transaction')
-                    .where('transaction.itemId = :palayBatchId', { palayBatchId: palayBatch.id })
-                    .andWhere(filters.transactionStatus 
-                        ? 'transaction.status = :status' 
-                        : '1=1', 
-                        { status: filters.transactionStatus }
-                    )
-                    .getMany();
+                // Get all related transactions
+                let transactionQuery = Transaction.createQueryBuilder('transaction')
+                    .where('transaction.itemId = :palayBatchId', { palayBatchId: palayBatch.id });
+
+                if (filters.transactionStatus) {
+                    transactionQuery = transactionQuery
+                        .andWhere('transaction.status = :status', { status: filters.transactionStatus });
+                }
+
+                const transactions = await transactionQuery.getMany();
 
                 // Initialize processing batch object
                 const processingBatch: ProcessingBatch = {};
 
                 // Get drying batch if requested
-                if (filters.processingTypes?.includes('drying')) {
-                    processingBatch.dryingBatch = await DryingBatch.findOne({
-                        where: { palayBatchId: palayBatch.id }
-                    });
+                if (!filters.processingTypes || filters.processingTypes.includes('drying')) {
+                    const dryingBatch = await DryingBatch.createQueryBuilder('dryingBatch')
+                        .where('dryingBatch.palayBatchId = :palayBatchId', { palayBatchId: palayBatch.id })
+                        .getOne();
+
+                    if (dryingBatch) {
+                        processingBatch.dryingBatch = {
+                            ...dryingBatch,
+                            startDateTime: dryingBatch.startDateTime.toISOString(),
+                            endDateTime: dryingBatch.endDateTime.toISOString()
+                        };
+                    }
                 }
 
                 // Get milling batch if requested
-                if (filters.processingTypes?.includes('milling')) {
-                    processingBatch.millingBatch = await MillingBatch.findOne({
-                        where: { palayBatchId: palayBatch.id }
-                    });
+                if (!filters.processingTypes || filters.processingTypes.includes('milling')) {
+                    const millingBatch = await MillingBatch.createQueryBuilder('millingBatch')
+                        .where('millingBatch.palayBatchId = :palayBatchId', { palayBatchId: palayBatch.id })
+                        .getOne();
+
+                    if (millingBatch) {
+                        processingBatch.millingBatch = {
+                            ...millingBatch,
+                            startDateTime: millingBatch.startDateTime.toISOString(),
+                            endDateTime: millingBatch.endDateTime.toISOString()
+                        };
+                    }
                 }
 
                 // Get rice details if milling batch ID is provided
                 let riceDetails: RiceDetails | undefined;
                 
                 if (filters.millingBatchId) {
-                    // First, find all junction records for this milling batch
-                    const junctions = await RiceBatchMillingBatch.find({
-                        where: {
-                            millingBatchId: filters.millingBatchId
-                        }
+                    // Get all RiceBatchMillingBatch records for this milling batch
+                    const riceBatchMillingBatches = await RiceBatchMillingBatch.find({
+                        where: { millingBatchId: filters.millingBatchId }
                     });
 
-                    if (junctions && junctions.length > 0) {
-                        // Get rice batches for all found junctions
-                        const riceBatchPromises = junctions.map(junction =>
-                            RiceBatch.findOne({
-                                where: { id: junction.riceBatchId }
-                            })
-                        );
-                        const riceBatches = await Promise.all(riceBatchPromises);
+                    if (riceBatchMillingBatches.length > 0) {
+                        // Get all rice batch IDs
+                        const riceBatchIds = riceBatchMillingBatches.map(rb => rb.riceBatchId);
 
-                        // Get rice orders for all found rice batches
-                        const riceOrderPromises = riceBatches
-                            .filter((batch): batch is RiceBatch => batch !== null)
-                            .map(riceBatch =>
-                                RiceOrder.find({
-                                    where: { riceBatchId: riceBatch.id }
-                                })
-                            );
-                        const riceOrders = await Promise.all(riceOrderPromises);
+                        // Fetch all related rice batches
+                        const riceBatches = await RiceBatch.find({
+                            where: { id: In(riceBatchIds) }
+                        });
 
-                        // Combine all the data
+                        // Fetch all related rice orders
+                        const riceOrders = await RiceOrder.find({
+                            where: { riceBatchId: In(riceBatchIds) }
+                        });
+
                         riceDetails = {
-                            riceBatchMillingBatch: junctions[0], // Using first junction for backwards compatibility
-                            riceBatch: riceBatches[0] || undefined, // Using first rice batch for backwards compatibility
-                            riceOrder: riceOrders[0]?.[0] || undefined, // Using first order for backwards compatibility
-                            // Add arrays of all related data
-                            allRiceBatchMillingBatches: junctions,
-                            allRiceBatches: riceBatches.filter((batch): batch is RiceBatch => batch !== null),
-                            allRiceOrders: riceOrders.flat()
+                            allRiceBatchMillingBatches: riceBatchMillingBatches,
+                            allRiceBatches: riceBatches,
+                            allRiceOrders: riceOrders,
+                            // Maintain backward compatibility with single record references
+                            riceBatchMillingBatch: riceBatchMillingBatches[0],
+                            riceBatch: riceBatches[0],
+                            riceOrder: riceOrders[0]
                         };
                     }
                 }

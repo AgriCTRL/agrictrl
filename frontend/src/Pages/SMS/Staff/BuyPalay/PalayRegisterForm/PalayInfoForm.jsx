@@ -3,7 +3,7 @@ import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { Calendar } from 'primereact/calendar';
 
-const PalayInfoForm = ({ palayData, handlePalayInputChange, handleQualityTypeInputChange, errors  }) => {
+const PalayInfoForm = ({ palayData, handlePalayInputChange, handleQualityTypeInputChange, errors, handleSameAddressChange, sameAsHomeAddress  }) => {
     const [regionOptions, setRegionOptions] = useState([]);
     const [provinceOptions, setProvinceOptions] = useState([]);
     const [cityTownOptions, setCityTownOptions] = useState([]);
@@ -399,19 +399,31 @@ const PalayInfoForm = ({ palayData, handlePalayInputChange, handleQualityTypeInp
                     {errors.harvestedDate && <p className="text-red-500 text-xs mt-1">{errors.harvestedDate}</p>}
                 </div>
             </div>
-    
+
             {/* Farm Location */}
             <div className="w-full">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Farm Address</label>
+                <div className="flex gap-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Farm Address</label>
+                    <label>(Same as Home/Office Address?</label>
+                    <input 
+                        type="checkbox" 
+                        checked={sameAsHomeAddress}
+                        onChange={handleSameAddressChange}
+                        className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
+                    />
+                    <label>)</label>
+                </div>
+               
                 <div className="grid grid-cols-5 gap-4">
                     <div className="flex flex-col w-full">
                         <Dropdown
-                            id="farmRegion"
                             value={palayData.farmRegion}
                             options={regionOptions}
-                            onChange={(e) => handleAddressChange('Region', e.value)}
+                            onChange={handlePalayInputChange}
+                            name="farmRegion"
                             placeholder="Region"
-                            className="w-full ring-0"
+                            className={`w-full ${errors.farmRegion ? 'p-invalid' : ''}`}
+                            disabled={sameAsHomeAddress}
                         />
                         {errors.farmRegion && <p className="text-red-500 text-xs mt-1">{errors.farmRegion}</p>}
                     </div>
@@ -424,6 +436,7 @@ const PalayInfoForm = ({ palayData, handlePalayInputChange, handleQualityTypeInp
                                 onChange={(e) => handleAddressChange('Province', e.value)}
                                 placeholder="Province"
                                 className="w-full ring-0"
+                                disabled={sameAsHomeAddress}
                             />
                             {errors.farmProvince && <p className="text-red-500 text-xs mt-1">{errors.farmProvince}</p>}
                         </div>
@@ -436,6 +449,7 @@ const PalayInfoForm = ({ palayData, handlePalayInputChange, handleQualityTypeInp
                             onChange={(e) => handleAddressChange('CityTown', e.value)} 
                             placeholder="City/Town"
                             className="w-full ring-0"
+                            disabled={sameAsHomeAddress}
                         />
                         {errors.farmCityTown && <p className="text-red-500 text-xs mt-1">{errors.farmCityTown}</p>}
                     </div>
@@ -447,6 +461,7 @@ const PalayInfoForm = ({ palayData, handlePalayInputChange, handleQualityTypeInp
                             onChange={(e) => handleAddressChange('Barangay', e.value)} 
                             placeholder="Barangay"
                             className="w-full ring-0"
+                            disabled={sameAsHomeAddress}
                         />
                         {errors.farmBarangay && <p className="text-red-500 text-xs mt-1">{errors.farmBarangay}</p>}
                     </div>
@@ -459,6 +474,7 @@ const PalayInfoForm = ({ palayData, handlePalayInputChange, handleQualityTypeInp
                             placeholder="Street"
                             className="w-full ring-0"
                             maxLength={50}
+                            disabled={sameAsHomeAddress}
                         />
                         {errors.farmStreet && <p className="text-red-500 text-xs mt-1">{errors.farmStreet}</p>}
                     </div>
