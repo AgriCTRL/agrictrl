@@ -156,7 +156,7 @@ const SendTo = ({ visible, onHide, selectedItem, onSendSuccess, user, dryerData,
                 throw new Error('Target warehouse not found');
             }
 
-            const currentStock =  Number(targetWarehouse.currentStock) - Number(selectedItem.palayQuantityBags);
+            const currentStock = Number(targetWarehouse.currentStock) - Number(selectedItem.quantityBags);
             const warehouseResponse = await fetch(`${apiUrl}/warehouses/update`, {
                 method: 'POST',
                 headers: {
