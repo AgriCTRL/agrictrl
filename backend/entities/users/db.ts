@@ -1,18 +1,18 @@
 import {
     BaseEntity,
     Column,
-    CreateDateColumn,
     Entity,
     ManyToOne,
-    PrimaryGeneratedColumn
+    PrimaryColumn,
+    BeforeInsert
 } from 'typeorm';
 
 import { getOfficeAddress, OfficeAddress } from '../officeaddresses/db';
 
 @Entity()
 export class User extends BaseEntity {
-    @PrimaryGeneratedColumn()
-    id: number;
+    @PrimaryColumn('varchar', { length: 10 })
+    id: string;
 
     @Column({ unique: true, nullable: true })
     principal: string;
@@ -54,7 +54,7 @@ export class User extends BaseEntity {
     validIdName: string;
 
     @Column()
-    officeAddressId: number;
+    officeAddressId: string;
 
     @ManyToOne(() => OfficeAddress)
     officeAddress: OfficeAddress;
@@ -76,6 +76,24 @@ export class User extends BaseEntity {
 
     @Column()
     dateCreated: Date;
+
+    @BeforeInsert()
+    async generateId() {
+        const prefix = '030407';
+        const lastOrder = await User.find({
+            order: { id: 'DESC' },
+            take: 1
+        });
+
+        let nextNumber = 1;
+        if (lastOrder.length > 0) {
+            const lastId = lastOrder[0].id;
+            const lastNumber = parseInt(lastId.slice(-4));
+            nextNumber = lastNumber + 1;
+        }
+
+        this.id = `${prefix}${nextNumber.toString().padStart(4, '0')}`;
+    }
 }
 
 export type UserCreate = Pick<User, 'principal' | 'firstName' | 'lastName' | 'gender' | 'birthDate' | 'contactNumber' | 'userType' | 'organizationName' | 'jobTitlePosition' | 'branchRegion' | 'branchOffice' | 'validId' | 'validIdName' | 'officeAddressId' | 'email' | 'password' | 'status' | 'isVerified' | 'dateCreated' | 'code' > &
@@ -109,7 +127,7 @@ export async function getUsers(limit: number, offset: number, userType?: string,
     });
 }
 
-export async function getUser(id: number): Promise<User | null> {
+export async function getUser(id: string): Promise<User | null> {
     return await User.findOne({
         where: {
             id

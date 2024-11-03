@@ -33,7 +33,7 @@ export function getRouter(): Router {
     router.get('/:id', async (req, res) => {
         const { id } = req.params;
 
-        const dryingBatch = await getDryingBatch(Number(id));
+        const dryingBatch = await getDryingBatch(String(id));
 
 
         res.json(dryingBatch);
@@ -42,7 +42,7 @@ export function getRouter(): Router {
     router.post(
         '/',
         async (
-            req: Request<any, any, { palayBatchId: number; dryingMethod: string; dryerId: number; startDateTime: Date; endDateTime: Date; driedQuantityBags: number; driedGrossWeight: number; driedNetWeight: number; moistureContent: number; status: string }>,
+            req: Request<any, any, { palayBatchId: string; dryingMethod: string; dryerId: string; startDateTime: Date; endDateTime: Date; driedQuantityBags: number; driedGrossWeight: number; driedNetWeight: number; moistureContent: number; status: string }>,
             res
         ) => {
             const { palayBatchId, dryingMethod, dryerId, startDateTime, endDateTime, driedQuantityBags, driedGrossWeight, driedNetWeight, moistureContent, status } = req.body;
@@ -73,7 +73,7 @@ async function updateHandler(
     req: Request<
         any,
         any,
-        { id: number; palayBatchId?: number; dryingMethod?: string; dryerId?: number; startDateTime?: Date; endDateTime?: Date; driedQuantityBags?: number; driedGrossWeight?: number; driedNetWeight?: number; moistureContent?: number; status?: string }
+        { id: string; palayBatchId?: string; dryingMethod?: string; dryerId?: string; startDateTime?: Date; endDateTime?: Date; driedQuantityBags?: number; driedGrossWeight?: number; driedNetWeight?: number; moistureContent?: number; status?: string }
     >,
     res: Response
 ): Promise<void> {

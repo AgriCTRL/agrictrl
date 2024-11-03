@@ -1,9 +1,9 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity, Column, Entity, PrimaryColumn, BeforeInsert } from 'typeorm';
 
 @Entity()
 export class Warehouse extends BaseEntity {
-    @PrimaryGeneratedColumn()
-    id: number;
+    @PrimaryColumn('varchar', { length: 10 })
+    id: string;
 
     @Column()
     facilityName: string;
@@ -28,6 +28,24 @@ export class Warehouse extends BaseEntity {
 
     @Column()
     status: string;
+
+    @BeforeInsert()
+    async generateId() {
+        const prefix = '030405';
+        const lastOrder = await Warehouse.find({
+            order: { id: 'DESC' },
+            take: 1
+        });
+
+        let nextNumber = 1;
+        if (lastOrder.length > 0) {
+            const lastId = lastOrder[0].id;
+            const lastNumber = parseInt(lastId.slice(-4));
+            nextNumber = lastNumber + 1;
+        }
+
+        this.id = `${prefix}${nextNumber.toString().padStart(4, '0')}`;
+    }
 }
 
 export type WarehouseCreate = Pick<Warehouse, 'facilityName' | 'nfaBranch' | 'location' | 'totalCapacity' | 'currentStock' | 'contactNumber' | 'email' | 'status'>;
@@ -40,7 +58,7 @@ export async function getWarehouses(limit: number, offset: number): Promise<Ware
     });
 }
 
-export async function getWarehouse(id: number): Promise<Warehouse | null> {
+export async function getWarehouse(id: string): Promise<Warehouse | null> {
     return await Warehouse.findOne({
         where: {
             id

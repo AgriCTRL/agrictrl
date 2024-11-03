@@ -50,7 +50,7 @@ export function getRouter(): Router {
     router.get('/:id', async (req, res) => {
         const { id } = req.params;
 
-        const user = await getUser(Number(id));
+        const user = await getUser(String(id));
 
         res.json(user);
     });

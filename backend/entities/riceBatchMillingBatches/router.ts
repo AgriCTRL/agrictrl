@@ -35,7 +35,7 @@ export function getRouter(): Router {
     ) => {
         const { id } = req.params;
         const relations = req.query.relations !== 'false';
-        const junction = await getRiceBatchMillingBatch(Number(id), relations);
+        const junction = await getRiceBatchMillingBatch(String(id), relations);
         res.json(junction);
     });
 
@@ -45,7 +45,7 @@ export function getRouter(): Router {
     ) => {
         const { riceBatchId } = req.params;
         const relations = req.query.relations !== 'false';
-        const junctions = await getRiceBatchMillingBatchesByRiceBatch(Number(riceBatchId), relations);
+        const junctions = await getRiceBatchMillingBatchesByRiceBatch(String(riceBatchId), relations);
         res.json(junctions);
     });
 
@@ -55,7 +55,7 @@ export function getRouter(): Router {
     ) => {
         const { millingBatchId } = req.params;
         const relations = req.query.relations !== 'false';
-        const junctions = await getRiceBatchMillingBatchesByMillingBatch(Number(millingBatchId), relations);
+        const junctions = await getRiceBatchMillingBatchesByMillingBatch(String(millingBatchId), relations);
         res.json(junctions);
     });
 
