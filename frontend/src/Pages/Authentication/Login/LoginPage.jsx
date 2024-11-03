@@ -7,8 +7,9 @@ import { Password } from 'primereact/password';
 import { Divider } from 'primereact/divider';
 import { SelectButton } from 'primereact/selectbutton';
 import { Toast } from 'primereact/toast';
+import { Dialog } from 'primereact/dialog';
 import CryptoJS from 'crypto-js';
-
+        
 import { 
 	Wheat, 
 	Link, 
@@ -19,7 +20,8 @@ import {
 	Mail, 
 	Linkedin, 
 	ArrowDown,
-	ArrowRight
+	ArrowRight,
+	UserSearch
 } from 'lucide-react';
 
 import { useAuth } from './AuthContext';
@@ -141,6 +143,8 @@ const LoginPage = () => {
 	const [loading, setLoading] = useState(false);
 	const navigate = useNavigate();
 	const { login } = useAuth();
+	const [underverificationVisible, setUnderverificationVisible] = useState(false);
+
 	// const secretKey = import.meta.env.VITE_HASH_KEY;
 
 	// useEffect(() => {
@@ -173,6 +177,8 @@ const LoginPage = () => {
 	];
 
 	const loginButton = async () => {
+		return setUnderverificationVisible(true);
+		// TO-DO: remove 'return' KEYWORD if check for account verification logic is implemented
 		const isValidated = validateForm()
 
 		if (isValidated) {
@@ -262,6 +268,15 @@ const LoginPage = () => {
 		</>
 	);
 
+	const dialogHeader = () => {
+		return (
+			<div className="flex gap-4 items-center">
+				<img src="favicon.ico" alt="AgriCTRL+ Logo" className='h-8'/>
+				<p>Verification</p>
+			</div>
+		)
+	}
+
 	return (
 		<div className="h-fit md:h-screen w-screen flex flex-col-reverse md:flex-row md:gap-10 p-0 md:p-10">
 			<Toast 
@@ -271,6 +286,21 @@ const LoginPage = () => {
 					message: { className: 'bg-white shadow-lg' }
 				}}
 			/>
+			<Dialog 
+				header={dialogHeader()}
+				footer={
+					<Button className='w-full bg-primary hover:bg-primaryHover' label='Close' onClick={() => setUnderverificationVisible(false)} />
+				}
+				visible={underverificationVisible} 
+				onHide={() => {if (!visible) return; setUnderverificationVisible(false); }}
+				className="w-screen h-screen sm:w-1/3 sm:h-fit flex"
+			>
+				<div className="flex flex-col gap-4 items-center justify-center text-center h-full">
+					<img src="illustrations/verification.svg" alt="Empty Image" className="h-32" />
+					<p className='text-2xl font-semibold'>Under Verification</p>
+					<p>We are verifying your account for <span className='text-primary font-semibold'>{email}</span>. Please try again later.</p>
+				</div>
+			</Dialog>
 			{/* Left side */}
 			<div className="flex flex-col items-center justify-between h-full w-full md:w-[45%] p-10 gap-4 rounded-2xl">
 				<div className="h-full w-full flex flex-col justify-start gap-6">
@@ -322,10 +352,11 @@ const LoginPage = () => {
 								value={email}
 								onChange={(e) => {setEmail(e.target.value); setEmailError(false)}}
 								placeholder="Enter your email"
-								className="focus:border-primary hover:border-primary"
+								className="focus:border-primary hover:border-primary ring-0"
 								required
 								invalid={emailError}
 								keyfilter="email"
+								maxLength={50}
 							/>
 							{emailError && 
 								<small id="email-help" className='p-error'>
@@ -343,6 +374,7 @@ const LoginPage = () => {
 								onChange={(e) => {setPassword(e.target.value); setPasswordError(false)}}
 								placeholder="Enter your password"
 								className="focus:border-primary hover:border-primary w-full"
+								inputClassName="ring-0"
 								required
 								invalid={passwordError}
 								toggleMask
