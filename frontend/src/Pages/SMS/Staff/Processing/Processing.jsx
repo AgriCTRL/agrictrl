@@ -7,9 +7,6 @@ import { Tag } from "primereact/tag";
 import { FilterMatchMode } from "primereact/api";
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
-import { Dialog } from "primereact/dialog";
-import { Dropdown } from "primereact/dropdown";
-import { InputTextarea } from "primereact/inputtextarea";
 import { Toast } from "primereact/toast";
 
 import { useAuth } from "../../../Authentication/Login/AuthContext";
@@ -74,7 +71,6 @@ const Processing = () => {
   const [viewMode, setViewMode] = useState("drying");
   const [selectedFilter, setSelectedFilter] = useState("request");
   const [selectedItem, setSelectedItem] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
 
   // Dialog states
   const [showAcceptDialog, setShowAcceptDialog] = useState(false);
@@ -92,35 +88,6 @@ const Processing = () => {
   const [newMillingData, setNewMillingData] = useState(initialMillingData);
   const [newTransactionData, setNewTransactionData] =
     useState(initialMillingData);
-
-  const filteredWarehouses = warehouses
-    .filter((warehouse) => {
-      const requiredQuantity =
-        viewMode === "drying"
-          ? parseInt(newDryingData?.driedQuantityBags || 0)
-          : parseInt(newMillingData?.milledQuantityBags || 0);
-
-      // Check warehouse capacity
-      const hasEnoughCapacity =
-        warehouse.status === "active" &&
-        warehouse.totalCapacity - warehouse.currentStock >= requiredQuantity;
-
-      // Check warehouse type based on viewMode
-      const warehouseName = warehouse.facilityName.toLowerCase();
-      const isCorrectType =
-        viewMode === "drying"
-          ? warehouseName.includes("palay")
-          : warehouseName.includes("rice");
-
-      return hasEnoughCapacity && isCorrectType;
-    })
-    .map((warehouse) => ({
-      label: `${warehouse.facilityName} (Available: ${
-        warehouse.totalCapacity - warehouse.currentStock
-      } bags)`,
-      name: warehouse.facilityName,
-      value: warehouse.id,
-    }));
 
   useEffect(() => {
     fetchData();
@@ -149,7 +116,7 @@ const Processing = () => {
       const locationType = viewMode === "drying" ? "Dryer" : "Miller";
       const status = selectedFilter === "request" ? "Pending" : "Received";
       const millerType = "In House";
-  
+
       // Fetch all required data in parallel
       const [facilitiesRes, inventoryRes, warehousesRes] = await Promise.all([
         fetch(`${apiUrl}/${processType}s`),
@@ -158,46 +125,65 @@ const Processing = () => {
         ),
         fetch(`${apiUrl}/warehouses`),
       ]);
-  
+
       if (!facilitiesRes.ok || !inventoryRes.ok || !warehousesRes.ok) {
         throw new Error("Failed to fetch data");
       }
-  
+
       const [facilities, inventory, warehouses] = await Promise.all([
         facilitiesRes.json(),
         inventoryRes.json(),
         warehousesRes.json(),
       ]);
-  
+
       // Update facility states based on viewMode
       if (viewMode === "drying") {
         setDryerData(facilities);
       } else {
         setMillerData(facilities);
       }
-  
+
       // Combine and structure the data based on the backend associations
       const transformedData = inventory.map((item) => {
         // Safely access nested properties
         const processingBatch = item.processingBatch || {};
         const millingBatch = processingBatch.millingBatch || {};
         const dryingBatch = processingBatch.dryingBatch || {};
+        
         const palayBatch = item.palayBatch || {};
         const transaction = item.transaction || {};
         const qualitySpec = palayBatch.qualitySpec || {};
-  
+
         // Find facility and warehouse
-        const fromWarehouse = warehouses.find((w) => w.id === transaction.fromLocationId);
-        const toFacility = facilities.find((f) => f.id === transaction.toLocationId);
-  
+        const fromWarehouse = warehouses.find(
+          (w) => w.id === transaction.fromLocationId
+        );
+        const toFacility = facilities.find(
+          (f) => f.id === transaction.toLocationId
+        );
+
         return {
           palayBatchId: palayBatch.id || null,
           transactionId: transaction.id || null,
           millingBatchId: millingBatch?.id || null,
           dryingBatchId: dryingBatch?.id || null,
-          quantityBags: millingBatch.milledQuantityBags || dryingBatch.driedQuantityBags || palayBatch.quantityBags || 0,
-          grossWeight: millingBatch.milledGrossWeight || dryingBatch.driedGrossWeight || palayBatch.grossWeight || 0,
-          netWeight: millingBatch.milledNetWeight || dryingBatch.driedNetWeight || palayBatch.netWeight || 0,
+          palayQuantityBags: palayBatch.quantityBags || null,
+          driedQuantityBags: dryingBatch?.driedQuantityBags || null,
+          quantityBags:
+            millingBatch.milledQuantityBags ||
+            dryingBatch.driedQuantityBags ||
+            palayBatch.quantityBags ||
+            0,
+          grossWeight:
+            millingBatch.milledGrossWeight ||
+            dryingBatch.driedGrossWeight ||
+            palayBatch.grossWeight ||
+            0,
+          netWeight:
+            millingBatch.milledNetWeight ||
+            dryingBatch.driedNetWeight ||
+            palayBatch.netWeight ||
+            0,
           from: fromWarehouse?.facilityName || "Unknown Warehouse",
           location: toFacility?.[`${processType}Name`] || "Unknown Facility",
           toLocationId: transaction.toLocationId || null,
@@ -206,12 +192,18 @@ const Processing = () => {
           requestDate: transaction.sendDateTime
             ? new Date(transaction.sendDateTime).toLocaleDateString()
             : "",
-          startDate: (millingBatch.startDateTime || dryingBatch.startDateTime)
-            ? new Date(millingBatch.startDateTime || dryingBatch.startDateTime).toLocaleDateString()
-            : "",
-          endDate: (millingBatch.endDateTime || dryingBatch.endDateTime)
-            ? new Date(millingBatch.endDateTime || dryingBatch.endDateTime).toLocaleDateString()
-            : "",
+          startDate:
+            millingBatch.startDateTime || dryingBatch.startDateTime
+              ? new Date(
+                  millingBatch.startDateTime || dryingBatch.startDateTime
+                ).toLocaleDateString()
+              : "",
+          endDate:
+            millingBatch.endDateTime || dryingBatch.endDateTime
+              ? new Date(
+                  millingBatch.endDateTime || dryingBatch.endDateTime
+                ).toLocaleDateString()
+              : "",
           moistureContent: qualitySpec.moistureContent || "",
           transportedBy: transaction.transporterName || "",
           palayStatus: palayBatch.status || null,
@@ -219,7 +211,7 @@ const Processing = () => {
           processingStatus: millingBatch.status || dryingBatch.status || null,
         };
       });
-      
+
       setCombinedData(transformedData);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -255,7 +247,6 @@ const Processing = () => {
 
   const handleActionClick = (rowData) => {
     setSelectedItem(rowData);
-    console.log(rowData);
 
     switch (rowData.transactionStatus?.toLowerCase()) {
       case "pending":
@@ -275,359 +266,6 @@ const Processing = () => {
           setShowReturnDialog(true);
         }
         break;
-    }
-  };
-
-  const handleAccept = async () => {
-    if (!selectedItem) {
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      // 1. Update transaction status to "Received"
-      const transactionResponse = await fetch(`${apiUrl}/transactions/update`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          id: selectedItem.transactionId,
-          status: "Received",
-          receiveDateTime: new Date().toISOString(),
-          receiverId: user.id,
-        }),
-      });
-
-      if (!transactionResponse.ok) {
-        throw new Error("Failed to update transaction");
-      }
-
-      // 2. Update palay batch status
-      const newPalayStatus = viewMode === "drying" ? "In Drying" : "In Milling";
-      const palayResponse = await fetch(`${apiUrl}/palaybatches/update`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          id: selectedItem.palayBatchId,
-          status: newPalayStatus,
-        }),
-      });
-
-      if (!palayResponse.ok) {
-        throw new Error("Failed to update palay batch status");
-      }
-
-      // 3. Create new processing batch with correct data
-      if (viewMode === "drying") {
-        const dryingBatchData = {
-          palayBatchId: selectedItem.palayBatchId,
-          dryerId: selectedItem.toLocationId,
-          startDateTime: "0",
-          endDateTime: "0",
-          dryingMethod: "0",
-          driedQuantityBags: "0",
-          driedGrossWeight: "0",
-          driedNetWeight: "0",
-          moistureContent: "0",
-          status: "In Progress",
-        };
-
-        const dryingResponse = await fetch(`${apiUrl}/dryingbatches`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(dryingBatchData),
-        });
-
-        if (!dryingResponse.ok) {
-          throw new Error("Failed to create drying batch");
-        }
-      } else {
-        // Get all milling batches and check if one exists for this palay batch
-        const millingBatchesResponse = await fetch(`${apiUrl}/millingbatches`);
-        const millingBatches = await millingBatchesResponse.json();
-
-        const existingMillingBatch = millingBatches.find(
-          (batch) => batch.palayBatchId === selectedItem.palayBatchId
-        );
-
-        if (!existingMillingBatch) {
-          const millingBatchData = {
-            dryingBatchId: "0",
-            palayBatchId: selectedItem.palayBatchId,
-            millerId: selectedItem.toLocationId,
-            millerType: "0",
-            startDateTime: "0",
-            endDateTime: "0",
-            milledQuantityBags: "0",
-            milledNetWeight: "0",
-            millingEfficiency: "0",
-            status: "In Progress",
-          };
-
-          const millingResponse = await fetch(`${apiUrl}/millingbatches`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(millingBatchData),
-          });
-
-          if (!millingResponse.ok) {
-            throw new Error("Failed to create milling batch");
-          }
-        } else {
-          console.log("Milling batch already exists for this palay batch");
-        }
-      }
-
-      // 4. Refresh data and close dialog
-      await fetchData();
-      setShowAcceptDialog(false);
-
-      toast.current.show({
-        severity: "success",
-        summary: "Success",
-        detail: `${
-          viewMode === "drying" ? "Drying" : "Milling"
-        } process started successfully`,
-        life: 3000,
-      });
-      refreshData();
-    } catch (error) {
-      console.error("Error in handleAccept:", error);
-      toast.current.show({
-        severity: "error",
-        summary: "Error",
-        detail: `Failed to process acceptance: ${error.message}`,
-        life: 3000,
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleProcess = async () => {
-    if (!selectedItem) {
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      let updateData;
-      let endpoint;
-
-      if (viewMode === "drying") {
-        updateData = {
-          id: selectedItem.dryingBatchId,
-          dryerId: selectedItem.toLocationId,
-          dryingMethod: newDryingData.dryingMethod,
-          endDateTime: new Date().toISOString(),
-          driedQuantityBags: parseInt(newDryingData.driedQuantityBags),
-          driedGrossWeight: parseFloat(newDryingData.driedGrossWeight),
-          driedNetWeight: parseFloat(newDryingData.driedNetWeight),
-          moistureContent: parseFloat(newDryingData.moistureContent),
-          status: "Done",
-        };
-        endpoint = "dryingbatches";
-      } else {
-        updateData = {
-          id: selectedItem.millingBatchId,
-          palayBatchId: selectedItem.palayBatchId,
-          millerId: selectedItem.toLocationId,
-          millerType: selectedItem.millerType,
-          endDateTime: new Date().toISOString(),
-          milledGrossWeight: parseFloat(newMillingData.milledGrossWeight),
-          milledQuantityBags: parseInt(newMillingData.milledQuantityBags),
-          milledNetWeight: parseFloat(newMillingData.milledNetWeight),
-          millingEfficiency: parseFloat(newMillingData.millingEfficiency),
-          status: "Done",
-        };
-        endpoint = "millingbatches";
-      }
-
-      const response = await fetch(`${apiUrl}/${endpoint}/update`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updateData),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to update ${viewMode} batch`);
-      }
-
-      // Update palay batch status
-      const palayResponse = await fetch(`${apiUrl}/palaybatches/update`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          id: selectedItem.palayBatchId,
-          status: viewMode === "drying" ? "To be Mill" : "Milled",
-        }),
-      });
-
-      if (!palayResponse.ok) {
-        throw new Error("Failed to update palay batch status");
-      }
-
-      await fetchData();
-      setProcessDialog(false);
-
-      toast.current.show({
-        severity: "success",
-        summary: "Success",
-        detail: `${
-          viewMode === "drying" ? "Drying" : "Milling"
-        } process completed successfully`,
-        life: 3000,
-      });
-      refreshData();
-    } catch (error) {
-      console.error("Error in handleProcess:", error);
-      toast.current.show({
-        severity: "error",
-        summary: "Error",
-        detail: `Failed to complete process: ${error.message}`,
-        life: 3000,
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleReturn = async () => {
-    if (!selectedItem || !newTransactionData.toLocationId) {
-      toast.current.show({
-        severity: "error",
-        summary: "Error",
-        detail: "Please select a warehouse",
-        life: 3000,
-      });
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      // 1. Update current transaction to Completed
-      const updateTransactionResponse = await fetch(
-        `${apiUrl}/transactions/update`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            id: selectedItem.transactionId,
-            status: "Completed",
-          }),
-        }
-      );
-
-      if (!updateTransactionResponse.ok) {
-        throw new Error("Failed to update current transaction");
-      }
-
-      // 2. Update palay batch with new status
-      const palayResponse = await fetch(`${apiUrl}/palaybatches/update`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          id: selectedItem.palayBatchId,
-          currentlyAt: newTransactionData.toLocationName,
-        }),
-      });
-
-      if (!palayResponse.ok) {
-        throw new Error("Failed to update palay batch");
-      }
-
-      // 3. If this is a drying batch, create a new milling batch
-      if (viewMode === "drying") {
-        const millingBatchData = {
-          dryingBatchId: selectedItem.dryingBatchId,
-          palayBatchId: selectedItem.palayBatchId,
-          millerId: "0",
-          millerType: "0",
-          endDateTime: "0",
-          milledQuantityBags: "0",
-          milledNetWeight: "0",
-          millingEfficiency: "0",
-          status: "In Progress",
-        };
-
-        const createMillingBatchResponse = await fetch(
-          `${apiUrl}/millingbatches`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(millingBatchData),
-          }
-        );
-
-        if (!createMillingBatchResponse.ok) {
-          throw new Error("Failed to create milling batch");
-        }
-      }
-
-      // 4. Create new transaction for return
-      const newTransaction = {
-        ...newTransactionData,
-        item: "Palay",
-        itemId: selectedItem.palayBatchId,
-        fromLocationType: viewMode === "drying" ? "Dryer" : "Miller",
-        fromLocationId: selectedItem.toLocationId,
-        toLocationType: "Warehouse",
-        senderId: user.id,
-        receiverId: "0",
-        status: "Pending",
-        receiveDateTime: "0",
-      };
-
-      const createTransactionResponse = await fetch(`${apiUrl}/transactions`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(newTransaction),
-      });
-
-      if (!createTransactionResponse.ok) {
-        throw new Error("Failed to create return transaction");
-      }
-
-      await fetchData();
-      setShowReturnDialog(false);
-      setNewTransactionData(initialTransactionData);
-
-      toast.current.show({
-        severity: "success",
-        summary: "Success",
-        detail: "Return process initiated successfully",
-        life: 3000,
-      });
-      refreshData();
-    } catch (error) {
-      console.error("Error in handleReturn:", error);
-      toast.current.show({
-        severity: "error",
-        summary: "Error",
-        detail: `Failed to process return: ${error.message}`,
-        life: 3000,
-      });
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -728,48 +366,6 @@ const Processing = () => {
       }
     }
   });
-
-  const getFilterCount = (filterType) => {
-    return combinedData.filter((item) => {
-      if (viewMode === "drying") {
-        switch (filterType) {
-          case "request":
-            return item.transactionStatus === "Pending";
-          case "process":
-            return (
-              item.transactionStatus === "Received" &&
-              item.palayStatus === "In Drying" &&
-              item.processingStatus === "In Progress"
-            );
-          case "return":
-            return (
-              item.transactionStatus === "Received" &&
-              item.processingStatus === "Done"
-            );
-          default:
-            return false;
-        }
-      } else {
-        switch (filterType) {
-          case "request":
-            return item.transactionStatus === "Pending";
-          case "process":
-            return (
-              item.transactionStatus === "Received" &&
-              item.palayStatus === "In Milling" &&
-              item.processingStatus === "In Progress"
-            );
-          case "return":
-            return (
-              item.transactionStatus === "Received" &&
-              item.processingStatus === "Done"
-            );
-          default:
-            return false;
-        }
-      }
-    }).length;
-  };
 
   const FilterButton = ({ label, icon, filter }) => (
     <Button
@@ -881,7 +477,9 @@ const Processing = () => {
             >
               {selectedFilter !== "request" && (
                 <Column
-                  field={viewMode === "drying" ? "dryingBatchId" : "millingBatchId"}
+                  field={
+                    viewMode === "drying" ? "dryingBatchId" : "millingBatchId"
+                  }
                   header={
                     viewMode === "drying"
                       ? "Drying Batch ID"
@@ -905,20 +503,20 @@ const Processing = () => {
               />
               <Column
                 field="grossWeight"
-                header="Gross Weight"
+                header="Gross Weight(Kg)"
                 className="text-center"
                 headerClassName="text-center"
               />
               <Column
                 field="netWeight"
-                header="Net Weight"
+                header="Net Weight(Kg)"
                 className="text-center"
                 headerClassName="text-center"
               />
               {viewMode === "drying" && selectedFilter === "return" && (
                 <Column
                   field="moistureContent"
-                  header="Moisture Content"
+                  header="Moisture Content(%)"
                   className="text-center"
                   headerClassName="text-center"
                 />
@@ -1036,11 +634,10 @@ const Processing = () => {
 
       <AcceptDialog
         visible={showAcceptDialog}
-        onAccept={handleAccept}
         viewMode={viewMode}
         onCancel={() => setShowAcceptDialog(false)}
-        isLoading={isLoading}
         selectedItem={selectedItem}
+        refreshData={refreshData}
       />
 
       <ProcessDialog
@@ -1048,26 +645,31 @@ const Processing = () => {
         viewMode={viewMode}
         newDryingData={newDryingData}
         newMillingData={newMillingData}
-        onProcessComplete={handleProcess}
         onCancel={() => setProcessDialog(false)}
-        isLoading={isLoading}
         setNewDryingData={setNewDryingData}
         setNewMillingData={setNewMillingData}
         selectedItem={selectedItem}
+        onSuccess={() => {
+          setProcessDialog(false);
+          fetchData();
+        }}
+        apiUrl={apiUrl}
       />
 
       <ReturnDialog
         visible={showReturnDialog}
         viewMode={viewMode}
-        newTransactionData={newTransactionData}
-        onReturn={handleReturn}
         onCancel={() => setShowReturnDialog(false)}
-        isLoading={isLoading}
-        setNewTransactionData={setNewTransactionData}
-        filteredWarehouses={filteredWarehouses}
         selectedItem={selectedItem}
+        warehouses={warehouses}
+        user={user}
+        apiUrl={apiUrl}
+        onSuccess={fetchData}
         newDryingData={newDryingData}
         newMillingData={newMillingData}
+        dryerData={dryerData}
+        millerData={millerData}
+        refreshData={refreshData}
       />
     </StaffLayout>
   );
