@@ -4,6 +4,7 @@ import CryptoJS from 'crypto-js';
 import { createOfficeAddress } from '../officeaddresses/db';
 import {
     countUsers,
+    countRecipientUsers,
     createUser,
     getUser,
     getUsers,
@@ -45,6 +46,10 @@ export function getRouter(): Router {
 
     router.get('/count', async (_req, res) => {
         res.json(await countUsers());
+    });
+
+    router.get('/recipients/count', async (_req, res) => {
+        res.json(await countRecipientUsers());
     });
 
     router.get('/:id', async (req, res) => {

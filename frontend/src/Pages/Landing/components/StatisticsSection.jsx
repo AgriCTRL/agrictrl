@@ -1,7 +1,58 @@
-import { React } from 'react';
+import { React, useEffect, useState } from 'react';
 import { Wheat, Coins, Users, UtensilsCrossed, CookingPot} from 'lucide-react';
 
 const StatisticsSection = () => {
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
+
+    const [riceTracked, setRiceTracked] = useState(0);
+    const [partnerFarmers, setPartnerFarmers] = useState(0);
+    const [totalRice, setTotalRice] = useState(0);
+    const [riceSold, setRiceSold] = useState(0);
+    const [riceClients, setRiceClients] = useState(0);
+
+    const fetchCount = async (endpoint) => {
+        try {
+            const response = await fetch(`${apiUrl}/${endpoint}`);
+            if (!response.ok) {
+                throw new Error(`Failed to fetch count from ${endpoint}`);
+            }
+            return await response.json();
+        } catch (error) {
+            console.error(error.message);
+            return 0;
+        }
+    };
+
+    const fetchData = async () => {
+        try {
+            const [
+                riceTrackedCount,
+                partnerFarmersCount,
+                totalRiceCount,
+                riceSoldCount,
+                riceClientsCount
+            ] = await Promise.all([
+                fetchCount("palaybatches/count"),
+                fetchCount("palaysuppliers/count"),
+                fetchCount("ricebatches/count"),
+                fetchCount("riceorders/received/count"),
+                fetchCount("users/recipients/count")
+            ]);
+
+            setRiceTracked(riceTrackedCount);
+            setPartnerFarmers(partnerFarmersCount);
+            setTotalRice(totalRiceCount);
+            setRiceSold(riceSoldCount);
+            setRiceClients(riceClientsCount);
+        } catch (error) {
+            console.error("Error fetching data", error);
+        }
+    };
+
+    useEffect(() => {
+        fetchData();
+    }, [])
+
     return (
         <section className="absolute top-0 left-0 right-0 w-screen z-30 px-6 sm:px-12 lg:px-24
                             -translate-y-2/4 overflow-hidden">
@@ -12,7 +63,7 @@ const StatisticsSection = () => {
                     <Wheat size={32} className='hidden md:flex' />
                     <Wheat className='flex md:hidden' />
                     <div className="flex flex-col justify-start">
-                        <div className="text-2xl md:text-4xl font-bold">0</div>
+                        <div className="text-2xl md:text-4xl font-bold">{riceTracked}</div>
                         <div>Rice Tracked</div>
                     </div>
                 </div>
@@ -20,7 +71,7 @@ const StatisticsSection = () => {
                     <UtensilsCrossed size={32} className='hidden md:flex' />
                     <UtensilsCrossed className='flex md:hidden' />
                     <div className="flex flex-col justify-start">
-                        <div className="text-2xl md:text-4xl font-bold">0</div>
+                        <div className="text-2xl md:text-4xl font-bold">{partnerFarmers}</div>
                         <div>Partner Farmers</div>
                     </div>
                 </div>
@@ -28,7 +79,7 @@ const StatisticsSection = () => {
                     <Wheat size={32} className='hidden md:flex' />
                     <Wheat className='flex md:hidden' />
                     <div className="flex flex-col justify-start">
-                        <div className="text-2xl md:text-4xl font-bold">0</div>
+                        <div className="text-2xl md:text-4xl font-bold">{totalRice}</div>
                         <div>Total Rice</div>
                     </div>
                 </div>
@@ -36,7 +87,7 @@ const StatisticsSection = () => {
                     <Coins size={32} className='hidden md:flex' />
                     <Coins className='flex md:hidden' />
                     <div className="flex flex-col justify-start">
-                        <div className="text-2xl md:text-4xl font-bold">0</div>
+                        <div className="text-2xl md:text-4xl font-bold">{riceSold}</div>
                         <div>Rice Sold</div>
                     </div>
                 </div>
@@ -44,7 +95,7 @@ const StatisticsSection = () => {
                     <Users size={32} className='hidden md:flex' />
                     <Users className='flex md:hidden' />
                     <div className="flex flex-col justify-start">
-                        <div className="text-2xl md:text-4xl font-bold">0</div>
+                        <div className="text-2xl md:text-4xl font-bold">{riceClients}</div>
                         <div>Rice Clients</div>
                     </div>
                 </div>
