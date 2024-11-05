@@ -342,6 +342,8 @@ function Distribution() {
                 return item.status === 'Accepted';
             case 'declined':
                 return item.status === 'Declined';
+            case 'delivered':
+                return item.status === 'In Transit' || item.status === 'Delivered';
             default:
                 return true;
         }
@@ -391,6 +393,13 @@ function Distribution() {
                             onClick={() => handleFilterChange('declined')}
                         />
 
+                        <Button 
+                            icon={<RotateCw size={16} className="mr-2" />}
+                            label="Delivered" 
+                            className={`p-button-success p-2 w-1/16 ring-0 rounded-full ${buttonStyle(selectedFilter === 'delivered')}`} 
+                            onClick={() => handleFilterChange('delivered')}
+                        />
+
                         <RotateCw 
                             className="w-6 h-6 text-primary cursor-pointer hover:text-secondary transition-colors" 
                             onClick={onUpdate}
@@ -423,7 +432,14 @@ function Distribution() {
                         <Column field="riceQuantityBags" header="Bags to Deliver" className="text-center" headerClassName="text-center" />
                         <Column field="orderDate" header="Date Ordered" body={(rowData) => dateBodyTemplate(rowData, 'orderDate')} className="text-center" headerClassName="text-center" />
                         <Column field="orderedBy" header="Ordered By" className="text-center" headerClassName="text-center" />
-                        <Column field="status" header="Status" body={statusBodyTemplate} className="text-center" headerClassName="text-center"/>
+                        <Column field="status" header="Status" body={(rowData) => {
+                                    if (rowData.status === 'In Transit') {
+                                        return <Tag value="Delivered" severity="info" className="text-sm px-3 py-1 rounded-lg" />;
+                                    } else {
+                                        return statusBodyTemplate(rowData);
+                                    }
+                                }} className="text-center" headerClassName="text-center" 
+                        />
                         <Column body={actionBodyTemplate} header="Action" className="text-center" headerClassName="text-center"/>
                     </DataTable>
                     </div>

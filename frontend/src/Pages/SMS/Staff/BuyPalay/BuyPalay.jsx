@@ -173,12 +173,12 @@ function BuyPalay() {
                             <Column field="id" header="Batch ID" className="text-center" headerClassName="text-center" />
                             <Column field="dateBought" body={dateBodyTemplate} header="Date Bought" className="text-center" headerClassName="text-center" />
                             <Column field="quantityBags" header="Quantity in Bags" className="text-center" headerClassName="text-center" />
-                            <Column field="grossWeight" header="Gross Weight" className="text-center" headerClassName="text-center" />
-                            <Column field="netWeight" header="Net Weight" className="text-center" headerClassName="text-center" />
+                            <Column field="grossWeight" header="Gross Weight(Kg)" className="text-center" headerClassName="text-center" />
+                            <Column field="netWeight" header="Net Weight(Kg)" className="text-center" headerClassName="text-center" />
                             <Column field="qualityType" header="Quality Type" className="text-center" headerClassName="text-center" />
-                            <Column field="qualitySpec.moistureContent" header="Moisture Content" className="text-center" headerClassName="text-center" />
-                            <Column field="qualitySpec.purity" header="Purity" className="text-center" headerClassName="text-center" />
-                            <Column field="qualitySpec.damaged" header="Damage" className="text-center" headerClassName="text-center" />
+                            <Column field="qualitySpec.moistureContent" header="Moisture Content(%)" className="text-center" headerClassName="text-center" />
+                            <Column field="qualitySpec.purity" header="Purity(%)" className="text-center" headerClassName="text-center" />
+                            <Column field="qualitySpec.damaged" header="Damage(%)" className="text-center" headerClassName="text-center" />
                             <Column field="price" header="Price/Kg" className="text-center" headerClassName="text-center" />
                             <Column field="palaySupplier.farmerName" header="Supplier" className="text-center" headerClassName="text-center" />
                             <Column 
@@ -190,7 +190,7 @@ function BuyPalay() {
                             />
                             <Column field="currentlyAt" header="Current Location" className="text-center" headerClassName="text-center" />
                             <Column field="status" header="Status" body={statusBodyTemplate} className="text-center" headerClassName="text-center" frozen alignFrozen="right" />
-                            <Column body={actionBodyTemplate} exportable={false} className="text-center" headerClassName="text-center" frozen alignFrozen="right" />
+                            {/* <Column body={actionBodyTemplate} exportable={false} className="text-center" headerClassName="text-center" frozen alignFrozen="right" /> */}
                         </DataTable>
                     </div>
                 </div>

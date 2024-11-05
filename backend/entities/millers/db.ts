@@ -1,15 +1,15 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity, Column, Entity, PrimaryColumn, BeforeInsert } from 'typeorm';
 
 @Entity()
 export class Miller extends BaseEntity {
-    @PrimaryGeneratedColumn()
-    id: number;
+    @PrimaryColumn('varchar', { length: 10 })
+    id: string;
 
     @Column()
     millerName: string;
 
     @Column()
-    userId: number;
+    userId: string;
 
     @Column()
     category: string;
@@ -34,6 +34,24 @@ export class Miller extends BaseEntity {
 
     @Column()
     status: string;
+
+    @BeforeInsert()
+    async generateId() {
+        const prefix = '030431';
+        const lastOrder = await Miller.find({
+            order: { id: 'DESC' },
+            take: 1
+        });
+
+        let nextNumber = 1;
+        if (lastOrder.length > 0) {
+            const lastId = lastOrder[0].id;
+            const lastNumber = parseInt(lastId.slice(-4));
+            nextNumber = lastNumber + 1;
+        }
+
+        this.id = `${prefix}${nextNumber.toString().padStart(4, '0')}`;
+    }
 }
 
 export type MillerCreate = Pick<Miller, 'millerName' | 'userId' | 'category' | 'type' | 'location' | 'capacity' | 'processing' | 'contactNumber' | 'email' | 'status'>;
@@ -46,7 +64,7 @@ export async function getMillers(limit: number, offset: number): Promise<Miller[
     });
 }
 
-export async function getMiller(id: number): Promise<Miller | null> {
+export async function getMiller(id: string): Promise<Miller | null> {
     return await Miller.findOne({
         where: {
             id

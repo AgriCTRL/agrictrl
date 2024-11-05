@@ -33,7 +33,7 @@ export function getRouter(): Router {
     router.get('/:id', async (req, res) => {
         const { id } = req.params;
 
-        const millingBatch = await getMillingBatch(Number(id));
+        const millingBatch = await getMillingBatch(String(id));
 
         res.json(millingBatch);
     });
@@ -41,7 +41,7 @@ export function getRouter(): Router {
     router.post(
         '/',
         async (
-            req: Request<any, any, { dryingBatchId: number; palayBatchId: number; millerId: number; millerType: string; startDateTime: Date; endDateTime: Date; milledQuantityBags: number; milledGrossWeight: number; milledNetWeight: number; millingEfficiency: number; status: string }>,
+            req: Request<any, any, { dryingBatchId: string; palayBatchId: string; millerId: string; millerType: string; startDateTime: Date; endDateTime: Date; milledQuantityBags: number; milledGrossWeight: number; milledNetWeight: number; millingEfficiency: number; status: string }>,
             res
         ) => {
             const { dryingBatchId, palayBatchId, millerId, millerType, startDateTime, endDateTime, milledQuantityBags, milledGrossWeight, milledNetWeight, millingEfficiency, status } = req.body;
@@ -73,7 +73,7 @@ async function updateHandler(
     req: Request<
         any,
         any,
-        { id: number; dryingBatchId?: number; palayBatchId?: number; millerId?: number; millerType?: string; startDateTime?: Date; endDateTime?: Date; milledQuantityBags?: number; milledGrossWeight?: number; milledNetWeight?: number; millingEfficiency?: number; status?: string }
+        { id: string; dryingBatchId?: string; palayBatchId?: string; millerId?: string; millerType?: string; startDateTime?: Date; endDateTime?: Date; milledQuantityBags?: number; milledGrossWeight?: number; milledNetWeight?: number; millingEfficiency?: number; status?: string }
     >,
     res: Response
 ): Promise<void> {

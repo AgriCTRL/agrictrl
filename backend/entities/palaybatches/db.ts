@@ -4,7 +4,8 @@ import {
     Entity,
     ManyToOne,
     OneToMany,
-    PrimaryGeneratedColumn
+    PrimaryColumn,
+    BeforeInsert
 } from 'typeorm';
 
 import { getQualitySpec, QualitySpec } from '../qualityspecs/db';
@@ -14,8 +15,8 @@ import { Transaction } from '../transactions/db';
 
 @Entity()
 export class PalayBatch extends BaseEntity {
-    @PrimaryGeneratedColumn()
-    id: number;
+    @PrimaryColumn('varchar', { length: 10 })
+    id: string;
 
     @Column()
     palayVariety: string;
@@ -42,7 +43,7 @@ export class PalayBatch extends BaseEntity {
     qualityType: string;
 
     @Column()
-    qualitySpecId: number;
+    qualitySpecId: string;
 
     @ManyToOne(() => QualitySpec)
     qualitySpec: QualitySpec;
@@ -51,13 +52,13 @@ export class PalayBatch extends BaseEntity {
     price: number;
 
     @Column()
-    palaySupplierId: number;
+    palaySupplierId: string;
 
     @ManyToOne(() => PalaySupplier)
     palaySupplier: PalaySupplier;
 
     @Column()
-    farmId: number;
+    farmId: string;
 
     @ManyToOne(() => Farm)
     farm: Farm;
@@ -79,6 +80,24 @@ export class PalayBatch extends BaseEntity {
 
     @OneToMany(() => Transaction, transaction => transaction.palayBatch)
     transactions: Transaction[];
+
+    @BeforeInsert()
+    async generateId() {
+        const prefix = '030401';
+        const lastOrder = await PalayBatch.find({
+            order: { id: 'DESC' },
+            take: 1
+        });
+
+        let nextNumber = 1;
+        if (lastOrder.length > 0) {
+            const lastId = lastOrder[0].id;
+            const lastNumber = parseInt(lastId.slice(-4));
+            nextNumber = lastNumber + 1;
+        }
+
+        this.id = `${prefix}${nextNumber.toString().padStart(4, '0')}`;
+    }
 }
 
 export type PalayBatchCreate = Pick<PalayBatch, 'palayVariety' | 'dateBought' | 'buyingStationName' | 'buyingStationLoc' | 'quantityBags' | 'grossWeight' | 'netWeight' | 'qualityType' | 'qualitySpecId' | 'price' | 'palaySupplierId' | 'farmId' | 'plantedDate' | 'harvestedDate' | 'estimatedCapital' | 'currentlyAt' | 'status'> &
@@ -106,7 +125,7 @@ export async function getPalayBatches(limit: number, offset: number): Promise<Pa
     });
 }
 
-export async function getPalayBatch(id: number): Promise<PalayBatch | null> {
+export async function getPalayBatch(id: string): Promise<PalayBatch | null> {
     return await PalayBatch.findOne({
         where: {
             id

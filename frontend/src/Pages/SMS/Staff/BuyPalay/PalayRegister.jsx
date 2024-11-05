@@ -163,7 +163,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
     })
     .map(warehouse => ({
         label: `${warehouse.facilityName} (Available: ${warehouse.totalCapacity - warehouse.currentStock} bags)`,
-        name: `${warehouse.facilityName}`,
+        name: warehouse.facilityName,
         value: warehouse.id
     }));
 

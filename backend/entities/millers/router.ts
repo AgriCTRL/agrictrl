@@ -33,7 +33,7 @@ export function getRouter(): Router {
     router.get('/:id', async (req, res) => {
         const { id } = req.params;
 
-        const miller = await getMiller(Number(id));
+        const miller = await getMiller(String(id));
 
         res.json(miller);
     });
@@ -41,7 +41,7 @@ export function getRouter(): Router {
     router.post(
         '/',
         async (
-            req: Request<any, any, { millerName: string; userId: number; category: string; type: string; location: string; capacity: number; processing: number; contactNumber: string; email: string; status: string }>,
+            req: Request<any, any, { millerName: string; userId: string; category: string; type: string; location: string; capacity: number; processing: number; contactNumber: string; email: string; status: string }>,
             res
         ) => {
             const { millerName, userId, category, type, location, capacity, processing, contactNumber, email, status } = req.body;
@@ -69,7 +69,7 @@ export function getRouter(): Router {
 }
 
 async function updateHandler(
-    req: Request<any, any, { id: number; millerName?: string; userId?: number; category?: string; type?: string; location?: string; capacity?: number; processing?: number; contactNumber?: string; email?: string; status?: string }>,
+    req: Request<any, any, { id: string; millerName?: string; userId?: string; category?: string; type?: string; location?: string; capacity?: number; processing?: number; contactNumber?: string; email?: string; status?: string }>,
     res: Response
 ): Promise<void> {
     const { id, millerName, userId, category, type, location, capacity, processing, contactNumber, email, status } = req.body;

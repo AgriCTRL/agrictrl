@@ -33,7 +33,7 @@ export function getRouter(): Router {
     router.get('/:id', async (req, res) => {
         const { id } = req.params;
 
-        const qualitySpec = await getQualitySpec(Number(id));
+        const qualitySpec = await getQualitySpec(String(id));
 
         res.json(qualitySpec);
     });
@@ -62,7 +62,7 @@ export function getRouter(): Router {
 }
 
 async function updateHandler(
-    req: Request<any, any, { id: number; moistureContent?: number; purity?: number; damaged?: number }>,
+    req: Request<any, any, { id: string; moistureContent?: number; purity?: number; damaged?: number }>,
     res: Response
 ): Promise<void> {
     const { id, moistureContent, purity, damaged } = req.body;

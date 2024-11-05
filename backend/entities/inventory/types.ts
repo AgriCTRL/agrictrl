@@ -9,35 +9,35 @@ import { RiceBatchMillingBatch } from "../riceBatchMillingBatches/db";
 export type ProcessingType = 'drying' | 'milling';
 
 export interface DBTransaction {
-    id: number;
+    id: string;  
     status: string;
     sendDateTime: Date;
     receiveDateTime: Date;
     transporterName: string;
     fromLocationType: string;
     toLocationType: string;
-    fromLocationId: number;
-    toLocationId: number;
-    itemId: number;
+    fromLocationId: string;  
+    toLocationId: string;    
+    itemId: string;         
     item: string;
 }
 
 export interface ProcessedTransaction {
-    id: number;
+    id: string;
     status: string;
     sendDateTime: string;
     receiveDateTime: string;
     transporterName: string;
     fromLocationType: string;
     toLocationType: string;
-    fromLocationId: number;
-    toLocationId: number;
-    itemId: number;
+    fromLocationId: string;
+    toLocationId: string;
+    itemId: string;
     item: string;
 }
 
 export interface DBDryingBatch {
-    id: number;
+    id: string;
     status: string;
     startDateTime: Date | null;
     endDateTime: Date | null;
@@ -48,7 +48,7 @@ export interface DBDryingBatch {
 }
 
 export interface DBMillingBatch {
-    id: number;
+    id: string;
     status: string;
     startDateTime: Date | null;
     endDateTime: Date | null;
@@ -58,7 +58,7 @@ export interface DBMillingBatch {
 }
 
 export interface DBPalayBatch {
-    id: number;
+    id: string;
     status: string;
     buyingStationLoc: string;
     quantityBags: number;
@@ -71,10 +71,9 @@ export interface DBPalayBatch {
     } | null;
 }
 
-// Interface for processed data with string dates
 export interface ProcessingBatch {
     dryingBatch?: {
-        id: number;
+        id: string;
         status: string;
         startDateTime: string | null;
         endDateTime: string | null;
@@ -84,7 +83,7 @@ export interface ProcessingBatch {
         dryingMethod: string;
     } | null;
     millingBatch?: {
-        id: number;
+        id: string;
         status: string;
         startDateTime: string | null;
         endDateTime: string | null;
@@ -101,11 +100,9 @@ export interface InventoryItem {
 }
 
 export interface RiceDetails {
-    // Keep existing fields for backward compatibility
     riceBatchMillingBatch?: RiceBatchMillingBatch;
     riceBatch?: RiceBatch;
     riceOrder?: RiceOrder;
-    // Add new arrays for all related data
     allRiceBatchMillingBatches: RiceBatchMillingBatch[];
     allRiceBatches: RiceBatch[];
     allRiceOrders: RiceOrder[];
@@ -122,5 +119,5 @@ export interface InventoryFilters {
     palayBatchStatus?: string;
     transactionStatus?: string;
     processingTypes?: ProcessingType[];
-    millingBatchId?: number;
+    millingBatchId?: string;  
 }

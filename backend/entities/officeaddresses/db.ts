@@ -1,9 +1,9 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity, Column, Entity, PrimaryColumn, BeforeInsert } from 'typeorm';
 
 @Entity()
 export class OfficeAddress extends BaseEntity {
-    @PrimaryGeneratedColumn()
-    id: number;
+    @PrimaryColumn('varchar', { length: 10 })
+    id: string;
 
     @Column()
     region: string;
@@ -19,6 +19,24 @@ export class OfficeAddress extends BaseEntity {
 
     @Column()
     street: string;
+
+    @BeforeInsert()
+    async generateId() {
+        const prefix = '030471';
+        const lastOrder = await OfficeAddress.find({
+            order: { id: 'DESC' },
+            take: 1
+        });
+
+        let nextNumber = 1;
+        if (lastOrder.length > 0) {
+            const lastId = lastOrder[0].id;
+            const lastNumber = parseInt(lastId.slice(-4));
+            nextNumber = lastNumber + 1;
+        }
+
+        this.id = `${prefix}${nextNumber.toString().padStart(4, '0')}`;
+    }
 }
 
 export type OfficeAddressCreate = Pick<OfficeAddress, 'region' | 'province' | 'cityTown' | 'barangay' | 'street'>;
@@ -31,7 +49,7 @@ export async function getOfficeAddresses(limit: number, offset: number): Promise
     });
 }
 
-export async function getOfficeAddress(id: number): Promise<OfficeAddress | null> {
+export async function getOfficeAddress(id: string): Promise<OfficeAddress | null> {
     return await OfficeAddress.findOne({
         where: {
             id

@@ -33,7 +33,7 @@ export function getRouter(): Router {
     router.get('/:id', async (req, res) => {
         const { id } = req.params;
 
-        const officeAddress = await getOfficeAddress(Number(id));
+        const officeAddress = await getOfficeAddress(String(id));
 
         res.json(officeAddress);
     });
@@ -64,7 +64,7 @@ export function getRouter(): Router {
 }
 
 async function updateHandler(
-    req: Request<any, any, { id: number; region?: string; province?: string; cityTown?: string; barangay?: string; street?: string; }>,
+    req: Request<any, any, { id: string; region?: string; province?: string; cityTown?: string; barangay?: string; street?: string; }>,
     res: Response
 ): Promise<void> {
     const { id, region, province, cityTown, barangay, street } = req.body;

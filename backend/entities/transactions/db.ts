@@ -2,26 +2,27 @@ import {
     BaseEntity,
     Column,
     Entity,
-    PrimaryGeneratedColumn,
+    PrimaryColumn,
     ManyToOne,
-    JoinColumn
+    JoinColumn,
+    BeforeInsert
 } from 'typeorm';
 
 import { PalayBatch } from '../palaybatches/db';
 
 @Entity()
 export class Transaction extends BaseEntity {
-    @PrimaryGeneratedColumn()
-    id: number;
+    @PrimaryColumn('varchar', { length: 10 })
+    id: string;
 
     @Column()
     item: string;
 
     @Column()
-    itemId: number;
+    itemId: string;
 
     @Column()
-    senderId: number;
+    senderId: string;
 
     @Column()
     sendDateTime: Date;
@@ -30,7 +31,7 @@ export class Transaction extends BaseEntity {
     fromLocationType: string;
 
     @Column()
-    fromLocationId: number;
+    fromLocationId: string;
 
     @Column()
     transporterName: string;
@@ -39,7 +40,7 @@ export class Transaction extends BaseEntity {
     transporterDesc: string;
 
     @Column({ nullable: true })
-    receiverId: number;
+    receiverId: string;
 
     @Column({ nullable: true })
     receiveDateTime: Date;
@@ -48,7 +49,7 @@ export class Transaction extends BaseEntity {
     toLocationType: string;
     
     @Column()
-    toLocationId: number;
+    toLocationId: string;
 
     @Column({ default: 'pending' })
     status: string;
@@ -59,6 +60,24 @@ export class Transaction extends BaseEntity {
     @ManyToOne(() => PalayBatch)
     @JoinColumn({ name: 'itemId' })
     palayBatch: PalayBatch;
+
+    @BeforeInsert()
+    async generateId() {
+        const prefix = '030406';
+        const lastOrder = await Transaction.find({
+            order: { id: 'DESC' },
+            take: 1
+        });
+
+        let nextNumber = 1;
+        if (lastOrder.length > 0) {
+            const lastId = lastOrder[0].id;
+            const lastNumber = parseInt(lastId.slice(-4));
+            nextNumber = lastNumber + 1;
+        }
+
+        this.id = `${prefix}${nextNumber.toString().padStart(4, '0')}`;
+    }
 }
 
 export type TransactionCreate = Pick<Transaction, 'item' | 'itemId' | 'senderId' | 'sendDateTime' | 'fromLocationType' | 'fromLocationId' | 'transporterName' | 'transporterDesc' | 'receiverId' | 'receiveDateTime' | 'toLocationType' | 'toLocationId' | 'status' | 'remarks'>;
@@ -77,7 +96,7 @@ function getCurrentPST(): Date {
 //     });
 // }
 
-export async function getTransactions(limit: number, offset: number, toLocationId?: number, toLocationType?: string, status?: string): Promise<Transaction[]> {
+export async function getTransactions(limit: number, offset: number, toLocationId?: string, toLocationType?: string, status?: string): Promise<Transaction[]> {
     let whereClause: any = {};
 
     if (toLocationId !== undefined) {
@@ -100,7 +119,7 @@ export async function getTransactions(limit: number, offset: number, toLocationI
 }
 
 
-export async function getTransactionByToLocationId(toLocationId: number, toLocationType?: string): Promise<Transaction | null> {
+export async function getTransactionByToLocationId(toLocationId: string, toLocationType?: string): Promise<Transaction | null> {
     const whereClause: any = { toLocationId };
 
     if (toLocationType) {
@@ -112,7 +131,7 @@ export async function getTransactionByToLocationId(toLocationId: number, toLocat
     });
 }
 
-export async function getTransaction(id: number): Promise<Transaction | null> {
+export async function getTransaction(id: string): Promise<Transaction | null> {
     return await Transaction.findOne({
         where: {
             id

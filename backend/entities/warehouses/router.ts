@@ -33,7 +33,7 @@ export function getRouter(): Router {
     router.get('/:id', async (req, res) => {
         const { id } = req.params;
 
-        const warehouse = await getWarehouse(Number(id));
+        const warehouse = await getWarehouse(String(id));
 
         res.json(warehouse);
     });
@@ -67,7 +67,7 @@ export function getRouter(): Router {
 }
 
 async function updateHandler(
-    req: Request<any, any, { id: number; facilityName?: string; nfaBranch?: string, location?: string, totalCapacity?: number, currentStock?: number, contactNumber?: string, email?: string, status?: string }>,
+    req: Request<any, any, { id: string; facilityName?: string; nfaBranch?: string, location?: string, totalCapacity?: number, currentStock?: number, contactNumber?: string, email?: string, status?: string }>,
     res: Response
 ): Promise<void> {
     const { id, facilityName, nfaBranch, location, totalCapacity, currentStock, contactNumber, email, status } = req.body;
