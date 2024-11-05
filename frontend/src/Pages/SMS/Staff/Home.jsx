@@ -6,6 +6,7 @@ import { useAuth } from '../../Authentication/Login/AuthContext';
 
 function Home({ isRightSidebarOpen }) {
     const { user } = useAuth(); 
+
     const [carouselItems] = useState([
         {
             title: "Traceability Power",

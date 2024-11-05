@@ -16,6 +16,7 @@ import TracknTrace from "./TNT/TracknTrace";
 import RegistrationPage from "./Authentication/Registration/RegistrationPage";
 import LoginPage from "./Authentication/Login/LoginPage";
 import ForgotPassword from "./Authentication/Forgot Password/ForgotPassword";
+import NoAppPage from "./Landing/NoAppPage";
 
 import AdminHome from "./SMS/Admin/Home";
 import AdminDashboard from "./SMS/Admin/Dashboard";
@@ -24,6 +25,7 @@ import AdminInventory from "./SMS/Admin/Inventory";
 import AdminFacilities from "./SMS/Admin/Facilities/Category";
 import AdminUsers from "./SMS/Admin/Users/Users";
 import AdminProfile from "./SMS/Admin/Profile";
+import NoAdminPage from "./SMS/Admin/NoAdminPage";
 
 import StaffHome from "./SMS/Staff/Home";
 import StaffBuyPalay from "./SMS/Staff/BuyPalay/BuyPalay";
@@ -131,14 +133,14 @@ function App() {
 
                 {/* Protected routes */}
                 <Route path="/admin/*" element={
-                    <ProtectedRoute allowedUserTypes={['Admin']}>
-                        <AdminRoutes />
-                    </ProtectedRoute>
+                    // <ProtectedRoute allowedUserTypes={['Admin']}>
+                    // </ProtectedRoute>
+                    <AdminRoutes />
                 } />
                 <Route path="/staff/*" element={
-                    <ProtectedRoute allowedUserTypes={['NFA Branch Staff']}>
-                        <StaffRoutes />
-                    </ProtectedRoute>
+                    // <ProtectedRoute allowedUserTypes={['NFA Branch Staff']}>
+                    // </ProtectedRoute>
+                    <StaffRoutes />
                 } />
                 <Route path="/recipient/*" element={
                     <ProtectedRoute allowedUserTypes={['Rice Recipient']}>
@@ -150,7 +152,8 @@ function App() {
                         <PrivateMillerRoutes />
                     </ProtectedRoute>
                 } />
-                <Route path="*" element={<Navigate to="/" replace />} />
+                <Route path="/404" element={<NoAppPage />} />
+                <Route path="*" element={<Navigate to="/404" replace />} />
             </Routes>
         </div>
     );
@@ -166,6 +169,8 @@ function AdminRoutes() {
             <Route path="facilities" element={<AdminFacilities />} />
             <Route path="users" element={<AdminUsers />} />
             <Route path="profile" element={<AdminProfile />} />
+            <Route path="404" element={<NoAdminPage />} />
+            <Route path="*" element={<Navigate to="/admin/404" replace />} />
         </Routes>
     );
 }
