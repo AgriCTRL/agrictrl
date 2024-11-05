@@ -96,6 +96,14 @@ export async function countRiceOrders(): Promise<number> {
     return await RiceOrder.count();
 }
 
+export async function countReceivedRiceOrders(): Promise<number> {
+    return await RiceOrder.count({
+        where: {
+            status: 'Received'
+        }
+    });
+}
+
 export async function createRiceOrder(riceOrderCreate: RiceOrderCreate): Promise<RiceOrder> {
     let riceOrder = new RiceOrder();
 

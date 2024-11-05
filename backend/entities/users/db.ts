@@ -142,6 +142,15 @@ export async function countUsers(): Promise<number> {
     return await User.count();
 }
 
+export async function countRecipientUsers(): Promise<number> {
+    return await User.count({
+        where: {
+            userType: 'Rice Recipient',
+            status: 'Active'
+        }
+    });
+}
+
 export async function createUser(userCreate: UserCreate): Promise<User> {
     let user = new User();
 

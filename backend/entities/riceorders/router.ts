@@ -2,6 +2,7 @@ import express, { Request, Response, Router } from 'express';
 
 import {
     countRiceOrders,
+    countReceivedRiceOrders,
     createRiceOrder,
     getRiceOrder,
     getRiceOrders,
@@ -32,6 +33,10 @@ export function getRouter(): Router {
 
     router.get('/count', async (_req, res) => {
         res.json(await countRiceOrders());
+    });
+
+    router.get('/received/count', async (_req, res) => {
+        res.json(await countReceivedRiceOrders());
     });
 
     router.get('/:id', async (req, res) => {
