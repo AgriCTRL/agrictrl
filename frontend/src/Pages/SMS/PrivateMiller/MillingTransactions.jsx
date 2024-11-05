@@ -1089,7 +1089,7 @@ const MillingTransactions = () => {
                   ...prev,
                   toLocationId: e.value,
                   toLocationName: filteredWarehouses.find((w) => w.value === e.value)
-                    ?.label,
+                    ?.name,
                     
                 }))
               }

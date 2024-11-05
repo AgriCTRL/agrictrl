@@ -18,7 +18,7 @@ const ManageRice = ({ visible, onHide, selectedItem, onUpdateSuccess, user, refr
     const handleUpdateRiceBatch = async () => {
         setIsLoading(true);
         try {
-            const response = await fetch(`${apiUrl}/ricebatches/update`, {
+            const response = await fetch(`${apiUrl}/ricebatches/update?id=${selectedItem.id}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

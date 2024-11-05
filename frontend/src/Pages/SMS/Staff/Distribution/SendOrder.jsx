@@ -3,7 +3,6 @@ import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
-import { Dropdown } from 'primereact/dropdown';
 import { Toast } from 'primereact/toast';
 
 const SendOrder = ({ visible, onHide, riceBatchesData, selectedOrder, user, onUpdate }) => {
@@ -104,19 +103,21 @@ const SendOrder = ({ visible, onHide, riceBatchesData, selectedOrder, user, onUp
             // Create a single transaction body for the entire order
             const transactionBody = {
                 item: 'Rice',
-                itemId: selectedBatches[0].id, // Using the first batch's itemId as representative
+                itemId: selectedBatches[0].id,
                 senderId: user.id,
+                sendDateTime: new Date().toISOString(),
                 fromLocationType: 'Warehouse',
                 fromLocationId: selectedBatches[0].warehouseId,
                 transporterName: sendOrderData.transportedBy,
                 transporterDesc: sendOrderData.transporterDescription,
                 receiverId: selectedOrder.riceRecipientId,
+                receiveDateTime: '0',
                 toLocationType: 'Distribution',
                 toLocationId: selectedOrder.riceRecipientId,
                 status: 'Pending',
                 remarks: `Sending ${selectedBatches.length} batches: ${sendOrderData.remarks || ''}`
-            };
-    
+            };    
+
             // Log transaction body
             console.log('Transaction Body:', transactionBody);
     
@@ -132,7 +133,6 @@ const SendOrder = ({ visible, onHide, riceBatchesData, selectedOrder, user, onUp
             // Create update requests for each batch
             selectedBatches.forEach((batch, index) => {
                 const riceBatchBody = {
-                    id: batch.id,
                     currentCapacity: batch.currentCapacity - batchQuantities[index]
                 };
     
@@ -140,7 +140,7 @@ const SendOrder = ({ visible, onHide, riceBatchesData, selectedOrder, user, onUp
                 console.log(`Rice Batch Update Body for Batch ${index + 1}:`, riceBatchBody);
     
                 promises.push(
-                    fetch(`${apiUrl}/ricebatches/update`, {
+                    fetch(`${apiUrl}/ricebatches/update?id=${batch.id}`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(riceBatchBody)
@@ -171,7 +171,33 @@ const SendOrder = ({ visible, onHide, riceBatchesData, selectedOrder, user, onUp
             results.forEach((response, index) => {
                 console.log(`Response ${index + 1} status:`, response.status);
             });
-    
+
+            const failedRequests = results.filter(response => !response.ok);
+            if (failedRequests.length > 0) {
+                throw new Error('One or more requests failed');
+            }
+
+            // Fetch all warehouses
+            const response = await fetch(`${apiUrl}/warehouses`);
+            const warehouses = await response.json();
+
+            // Update the current stock in the relevant warehouses
+            const updateWarehousePromises = selectedBatches.map(async (batch) => {
+                const warehouse = warehouses.find(w => w.id === batch.warehouseId);
+                const updatedStock = warehouse.currentStock - batchQuantities[selectedBatches.indexOf(batch)];
+                const updateBody = {
+                    id: warehouse.id,
+                    currentCapacity: updatedStock
+                };
+                const res = await fetch(`${apiUrl}/warehouses/update`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updateBody)
+                });
+                return res.ok;
+            });
+            await Promise.all(updateWarehousePromises);
+
             toast.current.show({
                 severity: 'success',
                 summary: 'Success',
