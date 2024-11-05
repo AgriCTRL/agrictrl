@@ -82,6 +82,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
     const { user } = useAuth();
 
     const [userData, setUserData] = useState(null);
+    const [selectedSupplier, setSelectedSupplier] = useState(null);
     const [warehouseData, setWarehouseData] = useState([]);
     const [palayData, setPalayData] = useState({
         // Farmer Info
@@ -288,11 +289,15 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
 
     const handleQualityTypeInputChange = (e) => {
         const { name, value } = e.target;
-    
+        
         setPalayData((prevState) => ({
             ...prevState,
             [name]: value,
-            status: value === 'Wet' ? 'To be Dry' : value === 'Dry' ? 'To be Mill' : prevState.status
+            status: value === 'Wet' ? 'To be Dry' : value === 'Dry' ? 'To be Mill' : prevState.status,
+            // Set predetermined values based on quality type
+            moistureContent: value === 'Wet' ? 20 : value === 'Dry' ? 7 : prevState.moistureContent,
+            purity: value === 'Wet' ? 97 : value === 'Dry' ? 99 : prevState.purity,
+            damaged: value === 'Wet' ? 4 : value === 'Dry' ? 1 : prevState.damaged
         }));
     };
 
@@ -354,7 +359,6 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
     const handleSubmit = async () => {
         const isValid = validateForm(activeStep);
         if (!isValid) return;
-        console.log(palayData);
     
         setIsLoading(true);
         try {
@@ -370,6 +374,8 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                     birthDate: palayData.birthDate ? palayData.birthDate.toISOString().split('T')[0] : null,
                     plantedDate: palayData.plantedDate ? palayData.plantedDate.toISOString().split('T')[0] : null,
                     harvestedDate: palayData.harvestedDate ? palayData.harvestedDate.toISOString().split('T')[0] : null,
+                    // If we have a selected supplier, use their ID
+                    palaySupplierID: selectedSupplier ? selectedSupplier.id : null
                 })
             });
     
@@ -447,12 +453,17 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
             setIsLoading(false);
         }
     };
+
+    const handleSupplierSelect = (supplier) => {
+        setSelectedSupplier(supplier);
+    };
     
     const renderFarmerInfo = () => (
         <FarmerInfoForm 
             palayData={palayData}
             handlePalayInputChange={handlePalayInputChange}
             errors={errors}
+            onSupplierSelect={handleSupplierSelect}
         />
     );
 
