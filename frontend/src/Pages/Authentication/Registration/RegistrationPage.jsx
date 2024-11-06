@@ -161,7 +161,19 @@ const RegistrationPageContent = () => {
 			});
 
 			if (!res.ok) {
-			throw new Error('Error registering user');
+				const errorData = await res.json();
+				
+				if (res.status === 409) {
+					toast.current.show({
+						severity: "error",
+						summary: "Error",
+						detail: "This email address is already registered. Please use a different email.",
+						life: 3000,
+					});
+					return;
+				}
+				
+				throw new Error(errorData.message || 'Error registering user');
 			}
 
 			navigate('/login');

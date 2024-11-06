@@ -101,14 +101,14 @@ const AppNavbar = () => {
                     layout="vertical"
                     className='m-0 py-3 opacity-30 hidden sm:block' 
                 />
-                <Button 
+                {/* <Button 
                     className='text-white hover:text-primary ring-0'
                     onClick={handleTnTClick}
                     icon={<Search />}
                     rounded
                     text
                     aria-label="Search"
-                />
+                /> */}
 
                 <AppMobileNav />
 

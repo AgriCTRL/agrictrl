@@ -240,13 +240,3 @@ export async function getTotalPalayQuantityBags(): Promise<number> {
     
     return result?.total || 0;
 }
-
-export async function getTotalRiceQuantityBags(): Promise<number> {
-    const result = await PalayBatch
-        .createQueryBuilder('palayBatch')
-        .select('SUM(palayBatch.quantityBags)', 'total')
-        .where('LOWER(palayBatch.currentlyAt) LIKE LOWER(:term)', { term: '%rice%' })
-        .getRawOne();
-    
-    return result?.total || 0;
-}

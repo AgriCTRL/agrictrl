@@ -5,7 +5,8 @@ import {
     createRiceBatch,
     getRiceBatch,
     getRiceBatches,
-    updateRiceBatch
+    updateRiceBatch,
+    getTotalCurrentCapacity
 } from './db';
 
 export function getRouter(): Router {
@@ -30,6 +31,11 @@ export function getRouter(): Router {
 
     router.get('/count', async (_req, res) => {
         res.json(await countRiceBatches());
+    });
+
+    router.get('/totals/current-capacity', async (_req, res) => {
+        const total = await getTotalCurrentCapacity();
+        res.json({ total });
     });
 
     router.get('/:id', async (req, res) => {

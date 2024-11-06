@@ -11,8 +11,7 @@ import {
     getPalayBatches,
     updatePalayBatch,
     getTotalQuantityBags,
-    getTotalPalayQuantityBags,
-    getTotalRiceQuantityBags
+    getTotalPalayQuantityBags
 } from './db';
 
 export function getRouter(): Router {
@@ -44,11 +43,6 @@ export function getRouter(): Router {
 
     router.get('/totals/palay-quantity-bags', async (_req, res) => {
         const total = await getTotalPalayQuantityBags();
-        res.json({ total });
-    });
-    
-    router.get('/totals/rice-quantity-bags', async (_req, res) => {
-        const total = await getTotalRiceQuantityBags();
         res.json({ total });
     });
 
