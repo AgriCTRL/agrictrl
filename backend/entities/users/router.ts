@@ -206,10 +206,13 @@ export function getRouter(): Router {
             const decryptedPayload = decryptData(encryptedPayload);
             const { email, password, userType } = JSON.parse(decryptedPayload);
             const user = await User.findOne({ 
-            where: { email, password, userType, isVerified: true } 
+            where: { email, password, userType } 
             });
 
             if (user) {
+                if (!user.isVerified) {
+                    return res.status(403).json({ message: 'Account is not verified' });
+                }
                 const encryptedData = encryptData(user);
                 res.json({ data: encryptedData });
             } else {
