@@ -68,13 +68,92 @@ const ForgotPassword = () => {
     return code;
   };
 
-  const validatePassword = (password) => {
-    const hasLowerCase = /[a-z]/.test(password);
-    const hasUpperCase = /[A-Z]/.test(password);
-    const hasNumber = /\d/.test(password);
-    const isLongEnough = password.length >= 8;
+  const validatePasswordFields = () => {
+    const newErrors = {};
+    let isValid = true;
 
-    return hasLowerCase && hasUpperCase && hasNumber && isLongEnough;
+    if (!password || !confirmPassword) {
+      if (!password) {
+        toast.current.show({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Password is required',
+          life: 5000
+        });
+        isValid = false;
+      }
+      if (!confirmPassword) {
+        toast.current.show({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Confirm password is required',
+          life: 5000
+        });
+        isValid = false;
+      }
+      return isValid;
+    }
+
+    // Password requirements validation
+    const passwordRegex = {
+      lowercase: /[a-z]/,
+      uppercase: /[A-Z]/,
+      number: /[0-9]/,
+      minLength: 8
+    };
+
+    if (password.length < passwordRegex.minLength) {
+      toast.current.show({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Password must be at least 8 characters long',
+        life: 5000
+      });
+      isValid = false;
+    }
+
+    if (!passwordRegex.lowercase.test(password)) {
+      toast.current.show({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Password must contain at least one lowercase letter',
+        life: 5000
+      });
+      isValid = false;
+    }
+
+    if (!passwordRegex.uppercase.test(password)) {
+      toast.current.show({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Password must contain at least one uppercase letter',
+        life: 5000
+      });
+      isValid = false;
+    }
+
+    if (!passwordRegex.number.test(password)) {
+      toast.current.show({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Password must contain at least one number',
+        life: 5000
+      });
+      isValid = false;
+    }
+
+    // Check if passwords match
+    if (password !== confirmPassword) {
+      toast.current.show({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Passwords do not match',
+        life: 5000
+      });
+      isValid = false;
+    }
+
+    return isValid;
   };
 
   const handleEmailSubmit = async () => {    
@@ -146,40 +225,47 @@ const ForgotPassword = () => {
   }
 
   const handleUpdatePassword = async () => {
-    if (!validatePassword(password)) {
-      toast.current.show({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Password must contain at least one lowercase letter, one uppercase letter, one number, and be at least 8 characters long.',
-          life: 3000
-      });
-      return;
-    }
-    
-    if (password !== confirmPassword) {
-      toast.current.show({ severity: 'error', summary: 'Error', detail: 'Password does not match.', life: 3000 });
+    if (!validatePasswordFields()) {
       return;
     }
 
     setIsLoading(true);
     const passwordBody = { id: userId, password };
     const encryptedPayload = CryptoJS.AES.encrypt(JSON.stringify(passwordBody), secretKey).toString();
+    
     try {
       const res = await fetch(`${apiUrl}/users/update`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ encryptedPayload })
-      })
-      if(!res.ok) {
-        throw new Error ('failed to update password')
+      });
+      
+      if (!res.ok) {
+        throw new Error('Failed to update password');
       }
-      navigate('/login');
+      
+      toast.current.show({
+        severity: 'success',
+        summary: 'Success',
+        detail: 'Password updated successfully',
+        life: 3000
+      });
+      
+      setTimeout(() => {
+        navigate('/login');
+      }, 1500);
     } catch (error) {
+      toast.current.show({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Failed to update password. Please try again.',
+        life: 3000
+      });
       console.error(error.message);
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
   const forgotPassButton = () => {
     if (currentStep === 1) {

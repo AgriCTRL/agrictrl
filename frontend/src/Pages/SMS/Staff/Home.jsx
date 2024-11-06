@@ -7,15 +7,22 @@ import { useAuth } from '../../Authentication/Login/AuthContext';
 function Home({ isRightSidebarOpen }) {
     const { user } = useAuth();
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    const [palayCount, setPalayCount] = useState(0);
+    const [processedCount, setProcessedCount] = useState(0);
+    const [distributedCount, setDistributedCount] = useState(0);
     const [totalPalayBought, setTotalPalayBought] = useState(0);
     const [totalPalayWarehouse, setTotalPalayWarehouse] = useState(0);
     const [totalPalayProcessed, setTotalPalayProcessed] = useState(0);
     const [totalRiceWarehouse, setTotalRiceWarehouse] = useState(0);
     const [totalRiceDelivered, setTotalRiceDelivered] = useState(0);
-
-    const [ palayCount, setPalayCount ] = useState(0);
-    const [ processedCount, setProcessedCount ] = useState(0);
-    const [ distributedCount, setDistributedCount ] = useState(0);
+    const [currentDate, setCurrentDate] = useState(() => {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = (now.getMonth() + 1).toString().padStart(2, '0');
+        const day = now.getDate().toString().padStart(2, '0');   
+    
+        return `${month}/${day}/${year}`;
+    });
 
     const fetchData = async () => {
         const palayCountRes = await fetch(`${apiUrl}/palaybatches/count`);
@@ -50,7 +57,7 @@ function Home({ isRightSidebarOpen }) {
     }
 
     const fetchTotalRiceWarehouse = async () => {
-        const res = await fetch(`${apiUrl}/palaybatches/totals/rice-quantity-bags`);
+        const res = await fetch(`${apiUrl}/ricebatches/totals/current-capacity`);
         const count = await res.json();
         setTotalRiceWarehouse(count.total);
     }
@@ -89,11 +96,11 @@ function Home({ isRightSidebarOpen }) {
     ]);
 
     const statistics = [
-        { icon: Fan, title: "Total Palay Bought", date: "MM/DD/YYYY", value: totalPalayBought },
-        { icon: Fan, title: "Total Palay in Warehouse", date: "MM/DD/YYYY", value: totalPalayWarehouse },
-        { icon: Fan, title: "Total Palay Processed", date: "MM/DD/YYYY", value: totalPalayProcessed },
-        { icon: Fan, title: "Total Rice in Warehouse", date: "MM/DD/YYYY", value: totalRiceWarehouse },
-        { icon: Fan, title: "Total Rice Delivered", date: "MM/DD/YYYY", value: totalRiceDelivered },
+        { icon: Fan, title: "Total Palay Bought", date: currentDate, value: totalPalayBought },
+        { icon: Fan, title: "Total Palay in Warehouse", date: currentDate, value: totalPalayWarehouse },
+        { icon: Fan, title: "Total Palay Processed", date: currentDate, value: totalPalayProcessed },
+        { icon: Fan, title: "Total Rice in Warehouse", date: currentDate, value: totalRiceWarehouse },
+        { icon: Fan, title: "Total Rice Delivered", date: currentDate, value: totalRiceDelivered },
     ];
 
     const personalStats = [

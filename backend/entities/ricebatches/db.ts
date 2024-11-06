@@ -139,3 +139,12 @@ export async function updateRiceBatch(riceBatchUpdate: RiceBatchUpdate): Promise
 
     return riceBatch;
 }
+
+export async function getTotalCurrentCapacity(): Promise<number> {
+    const result = await RiceBatch
+        .createQueryBuilder('riceBatch')
+        .select('SUM(riceBatch.currentCapacity)', 'total')
+        .getRawOne();
+    
+    return result?.total || 0;
+}

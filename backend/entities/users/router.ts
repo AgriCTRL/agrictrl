@@ -65,6 +65,18 @@ export function getRouter(): Router {
 
             try {
                 const decryptedPayload = decryptData(encryptedPayload);
+                const parsedData = JSON.parse(decryptedPayload);
+
+                const existingUser = await User.findOne({
+                    where: { email: parsedData.email }
+                });
+        
+                if (existingUser) {
+                    return res.status(409).json({ 
+                        message: 'Email already exists' 
+                    });
+                }
+
                 const {
                     principal,
                     firstName,
@@ -90,7 +102,7 @@ export function getRouter(): Router {
                     isVerified,
                     dateCreated,
                     code
-                } = JSON.parse(decryptedPayload);
+                } = parsedData;
     
                 const officeAddress = await createOfficeAddress({
                     region: region,
@@ -123,7 +135,7 @@ export function getRouter(): Router {
                     code
                 });
     
-                res.json(null);
+                res.json({success: true});
             } catch (error) {
                 console.error('Error decrypting or registering user:', error);
                 res.status(500).json({ message: 'Failed to register user' });
