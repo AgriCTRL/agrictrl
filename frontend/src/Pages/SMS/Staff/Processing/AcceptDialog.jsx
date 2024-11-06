@@ -16,6 +16,9 @@ const AcceptDialog = ({ visible, viewMode, onCancel, selectedItem, refreshData }
     if (!selectedItem) {
       return;
     }
+
+    const currentDate = new Date();
+    currentDate.setHours(currentDate.getHours()+8);
   
     setIsLoading(true);
     try {
@@ -28,7 +31,7 @@ const AcceptDialog = ({ visible, viewMode, onCancel, selectedItem, refreshData }
         body: JSON.stringify({
           id: selectedItem.transactionId,
           status: "Received",
-          receiveDateTime: new Date().toISOString(),
+          receiveDateTime: currentDate.toISOString(),
           receiverId: user.id,
         }),
       });

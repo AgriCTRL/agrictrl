@@ -36,10 +36,11 @@ const ReturnDialog = ({
   newMillingData,
   dryerData,
   millerData,
-  refreshData
+  refreshData,
 }) => {
   const toast = useRef(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState({});
   const [newTransactionData, setNewTransactionData] = useState(
     initialTransactionData
   );
@@ -73,6 +74,7 @@ const ReturnDialog = ({
     }));
 
   const handleReturn = async () => {
+    if (!validateForm()) return;
     if (!selectedItem || !newTransactionData.toLocationId) {
       toast.current.show({
         severity: "error",
@@ -86,19 +88,30 @@ const ReturnDialog = ({
     setIsLoading(true);
     try {
       // 1. Update the facility's current processing
-      const facilityData = viewMode === "drying" 
-        ? dryerData.find(dryer => dryer.id === selectedItem.toLocationId)
-        : millerData.find(miller => miller.id === selectedItem.toLocationId);
+      const facilityData =
+        viewMode === "drying"
+          ? dryerData.find((dryer) => dryer.id === selectedItem.toLocationId)
+          : millerData.find(
+              (miller) => miller.id === selectedItem.toLocationId
+            );
 
       if (!facilityData) {
-        throw new Error(`${viewMode === "drying" ? "Dryer" : "Miller"} not found`);
+        throw new Error(
+          `${viewMode === "drying" ? "Dryer" : "Miller"} not found`
+        );
       }
 
-      const initialQuantity = viewMode === "drying"
-        ? parseInt(selectedItem.palayQuantityBags) // Initial palay batch quantity
-        : parseInt(selectedItem.driedQuantityBags || selectedItem.palayQuantityBags); // Initial dried quantity
+      const initialQuantity =
+        viewMode === "drying"
+          ? parseInt(selectedItem.palayQuantityBags) // Initial palay batch quantity
+          : parseInt(
+              selectedItem.driedQuantityBags || selectedItem.palayQuantityBags
+            ); // Initial dried quantity
 
-      const newProcessing = Math.max(0, parseInt(facilityData.processing) - initialQuantity);
+      const newProcessing = Math.max(
+        0,
+        parseInt(facilityData.processing) - initialQuantity
+      );
 
       const facilityUpdateResponse = await fetch(
         `${apiUrl}/${viewMode === "drying" ? "dryers" : "millers"}/update`,
@@ -107,13 +120,15 @@ const ReturnDialog = ({
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             id: selectedItem.toLocationId,
-            processing: newProcessing
+            processing: newProcessing,
           }),
         }
       );
 
       if (!facilityUpdateResponse.ok) {
-        throw new Error(`Failed to update ${viewMode} facility processing quantity`);
+        throw new Error(
+          `Failed to update ${viewMode} facility processing quantity`
+        );
       }
 
       // 2. Update current transaction to Completed
@@ -235,7 +250,6 @@ const ReturnDialog = ({
         life: 3000,
       });
 
-      
       handleHide();
       onSuccess();
     } catch (error) {
@@ -257,6 +271,53 @@ const ReturnDialog = ({
       refreshData();
       onCancel();
     }
+  };
+
+  const validateForm = () => {
+    let newErrors = {};
+
+    if (!newTransactionData.toLocationId) {
+      newErrors.toLocationId = "Please select a facility";
+      toast.current.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Please select a facility",
+        life: 3000,
+      });
+    }
+
+    if (!newTransactionData.transporterName.trim()) {
+      newErrors.transporterName = "Transporter name is required";
+      toast.current.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Transporter name is required",
+        life: 3000,
+      });
+    }
+
+    if (!newTransactionData.transporterDesc.trim()) {
+      newErrors.transporterDesc = "Transport description is required";
+      toast.current.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Transport description is required",
+        life: 3000,
+      });
+    }
+
+    if (!newTransactionData.remarks.trim()) {
+      newErrors.remarks = "Remarks are required";
+      toast.current.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Remarks are required",
+        life: 3000,
+      });
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   return (
@@ -286,6 +347,11 @@ const ReturnDialog = ({
               placeholder="Select a warehouse"
               className="w-full ring-0"
             />
+            {errors.toLocationId && (
+              <div className="text-red-500 text-sm mt-1">
+                {errors.toLocationId}
+              </div>
+            )}
           </div>
 
           <div className="w-full">
@@ -301,6 +367,11 @@ const ReturnDialog = ({
               className="w-full ring-0"
               maxLength={50}
             />
+            {errors.transporterName && (
+              <div className="text-red-500 text-sm mt-1">
+                {errors.transporterName}
+              </div>
+            )}
           </div>
 
           <div className="w-full">
@@ -317,6 +388,11 @@ const ReturnDialog = ({
               rows={3}
               maxLength={250}
             />
+            {errors.transporterDesc && (
+              <div className="text-red-500 text-sm mt-1">
+                {errors.transporterDesc}
+              </div>
+            )}
           </div>
 
           <div className="w-full">
@@ -333,6 +409,11 @@ const ReturnDialog = ({
               rows={3}
               maxLength={250}
             />
+            {errors.remarks && (
+              <div className="text-red-500 text-sm mt-1">
+                {errors.remarks}
+              </div>
+            )}
           </div>
 
           <div className="flex justify-between gap-4 mt-4">

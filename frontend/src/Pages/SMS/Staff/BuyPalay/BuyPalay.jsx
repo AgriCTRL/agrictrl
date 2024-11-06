@@ -87,13 +87,6 @@ function BuyPalay() {
             className="text-sm px-2 rounded-md"
         />
     );
-    
-    const actionBodyTemplate = (rowData) => (
-        <CircleAlert 
-            className="text-red-500"
-            onClick={() => console.log('Edit clicked for:', rowData)}
-        />
-    );
 
     const handleAddPalay = () => {
         setShowRegisterPalay(true);

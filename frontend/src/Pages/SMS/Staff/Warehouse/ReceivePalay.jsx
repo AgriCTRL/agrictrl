@@ -11,6 +11,9 @@ const ReceivePalay = ({ visible, onHide, selectedItem, onAcceptSuccess, user, re
 
     const handleReceivePalay = async () => {
         setIsLoading(true);
+
+        const currentDate = new Date();
+        currentDate.setHours(currentDate.getHours()+8);
         try {
             const transactionResponse = await fetch(`${apiUrl}/transactions/update`, {
                 method: 'POST',
@@ -20,7 +23,7 @@ const ReceivePalay = ({ visible, onHide, selectedItem, onAcceptSuccess, user, re
                 body: JSON.stringify({
                     id: selectedItem.transactionId,
                     status: 'Received',
-                    receiveDateTime: new Date().toISOString(),
+                    receiveDateTime: currentDate.toISOString(),
                     receiverId: user.id
                 })
             });

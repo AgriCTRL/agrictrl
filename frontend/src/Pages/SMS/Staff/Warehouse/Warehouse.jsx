@@ -255,7 +255,6 @@ function Warehouse() {
         throw new Error("Failed to fetch warehouse data");
       }
       const data = await res.json();
-      console.log(data.facilityName);
       setWarehouseData(data);
     } catch (error) {
       console.log(error.message);
@@ -271,7 +270,6 @@ function Warehouse() {
   const handleActionClick = (rowData) => {
     if (viewMode === "requests") {
       setSelectedItem(rowData);
-      console.log(rowData);
       if (["To be Mill", "To be Dry"].includes(rowData.palayStatus)) {
         setShowPalayAcceptDialog(true);
       } else if (rowData.palayStatus === "Milled") {
@@ -279,7 +277,6 @@ function Warehouse() {
       }
     } else if (viewMode === "inWarehouse") {
       setSelectedItem(rowData);
-      console.log(rowData);
       if (selectedFilter === "rice") {
         setShowManageRiceDialog(true);
       } else {

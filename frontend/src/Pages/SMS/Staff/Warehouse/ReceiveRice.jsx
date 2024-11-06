@@ -157,6 +157,9 @@ const AcceptRice = ({ visible, onHide, selectedItem = {}, onAcceptSuccess, user,
                 }
             }
 
+            const currentDate = new Date();
+            currentDate.setHours(currentDate.getHours()+8);
+
             // Update transaction status
             if (selectedItem?.transactionId) {
                 await fetch(`${apiUrl}/transactions/update`, {
@@ -167,7 +170,7 @@ const AcceptRice = ({ visible, onHide, selectedItem = {}, onAcceptSuccess, user,
                     body: JSON.stringify({
                         id: selectedItem.transactionId,
                         status: 'Received',
-                        receiveDateTime: new Date().toISOString(),
+                        receiveDateTime: currentDate.toISOString(),
                         receiverId: user?.id
                     })
                 });

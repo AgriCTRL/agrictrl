@@ -296,6 +296,7 @@ const FarmerInfoForm = ({ palayData, handlePalayInputChange, errors, onSupplierS
             onSelect={handleSupplierSelect}
             placeholder="Enter your name"
             className="w-full"
+            inputClassName='ring-0 w-full'
           />
           {errors.farmerName && <p className="text-red-500 text-xs mt-1">{errors.farmerName}</p>}
         </div>
@@ -374,7 +375,7 @@ const FarmerInfoForm = ({ palayData, handlePalayInputChange, errors, onSupplierS
             placeholder="Enter your phone number"
             className="w-full ring-0"
             keyfilter="alphanum"
-            maxLength={15}
+            maxLength={11}
           />
           {errors.contactNumber && <p className="text-red-500 text-xs mt-1">{errors.contactNumber}</p>}
         </div>
