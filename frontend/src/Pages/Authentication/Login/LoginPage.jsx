@@ -28,8 +28,52 @@ import { useAuth } from "./AuthContext";
 import { AuthClient } from "@dfinity/auth-client";
 import { validate } from "uuid";
 
-// Login function
-const loginUser = async (email, password, userType) => {
+const LoginPage = () => {
+  const toast = useRef(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [userType, setUserType] = useState(null);
+  const [emailError, setEmailError] = useState(false);
+  const [userTypeError, setUserTypeError] = useState(false);
+  const [passwordError, setPasswordError] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const { login } = useAuth();
+  const [underverificationVisible, setUnderverificationVisible] = useState(false);
+  const secretKey = import.meta.env.VITE_HASH_KEY;
+
+  // useEffect(() => {
+  // 	const updatePayload = {
+  // 		id: 1,
+  // 		userType: "Admin",
+  // 		isVerified: true,
+  // 		status: "Active"
+  // 	}
+  // 	const encryptedPayload = CryptoJS.AES.encrypt(JSON.stringify(updatePayload), secretKey).toString();
+  // 	console.log({encryptedPayload});
+  // }, []);
+
+  useEffect(() => {
+    const rememberedUser = localStorage.getItem("rememberedUser");
+    if (rememberedUser) {
+      const { email, password, userType } = JSON.parse(rememberedUser);
+      setEmail(email);
+      setPassword(password);
+      setUserType(userType);
+      setRememberMe(true);
+    }
+  }, []);
+
+  const userTypes = [
+    { label: "NFA Branch Staff", value: "NFA Branch Staff" },
+    { label: "Admin", value: "Admin" },
+    { label: "Rice Recipient", value: "Rice Recipient" },
+    { label: "Private Miller", value: "Private Miller" },
+  ];
+
+  // Login function
+  const loginUser = async (email, password, userType) => {
   const authClient = await AuthClient.create();
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const internetIdentityUrl = import.meta.env.VITE_INTERNET_IDENTITY_URL;
@@ -81,7 +125,13 @@ const loginUser = async (email, password, userType) => {
     });
 
     if (!response.ok) {
-      throw new Error("Failed to fetch users");
+      const errorData = await response.json();
+				if (response.status === 403) {
+				setUnderverificationVisible(true);
+				return;
+			}
+			
+			throw new Error(errorData.message || 'Error registering user');
     }
 
     const encryptedResponse = await response.json();
@@ -136,50 +186,6 @@ const loginUser = async (email, password, userType) => {
     return { success: false, message: "Invalid user type, email or password" };
   }
 };
-
-const LoginPage = () => {
-  const toast = useRef(null);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [userType, setUserType] = useState(null);
-  const [emailError, setEmailError] = useState(false);
-  const [userTypeError, setUserTypeError] = useState(false);
-  const [passwordError, setPasswordError] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-  const { login } = useAuth();
-  const [underverificationVisible, setUnderverificationVisible] = useState(false);
-  const secretKey = import.meta.env.VITE_HASH_KEY;
-
-  // useEffect(() => {
-  // 	const updatePayload = {
-  // 		id: 1,
-  // 		userType: "Admin",
-  // 		isVerified: true,
-  // 		status: "Active"
-  // 	}
-  // 	const encryptedPayload = CryptoJS.AES.encrypt(JSON.stringify(updatePayload), secretKey).toString();
-  // 	console.log({encryptedPayload});
-  // }, []);
-
-  useEffect(() => {
-    const rememberedUser = localStorage.getItem("rememberedUser");
-    if (rememberedUser) {
-      const { email, password, userType } = JSON.parse(rememberedUser);
-      setEmail(email);
-      setPassword(password);
-      setUserType(userType);
-      setRememberMe(true);
-    }
-  }, []);
-
-  const userTypes = [
-    { label: "NFA Branch Staff", value: "NFA Branch Staff" },
-    { label: "Admin", value: "Admin" },
-    { label: "Rice Recipient", value: "Rice Recipient" },
-    { label: "Private Miller", value: "Private Miller" },
-  ];
 
   const loginButton = async () => {
     const isValidated = validateForm();
