@@ -6,6 +6,7 @@ import { FilterMatchMode } from 'primereact/api';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
+import { Dialog } from 'primereact/dialog';
 import { useAuth } from '../../Authentication/Login/AuthContext';
 
 
@@ -60,15 +61,28 @@ function CustomDateRangeSelector({ selectedFilter, onChange, disabled }) {
 }
 
 function History() {
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
+
     const [globalFilterValue, setGlobalFilterValue] = useState('');
-    const [filters, setFilters] = useState({
-        global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    });
     const [selectedFilter, setSelectedFilter] = useState('weekly');
     const [currentDate, setCurrentDate] = useState(getStartOfWeek(new Date()));
-    const [filteredOrders, setFilteredOrders] = useState([]);
+    const [filteredTransactions, setFilteredTransactions] = useState([]);
+    const [allTransactions, setAllTransactions] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
     const [showAll, setShowAll] = useState(false);
+    const [selectedTransaction, setSelectedTransaction] = useState(null);
+    const [showDetailsDialog, setShowDetailsDialog] = useState(false);
     const { user } = useAuth();
+    
+
+    useEffect(() => {
+        fetchTransactions();
+        console.log(allTransactions)
+    }, [user.id]);
+
+    useEffect(() => {
+        filterTransactions();
+    }, [selectedFilter, currentDate, globalFilterValue, showAll, allTransactions]);
 
     function getStartOfWeek(date) {
       const d = new Date(date);
@@ -77,72 +91,110 @@ function History() {
       return new Date(d.setDate(diff));
     }
 
+    const fetchTransactions = async () => {
+        setIsLoading(true);
+        try {
+            // First fetch all millers and find the one associated with our user
+            const millerResponse = await fetch(`${apiUrl}/millers`);
+            if (!millerResponse.ok) {
+                throw new Error('Failed to fetch miller information');
+            }
+            const millersData = await millerResponse.json();
+            const ourMiller = millersData.find(miller => miller.userId === user.id);
+            
+            if (!ourMiller) {
+                throw new Error('Miller not found for current user');
+            }
+    
+            // Then fetch and filter transactions using our miller's ID
+            const response = await fetch(`${apiUrl}/transactions`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch transactions');
+            }
+            
+            const data = await response.json();
+            
+            // Filter transactions where our miller is either sender or receiver
+            const userTransactions = data.filter(transaction => 
+                transaction.fromLocationId === ourMiller.id || 
+                transaction.toLocationId === ourMiller.id
+            );
+    
+            const transformedTransactions = userTransactions.map(transaction => ({
+                ...transaction,
+                date: new Date(transaction.sendDateTime || transaction.receiveDateTime),
+                description: `Transaction ${transaction.id} - ${transaction.item}`,
+                displayStatus: getDisplayStatus(transaction)
+            }));
+    
+            setAllTransactions(transformedTransactions);
+        } catch (error) {
+            console.error('Error fetching transactions:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const getDisplayStatus = (transaction) => {
+        if (transaction.status === "Completed") return "RETURNED";
+        if (transaction.status === "Received") return "MILLED";
+        return "RECEIVED"; // For Pending or other statuses
+    };
+
     const displayModeOptions = [
         { label: 'Weekly', value: 'weekly' },
         { label: 'Monthly', value: 'monthly' },
         { label: 'Annually', value: 'annually' },
     ];
 
-    // Mock data with varied dates
-    const mockRice = [
-        { id: 1, status: 'RECEIVED', date: new Date(2024, 9, 1), description: 'Rice 1' },
-        { id: 2, status: 'MILLED', date: new Date(2024, 9, 2), description: 'Rice 2' },
-        { id: 3, status: 'RETURNED', date: new Date(2024, 9, 5), description: 'Rice 3' },
-        { id: 4, status: 'RECEIVED', date: new Date(2024, 9, 10), description: 'Rice 4' },
-        { id: 5, status: 'RECEIVED', date: new Date(2024, 9, 15), description: 'Rice 5' },
-        { id: 6, status: 'MILLED', date: new Date(2024, 8, 25), description: 'Rice 6' },
-        { id: 7, status: 'RETURNED', date: new Date(2024, 8, 28), description: 'Rice 7' },
-        { id: 8, status: 'MILLED', date: new Date(2024, 7, 15), description: 'Rice 8' },
-        { id: 9, status: 'RECEIVED', date: new Date(2024, 7, 20), description: 'Rice 9' },
-        { id: 10, status: 'RETURNED', date: new Date(2024, 6, 1), description: 'Rice 10' },
-        { id: 11, status: 'RECEIVED', date: new Date(2024, 5, 15), description: 'Rice 11' },
-        { id: 12, status: 'MILLED', date: new Date(2024, 4, 1), description: 'Rice 12' },
-        { id: 13, status: 'RETURNED', date: new Date(2023, 11, 25), description: 'Rice 13' },
-        { id: 14, status: 'RECEIVED', date: new Date(2023, 10, 10), description: 'Rice 14' },
-        { id: 15, status: 'RETURNED', date: new Date(2023, 9, 5), description: 'Rice 15' },
-    ];
-
-    useEffect(() => {
-        filterOrders();
-    }, [selectedFilter, currentDate, globalFilterValue, showAll]);
-
-    const filterOrders = () => {
-        let filtered = [...mockRice];
+    const filterTransactions = () => {
+        let filtered = [...allTransactions];
 
         if (!showAll) {
-            // Apply date range filter
-            filtered = filtered.filter(order => {
+            filtered = filtered.filter(transaction => {
+                const transactionDate = new Date(transaction.date);
+                
                 if (selectedFilter === 'weekly') {
                     const weekStart = new Date(currentDate);
                     const weekEnd = new Date(weekStart);
                     weekEnd.setDate(weekStart.getDate() + 6);
-                    return order.date >= weekStart && order.date <= weekEnd;
+                    return transactionDate >= weekStart && transactionDate <= weekEnd;
                 } else if (selectedFilter === 'monthly') {
-                    return order.date.getMonth() === currentDate.getMonth() &&
-                           order.date.getFullYear() === currentDate.getFullYear();
+                    return transactionDate.getMonth() === currentDate.getMonth() &&
+                           transactionDate.getFullYear() === currentDate.getFullYear();
                 } else {
-                    return order.date.getFullYear() === currentDate.getFullYear();
+                    return transactionDate.getFullYear() === currentDate.getFullYear();
                 }
             });
         }
 
-        // Apply global filter
         if (globalFilterValue) {
-            filtered = filtered.filter(order =>
-                order.description.toLowerCase().includes(globalFilterValue.toLowerCase())
-            );
+            const searchTerm = globalFilterValue.toLowerCase();
+            filtered = filtered.filter(transaction => {
+                const transactionIdMatch = transaction.id.toString().includes(searchTerm);
+                const statusMatch = transaction.displayStatus.toLowerCase().includes(searchTerm);
+                const itemMatch = transaction.item.toLowerCase().includes(searchTerm);
+                
+                return transactionIdMatch || statusMatch || itemMatch;
+            });
         }
 
-        setFilteredOrders(filtered);
+        setFilteredTransactions(filtered);
     };
 
     const toggleShowAll = () => {
         setShowAll(!showAll);
     };
 
+    const handleShowDetails = (transaction) => {
+        setSelectedTransaction(transaction);
+        setShowDetailsDialog(true);
+    };
+
     return (
         <PrivateMillerLayout activePage="History" user={user}>
             <div className="flex flex-col px-10 py-2 h-full bg-[#F1F5F9]">
+                {/* Header Section */}
                 <div className="flex flex-col justify-center items-center p-10 h-1/4 rounded-lg bg-gradient-to-r from-primary to-secondary mb-2">
                     <h1 className="text-5xl h-full text-white font-bold mb-2">History</h1>
                     <span className="p-input-icon-left w-1/2 mr-4">
@@ -151,13 +203,13 @@ function History() {
                             type="search"
                             value={globalFilterValue} 
                             onChange={(e) => setGlobalFilterValue(e.target.value)} 
-                            placeholder="Tap to Search" 
+                            placeholder="Search by ID, status (RETURNED, MILLED, RECEIVED) or item..." 
                             className="w-full pl-10 pr-4 py-2 rounded-full text-primary border border-gray-300 ring-0 placeholder:text-primary"
                         />
                     </span>
                 </div>
 
-                {/* Buttons & Filters */}
+                {/* Filters Section */}
                 <div className="flex items-center space-x-4 p-4 rounded-lg mb-4">
                     <Button 
                         label="All" 
@@ -179,34 +231,93 @@ function History() {
                     />
                 </div>
 
-                {/* Data */}
-                <div className=" overflow-hidden">
+                {/* Transactions List */}
+                <div className="overflow-hidden">
                     <div className="max-h-[calc(100vh-300px)] overflow-y-auto">
-                        {filteredOrders.map((order) => (
-                            <div key={order.id} className="flex items-center justify-between p-4 border-b bg-white rounded-xl mb-4">
-                                <div className="flex items-center">
-                                    <img src="/profileAvatar.png" alt="User" className="rounded-full mr-4 h-16 w-16" />
-                                    <span>{order.description}</span>
-                                    <Tag
-                                        value={order.status}
-                                        severity={
-                                            order.status === 'RETURNED' ? 'success'
-                                            : order.status === 'MILLED' ? 'info'
-                                            : order.status === 'RECEIVED' ? 'warning'
-                                            : 'danger' // Default to danger for other statuses
-                                        }
-                                        className="ml-4"
-                                    />
-                                </div>
-                                <div className="flex items-center">
-                                    <span className="mr-4">{order.date.toLocaleDateString()}</span>
-                                    <Button icon="pi pi-ellipsis-v" className="p-button-text" />
-                                </div>
+                        {isLoading ? (
+                            <div className="flex justify-center items-center p-4">
+                                Loading transactions...
                             </div>
-                        ))}
+                        ) : filteredTransactions.length === 0 ? (
+                            <div className="flex justify-center items-center p-4">
+                                No transactions found
+                            </div>
+                        ) : (
+                            filteredTransactions.map((transaction) => (
+                                <div key={transaction.id} className="flex items-center justify-between p-4 border-b bg-white rounded-xl mb-4">
+                                    <div className="flex items-center">
+                                        <img src="/profileAvatar.png" alt="User" className="rounded-full mr-4 h-16 w-16" />
+                                        <span>{transaction.description}</span>
+                                        <Tag
+                                            value={transaction.displayStatus}
+                                            severity={
+                                                transaction.displayStatus === 'RETURNED' ? 'success'
+                                                : transaction.displayStatus === 'MILLED' ? 'info'
+                                                : transaction.displayStatus === 'RECEIVED' ? 'warning'
+                                                : 'danger'
+                                            }
+                                            className="ml-4"
+                                        />
+                                    </div>
+                                    <div className="flex items-center">
+                                        <span className="mr-4">{transaction.date.toLocaleDateString()}</span>
+                                        <Button icon="pi pi-ellipsis-v" className="p-button-text" onClick={() => handleShowDetails(transaction)}/>
+                                    </div>
+                                </div>
+                            ))
+                        )}
                     </div>
                 </div>
             </div>
+
+            <Dialog 
+                visible={showDetailsDialog} 
+                onHide={() => setShowDetailsDialog(false)}
+                header="Transaction Details"
+                className="w-full md:w-[32rem]"
+            >
+                {selectedTransaction && (
+                    <div className="space-y-4">
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="font-semibold">Transaction ID:</div>
+                            <div>{selectedTransaction.id}</div>
+
+                            <div className="font-semibold">Item:</div>
+                            <div>{selectedTransaction.item}</div>
+
+                            <div className="font-semibold">Status:</div>
+                            <div>
+                                <Tag
+                                    value={selectedTransaction.displayStatus}
+                                    severity={
+                                        selectedTransaction.displayStatus === 'RETURNED' ? 'success'
+                                        : selectedTransaction.displayStatus === 'MILLED' ? 'info'
+                                        : selectedTransaction.displayStatus === 'RECEIVED' ? 'warning'
+                                        : 'danger'
+                                    }
+                                />
+                            </div>
+
+                            <div className="font-semibold">Date:</div>
+                            <div>{selectedTransaction.date.toLocaleDateString()}</div>
+
+                            <div className="font-semibold">Send Date/Time:</div>
+                            <div>{selectedTransaction.sendDateTime}</div>
+
+                            <div className="font-semibold">Receive Date/Time:</div>
+                            <div>{selectedTransaction.receiveDateTime}</div>
+
+                            <div className="font-semibold">From Location:</div>
+                            <div>{selectedTransaction.fromLocationId}</div>
+
+                            <div className="font-semibold">To Location:</div>
+                            <div>{selectedTransaction.toLocationId}</div>
+
+                            {/* Add any additional transaction details you want to display */}
+                        </div>
+                    </div>
+                )}
+            </Dialog>
         </PrivateMillerLayout>
     );
 }

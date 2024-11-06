@@ -1,5 +1,6 @@
 import { BaseEntity, Column, Entity, PrimaryColumn, BeforeInsert, LessThan, OneToMany } from 'typeorm';
 import { RiceBatchMillingBatch } from '../riceBatchMillingBatches/db';
+import { Transaction } from '../transactions/db';
 
 @Entity()
 export class RiceBatch extends BaseEntity {
@@ -32,6 +33,9 @@ export class RiceBatch extends BaseEntity {
 
     @Column({ default: false })
     forSale: boolean;
+
+    @OneToMany(() => Transaction, transaction => transaction.riceBatch)
+    transactions: Transaction[];
 
     @OneToMany(() => RiceBatchMillingBatch, riceBatchMillingBatch => riceBatchMillingBatch.riceBatch)
     riceBatchMillingBatches: RiceBatchMillingBatch[];

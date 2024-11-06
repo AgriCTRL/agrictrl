@@ -15,6 +15,7 @@ import AcceptOrder from './AcceptOrder';
 import DeclineOrder from './DeclineOrder';
 import SendOrder from './SendOrder';
 import DeclineDetails from './DeclineDetails';
+import OrderDetails from './OrderDetails';
 
 function Distribution() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -44,6 +45,9 @@ function Distribution() {
     const [declineReason, setDeclineReason] = useState('');
     const [declinedDetails, setDeclinedDetails] = useState({});
 
+    const [showOrderDetailsDialog, setShowOrderDetailsDialog] = useState(false);
+    const [orderDetails, setOrderDetails] = useState({});
+
     const [sendOrderData, setSendOrderData] = useState({});
     
 
@@ -51,7 +55,8 @@ function Distribution() {
         ACCEPT: 'accept',
         DECLINE: 'decline',
         SEND: 'send',
-        VIEW_DETAILS: 'view_details'
+        VIEW_DETAILS: 'view_details',
+        VIEW_ORDER_DETAILS: 'view_order_details'
     };
 
     useEffect(() => {
@@ -154,6 +159,8 @@ function Distribution() {
             case 'for approval': return 'warning';
             case 'accepted': return 'success';
             case 'declined': return 'danger';
+            case 'in transit': return 'info';
+            case 'received': return 'success';
             default: return 'info';
         }
     };
@@ -275,6 +282,17 @@ function Distribution() {
                 });
                 setShowDeclinedDetailsDialog(true);
                 break;
+
+            case ACTION_TYPES.VIEW_ORDER_DETAILS:
+                setOrderDetails({
+                    orderID: rowData.id,
+                    quantity: rowData.riceQuantityBags,
+                    description: rowData.description,
+                    orderDate: new Date(rowData.orderDate).toISOString().split('T')[0],
+                    status: rowData.status
+                });
+                setShowOrderDetailsDialog(true);
+                break;
             
             default:
                 console.warn('Unknown action type:', actionType);
@@ -317,6 +335,15 @@ function Distribution() {
                         onClick={() => handleActionClick(ACTION_TYPES.VIEW_DETAILS, rowData)} 
                     />
                 );
+            case 'In Transit':
+            case 'Received':
+                return (
+                    <Button 
+                        label="View Details"
+                        className="p-button-primary p-button-sm ring-0"
+                        onClick={() => handleActionClick(ACTION_TYPES.VIEW_ORDER_DETAILS, rowData)} 
+                    />
+                );
             default:
                 return null;
         }
@@ -330,10 +357,6 @@ function Distribution() {
         });
     };
 
-    const orderIdBodyTemplate = (rowData) => {
-        return `0304-${rowData.id}`;
-    };
-
     const filteredData = ordersData.filter(item => {
         switch(selectedFilter) {
             case 'request':
@@ -343,7 +366,7 @@ function Distribution() {
             case 'declined':
                 return item.status === 'Declined';
             case 'delivered':
-                return item.status === 'In Transit' || item.status === 'Delivered';
+                return item.status === 'In Transit' || item.status === 'Received';
             default:
                 return true;
         }
@@ -427,19 +450,12 @@ function Distribution() {
                         paginator
                         rows={10}
                     > 
-                        <Column field="id" header="Order ID" body={orderIdBodyTemplate} className="text-center" headerClassName="text-center" />
+                        <Column field="id" header="Order ID" className="text-center" headerClassName="text-center" />
                         <Column field="dropOffLocation" header="To Be Deliver At" className="text-center" headerClassName="text-center" />
                         <Column field="riceQuantityBags" header="Bags to Deliver" className="text-center" headerClassName="text-center" />
                         <Column field="orderDate" header="Date Ordered" body={(rowData) => dateBodyTemplate(rowData, 'orderDate')} className="text-center" headerClassName="text-center" />
                         <Column field="orderedBy" header="Ordered By" className="text-center" headerClassName="text-center" />
-                        <Column field="status" header="Status" body={(rowData) => {
-                                    if (rowData.status === 'In Transit') {
-                                        return <Tag value="Delivered" severity="info" className="text-sm px-3 py-1 rounded-lg" />;
-                                    } else {
-                                        return statusBodyTemplate(rowData);
-                                    }
-                                }} className="text-center" headerClassName="text-center" 
-                        />
+                        <Column field="status" header="Status" body={statusBodyTemplate} className="text-center" headerClassName="text-center" />
                         <Column body={actionBodyTemplate} header="Action" className="text-center" headerClassName="text-center"/>
                     </DataTable>
                     </div>
@@ -483,6 +499,14 @@ function Distribution() {
                 formatDate={formatDate}
                 selectedOrder={selectedOrder}
                 onUpdate={onUpdate}
+            />
+
+            <OrderDetails 
+                visible={showOrderDetailsDialog}
+                onHide={() => setShowOrderDetailsDialog(false)}
+                isLoading={isLoading}
+                orderDetails={orderDetails}
+                formatDate={formatDate}
             />
 
         </StaffLayout> 
