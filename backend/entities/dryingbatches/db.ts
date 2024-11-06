@@ -122,3 +122,12 @@ export async function updateDryingBatch(dryingBatchUpdate: DryingBatchUpdate): P
 
     return dryingBatch;
 }
+
+export async function getTotalQuantityBags(): Promise<number> {
+    const result = await DryingBatch
+        .createQueryBuilder('dryingBatch')
+        .select('SUM(dryingBatch.driedQuantityBags)', 'total')
+        .getRawOne();
+    
+    return result?.total || 0;
+}

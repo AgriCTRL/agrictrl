@@ -1,11 +1,74 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import StaffLayout from '@/Layouts/StaffLayout';
 import { Carousel } from 'primereact/carousel';
 import { Fan, Loader2, Undo2, CheckCircle2 } from "lucide-react";
 import { useAuth } from '../../Authentication/Login/AuthContext';
 
 function Home({ isRightSidebarOpen }) {
-    const { user } = useAuth(); 
+    const { user } = useAuth();
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    const [totalPalayBought, setTotalPalayBought] = useState(0);
+    const [totalPalayWarehouse, setTotalPalayWarehouse] = useState(0);
+    const [totalPalayProcessed, setTotalPalayProcessed] = useState(0);
+    const [totalRiceWarehouse, setTotalRiceWarehouse] = useState(0);
+    const [totalRiceDelivered, setTotalRiceDelivered] = useState(0);
+
+    const [ palayCount, setPalayCount ] = useState(0);
+    const [ processedCount, setProcessedCount ] = useState(0);
+    const [ distributedCount, setDistributedCount ] = useState(0);
+
+    const fetchData = async () => {
+        const palayCountRes = await fetch(`${apiUrl}/palaybatches/count`);
+        setPalayCount(await palayCountRes.json());
+        const millingCountRes = await fetch(`${apiUrl}/millingbatches/count`);
+        const millingCount = await millingCountRes.json();
+        const dryingCountRes = await fetch(`${apiUrl}/dryingbatches/count`);
+        const dryingCount = await dryingCountRes.json();
+        setProcessedCount( millingCount + dryingCount );
+        const distributeCountRes = await fetch(`${apiUrl}/riceorders/received/count`);
+        setDistributedCount(await distributeCountRes.json());
+    }
+
+    const fetchTotalPalayBought = async () => {
+        const res = await fetch(`${apiUrl}/palaybatches/totals/quantity-bags`);
+        const count = await res.json();
+        setTotalPalayBought(count.total);
+    }
+
+    const fetchTotalPalayWarehouse = async () => {
+        const res = await fetch(`${apiUrl}/palaybatches/totals/palay-quantity-bags`);
+        const count = await res.json();
+        setTotalPalayWarehouse(count.total);
+    }
+
+    const fetchTotalPalayProcessed = async () => {
+        const dryingRes = await fetch(`${apiUrl}/dryingbatches/totals/quantity-bags`);
+        const dryingCount = await dryingRes.json();
+        const millingRes = await fetch(`${apiUrl}/millingbatches/totals/quantity-bags`);
+        const millingCount = await millingRes.json();
+        setTotalPalayProcessed(dryingCount.total + millingCount.total);
+    }
+
+    const fetchTotalRiceWarehouse = async () => {
+        const res = await fetch(`${apiUrl}/palaybatches/totals/rice-quantity-bags`);
+        const count = await res.json();
+        setTotalRiceWarehouse(count.total);
+    }
+
+    const fetchTotalRiceDelivered = async () => {
+        const res = await fetch(`${apiUrl}/riceorders/totals/quantity-bags`);
+        const count = await res.json();
+        setTotalRiceDelivered(count.total);
+    }
+
+    useEffect(() => {
+        fetchData();
+        fetchTotalPalayBought();
+        fetchTotalPalayWarehouse();
+        fetchTotalPalayProcessed();
+        fetchTotalRiceWarehouse();
+        fetchTotalRiceDelivered();
+    }, []);
 
     const [carouselItems] = useState([
         {
@@ -26,17 +89,17 @@ function Home({ isRightSidebarOpen }) {
     ]);
 
     const statistics = [
-        { icon: Fan, title: "Total Palay Bought", date: "MM/DD/YYYY", value: 100 },
-        { icon: Fan, title: "Total Palay in Warehouse", date: "MM/DD/YYYY", value: 500 },
-        { icon: Fan, title: "Total Palay Processed", date: "MM/DD/YYYY", value: 1000 },
-        { icon: Fan, title: "Total Rice in Warehouse", date: "MM/DD/YYYY", value: 1500 },
-        { icon: Fan, title: "Total Rice Delivered", date: "MM/DD/YYYY", value: 800 },
+        { icon: Fan, title: "Total Palay Bought", date: "MM/DD/YYYY", value: totalPalayBought },
+        { icon: Fan, title: "Total Palay in Warehouse", date: "MM/DD/YYYY", value: totalPalayWarehouse },
+        { icon: Fan, title: "Total Palay Processed", date: "MM/DD/YYYY", value: totalPalayProcessed },
+        { icon: Fan, title: "Total Rice in Warehouse", date: "MM/DD/YYYY", value: totalRiceWarehouse },
+        { icon: Fan, title: "Total Rice Delivered", date: "MM/DD/YYYY", value: totalRiceDelivered },
     ];
 
     const personalStats = [
-        { icon: Loader2, title: "Palay Bought", value: 9 },
-        { icon: Undo2, title: "Processed", value: 4 },
-        { icon: CheckCircle2, title: "Distributed", value: 2 },
+        { icon: Loader2, title: "Palay Bought", value: palayCount },
+        { icon: Undo2, title: "Processed", value: processedCount },
+        { icon: CheckCircle2, title: "Distributed", value: distributedCount },
     ];
 
     return (
@@ -147,7 +210,7 @@ function Home({ isRightSidebarOpen }) {
 
                                     <div className="flex flex-row justify-center rounded-lg font-semibold space-x-1 p-1 mb-2 mx-14 bg-gray-300">
                                         <h1>{stat.value}</h1>
-                                        <h1>mt</h1>
+                                        <h1>bags</h1>
                                     </div>
                                 </div>
                             </div>
