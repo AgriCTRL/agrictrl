@@ -119,16 +119,76 @@ const RegistrationPageContent = () => {
 		}
 	};
 
+	const validatePasswordFields = () => {
+		const { password, confirmPassword } = credsInfo;
+		let isValid = true;
+	
+		// Password requirements validation
+		const passwordRegex = {
+		  lowercase: /[a-z]/,
+		  uppercase: /[A-Z]/,
+		  number: /\d/,
+		  minLength: 8
+		};
+	
+		if (password.length < passwordRegex.minLength) {
+		  toast.current.show({
+			severity: 'error',
+			summary: 'Error',
+			detail: 'Password must be at least 8 characters long',
+			life: 5000
+		  });
+		  isValid = false;
+		}
+	
+		if (!passwordRegex.lowercase.test(password)) {
+		  toast.current.show({
+			severity: 'error',
+			summary: 'Error',
+			detail: 'Password must contain at least one lowercase letter',
+			life: 5000
+		  });
+		  isValid = false;
+		}
+	
+		if (!passwordRegex.uppercase.test(password)) {
+		  toast.current.show({
+			severity: 'error',
+			summary: 'Error',
+			detail: 'Password must contain at least one uppercase letter',
+			life: 5000
+		  });
+		  isValid = false;
+		}
+	
+		if (!passwordRegex.number.test(password)) {
+		  toast.current.show({
+			severity: 'error',
+			summary: 'Error',
+			detail: 'Password must contain at least one number',
+			life: 5000
+		  });
+		  isValid = false;
+		}
+	
+		// Check if passwords match
+		if (password !== confirmPassword) {
+		  toast.current.show({
+			severity: 'error',
+			summary: 'Error',
+			detail: 'Passwords do not match',
+			life: 5000
+		  });
+		  isValid = false;
+		}
+	
+		return isValid;
+	  };
+
 	const handleRegister = async (e) => {
 		e.preventDefault();
 
-		if (!confirmPasswordValid) {
-			toast.current.show({
-			severity: "error",
-			summary: "Error",
-			detail: "Passwords do not match.",
-			life: 3000,
-			});
+		if (!validatePasswordFields()) {
 			return;
 		}
 
