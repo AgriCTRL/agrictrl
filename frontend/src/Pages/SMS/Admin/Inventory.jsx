@@ -13,7 +13,7 @@ import { Search, CircleAlert, Settings2, FileX, Download, Filter, PackageOpen } 
 
 import AdminLayout from '@/Layouts/AdminLayout';
 import EmptyRecord from '../../../Components/EmptyRecord';
-import pdfLandscapeExport from '../../../Components/pdfLandscapeExport';
+import pdfLandscapeExport from '../../../Components/Pdf/pdfLandscapeExport';
 
 function Inventory() { 
     const apiUrl = import.meta.env.VITE_API_BASE_URL;

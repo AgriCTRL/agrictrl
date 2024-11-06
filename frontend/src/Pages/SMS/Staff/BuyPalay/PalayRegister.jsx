@@ -2,11 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 
 import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
-import { InputTextarea } from 'primereact/inputtextarea';
-import { Dropdown } from 'primereact/dropdown';
-import { Calendar } from 'primereact/calendar';
 import { Toast } from 'primereact/toast';
-import { InputText } from 'primereact/inputtext';
+
+import { WSR } from '../../../../Components/Pdf/pdfWarehouseStockReceipt';
 
 import { Wheat, UserIcon, CheckIcon, TruckIcon } from 'lucide-react';
 
@@ -397,6 +395,9 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                     itemId: palayId
                 })
             });
+
+            const transactionResult = await transactionResponse.json();
+            const transactionId = transactionResult.id;
     
             if (!transactionResponse.ok) {
                 throw new Error('Failed to submit transaction data');
@@ -408,7 +409,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
             if (!targetWarehouse) {
                 throw new Error('Target warehouse not found');
             }
-    
+
             const newStock = Number(palayData.quantityBags) + Number(targetWarehouse.currentStock);
     
             const warehouseResponse = await fetch(`${apiUrl}/warehouses/update`, {
@@ -421,10 +422,20 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                     currentStock: newStock
                 })
             });
-    
+
             if (!warehouseResponse.ok) {
                 throw new Error('Failed to update warehouse stock');
             }
+
+            // generate WSR
+            const receiptData = {
+                ...palayData,
+                ...transactionData,
+                palayId,
+                transactionId
+            };
+            const pdf = WSR(receiptData);
+            pdf.save(`WSR-${palayId}.pdf`);
     
             // Reset states and show success message
             setPalayData(initialPalayData);
@@ -439,6 +450,8 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
     
             onPalayRegistered(palayResult);
             onHide();
+
+            
     
             refreshData();
         } catch (error) {

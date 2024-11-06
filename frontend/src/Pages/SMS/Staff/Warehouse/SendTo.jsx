@@ -6,6 +6,8 @@ import { Dropdown } from "primereact/dropdown";
 import { InputTextarea } from "primereact/inputtextarea";
 import { Toast } from "primereact/toast";
 
+import { WSI } from "../../../../Components/Pdf/pdfWarehouseStockIssue";
+
 const initialNewTransactionData = {
   item: "",
   itemId: "",
@@ -50,9 +52,9 @@ const SendTo = ({
     if (selectedItem.palayStatus === "To be Dry") {
       return dryerData
         .filter(
-          (dryer) => 
-            dryer.status === "active" && 
-            (Number(dryer.capacity) - Number(dryer.processing)) >= quantityBags
+          (dryer) =>
+            dryer.status === "active" &&
+            Number(dryer.capacity) - Number(dryer.processing) >= quantityBags
         )
         .map((dryer) => ({
           label: dryer.dryerName.toString(),
@@ -65,9 +67,9 @@ const SendTo = ({
     if (selectedItem.palayStatus === "To be Mill") {
       return millerData
         .filter(
-          (miller) => 
-            miller.status === "active" && 
-            (Number(miller.capacity) - Number(miller.processing)) >= quantityBags
+          (miller) =>
+            miller.status === "active" &&
+            Number(miller.capacity) - Number(miller.processing) >= quantityBags
         )
         .map((miller) => ({
           label: miller.millerName.toString(),
@@ -230,17 +232,20 @@ const SendTo = ({
 
       // Update facility processing capacity
       const selectedFacility = getAvailableFacilities().find(
-        facility => facility.value === newTransactionData.toLocationId
+        (facility) => facility.value === newTransactionData.toLocationId
       );
 
       if (!selectedFacility) {
         throw new Error("Selected facility not found");
       }
 
-      const newProcessing = Number(selectedFacility.currentProcessing) + Number(selectedItem.quantityBags);
-      const facilityEndpoint = selectedItem.palayStatus === "To be Dry" 
-        ? `${apiUrl}/dryers/update`
-        : `${apiUrl}/millers/update`;
+      const newProcessing =
+        Number(selectedFacility.currentProcessing) +
+        Number(selectedItem.quantityBags);
+      const facilityEndpoint =
+        selectedItem.palayStatus === "To be Dry"
+          ? `${apiUrl}/dryers/update`
+          : `${apiUrl}/millers/update`;
 
       const facilityResponse = await fetch(facilityEndpoint, {
         method: "POST",
@@ -256,6 +261,27 @@ const SendTo = ({
       if (!facilityResponse.ok) {
         throw new Error("Failed to update facility processing capacity");
       }
+
+      const currentDate = new Date();
+      currentDate.setHours(currentDate.getHours()+8);
+
+      const data = {
+        palayBatchId: selectedItem.id,
+        palayBatchStatus: selectedItem.palayStatus,
+        currentLocation: newTransactionData.toLocationName,
+        transactionId: transactionResult.id,
+        senderId: user.id,
+        fromLocationType: "Warehouse",
+        fromLocationId: selectedItem.toLocationId,
+        sendDate: currentDate,
+        toLocationType: toLocationType,
+        toLocationId: newTransactionData.toLocationId,
+        warehouseName: targetWarehouse.facilityName,
+        currentStock: 1500,
+      };
+
+      const pdf = WSI(data);
+      pdf.save(`WSI-${selectedItem.id}.pdf`);
 
       onSendSuccess();
       onHide();

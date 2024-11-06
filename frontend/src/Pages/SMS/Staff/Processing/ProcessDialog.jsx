@@ -19,6 +19,7 @@ const ProcessDialog = ({
 }) => {
   const toast = useRef(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState({});
 
   if (!selectedItem) {
     return null;
@@ -112,6 +113,7 @@ const ProcessDialog = ({
   };
 
   const handleProcess = async () => {
+    if (!validateForm()) return;
     if (!selectedItem) {
       return;
     }
@@ -120,12 +122,15 @@ const ProcessDialog = ({
       let updateData;
       let endpoint;
 
+      const currentDate = new Date();
+      currentDate.setHours(currentDate.getHours()+8);
+
       if (viewMode === "drying") {
         updateData = {
           id: selectedItem.dryingBatchId,
           dryerId: selectedItem.toLocationId,
           dryingMethod: newDryingData.dryingMethod,
-          endDateTime: new Date().toISOString(),
+          endDateTime: currentDate.toISOString(),
           driedQuantityBags: parseInt(newDryingData.driedQuantityBags),
           driedGrossWeight: parseFloat(newDryingData.driedGrossWeight),
           driedNetWeight: parseFloat(newDryingData.driedNetWeight),
@@ -139,7 +144,7 @@ const ProcessDialog = ({
           palayBatchId: selectedItem.palayBatchId,
           millerId: selectedItem.toLocationId,
           millerType: selectedItem.millerType,
-          endDateTime: new Date().toISOString(),
+          endDateTime: currentDate.toISOString(),
           milledGrossWeight: parseFloat(newMillingData.milledGrossWeight),
           milledQuantityBags: parseInt(newMillingData.milledQuantityBags),
           milledNetWeight: parseFloat(newMillingData.milledNetWeight),
@@ -196,9 +201,108 @@ const ProcessDialog = ({
         detail: `Failed to complete process: ${error.message}`,
         life: 3000,
       });
-    } finally { 
-      setIsLoading(false) 
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  const validateForm = () => {
+    let newErrors = {};
+
+    if (viewMode === "milling") {
+      if (!newMillingData.milledQuantityBags) {
+        newErrors.milledQuantityBags = "Please enter milled quantity";
+        toast.current.show({
+          severity: "error",
+          summary: "Error",
+          detail: "Please enter milled quantity",
+          life: 3000,
+        });
+      }
+
+      if (!newMillingData.milledGrossWeight) {
+        newErrors.milledGrossWeight = "Please enter milled gross weight";
+        toast.current.show({
+          severity: "error",
+          summary: "Error",
+          detail: "Please enter milled gross weight",
+          life: 3000,
+        });
+      }
+
+      if (!newMillingData.milledNetWeight) {
+        newErrors.milledNetWeight = "Please enter dried net weight";
+        toast.current.show({
+          severity: "error",
+          summary: "Error",
+          detail: "Please enter dried net weight",
+          life: 3000,
+        });
+      }
+
+      if (!newMillingData.millingEfficiency) {
+        newErrors.millingEfficiency = "Please enter milling efficiency";
+        toast.current.show({
+          severity: "error",
+          summary: "Error",
+          detail: "Please enter milling efficiency",
+          life: 3000,
+        });
+      }
+    } else if (viewMode === "drying") {
+      if (!newDryingData.driedQuantityBags) {
+        newErrors.driedQuantityBags = "Please enter dried quantity";
+        toast.current.show({
+          severity: "error",
+          summary: "Error",
+          detail: "Please enter dried quantity",
+          life: 3000,
+        });
+      }
+
+      if (!newDryingData.driedGrossWeight) {
+        newErrors.driedGrossWeight = "Please enter dried gross weight";
+        toast.current.show({
+          severity: "error",
+          summary: "Error",
+          detail: "Please enter dried gross weight",
+          life: 3000,
+        });
+      }
+
+      if (!newDryingData.driedNetWeight) {
+        newErrors.driedNetWeight = "Please enter dried net weight";
+        toast.current.show({
+          severity: "error",
+          summary: "Error",
+          detail: "Please enter dried net weight",
+          life: 3000,
+        });
+      }
+
+      if (!newDryingData.moistureContent) {
+        newErrors.moistureContent = "Please enter moisture content";
+        toast.current.show({
+          severity: "error",
+          summary: "Error",
+          detail: "Please enter moisture content",
+          life: 3000,
+        });
+      }
+
+      if (!newDryingData.dryingMethod) {
+        newErrors.dryingMethod = "Please enter drying method";
+        toast.current.show({
+          severity: "error",
+          summary: "Error",
+          detail: "Please enter drying method",
+          life: 3000,
+        });
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   return (
@@ -227,7 +331,13 @@ const ProcessDialog = ({
                 className="w-full ring-0"
                 keyfilter="num"
               />
+              {errors.driedQuantityBags && (
+                <div className="text-red-500 text-sm mt-1">
+                  {errors.driedQuantityBags}
+                </div>
+              )}
             </div>
+
             <div className="w-full">
               <label className="block mb-2">Dried Gross Weight (Kg)</label>
               <InputText
@@ -242,7 +352,13 @@ const ProcessDialog = ({
                 className="w-full ring-0"
                 keyfilter="num"
               />
+              {errors.driedGrossWeight && (
+                <div className="text-red-500 text-sm mt-1">
+                  {errors.driedGrossWeight}
+                </div>
+              )}
             </div>
+
             <div className="w-full">
               <label className="block mb-2">Dried Net Weight (Kg)</label>
               <InputText
@@ -257,7 +373,13 @@ const ProcessDialog = ({
                 className="w-full ring-0"
                 keyfilter="num"
               />
+              {errors.driedNetWeight && (
+                <div className="text-red-500 text-sm mt-1">
+                  {errors.driedNetWeight}
+                </div>
+              )}
             </div>
+
             <div className="w-full">
               <label className="block mb-2">Moisture Content (%)</label>
               <InputText
@@ -272,7 +394,13 @@ const ProcessDialog = ({
                 className="w-full ring-0"
                 keyfilter="num"
               />
+              {errors.moistureContent && (
+                <div className="text-red-500 text-sm mt-1">
+                  {errors.moistureContent}
+                </div>
+              )}
             </div>
+
             <div className="w-full">
               <label className="block mb-2">Drying Method</label>
               <Dropdown
@@ -290,6 +418,11 @@ const ProcessDialog = ({
                 className="w-full"
                 placeholder="Select Drying Method"
               />
+              {errors.dryingMethod && (
+                <div className="text-red-500 text-sm mt-1">
+                  {errors.dryingMethod}
+                </div>
+              )}
             </div>
           </>
         ) : (
@@ -307,7 +440,13 @@ const ProcessDialog = ({
                 className="w-full ring-0"
                 keyfilter="num"
               />
+              {errors.milledQuantityBags && (
+                <div className="text-red-500 text-sm mt-1">
+                  {errors.milledQuantityBags}
+                </div>
+              )}
             </div>
+
             <div className="w-full">
               <label className="block mb-2">Milled Gross Weight (Kg)</label>
               <InputText
@@ -322,7 +461,13 @@ const ProcessDialog = ({
                 className="w-full ring-0"
                 keyfilter="num"
               />
+              {errors.milledGrossWeight && (
+                <div className="text-red-500 text-sm mt-1">
+                  {errors.milledGrossWeight}
+                </div>
+              )}
             </div>
+
             <div className="w-full">
               <label className="block mb-2">Milled Net Weight (Kg)</label>
               <InputText
@@ -337,7 +482,13 @@ const ProcessDialog = ({
                 className="w-full ring-0"
                 keyfilter="num"
               />
+              {errors.milledNetWeight && (
+                <div className="text-red-500 text-sm mt-1">
+                  {errors.milledNetWeight}
+                </div>
+              )}
             </div>
+
             <div className="w-full">
               <label className="block mb-2">Milling Efficiency (%)</label>
               <InputText
@@ -352,6 +503,11 @@ const ProcessDialog = ({
                 className="w-full ring-0"
                 keyfilter="num"
               />
+              {errors.millingEfficiency && (
+                <div className="text-red-500 text-sm mt-1">
+                  {errors.millingEfficiency}
+                </div>
+              )}
             </div>
           </>
         )}

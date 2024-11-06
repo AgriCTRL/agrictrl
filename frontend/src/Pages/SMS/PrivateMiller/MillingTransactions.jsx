@@ -52,6 +52,7 @@ const MillingTransactions = () => {
   const [filters, setFilters] = useState({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
   });
+  const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState("request");
   const [selectedItem, setSelectedItem] = useState(null);
@@ -64,27 +65,31 @@ const MillingTransactions = () => {
   const [warehouses, setWarehouses] = useState([]);
   const [millerData, setMillerData] = useState([]);
   const [newMillingData, setNewMillingData] = useState(initialMillingData);
-  const [newTransactionData, setNewTransactionData] = useState(initialTransactionData);
+  const [newTransactionData, setNewTransactionData] = useState(
+    initialTransactionData
+  );
 
   const filteredWarehouses = warehouses
-  .filter((warehouse) => {
-    const requiredQuantity = parseInt(newMillingData?.milledQuantityBags || 0);
-    const hasEnoughCapacity =
-      warehouse.status === "active" &&
-      warehouse.totalCapacity - warehouse.currentStock >= requiredQuantity;
+    .filter((warehouse) => {
+      const requiredQuantity = parseInt(
+        newMillingData?.milledQuantityBags || 0
+      );
+      const hasEnoughCapacity =
+        warehouse.status === "active" &&
+        warehouse.totalCapacity - warehouse.currentStock >= requiredQuantity;
 
-    const warehouseName = warehouse.facilityName.toLowerCase();
-    const isCorrectType = warehouseName.includes("rice");
-    return hasEnoughCapacity && isCorrectType;
-  })
-  .map((warehouse) => ({
-    label: `${warehouse.facilityName} (Available: ${
-      warehouse.totalCapacity - warehouse.currentStock
-    } bags)`,
-    name: warehouse.facilityName,
-    value: warehouse.id,
-  }));
-    
+      const warehouseName = warehouse.facilityName.toLowerCase();
+      const isCorrectType = warehouseName.includes("rice");
+      return hasEnoughCapacity && isCorrectType;
+    })
+    .map((warehouse) => ({
+      label: `${warehouse.facilityName} (Available: ${
+        warehouse.totalCapacity - warehouse.currentStock
+      } bags)`,
+      name: warehouse.facilityName,
+      value: warehouse.id,
+    }));
+
   useEffect(() => {
     fetchData();
     fetchActiveWarehouses();
@@ -251,6 +256,8 @@ const MillingTransactions = () => {
       return;
     }
 
+    const currentDate = new Date();
+    currentDate.setHours(currentDate.getHours() + 8);
     setIsLoading(true);
     try {
       // 1. Update transaction status to "Received"
@@ -262,7 +269,7 @@ const MillingTransactions = () => {
         body: JSON.stringify({
           id: selectedItem.transactionId,
           status: "Received",
-          receiveDateTime: new Date().toISOString(),
+          receiveDateTime: currentDate.toISOString(),
           receiverId: user.id,
         }),
       });
@@ -294,9 +301,6 @@ const MillingTransactions = () => {
       const existingMillingBatch = millingBatches.find(
         (batch) => batch.palayBatchId === selectedItem.palayBatchId
       );
-
-      const currentDate = new Date();
-      currentDate.setHours(currentDate.getHours() + 8);
 
       if (existingMillingBatch) {
         // Update existing milling batch with current startDateTime
@@ -372,15 +376,17 @@ const MillingTransactions = () => {
   };
 
   const handleProcess = async () => {
+    if (!validateForm()) return;
     if (!selectedItem) {
-      console.error('No item selected');
+      console.error("No item selected");
       return;
     }
-  
+
     setIsLoading(true);
     try {
-      const { millingBatchId, palayBatchId, toLocationId, millerType } = selectedItem;
-  
+      const { millingBatchId, palayBatchId, toLocationId, millerType } =
+        selectedItem;
+
       // Calculate weights
       const milledQuantityBags = parseInt(newMillingData.milledQuantityBags);
       const milledGrossWeight = parseFloat(newMillingData.milledGrossWeight);
@@ -391,8 +397,8 @@ const MillingTransactions = () => {
       );
 
       const currentDate = new Date();
-      currentDate.setHours(currentDate.getHours()+8);
-  
+      currentDate.setHours(currentDate.getHours() + 8);
+
       const updateData = {
         id: millingBatchId,
         palayBatchId,
@@ -403,51 +409,51 @@ const MillingTransactions = () => {
         milledQuantityBags,
         milledNetWeight,
         millingEfficiency,
-        status: 'Done',
+        status: "Done",
       };
-  
+
       const response = await fetch(`${apiUrl}/millingbatches/update`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(updateData),
       });
-  
+
       if (!response.ok) {
-        throw new Error('Failed to update milling batch');
+        throw new Error("Failed to update milling batch");
       }
-  
+
       // Update palay batch status
       const palayResponse = await fetch(`${apiUrl}/palaybatches/update`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           id: palayBatchId,
-          status: 'Milled',
+          status: "Milled",
         }),
       });
-  
+
       if (!palayResponse.ok) {
-        throw new Error('Failed to update palay batch status');
+        throw new Error("Failed to update palay batch status");
       }
-  
+
       await fetchData();
       setProcessDialog(false);
-  
+
       toast.current.show({
-        severity: 'success',
-        summary: 'Success',
-        detail: 'Milling process completed successfully',
+        severity: "success",
+        summary: "Success",
+        detail: "Milling process completed successfully",
         life: 3000,
       });
     } catch (error) {
-      console.error('Error in handleProcess:', error);
+      console.error("Error in handleProcess:", error);
       toast.current.show({
-        severity: 'error',
-        summary: 'Error',
+        severity: "error",
+        summary: "Error",
         detail: `Failed to complete process: ${error.message}`,
         life: 3000,
       });
@@ -457,6 +463,7 @@ const MillingTransactions = () => {
   };
 
   const handleReturn = async () => {
+    if (!validateForm()) return;
     if (!selectedItem || !newTransactionData.toLocationId) {
       toast.current.show({
         severity: "error",
@@ -466,22 +473,29 @@ const MillingTransactions = () => {
       });
       return;
     }
-  
+
     setIsLoading(true);
     try {
       // 1. Update the facility's current processing
-      const selectedMiller = millerData.find(miller => miller.id === selectedItem.toLocationId);
+      const selectedMiller = millerData.find(
+        (miller) => miller.id === selectedItem.toLocationId
+      );
 
       console.log(selectedMiller);
-  
+
       if (!selectedMiller) {
         throw new Error("Miller not found");
       }
-  
-      const initialQuantity = parseInt(selectedItem.driedQuantityBags || selectedItem.palayQuantityBags);
-  
-      const newProcessing = Math.max(0, parseInt(selectedMiller.processing) - initialQuantity);
-  
+
+      const initialQuantity = parseInt(
+        selectedItem.driedQuantityBags || selectedItem.palayQuantityBags
+      );
+
+      const newProcessing = Math.max(
+        0,
+        parseInt(selectedMiller.processing) - initialQuantity
+      );
+
       const millerUpdateResponse = await fetch(`${apiUrl}/millers/update`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -490,11 +504,11 @@ const MillingTransactions = () => {
           processing: newProcessing,
         }),
       });
-  
+
       if (!millerUpdateResponse.ok) {
         throw new Error("Failed to update miller processing quantity");
       }
-  
+
       // 2. Update current transaction to Completed
       const updateTransactionResponse = await fetch(
         `${apiUrl}/transactions/update`,
@@ -507,11 +521,11 @@ const MillingTransactions = () => {
           }),
         }
       );
-  
+
       if (!updateTransactionResponse.ok) {
         throw new Error("Failed to update current transaction");
       }
-  
+
       // 3. Update palay batch with new status
       const palayResponse = await fetch(`${apiUrl}/palaybatches/update`, {
         method: "POST",
@@ -521,11 +535,11 @@ const MillingTransactions = () => {
           currentlyAt: newTransactionData.toLocationName,
         }),
       });
-  
+
       if (!palayResponse.ok) {
         throw new Error("Failed to update palay batch");
       }
-  
+
       // 4. Create new return transaction
       const newTransaction = {
         ...newTransactionData,
@@ -539,34 +553,34 @@ const MillingTransactions = () => {
         status: "Pending",
         receiveDateTime: "0",
       };
-  
+
       const createTransactionResponse = await fetch(`${apiUrl}/transactions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newTransaction),
       });
-  
+
       if (!createTransactionResponse.ok) {
         throw new Error("Failed to create return transaction");
       }
 
       console.log(newTransactionData.toLocationId);
       console.log(warehouses);
-  
+
       // 5. Update warehouse stock
       const targetWarehouse = warehouses.find(
         (warehouse) => warehouse.id === newTransactionData.toLocationId
       );
 
-      console.log("target: ", targetWarehouse)
-  
+      console.log("target: ", targetWarehouse);
+
       if (!targetWarehouse) {
         throw new Error("Target warehouse not found");
       }
-  
+
       const quantityToAdd = parseInt(newMillingData.milledQuantityBags);
       const newStock = quantityToAdd + parseInt(targetWarehouse.currentStock);
-  
+
       const warehouseResponse = await fetch(`${apiUrl}/warehouses/update`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -575,18 +589,18 @@ const MillingTransactions = () => {
           currentStock: newStock,
         }),
       });
-  
+
       if (!warehouseResponse.ok) {
         throw new Error("Failed to update warehouse stock");
       }
-  
+
       toast.current.show({
         severity: "success",
         summary: "Success",
         detail: "Return process initiated successfully",
         life: 3000,
       });
-  
+
       await fetchData();
       setShowReturnDialog(false);
       setNewTransactionData(initialTransactionData);
@@ -757,6 +771,95 @@ const MillingTransactions = () => {
       onClick={() => setSelectedFilter(filter)}
     />
   );
+
+  const validateForm = () => {
+    let newErrors = {};
+  
+    if (selectedFilter === 'process') {
+      if (!newMillingData.milledQuantityBags) {
+        newErrors.milledQuantityBags = "Please enter milled quantity";
+        toast.current.show({
+          severity: "error",
+          summary: "Error",
+          detail: "Please enter milled quantity",
+          life: 3000,
+        });
+      }
+  
+      if (!newMillingData.milledGrossWeight) {
+        newErrors.milledGrossWeight = "Please enter milled gross weight";
+        toast.current.show({
+          severity: "error",
+          summary: "Error",
+          detail: "Please enter milled gross weight",
+          life: 3000,
+        });
+      }
+  
+      if (!newMillingData.milledNetWeight) {
+        newErrors.milledNetWeight = "Please enter milled net weight";
+        toast.current.show({
+          severity: "error",
+          summary: "Error",
+          detail: "Please enter milled net weight",
+          life: 3000,
+        });
+      }
+
+      if (!newMillingData.millingEfficiency) {
+        newErrors.millingEfficiency = "Please enter milling efficiency";
+        toast.current.show({
+          severity: "error",
+          summary: "Error",
+          detail: "Please enter milling efficiency",
+          life: 3000,
+        });
+      }
+    } else if (selectedFilter === 'return') {
+      if (!newTransactionData.toLocationId) {
+        newErrors.toLocationId = "Please select a facility";
+        toast.current.show({
+          severity: "error",
+          summary: "Error",
+          detail: "Please select a facility",
+          life: 3000,
+        });
+      }
+  
+      if (!newTransactionData.transporterName.trim()) {
+        newErrors.transporterName = "Transporter name is required";
+        toast.current.show({
+          severity: "error",
+          summary: "Error",
+          detail: "Transporter name is required",
+          life: 3000,
+        });
+      }
+  
+      if (!newTransactionData.transporterDesc.trim()) {
+        newErrors.transporterDesc = "Transport description is required";
+        toast.current.show({
+          severity: "error",
+          summary: "Error",
+          detail: "Transport description is required",
+          life: 3000,
+        });
+      }
+  
+      if (!newTransactionData.remarks.trim()) {
+        newErrors.remarks = "Remarks are required";
+        toast.current.show({
+          severity: "error",
+          summary: "Error",
+          detail: "Remarks are required",
+          life: 3000,
+        });
+      }
+    }
+  
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   return (
     <PrivateMillerLayout activePage="Milling Transactions" user={user}>
@@ -988,65 +1091,88 @@ const MillingTransactions = () => {
         className="w-1/3"
       >
         <div className="flex flex-col gap-4">
-        <div className="w-full">
-              <label className="block mb-2">
-                Milled Quantity in Bags (50Kg per Bag)
-              </label>
-              <InputText
-                type="number"
-                value={newMillingData.milledQuantityBags}
-                onChange={(e) =>
-                  handleInputChange("milledQuantityBags", e.target.value)
-                }
-                className="w-full ring-0"
-                keyfilter="num"
-              />
-            </div>
-            <div className="w-full">
-              <label className="block mb-2">Milled Gross Weight (Kg)</label>
-              <InputText
-                type="number"
-                value={newMillingData.milledGrossWeight}
-                onChange={(e) =>
-                  setNewMillingData((prev) => ({
-                    ...prev,
-                    milledGrossWeight: e.target.value,
-                  }))
-                }
-                className="w-full ring-0"
-                keyfilter="num"
-              />
-            </div>
-            <div className="w-full">
-              <label className="block mb-2">Milled Net Weight (Kg)</label>
-              <InputText
-                type="number"
-                value={newMillingData.milledNetWeight}
-                onChange={(e) =>
-                  setNewMillingData((prev) => ({
-                    ...prev,
-                    milledNetWeight: e.target.value,
-                  }))
-                }
-                className="w-full ring-0"
-                keyfilter="num"
-              />
-            </div>
-            <div className="w-full">
-              <label className="block mb-2">Milling Efficiency (%)</label>
-              <InputText
-                type="number"
-                value={newMillingData.millingEfficiency}
-                onChange={(e) =>
-                  setNewMillingData((prev) => ({
-                    ...prev,
-                    millingEfficiency: e.target.value,
-                  }))
-                }
-                className="w-full ring-0"
-                keyfilter="num"
-              />
-            </div>
+          <div className="w-full">
+            <label className="block mb-2">
+              Milled Quantity in Bags (50Kg per Bag)
+            </label>
+            <InputText
+              type="number"
+              value={newMillingData.milledQuantityBags}
+              onChange={(e) =>
+                handleInputChange("milledQuantityBags", e.target.value)
+              }
+              className="w-full ring-0"
+              keyfilter="num"
+            />
+            {errors.milledQuantityBags && (
+              <div className="text-red-500 text-sm mt-1">
+                {errors.milledQuantityBags}
+              </div>
+            )}
+          </div>
+
+          <div className="w-full">
+            <label className="block mb-2">Milled Gross Weight (Kg)</label>
+            <InputText
+              type="number"
+              value={newMillingData.milledGrossWeight}
+              onChange={(e) =>
+                setNewMillingData((prev) => ({
+                  ...prev,
+                  milledGrossWeight: e.target.value,
+                }))
+              }
+              className="w-full ring-0"
+              keyfilter="num"
+            />
+            {errors.milledGrossWeight && (
+              <div className="text-red-500 text-sm mt-1">
+                {errors.milledGrossWeight}
+              </div>
+            )}
+          </div>
+
+          <div className="w-full">
+            <label className="block mb-2">Milled Net Weight (Kg)</label>
+            <InputText
+              type="number"
+              value={newMillingData.milledNetWeight}
+              onChange={(e) =>
+                setNewMillingData((prev) => ({
+                  ...prev,
+                  milledNetWeight: e.target.value,
+                }))
+              }
+              className="w-full ring-0"
+              keyfilter="num"
+            />
+            {errors.milledNetWeight && (
+              <div className="text-red-500 text-sm mt-1">
+                {errors.milledNetWeight}
+              </div>
+            )}
+          </div>
+
+          <div className="w-full">
+            <label className="block mb-2">Milling Efficiency (%)</label>
+            <InputText
+              type="number"
+              value={newMillingData.millingEfficiency}
+              onChange={(e) =>
+                setNewMillingData((prev) => ({
+                  ...prev,
+                  millingEfficiency: e.target.value,
+                }))
+              }
+              className="w-full ring-0"
+              keyfilter="num"
+            />
+            {errors.millingEfficiency && (
+              <div className="text-red-500 text-sm mt-1">
+                {errors.millingEfficiency}
+              </div>
+            )}
+          </div>
 
           <div className="flex justify-between gap-4 mt-4">
             <Button
@@ -1088,14 +1214,19 @@ const MillingTransactions = () => {
                 setNewTransactionData((prev) => ({
                   ...prev,
                   toLocationId: e.value,
-                  toLocationName: filteredWarehouses.find((w) => w.value === e.value)
-                    ?.name,
-                    
+                  toLocationName: filteredWarehouses.find(
+                    (w) => w.value === e.value
+                  )?.name,
                 }))
               }
               placeholder="Select a warehouse"
               className="w-full ring-0"
             />
+            {errors.toLocationId && (
+              <div className="text-red-500 text-sm mt-1">
+                {errors.toLocationId}
+              </div>
+            )}
           </div>
 
           <div className="w-full">
@@ -1112,6 +1243,11 @@ const MillingTransactions = () => {
               maxLength={50}
               keyfilter="alphanum"
             />
+            {errors.transporterName && (
+              <div className="text-red-500 text-sm mt-1">
+                {errors.transporterName}
+              </div>
+            )}
           </div>
 
           <div className="w-full">
@@ -1128,6 +1264,11 @@ const MillingTransactions = () => {
               rows={3}
               maxLength={250}
             />
+            {errors.transporterDesc && (
+              <div className="text-red-500 text-sm mt-1">
+                {errors.transporterDesc}
+              </div>
+            )}
           </div>
 
           <div className="w-full">
@@ -1144,6 +1285,9 @@ const MillingTransactions = () => {
               rows={3}
               maxLength={250}
             />
+            {errors.remarks && (
+              <div className="text-red-500 text-sm mt-1">{errors.remarks}</div>
+            )}
           </div>
 
           <div className="flex justify-between gap-4 mt-4">

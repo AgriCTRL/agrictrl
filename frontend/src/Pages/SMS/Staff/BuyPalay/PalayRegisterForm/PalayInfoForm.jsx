@@ -202,6 +202,28 @@ const PalayInfoForm = ({ palayData, handlePalayInputChange, handleQualityTypeInp
             });
         }
     };
+
+    const getCurrentDate = () => {
+        return new Date();
+    };
+
+    const getMinDateBought = () => {
+        return getCurrentDate();
+    };
+
+    const getMinDatePlanted = () => {
+        const currentDate = getCurrentDate();
+        const minDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 2, currentDate.getDate());
+        return minDate;
+    };
+
+    const getMinDateHarvested = () => {
+        const currentDate = getCurrentDate();
+        const plantedDate = new Date(palayData.plantedDate);
+        const minDate = new Date(plantedDate.getFullYear(), plantedDate.getMonth() + 2, plantedDate.getDate());
+        return minDate > currentDate ? currentDate : minDate;
+    };
+
     return (  
         <div className="flex flex-col gap-4">
             {/* Purchase Details */}
@@ -215,7 +237,6 @@ const PalayInfoForm = ({ palayData, handlePalayInputChange, handleQualityTypeInp
                         onChange={handlePalayInputChange}  
                         placeholder="Enter Palay Variety"
                         className="w-full ring-0"
-                        keyfilter="alphanum"
                         maxLength={50}
                     />
                     {errors.palayVariety && <p className="text-red-500 text-xs mt-1">{errors.palayVariety}</p>}
@@ -245,6 +266,7 @@ const PalayInfoForm = ({ palayData, handlePalayInputChange, handleQualityTypeInp
                         onChange={handlePalayInputChange}  
                         showIcon
                         className="rig-0 w-full placeholder:text-gray-400 focus:shadow-none custom-calendar"
+                        minDate={getMinDateBought()}
                     />
                     {errors.dateBought && <p className="text-red-500 text-xs mt-1">{errors.dateBought}</p>}
                 </div>
@@ -383,6 +405,7 @@ const PalayInfoForm = ({ palayData, handlePalayInputChange, handleQualityTypeInp
                         onChange={handlePalayInputChange}  
                         showIcon
                         className="rig-0 w-full placeholder:text-gray-400 focus:shadow-none custom-calendar"
+                        maxDate={getMinDatePlanted()}
                     />
                     {errors.plantedDate && <p className="text-red-500 text-xs mt-1">{errors.plantedDate}</p>}
                 </div>
@@ -395,6 +418,7 @@ const PalayInfoForm = ({ palayData, handlePalayInputChange, handleQualityTypeInp
                         onChange={handlePalayInputChange}  
                         showIcon
                         className="rig-0 w-full placeholder:text-gray-400 focus:shadow-none custom-calendar"
+                        minDate={getMinDateHarvested()}
                     />
                     {errors.harvestedDate && <p className="text-red-500 text-xs mt-1">{errors.harvestedDate}</p>}
                 </div>
@@ -495,6 +519,7 @@ const PalayInfoForm = ({ palayData, handlePalayInputChange, handleQualityTypeInp
                     placeholder="Enter estimated capital"
                     className="w-full ring-0"
                     keyfilter="num"
+                    min="0"
                 />
                 {errors.estimatedCapital && <p className="text-red-500 text-xs mt-1">{errors.estimatedCapital}</p>}
             </div>
