@@ -86,9 +86,14 @@ const SendOrder = ({ visible, onHide, riceBatchesData, selectedOrder, user, onUp
         setIsLoading(true);
     
         try {
-            console.log('Selected Order:', selectedOrder);
-            console.log('Selected Batches:', selectedBatches);
-            console.log('Batch Quantities:', batchQuantities);
+            const warehousesResponse = await fetch(`${apiUrl}/warehouses`);
+            if (!warehousesResponse.ok) {
+                throw new Error('Failed to fetch warehouses');
+            }
+            const warehouses = await warehousesResponse.json();
+            // console.log('Selected Order:', selectedOrder);
+            // console.log('Selected Batches:', selectedBatches);
+            // console.log('Batch Quantities:', batchQuantities);
     
             if (!selectedBatches.length) {
                 throw new Error('No rice batches selected');
@@ -103,7 +108,7 @@ const SendOrder = ({ visible, onHide, riceBatchesData, selectedOrder, user, onUp
             // Create a single transaction body for the entire order
             const transactionBody = {
                 item: 'Rice',
-                itemId: selectedBatches[0].id,
+                riceBatchId: selectedBatches[0].id,
                 senderId: user.id,
                 sendDateTime: new Date().toISOString(),
                 fromLocationType: 'Warehouse',
@@ -119,7 +124,7 @@ const SendOrder = ({ visible, onHide, riceBatchesData, selectedOrder, user, onUp
             };    
 
             // Log transaction body
-            console.log('Transaction Body:', transactionBody);
+            // console.log('Transaction Body:', transactionBody);
     
             const promises = [
                 // Send the single transaction creation request
@@ -132,12 +137,32 @@ const SendOrder = ({ visible, onHide, riceBatchesData, selectedOrder, user, onUp
     
             // Create update requests for each batch
             selectedBatches.forEach((batch, index) => {
+                // Find the warehouse for this batch
+                const warehouse = warehouses.find(w => w.id === batch.warehouseId);
+                if (!warehouse) {
+                    throw new Error(`Warehouse not found for batch ${batch.id}`);
+                }
+
+                // Update warehouse stock
+                const warehouseBody = {
+                    id: batch.warehouseId,
+                    currentStock: warehouse.currentStock - batchQuantities[index]
+                };
+
+                promises.push(
+                    fetch(`${apiUrl}/warehouses/update`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(warehouseBody)
+                    })
+                );
+
                 const riceBatchBody = {
                     currentCapacity: batch.currentCapacity - batchQuantities[index]
                 };
     
                 // Log each rice batch update
-                console.log(`Rice Batch Update Body for Batch ${index + 1}:`, riceBatchBody);
+                // console.log(`Rice Batch Update Body for Batch ${index + 1}:`, riceBatchBody);
     
                 promises.push(
                     fetch(`${apiUrl}/ricebatches/update?id=${batch.id}`, {
@@ -155,7 +180,7 @@ const SendOrder = ({ visible, onHide, riceBatchesData, selectedOrder, user, onUp
                 riceBatchId: selectedBatches.map(b => b.id).join(',')
             };
     
-            console.log('Rice Order Update Body:', riceOrderBody);
+            // console.log('Rice Order Update Body:', riceOrderBody);
     
             promises.push(
                 fetch(`${apiUrl}/riceorders/update`, {
@@ -164,39 +189,14 @@ const SendOrder = ({ visible, onHide, riceBatchesData, selectedOrder, user, onUp
                     body: JSON.stringify(riceOrderBody)
                 })
             );
-    
+
             // Wait for all requests to complete
             const results = await Promise.all(promises);
-    
-            results.forEach((response, index) => {
-                console.log(`Response ${index + 1} status:`, response.status);
-            });
 
             const failedRequests = results.filter(response => !response.ok);
             if (failedRequests.length > 0) {
                 throw new Error('One or more requests failed');
             }
-
-            // Fetch all warehouses
-            const response = await fetch(`${apiUrl}/warehouses`);
-            const warehouses = await response.json();
-
-            // Update the current stock in the relevant warehouses
-            const updateWarehousePromises = selectedBatches.map(async (batch) => {
-                const warehouse = warehouses.find(w => w.id === batch.warehouseId);
-                const updatedStock = warehouse.currentStock - batchQuantities[selectedBatches.indexOf(batch)];
-                const updateBody = {
-                    id: warehouse.id,
-                    currentCapacity: updatedStock
-                };
-                const res = await fetch(`${apiUrl}/warehouses/update`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(updateBody)
-                });
-                return res.ok;
-            });
-            await Promise.all(updateWarehousePromises);
 
             toast.current.show({
                 severity: 'success',

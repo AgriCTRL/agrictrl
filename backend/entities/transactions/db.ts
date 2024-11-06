@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 
 import { PalayBatch } from '../palaybatches/db';
+import { RiceBatch } from '../ricebatches/db';
 
 @Entity()
 export class Transaction extends BaseEntity {
@@ -18,8 +19,11 @@ export class Transaction extends BaseEntity {
     @Column()
     item: string;
 
-    @Column()
+    @Column({ nullable: true })
     itemId: string;
+
+    @Column({ nullable: true })
+    riceBatchId: string;
 
     @Column()
     senderId: string;
@@ -57,9 +61,13 @@ export class Transaction extends BaseEntity {
     @Column({ nullable: true })
     remarks: string;
 
-    @ManyToOne(() => PalayBatch)
+    @ManyToOne(() => PalayBatch, { nullable: true })
     @JoinColumn({ name: 'itemId' })
-    palayBatch: PalayBatch;
+    palayBatch?: PalayBatch;
+
+    @ManyToOne(() => RiceBatch, { nullable: true })
+    @JoinColumn({ name: 'riceBatchId' })
+    riceBatch?: RiceBatch;
 
     @BeforeInsert()
     async generateId() {
@@ -80,7 +88,7 @@ export class Transaction extends BaseEntity {
     }
 }
 
-export type TransactionCreate = Pick<Transaction, 'item' | 'itemId' | 'senderId' | 'sendDateTime' | 'fromLocationType' | 'fromLocationId' | 'transporterName' | 'transporterDesc' | 'receiverId' | 'receiveDateTime' | 'toLocationType' | 'toLocationId' | 'status' | 'remarks'>;
+export type TransactionCreate = Pick<Transaction, 'item' | 'itemId' | 'riceBatchId' | 'senderId' | 'sendDateTime' | 'fromLocationType' | 'fromLocationId' | 'transporterName' | 'transporterDesc' | 'receiverId' | 'receiveDateTime' | 'toLocationType' | 'toLocationId' | 'status' | 'remarks'>;
 export type TransactionUpdate = Pick<Transaction, 'id'> & Partial<TransactionCreate>;
 
 function getCurrentPST(): Date {
@@ -144,10 +152,11 @@ export async function countTransactions(): Promise<number> {
 }
 
 export async function createTransaction(transactionCreate: TransactionCreate): Promise<Transaction> {
-    let transaction = new Transaction();
+    const transaction = new Transaction();
 
     transaction.item = transactionCreate.item;
-    transaction.itemId = transactionCreate.itemId;
+    transaction.itemId = transactionCreate.itemId ?? null; // Set to null if not provided
+    transaction.riceBatchId = transactionCreate.riceBatchId ?? null; // Set riceBatchId to null if not provided
     transaction.senderId = transactionCreate.senderId;
     transaction.sendDateTime = getCurrentPST();
     transaction.fromLocationType = transactionCreate.fromLocationType;
@@ -164,10 +173,12 @@ export async function createTransaction(transactionCreate: TransactionCreate): P
     return await transaction.save();
 }
 
+
 export async function updateTransaction(transactionUpdate: TransactionUpdate): Promise<Transaction> {
     await Transaction.update(transactionUpdate.id, {
         item: transactionUpdate.item,
         itemId: transactionUpdate.itemId,
+        riceBatchId: transactionUpdate.riceBatchId,
         senderId: transactionUpdate.senderId,
         sendDateTime: transactionUpdate.sendDateTime,
         fromLocationType: transactionUpdate.fromLocationType,
