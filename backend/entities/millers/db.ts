@@ -72,6 +72,14 @@ export async function getMiller(id: string): Promise<Miller | null> {
     });
 }
 
+export async function getMillerByUserId(userId: string): Promise<Miller | null> {
+    return await Miller.findOne({
+        where: {
+            userId
+        }
+    });
+}
+
 export async function countMillers(): Promise<number> {
     return await Miller.count();
 }

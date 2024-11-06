@@ -140,3 +140,22 @@ export async function getTotalQuantityBags(): Promise<number> {
     
     return result?.total || 0;
 }
+
+export async function getMillingBatchesByMillerAndStatus(
+    millerId: string,
+    status: string,
+    limit: number,
+    offset: number
+): Promise<MillingBatch[]> {
+    return await MillingBatch.find({
+        where: {
+            millerId,
+            status
+        },
+        take: limit,
+        skip: offset,
+        order: {
+            startDateTime: 'DESC' // Most recent first
+        }
+    });
+}

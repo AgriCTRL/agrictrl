@@ -5,7 +5,8 @@ import {
     createMiller,
     getMiller,
     getMillers,
-    updateMiller
+    updateMiller,
+    getMillerByUserId
 } from './db';
 
 export function getRouter(): Router {
@@ -25,6 +26,19 @@ export function getRouter(): Router {
             res.json(millers);
         }
     );
+
+    router.get('/user/:userId', async (req, res) => {
+        const { userId } = req.params;
+        try {
+            const miller = await getMillerByUserId(String(userId));
+            if (!miller) {
+                return res.status(404).json({ message: 'Miller not found for this user' });
+            }
+            res.json(miller);
+        } catch (error) {
+            res.status(500).json({ message: 'Error fetching miller by userId' });
+        }
+    });
 
     router.get('/count', async (_req, res) => {
         res.json(await countMillers());

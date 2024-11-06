@@ -36,7 +36,7 @@ function Home({ isRightSidebarOpen }) {
 
     const fetchData = async () => {
         try {
-            const res = await fetch(`${apiUrl}/riceorders?riceRecipientId=${user.id}&status=For%20Approval`);
+            const res = await fetch(`${apiUrl}/riceorders?riceRecipientId=${user.id}&status=For%20Approval&status=In%20Transit`);
             const data = await res.json();
             setRiceOrders(data);
         }
@@ -63,7 +63,7 @@ function Home({ isRightSidebarOpen }) {
         icon: Fan,
         title: `Order #${order.id}`,
         date: formatDate(order.orderDate),
-        value: "For Approval"
+        value: order.status
     }));
 
     return (
@@ -117,7 +117,13 @@ function Home({ isRightSidebarOpen }) {
                     </div>
 
                     {/* Carousel for Orders */}
-                    <Carousel 
+                    {Orders.length === 0 && (
+                        <div className="flex flex-row justify-center items-center mt-10">
+                            <h1 className="text-lg font-medium">No Rice Orders Found</h1>
+                        </div>
+                    )}
+                    {Orders.length > 0 && (
+                        <Carousel 
                         value={Orders} 
                         numVisible={3} 
                         numScroll={1}
@@ -141,7 +147,8 @@ function Home({ isRightSidebarOpen }) {
                         )}
                         showIndicators={false}
                         showNavigators={true}
-                    />
+                        />
+                    )}
                 </div>
             </div>
         </RecipientLayout>

@@ -6,7 +6,8 @@ import {
     getMillingBatch,
     getMillingBatches,
     updateMillingBatch,
-    getTotalQuantityBags
+    getTotalQuantityBags,
+    getMillingBatchesByMillerAndStatus
 } from './db';
 
 export function getRouter(): Router {
@@ -15,14 +16,29 @@ export function getRouter(): Router {
     router.get(
         '/',
         async (
-            req: Request<any, any, any, { limit?: string; offset?: string }>,
+            req: Request<any, any, any, { 
+                limit?: string; 
+                offset?: string;
+                millerId?: string;
+                status?: string;
+            }>,
             res
         ) => {
             const limit = Number(req.query.limit ?? -1);
             const offset = Number(req.query.offset ?? 0);
+            const { millerId, status } = req.query;
+    
+            if (millerId && status) {
+                const millingBatches = await getMillingBatchesByMillerAndStatus(
+                    millerId,
+                    status,
+                    limit,
+                    offset
+                );
+                return res.json(millingBatches);
+            }
 
             const millingBatches = await getMillingBatches(limit, offset);
-
             res.json(millingBatches);
         }
     );

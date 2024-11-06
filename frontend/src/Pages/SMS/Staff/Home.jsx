@@ -3,10 +3,12 @@ import StaffLayout from '@/Layouts/StaffLayout';
 import { Carousel } from 'primereact/carousel';
 import { Fan, Loader2, Undo2, CheckCircle2 } from "lucide-react";
 import { useAuth } from '../../Authentication/Login/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 function Home({ isRightSidebarOpen }) {
     const { user } = useAuth();
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    const navigate = useNavigate();
     const [palayCount, setPalayCount] = useState(0);
     const [processedCount, setProcessedCount] = useState(0);
     const [distributedCount, setDistributedCount] = useState(0);
@@ -23,6 +25,14 @@ function Home({ isRightSidebarOpen }) {
     
         return `${month}/${day}/${year}`;
     });
+
+    const viewAllTransactions = () => {
+        navigate('/staff/warehouse')
+    }
+
+    const toProcurement = () => {
+        navigate('/staff/buy')
+    }
 
     const fetchData = async () => {
         const palayCountRes = await fetch(`${apiUrl}/palaybatches/count`);
@@ -158,7 +168,7 @@ function Home({ isRightSidebarOpen }) {
                             <h1 className="text-2xl font-bold">{user.firstName}!</h1>
                         </div>
 
-                        <h1 className="text-md font-medium text-primary">Add new palay batch {'>'} </h1>
+                        <h1 className="text-md font-medium text-primary hover:cursor-pointer" onClick={toProcurement}>Add new palay batch {'>'} </h1>
                     </div>
 
                     {/* Carousel for Image Section */}
@@ -195,7 +205,7 @@ function Home({ isRightSidebarOpen }) {
 
                     <div className="flex flex-row justify-between items-center">
                         <h1 className="text-xl font-medium">Transactions at NFA Nueva Ecija</h1>
-                        <h1 className="text-md font-medium text-primary">View all {'>'} </h1>
+                        <h1 className="text-md font-medium text-primary hover:cursor-pointer" onClick={viewAllTransactions}>View all {'>'} </h1>
                     </div>
 
                     {/* Carousel for Statistics */}
