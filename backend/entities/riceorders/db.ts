@@ -145,3 +145,13 @@ export async function updateRiceOrder(riceOrderUpdate: RiceOrderUpdate): Promise
 
     return riceOrder;
 }
+
+export async function getTotalQuantityBags(): Promise<number> {
+    const result = await RiceOrder
+        .createQueryBuilder('riceOrder')
+        .select('SUM(riceOrder.riceQuantityBags)', 'total')
+        .where('riceOrder.status = :status', { status: 'Received' })
+        .getRawOne();
+    
+    return result?.total || 0;
+}

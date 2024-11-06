@@ -9,7 +9,10 @@ import {
     createPalayBatch,
     getPalayBatch,
     getPalayBatches,
-    updatePalayBatch
+    updatePalayBatch,
+    getTotalQuantityBags,
+    getTotalPalayQuantityBags,
+    getTotalRiceQuantityBags
 } from './db';
 
 export function getRouter(): Router {
@@ -32,6 +35,21 @@ export function getRouter(): Router {
 
     router.get('/count', async (_req, res) => {
         res.json(await countPalayBatches());
+    });
+
+    router.get('/totals/quantity-bags', async (_req, res) => {
+        const total = await getTotalQuantityBags();
+        res.json({ total });
+    });
+
+    router.get('/totals/palay-quantity-bags', async (_req, res) => {
+        const total = await getTotalPalayQuantityBags();
+        res.json({ total });
+    });
+    
+    router.get('/totals/rice-quantity-bags', async (_req, res) => {
+        const total = await getTotalRiceQuantityBags();
+        res.json({ total });
     });
 
     router.get('/:id', async (req, res) => {

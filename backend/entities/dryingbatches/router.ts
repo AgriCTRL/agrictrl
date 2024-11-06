@@ -5,7 +5,8 @@ import {
     createDryingBatch,
     getDryingBatch,
     getDryingBatches,
-    updateDryingBatch
+    updateDryingBatch,
+    getTotalQuantityBags
 } from './db';
 
 export function getRouter(): Router {
@@ -28,6 +29,11 @@ export function getRouter(): Router {
 
     router.get('/count', async (_req, res) => {
         res.json(await countDryingBatches());
+    });
+
+    router.get('/totals/quantity-bags', async (_req, res) => {
+        const total = await getTotalQuantityBags();
+        res.json({ total });
     });
 
     router.get('/:id', async (req, res) => {

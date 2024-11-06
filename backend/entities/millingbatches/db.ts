@@ -131,3 +131,12 @@ export async function updateMillingBatch(millingBatchUpdate: MillingBatchUpdate)
 
     return millingBatch;
 }
+
+export async function getTotalQuantityBags(): Promise<number> {
+    const result = await MillingBatch
+        .createQueryBuilder('millingBatch')
+        .select('SUM(millingBatch.milledQuantityBags)', 'total')
+        .getRawOne();
+    
+    return result?.total || 0;
+}
