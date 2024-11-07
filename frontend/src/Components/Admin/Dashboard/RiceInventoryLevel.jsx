@@ -1,116 +1,133 @@
 import React, { useState, useEffect } from 'react';
 import { Chart } from 'primereact/chart';
-import { GrainIcon } from 'lucide-react';
+import { WheatOff } from 'lucide-react';
 import { format } from 'date-fns';
 import CardComponent from '@/Components/CardComponent';
 
-const RiceInventoryLevels = ({ apiUrl }) => {
+const RiceInventoryLevels = ({ apiUrl, setInterpretations }) => {
     const [chartData, setChartData] = useState({});
     const [chartOptions, setChartOptions] = useState({});
     const [interpretation, setInterpretation] = useState('');
 
     useEffect(() => {
         const fetchData = async () => {
-            const endDate = new Date();
-            const startDate = new Date();
-            startDate.setMonth(startDate.getMonth() - 1);
-            
-            const response = await fetch(
-                `${apiUrl}/analytics/rice-inventory-timeseries?` +
-                `startDate=${startDate.toISOString()}&` +
-                `endDate=${endDate.toISOString()}`
-            );
+            const response = await fetch(`${apiUrl}/analytics/rice-inventory-timeseries`);
             const data = await response.json();
             
-            // Prepare chart data
-            const labels = data.map(d => format(new Date(d.date), 'MMM dd'));
-            
             setChartData({
-                labels,
+                labels: data.map(d => d.batchName),
                 datasets: [
                     {
-                        label: 'Total Rice Inventory',
-                        data: data.map(d => d.totalCapacity),
-                        borderColor: '#00C261',
-                        tension: 0.4,
-                        fill: true,
-                        backgroundColor: 'rgba(0, 194, 97, 0.2)'
+                        label: 'Current Capacity',
+                        data: data.map(d => d.currentCapacity),
+                        backgroundColor: 'rgba(0, 194, 97, 1)',
+                        borderColor: 'rgba(0, 194, 97, 1)',
+                        borderWidth: 1,
+                        stack: 'Capacity'
+                    },
+                    {
+                        label: 'Remaining Capacity',
+                        data: data.map(d => d.maxCapacity - d.currentCapacity),
+                        backgroundColor: 'rgba(0, 158, 79, 1)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1,
+                        stack: 'Capacity'
                     }
                 ]
             });
-            
-            // Generate interpretation
-            const lastTwoPoints = data.slice(-2);
-            if (lastTwoPoints.length === 2) {
-                const interpretationText = generateInterpretation(
-                    lastTwoPoints[1].totalCapacity,
-                    lastTwoPoints[0].totalCapacity,
-                    'inventory',
-                    'bags',
-                    'total rice inventory'
-                );
-                setInterpretation(interpretationText);
-            }
+
+            // Generate interpretation based on the data
+            const generatedInterpretation = generateInterpretation(data);
+            setInterpretation(generatedInterpretation);
+
+            setInterpretations((prev) => ({ ...prev, 'rice-inventory-level': generatedInterpretation }));
         };
         
         fetchData();
     }, []);
     
     useEffect(() => {
+        const documentStyle = getComputedStyle(document.documentElement);
+        const textColor = documentStyle.getPropertyValue('--text-color');
+        const textColorSecondary = documentStyle.getPropertyValue('--text-color-secondary');
+        const surfaceBorder = documentStyle.getPropertyValue('--surface-border');
+
         setChartOptions({
+            maintainAspectRatio: false,
+            aspectRatio: 0.8,
             plugins: {
                 legend: {
                     labels: {
-                        color: '#495057'
+                        color: textColor
                     }
                 }
             },
             scales: {
                 x: {
+                    stacked: true,
                     ticks: {
-                        color: '#495057'
+                        color: textColorSecondary
                     },
                     grid: {
-                        color: '#ebedef'
+                        color: surfaceBorder
                     }
                 },
                 y: {
+                    stacked: true,
+                    beginAtZero: true,
                     ticks: {
-                        color: '#495057'
+                        color: textColorSecondary
                     },
                     grid: {
-                        color: '#ebedef'
-                    },
-                    min: 0
+                        color: surfaceBorder
+                    }
                 }
             }
         });
     }, []);
 
-    const calculatePercentageChange = (current, previous) => {
-        if (previous === 0) return 0;
-        return ((current - previous) / previous) * 100;
+    const calculateAverageUtilization = (data) => {
+        const batchPercentages = data.map(batch => {
+            const percentUtilized = (batch.currentCapacity / batch.maxCapacity) * 100;
+            return percentUtilized || 0; // Handle division by zero
+        });
+
+        const averagePercentage = batchPercentages.reduce((sum, percent) => sum + percent, 0) / batchPercentages.length;
+        
+        // Calculate overall trend
+        const totalCurrentCapacity = data.reduce((sum, batch) => sum + batch.currentCapacity, 0);
+        const totalMaxCapacity = data.reduce((sum, batch) => sum + batch.maxCapacity, 0);
+        const overallUtilization = (totalCurrentCapacity / totalMaxCapacity) * 100;
+
+        return {
+            averagePercentage: averagePercentage.toFixed(1),
+            totalCurrentCapacity,
+            totalMaxCapacity,
+            overallUtilization: overallUtilization.toFixed(1)
+        };
     };
 
-    const generateInterpretation = (current, previous, metric, unit, metricName) => {
-        const percentageChange = calculatePercentageChange(current, previous);
-        const direction = current > previous ? "higher" : "lower";
-        return `Today's ${metricName} is ${current.toFixed(2)} ${unit}, which is ${Math.abs(percentageChange.toFixed(2))}% ${direction} than yesterday's.`;
+    const generateInterpretation = (data) => {
+        const stats = calculateAverageUtilization(data);
+        
+        return `Across ${data.length} batches, the average capacity utilization is ${stats.averagePercentage}%. ` +
+               `Total current inventory is ${stats.totalCurrentCapacity.toLocaleString()} bags out of ` +
+               `${stats.totalMaxCapacity.toLocaleString()} maximum capacity (${stats.overallUtilization}% utilized).`;
     };
 
     return (
         <CardComponent className="bg-white w-full flex-col gap-4">
             <div className="title flex gap-4 text-black">
-                <GrainIcon size={20}/>
+                <WheatOff  size={20}/>
                 <p className="font-bold">Rice Inventory Levels</p>
             </div>
             
-            <div className="graph h-64">
-                <Chart type="line" data={chartData} options={chartOptions} />
+            <div className="card">
+                <Chart id="rice-inventory-level" type="bar" data={chartData} options={chartOptions} />
             </div>
             
             {interpretation && (
-                <div className="text-sm text-gray-600 mt-4">
+                <div id='rice-inventory-level' className="text-sm text-gray-600 mt-4">
                     {interpretation}
                 </div>
             )}

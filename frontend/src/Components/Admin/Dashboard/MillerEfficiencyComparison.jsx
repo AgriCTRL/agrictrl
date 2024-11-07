@@ -3,7 +3,7 @@ import { Chart } from 'primereact/chart';
 import { Factory } from 'lucide-react';
 import CardComponent from '@/Components/CardComponent';
 
-const MillerEfficiencyComparison = ({ apiUrl }) => {
+const MillerEfficiencyComparison = ({ apiUrl, setInterpretations }) => {
     const [chartData, setChartData] = useState({});
     const [chartOptions, setChartOptions] = useState({});
     const [interpretation, setInterpretation] = useState('');
@@ -33,6 +33,8 @@ const MillerEfficiencyComparison = ({ apiUrl }) => {
                 `${mostEfficient.millerName} has the highest milling efficiency at ` +
                 `${highestEfficiency.toFixed(2)}% based on ${mostEfficient.batchCount} batches.`
             );
+
+            setInterpretations((prev) => ({ ...prev, 'miller-efficiency-comparison': interpretation }));
         };
         
         fetchData();
@@ -40,6 +42,7 @@ const MillerEfficiencyComparison = ({ apiUrl }) => {
     
     useEffect(() => {
         setChartOptions({
+            indexAxis: 'y',
             plugins: {
                 legend: {
                     labels: {
@@ -78,11 +81,11 @@ const MillerEfficiencyComparison = ({ apiUrl }) => {
             </div>
             
             <div className="graph h-64">
-                <Chart type="bar" data={chartData} options={chartOptions} />
+                <Chart id="miller-efficiency-comparison" type="bar" data={chartData} options={chartOptions} />
             </div>
             
             {interpretation && (
-                <div className="text-sm text-gray-600 mt-4">
+                <div id='miller-efficency-comparison' className="text-sm text-gray-600 mt-4">
                     {interpretation}
                 </div>
             )}

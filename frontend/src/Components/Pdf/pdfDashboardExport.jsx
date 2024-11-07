@@ -1,11 +1,8 @@
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 
-const dashboardPdfExport = async (data) => {
-    // First, convert all charts to images
+const pdfDashboardExport = async (data, chartInterpretations) => {
     const chartImages = await captureCharts();
-
-    // Load the background image once and convert it to base64
     const imgUrl = '/pdf_bg_pt.png';
     const img = await fetch(imgUrl).then(res => res.blob());
     const reader = new FileReader();
@@ -22,15 +19,12 @@ const dashboardPdfExport = async (data) => {
     reader.onloadend = () => {
         const base64Image = reader.result;
 
-        // Helper function to add background image to each page
         const addBackgroundImage = () => {
             doc.addImage(base64Image, 'PNG', 0, 0, pageWidth, pageHeight);
         };
 
-        // Start by adding background to the first page
         addBackgroundImage();
 
-        // Add header
         const currentDate = new Date().toLocaleDateString();
         doc.setFontSize(24);
         doc.setTextColor(44, 62, 80);
@@ -39,7 +33,6 @@ const dashboardPdfExport = async (data) => {
         doc.text(`Generated: ${currentDate}`, pageWidth - margin, yPosition, { align: 'right' });
         yPosition += 30;
 
-        // Add Key Statistics
         const statsColumns = ['Metric', 'Count'];
         const statsData = [
             ['Partner Farmers', data.partnerFarmersCount],
@@ -57,41 +50,37 @@ const dashboardPdfExport = async (data) => {
             head: [statsColumns],
             body: statsData,
             theme: 'grid',
-            headStyles: {
-                fillColor: [0, 194, 97],
-                textColor: [255, 255, 255]
-            },
+            headStyles: { fillColor: [0, 194, 97], textColor: [255, 255, 255] },
             margin: { left: margin }
         });
         yPosition = doc.lastAutoTable.finalY + 20;
 
-        // Add each chart with proper spacing and page breaks
+        doc.addPage();
+        addBackgroundImage();
+        yPosition = margin + 30;
+
         for (const [chartId, chartImage] of Object.entries(chartImages)) {
-            // Check if we need a new page
             if (yPosition + chartHeight + 30 > pageHeight) {
                 doc.addPage();
-                addBackgroundImage(); // Add background image on the new page
+                addBackgroundImage();
                 yPosition = margin + 30;
             }
 
-            // Add chart title
             doc.setFontSize(24);
             doc.text(getChartTitle(chartId), margin, yPosition);
             yPosition += 10;
 
-            // Add chart image
-            doc.addImage(
-                chartImage,
-                'PNG',
-                margin,
-                yPosition,
-                chartWidth,
-                chartHeight
-            );
-            yPosition += chartHeight + 20;
+            doc.addImage(chartImage, 'PNG', margin, yPosition, chartWidth, chartHeight);
+            yPosition += chartHeight + 10;
+
+            // Add the interpretation if available
+            const chartInterpretation = chartInterpretations[chartId] || '';
+            doc.setFontSize(12);
+            doc.setTextColor(100, 100, 100);
+            doc.text(chartInterpretation, margin, yPosition, { maxWidth: chartWidth });
+            yPosition += 20;
         }
 
-        // Save the PDF
         doc.save('Dashboard-Report.pdf');
     };
 };
@@ -105,7 +94,11 @@ const captureCharts = async () => {
         'wet-dry-inventory-chart',
         'milling-status-chart',
         'monthly-batch-count-chart',
-        'nfa-facilities-chart'
+        'nfa-facilities-chart',
+        'rice-inventory-level',
+        'miller-efficiency-comparison',
+        'warehouse-inventory-trend',
+        'rice-orders-analytics',
     ];
 
     const chartImages = {};
@@ -143,9 +136,13 @@ const getChartTitle = (chartId) => {
         'wet-dry-inventory-chart': 'Wet/Dry Inventory',
         'milling-status-chart': 'Milling Status',
         'monthly-batch-count-chart': 'Monthly Batch Count',
-        'nfa-facilities-chart': 'NFA Facilities Distribution'
+        'nfa-facilities-chart': 'NFA Facilities Distribution',
+        'rice-inventory-level': 'Rice Inventory Level',
+        'miller-efficiency-comparison': 'Miller Efficiency Comparison',
+        'warehouse-inventory-trend': 'Warehouse Inventory Trend',
+        'rice-orders-analytics': 'Rice Orders Analytics',
     };
     return titles[chartId] || 'Chart';
 };
 
-export default dashboardPdfExport;
+export default pdfDashboardExport;

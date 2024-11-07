@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef  } from "react";
 import AdminLayout from "@/Layouts/AdminLayout";
 import CardComponent from "@/Components/CardComponent";
 import { Button } from "primereact/button";
 import { FileDown } from "lucide-react";
 
-import dashboardPdfExport from "@/Components/dashboardPdfExport ";
+import pdfDashboardExport from "../../../Components/Pdf/pdfDashboardExport";
 
 import Stats from "@/Components/Admin/Dashboard/Stats";
 import UserDemographic from "@/Components/Admin/Dashboard/UserDemographic";
@@ -17,6 +17,7 @@ import MonthlyBatchCountAnalytics from "@/Components/Admin/Dashboard/MonthlyBatc
 import WarehouseInventoryTrend from "../../../Components/Admin/Dashboard/WarehouseInventoryTrend";
 import RiceInventoryLevels from "../../../Components/Admin/Dashboard/RiceInventoryLevel";
 import MillerEfficiencyComparison from "../../../Components/Admin/Dashboard/MillerEfficiencyComparison";
+import RiceOrdersAnalytics from "../../../Components/Admin/Dashboard/RiceOrdersAnalytics";
 
 function Dashboard() {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -28,8 +29,6 @@ function Dashboard() {
   const [riceSoldCount, setRiceSoldCount] = useState(0);
 
   // State for Palay Inventory
-  const [dryCount, setDryCount] = useState(0);
-  const [wetCount, setWetCount] = useState(0);
   const [palayBatches, setPalayBatches] = useState([]);
 
   // State for Supplier Category
@@ -42,6 +41,8 @@ function Dashboard() {
   const [warehousesCount, setWarehousesCount] = useState(0);
   const [dryersCount, setDryersCount] = useState(0);
   const [millersCount, setMillersCount] = useState(0);
+
+  const [interpretations, setInterpretations] = useState({});
 
   useEffect(() => {
     const fetchData = async () => {
@@ -145,7 +146,7 @@ function Dashboard() {
       palayBatches,
     };
 
-    dashboardPdfExport(exportData);
+    pdfDashboardExport(exportData, interpretations);
   };
 
   return (
@@ -162,37 +163,55 @@ function Dashboard() {
           <div className="grid grid-rows-3 grid-cols-3 gap-4">
             {/* <PalayInventory palayBatches={palayBatches} /> */}
 
-            <UserDemographic supplierCategories={supplierCategories} />
+            <UserDemographic supplierCategories={supplierCategories} setInterpretations={setInterpretations}/>
 
             <CardComponent className="bg-white transition hover:shadow-lg row-span-1">
-              <ProcessingStatusChart palayBatches={palayBatches} />
+              <ProcessingStatusChart palayBatches={palayBatches} setInterpretations={setInterpretations}/>
             </CardComponent>
 
             <CardComponent className="bg-white transition hover:shadow-lg">
-              <InventoryAnalytics />
+              <InventoryAnalytics setInterpretations={setInterpretations}/>
             </CardComponent>
 
-            <CardComponent className="bg-white transition hover:shadow-lg">
+            {/* <CardComponent className="bg-white transition hover:shadow-lg">
               <WetDryInventoryChart palayBatches={palayBatches} />
+            </CardComponent> */}
+
+            <CardComponent className="bg-white transition hover:shadow-lg">
+              <MillingStatusChart palayBatches={palayBatches} setInterpretations={setInterpretations}/>
+            </CardComponent>
+
+            <CardComponent className="bg-white transition hover:shadow-lg col-span-2">
+              <NfaFacilities
+                warehousesCount={warehousesCount}
+                dryersCount={dryersCount}
+                millersCount={millersCount}
+                setInterpretations={setInterpretations}
+              />
             </CardComponent>
 
             <CardComponent className="bg-white transition hover:shadow-lg">
-              <MillingStatusChart palayBatches={palayBatches} />
+              <MonthlyBatchCountAnalytics apiUrl={apiUrl} setInterpretations={setInterpretations}/>
             </CardComponent>
 
             <CardComponent className="bg-white transition hover:shadow-lg">
-              <MonthlyBatchCountAnalytics apiUrl={apiUrl} />
+              <RiceInventoryLevels apiUrl={apiUrl} setInterpretations={setInterpretations}/>
             </CardComponent>
 
-            <NfaFacilities
-              warehousesCount={warehousesCount}
-              dryersCount={dryersCount}
-              millersCount={millersCount}
-            />
+            <CardComponent className="bg-white transition hover:shadow-lg">
+              <MillerEfficiencyComparison apiUrl={apiUrl} setInterpretations={setInterpretations}/>
+            </CardComponent>
 
-            <div className="col-span-1 md:col-span-2 lg:col-span-3">
-              <RiceInventoryLevels apiUrl={apiUrl} />
-            </div>
+            <CardComponent className="bg-white transition hover:shadow-lg col-span-2">
+              <RiceOrdersAnalytics apiUrl={apiUrl} setInterpretations={setInterpretations}/>
+            </CardComponent>  
+
+            <CardComponent className="bg-white transition hover:shadow-lg">
+              <WarehouseInventoryTrend apiUrl={apiUrl} setInterpretations={setInterpretations}/>
+            </CardComponent>
+
+            
+            
           </div>
         </div>
       </AdminLayout>

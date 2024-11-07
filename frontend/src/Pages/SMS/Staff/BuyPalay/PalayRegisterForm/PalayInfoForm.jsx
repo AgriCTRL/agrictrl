@@ -419,6 +419,7 @@ const PalayInfoForm = ({ palayData, handlePalayInputChange, handleQualityTypeInp
                         showIcon
                         className="rig-0 w-full placeholder:text-gray-400 focus:shadow-none custom-calendar"
                         minDate={getMinDateHarvested()}
+                        maxDate={getCurrentDate()}
                     />
                     {errors.harvestedDate && <p className="text-red-500 text-xs mt-1">{errors.harvestedDate}</p>}
                 </div>
