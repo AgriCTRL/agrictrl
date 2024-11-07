@@ -187,7 +187,7 @@ function RiceOrder() {
                         <Column field="id" header="Order ID" body={orderIdBodyTemplate} className="text-center" headerClassName="text-center" />
                         <Column field="orderDate" header="Date Ordered" body={(rowData) => dateBodyTemplate(rowData, 'orderDate')} className="text-center" headerClassName="text-center" />
                         <Column field="riceQuantityBags" header="Quantity in Bags" className="text-center" headerClassName="text-center" />
-                        <Column field="totalCost" header="Price" className="text-center" headerClassName="text-center" />
+                        <Column field="totalCost" header="Estimated Price" className="text-center" headerClassName="text-center" />
                         <Column field="preferredDeliveryDate" header="Delivery Date" body={(rowData) => dateBodyTemplate(rowData, 'preferredDeliveryDate')} className="text-center" headerClassName="text-center" />
                         <Column field="status" header="Status" body={statusBodyTemplate} className="text-center" headerClassName="text-center"/>
                         <Column body={actionBodyTemplate} exportable={false} className="text-center" headerClassName="text-center"/>
