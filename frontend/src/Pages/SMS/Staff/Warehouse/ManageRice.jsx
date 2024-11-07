@@ -145,7 +145,6 @@ const ManageRice = ({ visible, onHide, selectedItem, onUpdateSuccess, user, refr
                                 mode="currency"
                                 currency="PHP"
                                 locale="en-US"
-                                disabled
                                 className="p-inputtext-sm"
                             />
                         </div>

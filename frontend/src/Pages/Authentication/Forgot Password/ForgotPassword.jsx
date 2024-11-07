@@ -19,6 +19,9 @@ const ForgotPassword = () => {
   const navigate = useNavigate();
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const secretKey = import.meta.env.VITE_HASH_KEY;
+  const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+  const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+  const emailApiKey = import.meta.env.VITE_EMAILJS_API_KEY;
   const [isLoading, setIsLoading] = useState(false);
   const toast = useRef(null);
 
@@ -28,7 +31,7 @@ const ForgotPassword = () => {
       verification_code: code,
     };
   
-    emailjs.send('service_cl7y98r', 'template_6csvcht', templateParams, 'bZ2aS5B6vgxk3J5LJ')
+    emailjs.send(serviceId, templateId, templateParams, emailApiKey)
       .then((response) => {
         console.log('Email sent successfully:', response.status, response.text);
       }, (err) => {

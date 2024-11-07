@@ -1,5 +1,12 @@
 import { PalayBatch } from "../palaybatches/db";
+import { Warehouse } from "../warehouses/db";
+import { Miller } from "../millers/db";
+import { RiceBatch } from "../ricebatches/db";
+import { MillingBatch } from "../millingbatches/db";
+import { RiceOrder } from "../riceorders/db";
 import { AnalyticsSummary } from "./types";
+
+import { format } from 'date-fns';
 
 // Function to get average quantityBags for batches bought on a specific date
 export async function getAverageQuantityByDate(date: Date): Promise<AnalyticsSummary> {
@@ -161,3 +168,96 @@ export async function getMonthlyWeeklySummary(year: number, month: number) {
 
     return weeklySummary;
 }
+
+// Inventory Trend Analysis
+export async function getWarehouseInventoryStock() {
+    const warehouses = await Warehouse.find();
+  
+    const warehouseData = await Promise.all(
+      warehouses.map(async (warehouse) => {
+        return {
+          warehouseName: warehouse.facilityName,
+          totalCapacity: warehouse.totalCapacity,
+          currentStock: warehouse.currentStock
+        };
+      })
+    );
+  
+    return warehouseData;
+}
+
+// Milling Efficiency Analysis
+export async function getMillersEfficiencyComparison() {
+    const millers = await Miller.find();
+    const millingBatches = await MillingBatch.find();
+    
+    const millerEfficiencies = millers.map(miller => {
+        // Get all batches for this miller
+        const millerBatches = millingBatches.filter(batch => 
+            batch.millerId === miller.id);
+            
+        // Calculate average efficiency
+        const totalEfficiency = millerBatches.reduce((sum, batch) => 
+            sum + (batch.millingEfficiency || 0), 0);
+        const averageEfficiency = millerBatches.length > 0 ? 
+            totalEfficiency / millerBatches.length : 0;
+            
+        return {
+            millerName: miller.millerName,
+            averageEfficiency,
+            batchCount: millerBatches.length
+        };
+    });
+    
+    return millerEfficiencies;
+}
+
+// Rice Inventory Time Series
+export async function getRiceInventoryTimeSeries() {
+    const riceBatches = await RiceBatch.find();
+    
+    // Map each batch to show its current vs max capacity
+    const batchData = riceBatches.map(batch => ({
+        batchId: batch.id,
+        batchName: `Batch ${batch.id.slice(-4)}`,
+        currentCapacity: batch.currentCapacity || 0,
+        maxCapacity: batch.maxCapacity || 0
+    }));
+    
+    // Sort by batchId to ensure consistent ordering
+    return batchData.sort((a, b) => a.batchId.localeCompare(b.batchId));
+}
+
+// Rice Order Analytics
+export async function getRiceOrderAnalytics(): Promise<{ labels: string[]; data: number[] }> {
+    try {
+      // Fetch all rice orders with status 'Received'
+      const riceOrders = await RiceOrder.find({
+        where: {
+          status: 'Received',
+        },
+      });
+  
+      // Group the orders by date and calculate the total bags sold per day
+      const bagsSoldPerDay: { [key: string]: number } = {};
+  
+      riceOrders.forEach((order) => {
+        const orderDate = format(new Date(order.orderDate), 'yyyy-MM-dd');
+        // Accumulate the bags sold for the same day
+        if (bagsSoldPerDay[orderDate]) {
+          bagsSoldPerDay[orderDate] += order.riceQuantityBags;
+        } else {
+          bagsSoldPerDay[orderDate] = order.riceQuantityBags;
+        }
+      });
+  
+      const labels = Object.keys(bagsSoldPerDay);
+      const data = labels.map((label) => bagsSoldPerDay[label]);
+  
+      return { labels, data };
+    } catch (error) {
+      console.error('Error in getRiceOrderAnalytics:', error);
+      throw error;
+    }
+}
+  

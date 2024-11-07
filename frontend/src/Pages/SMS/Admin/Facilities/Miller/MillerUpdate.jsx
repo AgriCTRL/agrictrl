@@ -149,13 +149,13 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
                         </div>
 
                         <div>
-                            <label htmlFor="capacity" className="block text-sm font-medium text-gray-700">Capacity</label>
+                            <label htmlFor="capacity" className="block text-sm font-medium text-gray-700">Capacity(bags)</label>
                             <InputText
                                 id="capacity"
                                 value={capacity}
                                 onChange={(e) => setCapacity(e.target.value)}
                                 className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
-                                disabled={type === "Private"}
+                                disabled
                                 keyfilter="int"
                             />
                         </div>
@@ -180,8 +180,8 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
                                 onChange={(e) => setContactNumber(e.target.value)}
                                 className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
                                 disabled={type === "Private"}
-                                maxLength={15}
-                                keyfilter="alphanum"
+                                keyfilter="int"
+                                maxLength={11}
                             />
                         </div>
 

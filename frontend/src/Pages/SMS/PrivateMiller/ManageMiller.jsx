@@ -244,7 +244,6 @@ function ManageMiller() {
                         disabled={!editing && !isRegistrationForm}
                         className="w-full ring-0"
                         maxLength={50}
-                        keyfilter="alphanum"
                     />
                 </div>
                 <div className="w-full">
@@ -252,7 +251,7 @@ function ManageMiller() {
                     <InputText
                         value={millerData.capacity}
                         onChange={(e) => handleChange('capacity', e.target.value)}
-                        disabled={!editing && !isRegistrationForm}
+                        disabled={editing || !isRegistrationForm}
                         className="w-full ring-0"
                         keyfilter="int"
                     />

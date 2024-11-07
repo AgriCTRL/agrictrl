@@ -86,7 +86,7 @@ export const WSI = (data) => {
       label: "Current Stock",
       value: data.currentStock
         ? `${displayValue(data.currentStock)} bags`
-        : null,
+        : 0,
     },
   ]);
 

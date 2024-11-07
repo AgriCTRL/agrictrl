@@ -382,6 +382,9 @@ const MillingTransactions = () => {
       return;
     }
 
+    const currentDate = new Date();
+    currentDate.setHours(currentDate.getHours() + 8);
+
     setIsLoading(true);
     try {
       const { millingBatchId, palayBatchId, toLocationId, millerType } =
@@ -396,8 +399,7 @@ const MillingTransactions = () => {
         selectedItem.quantityBags
       );
 
-      const currentDate = new Date();
-      currentDate.setHours(currentDate.getHours() + 8);
+      
 
       const updateData = {
         id: millingBatchId,

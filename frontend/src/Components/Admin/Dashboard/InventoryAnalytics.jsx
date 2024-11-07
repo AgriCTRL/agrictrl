@@ -3,7 +3,7 @@ import { Chart } from 'primereact/chart';
 import { Warehouse } from 'lucide-react';
 import CardComponent from '@/Components/CardComponent';
 
-const InventoryAnalytics = () => {
+const InventoryAnalytics = ({setInterpretations}) => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     // States for Statistics and Analytics Data
     const [analyticsData, setAnalyticsData] = useState({
@@ -138,6 +138,14 @@ const InventoryAnalytics = () => {
                 }
             }
         });
+
+        const generatedInterpretation = `Average Palay Bags: ${analyticsData.totalQuantity}, Palay Batches: ${analyticsData.palayBatches}`;
+
+        // Update the interpretations with the generated interpretation for 'rice-orders-analytics'
+        setInterpretations((prev) => ({
+            ...prev,
+            'inventory-analytics-chart': generatedInterpretation
+        }));
     }, [analyticsData]);
 
     return (

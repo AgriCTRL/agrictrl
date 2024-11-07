@@ -15,7 +15,7 @@ function DryerRegister({ visible, onHide, onDryerRegistered }) {
     const [userId, setUserId] = useState('0');
     const [capacity, setCapacity] = useState('');
     const [processing, setProcessing] = useState('0');
-    const [location, setLocation] = useState('');
+    const [location, setLocation] = useState('Nueva Ecija');
     const [contactNumber, setContactNumber] = useState('');
     const [email, setEmail] = useState('');
     const [status, setStatus] = useState('active');
@@ -30,7 +30,7 @@ function DryerRegister({ visible, onHide, onDryerRegistered }) {
     const resetForm = () => {
         setDryerName('');
         setCapacity('');
-        setLocation('');
+        setLocation('Nueva Ecija');
         setContactNumber('');
         setEmail('');
         setStatus('active');
@@ -126,7 +126,7 @@ function DryerRegister({ visible, onHide, onDryerRegistered }) {
                         </div>
 
                         <div>
-                            <label htmlFor="capacity" className="block text-sm font-medium text-gray-700">Capacity</label>
+                            <label htmlFor="capacity" className="block text-sm font-medium text-gray-700">Capacity(bags)</label>
                             <InputText
                                 id="capacity"
                                 value={capacity}
@@ -153,10 +153,10 @@ function DryerRegister({ visible, onHide, onDryerRegistered }) {
                             <InputText
                                 id="contactNumber"
                                 value={contactNumber}
-                                type='number'
                                 onChange={(e) => setContactNumber(e.target.value)}
                                 className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
-                                maxLength={15}
+                                keyfilter="int"
+                                maxLength={11}
                             />
                         </div>
 

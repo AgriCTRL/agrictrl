@@ -277,7 +277,7 @@ const SendTo = ({
         toLocationType: toLocationType,
         toLocationId: newTransactionData.toLocationId,
         warehouseName: targetWarehouse.facilityName,
-        currentStock: 1500,
+        currentStock: currentStock,
       };
 
       const pdf = WSI(data);

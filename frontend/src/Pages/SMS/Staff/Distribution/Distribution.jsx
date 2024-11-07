@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import StaffLayout from '@/Layouts/StaffLayout';
-import { Search, ShoppingCart, ThumbsUp, ThumbsDown, RotateCw, Loader2, Undo2, CheckCircle2 } from "lucide-react";
+import { Search, ShoppingCart, ThumbsUp, ThumbsDown, RotateCw, PackageCheck , Loader2, Undo2, CheckCircle2 } from "lucide-react";
 
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -244,8 +244,17 @@ function Distribution() {
         
         switch (actionType) {
             case ACTION_TYPES.ACCEPT:
-                setShowAcceptDialog(true);
-                break;
+            if (totalAvailableQuantity < rowData.riceQuantityBags) {
+                toast.current.show({
+                    severity: 'error',
+                    summary: 'Insufficient Rice Bags',
+                    detail: `Cannot accept order. Available bags (${totalAvailableQuantity}) is less than required bags (${rowData.riceQuantityBags}).`,
+                    life: 3000
+                });
+                return;
+            }
+            setShowAcceptDialog(true);
+            break;
             
             case ACTION_TYPES.DECLINE:
                 setShowDeclineDialog(true);
@@ -311,6 +320,8 @@ function Distribution() {
                             label="Accept"
                             className="p-button-success p-button-sm" 
                             onClick={() => handleActionClick(ACTION_TYPES.ACCEPT, rowData)} 
+                            tooltip={totalAvailableQuantity < rowData.riceQuantityBags ? 
+                                "Insufficient rice bags available" : undefined}
                         />
                         <Button 
                             label="Decline"
@@ -325,7 +336,6 @@ function Distribution() {
                         label="Send"
                         className="p-button-primary p-button-sm ring-0" 
                         onClick={() => handleActionClick(ACTION_TYPES.SEND, rowData)}
-                        disabled={totalAvailableQuantity < rowData.riceQuantityBags}
                         tooltip={totalAvailableQuantity < rowData.riceQuantityBags ? 
                             "Insufficient rice bags available" : undefined}
                     />
