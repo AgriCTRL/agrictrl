@@ -10,7 +10,15 @@ import { IconField } from 'primereact/iconfield';
 import { InputIcon } from 'primereact/inputicon';
 import { DataView, DataViewLayoutOptions } from 'primereact/dataview';
         
-import { Search, CircleAlert, Settings2, FileX, Download, Filter, PackageOpen } from 'lucide-react';
+import { 
+    Search, 
+    CircleAlert, 
+    Settings2, 
+    FileX, 
+    Download, 
+    Filter, 
+    PackageOpen 
+} from 'lucide-react';
 
 import AdminLayout from '@/Layouts/AdminLayout';
 import EmptyRecord from '../../../Components/EmptyRecord';

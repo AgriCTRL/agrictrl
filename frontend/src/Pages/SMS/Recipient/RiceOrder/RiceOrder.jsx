@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import RecipientLayout from '../../../../Layouts/RecipientLayout';
 
-import { Settings2, Search, CircleAlert, RotateCw } from "lucide-react";
+import { Settings2, Search, CircleAlert, RotateCw, Plus } from "lucide-react";
 
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -13,11 +13,14 @@ import { InputText } from 'primereact/inputtext';
 import BuyRice from './BuyRice';
 import DeclinedDetails from './DeclineDetails';
 import { useAuth } from '../../../Authentication/Login/AuthContext';
+import { IconField } from 'primereact/iconfield';
+import { InputIcon } from 'primereact/inputicon';
 
 
 function RiceOrder() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const { user } = useAuth();
+
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [filters, setFilters] = useState({
         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -120,64 +123,102 @@ function RiceOrder() {
         ? 'bg-primary text-white'
         : 'bg-white text-primary border border-gray-300';
 
+    
+    // RIGHT SIDEBAR DETAILS
+    const personalStats = [
+        { title: "Palay Bought", value: 9 },
+        { title: "Processed", value: 4 },
+        { title: "Distributed", value: 2 },
+    ];
+
+    const totalValue = personalStats.reduce((acc, stat) => acc + stat.value, 0);
+
+    const rightSidebar = () => {
+        return (
+            <div className="p-4 bg-white rounded-lg flex flex-col gap-4">
+                <div className="header flex flex-col gap-4">
+                    <div className='flex flex-col items-center justify-center gap-2'>
+                        <p className="">Total</p>
+                        <p className="text-2xl sm:text-4xl font-semibold text-primary">{totalValue}</p>
+                    </div>
+                    <div className="flex gap-2">
+                        {personalStats.map((stat, index) => (
+                            <div key={index} className="flex flex-col gap-2 flex-1 items-center justify-center">
+                                <p className="text-sm">{stat.title}</p>
+                                <p className="font-semibold text-primary">{stat.value}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
     return (
-        <RecipientLayout activePage="Rice Order" user={user}>
-            <div className="flex flex-col px-10 py-2 h-full bg-[#F1F5F9]">
-                <div className="flex flex-col justify-center items-center p-10 h-1/4 rounded-lg bg-gradient-to-r from-primary to-secondary mb-2">
-                    <h1 className="text-5xl h-full text-white font-bold mb-2">Rice Order</h1>
-                    <span className="p-input-icon-left w-1/2 mr-4">
-                        <Search className="text-primary ml-2 -translate-y-1"/>
-                        <InputText 
-                            type="search"
-                            value={globalFilterValue} 
-                            onChange={onGlobalFilterChange}
-                            placeholder="Tap to Search" 
-                            className="w-full pl-10 pr-4 py-2 rounded-full text-primary border border-gray-300 ring-0 placeholder:text-primary"
-                        />
+        <RecipientLayout activePage="Rice Order" user={user} isRightSidebarOpen={true} rightSidebar={rightSidebar()}>
+            <div className="flex flex-col h-full gap-4 bg-[#F1F5F9]">
+                <div className="flex flex-col justify-center gap-4 items-center p-8 rounded-lg bg-gradient-to-r from-primary to-secondary">
+                    <h1 className="text-2xl sm:text-4xl text-white font-semibold">Rice Orders</h1>
+                    <span className="w-1/2">
+                        <IconField iconPosition="left">
+                            <InputIcon className=""> 
+                                <Search className="text-white" size={18} />
+                            </InputIcon>
+                            <InputText 
+                                className="ring-0 w-full rounded-full text-white bg-transparent border border-white placeholder:text-white" 
+                                value={globalFilterValue} 
+                                onChange={onGlobalFilterChange} 
+                                placeholder="Tap to search" 
+                            />
+                        </IconField>
                     </span>
                 </div>
 
                 {/* Buttons & Search bar */}
-                <div className="flex items-center space-x-2 justify-between mb-2 py-2">
-                    <div className="flex flex-row space-x-2 items-center w-1/2 drop-shadow-md">
+                <div className="flex items-center justify-between">
+                    <div className="flex gap-2 items-center bg-white p-2 rounded-full">
                         <Button 
-                            icon={<Settings2 className="mr-2" />} 
+                            icon={<Settings2 size={18} />} 
                             label="Rice Orders" 
-                            className={`p-button-success p-2 w-1/16 ring-0 rounded-full ${buttonStyle(selectedFilter === 'riceOrders')}`} 
+                            className={`p-button-sm border-none ring-0 rounded-full gap-2 ${buttonStyle(selectedFilter === 'riceOrders')}`} 
                             onClick={() => setSelectedFilter('riceOrders')}
                         />
 
                         <Button 
-                            icon={<Settings2 className="mr-2" />}
+                            icon={<Settings2 size={18} />}
                             label="Declined" 
-                            className={`p-button-success p-2 w-1/16 ring-0 rounded-full ${buttonStyle(selectedFilter === 'declined')}`} 
+                            className={`p-button-sm border-none ring-0 rounded-full gap-4 ${buttonStyle(selectedFilter === 'declined')}`} 
                             onClick={() => setSelectedFilter('declined')}
-                        />
-
-                        <RotateCw 
-                            className="w-6 h-6 text-primary cursor-pointer hover:text-secondary transition-colors" 
-                            onClick={fetchData}
-                            title="Refresh data"
                         />
                     </div>
 
                     <div className="flex flex-row w-1/2 justify-end">
                         <Button 
-                            label="New Order + " 
-                            className="w-1/16 p-2 rounded-md p-button-success text-white bg-gradient-to-r from-primary to-secondary ring-0"
-                            onClick={handleBuyRice} />
+                            className="ring-0 border-0 text-white bg-gradient-to-r from-primary to-secondary flex flex-center justify-between items-center gap-4"
+                            onClick={handleBuyRice} 
+                        >
+                            <p className='font-medium'>New Order</p>
+                            <Plus size={18} />
+                        </Button>
                     </div>
                 </div>
 
                 {/* Data Table */}
                 <div className="flex-grow flex flex-col overflow-hidden rounded-lg shadow">
-                    <div className="flex-grow overflow-hidden bg-white">
+                    <div className="overflow-hidden bg-white flex flex-col gap-4 p-5">
+                    <div className='flex justify-between items-center'>
+                        <p className='font-medium text-black'>Orders</p>
+                        <RotateCw size={18} 
+                            onClick={fetchData}
+                            className='text-primary cursor-pointer hover:text-primaryHover'
+                            title="Refresh data"                                
+                        />
+                    </div>
                     <DataTable 
                         value={filteredData}
                         scrollable
                         scrollHeight="flex"
                         scrolldirection="both"
-                        className="p-datatable-sm pt-5" 
                         filters={filters}
                         globalFilterFields={['id', 'status']}
                         emptyMessage="No inventory found."

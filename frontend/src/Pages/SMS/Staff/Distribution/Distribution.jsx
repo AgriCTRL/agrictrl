@@ -456,7 +456,7 @@ function Distribution() {
                         <Button 
                             icon={<RotateCw size={16} className="mr-2" />}
                             label="Delivered" 
-                            className={`p-button-success p-2 w-1/16 ring-0 rounded-full ${buttonStyle(selectedFilter === 'delivered')}`} 
+                            className={`p-button-success p-button-sm border-0 ring-0 rounded-full ${buttonStyle(selectedFilter === 'delivered')}`} 
                             onClick={() => handleFilterChange('delivered')}
                         />
 

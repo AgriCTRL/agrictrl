@@ -18,7 +18,8 @@ import {
     HandHelping,
     Wheat,
     WheatOff,
-    ArrowRightLeft
+    ArrowRightLeft,
+    DivideCircle
 } from "lucide-react";
 
 import { useAuth } from '../../Authentication/Login/AuthContext';
@@ -27,6 +28,7 @@ import StaffLayout from '@/Layouts/StaffLayout';
 
 function Home({ isRightSidebarOpen }) {
     const { user } = useAuth();
+    const [userFullName] = useState(`${user.first_name} ${user.last_name}`);
 
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const navigate = useNavigate();
@@ -218,7 +220,7 @@ function Home({ isRightSidebarOpen }) {
             <div className="p-4 bg-white rounded-lg flex flex-col gap-4">
                 <div className="header flex flex-col gap-2">
                     <h2 className="text-lg font-semibold text-black">What's on the field</h2>
-                    <Divider className='my-0'/>
+                    <DivideCircle className='my-0'/>
                 </div>
                 <div className="flex flex-col gap-2">
                     {rightSidebarItems.length > 0 ? (
@@ -254,7 +256,7 @@ function Home({ isRightSidebarOpen }) {
                             <Button
                                 outlined
                                 className="w-full ring-0 text-primary border-primary hover:bg-primary hover:text-white flex justify-center"
-                                onClick={() => navigate('/staff')}
+                                onClick={() => navigate('/staff/buy')}
                             >
                                 Add new palay batch
                             </Button>
@@ -264,6 +266,7 @@ function Home({ isRightSidebarOpen }) {
                         <Button
                             text
                             className="ring-0 transition-all gap-4 hover:gap-6 hover:bg-transparent text-primary flex justify-end"
+                            onClick={() => navigate('/staff/buy')}
                         >
                             <p className='text-md font-medium'>View All</p>
                             <ChevronRight size={18} />
@@ -287,7 +290,7 @@ function Home({ isRightSidebarOpen }) {
                         <Button
                             text
                             className="ring-0 transition-all gap-4 hover:gap-6 hover:bg-transparent text-primary flex justify-between"
-                            onClick={() => navigate('/staff')}
+                            onClick={() => navigate('/staff/buy')}
                         >
                             <p className='text-md font-medium'>Add new palay batch</p>
                             <ChevronRight size={18} />
@@ -332,7 +335,7 @@ function Home({ isRightSidebarOpen }) {
                             <Button
                                 text
                                 className="ring-0 transition-all gap-4 hover:gap-6 hover:bg-transparent text-primary flex justify-between"
-                                onClick={() => navigate('/staff')}
+                                onClick={() => navigate('/staff/buy')}
                             >
                                 <p className='text-md font-medium'>View All</p>
                                 <ChevronRight size={18} />
