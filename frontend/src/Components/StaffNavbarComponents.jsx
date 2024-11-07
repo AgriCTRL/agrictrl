@@ -11,7 +11,7 @@ function StaffNavbarComponents({ items, rightIcon }) {
     ];
 
     return (
-        <nav className="bg-white shadow-md p-4 flex justify-between items-center">
+        <nav className="bg-white shadow-md py-4 px-8 flex justify-between items-center">
             <div className="flex items-center space-x-4">
                 {navItems.map((item, index) => (
                     <Link key={index} to={item.link} >

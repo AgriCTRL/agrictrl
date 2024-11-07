@@ -8,6 +8,7 @@ import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { IconField } from 'primereact/iconfield';
 import { InputIcon } from 'primereact/inputicon';
+import { DataView, DataViewLayoutOptions } from 'primereact/dataview';
         
 import { Search, CircleAlert, Settings2, FileX, Download, Filter, PackageOpen } from 'lucide-react';
 
@@ -139,7 +140,7 @@ function Inventory() {
                     <div className="flex justify-end w-1/2">
                         {/* <Button 
                             type="button"
-                            className="flex flex-center items-center gap-4 text-primary bg-white hover:bg-white/35 border border-lightest-grey ring-0"
+                            className="flex-center items-center gap-4 text-primary bg-white hover:bg-white/35 border border-lightest-grey ring-0"
                         >
                             <Filter size={20} />
                             <p className="font-semibold">Filters</p>
@@ -147,7 +148,7 @@ function Inventory() {
 
                         <Button 
                             type="button"
-                            className="flex flex-center items-center gap-4 bg-primary hover:bg-primaryHover border ring-0"
+                            className="flex flex-center justify-self-end items-center gap-4 bg-primary hover:bg-primaryHover border ring-0"
                             onClick={exportPdf}
                         >
                             <Download size={20} />

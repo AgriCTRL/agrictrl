@@ -176,8 +176,25 @@ const LoginPage = () => {
 		{ label: 'Private Miller', value: 'Private Miller' }
 	];
 
+	const verifyAccount = () => {
+		const user = {
+			email: "harv@gmail.com",
+			status: "pending",
+		}
+		if (user.status === "pending") {
+			setUnderverificationVisible(true);
+			return false;
+		}
+
+		return true;
+	}
+
 	const loginButton = async () => {
-		return setUnderverificationVisible(true);
+		const isVerified = verifyAccount();
+
+		if (isVerified) {
+			return;
+		}
 		// TO-DO: remove 'return' KEYWORD if check for account verification logic is implemented
 		const isValidated = validateForm()
 
@@ -197,7 +214,7 @@ const LoginPage = () => {
 					localStorage.removeItem('rememberedUser');
 				  }
 			login({ ...result.user, userType });
-	
+			
 			switch (userType) {
 				case 'Admin':
 				navigate('/admin');

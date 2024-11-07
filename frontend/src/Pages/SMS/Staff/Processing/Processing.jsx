@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import StaffLayout from '@/Layouts/StaffLayout';
-import { Search, Box, Sun, RotateCcw, RotateCw } from "lucide-react";
+import { Search, Box, Sun, RotateCcw, RotateCw, Loader2, Undo2, CheckCircle2 } from "lucide-react";
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Tag } from 'primereact/tag';
@@ -16,6 +16,8 @@ import { useAuth } from '../../../Authentication/Login/AuthContext';
 import AcceptDialog from './AcceptDialog';
 import ProcessDialog from './ProcessDialog';
 import ReturnDialog from './ReturnDialog';
+import { IconField } from 'primereact/iconfield';
+import { InputIcon } from 'primereact/inputicon';
 
 const initialDryingData = {
     palayBatchId: '',
@@ -64,7 +66,8 @@ const initialTransactionData = {
 const Processing = () => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const toast = useRef(null);
-    const { user } = useAuth();
+    // const { user } = useAuth();
+    const [user] = useState({ userType: 'NFA Branch Staff' });
 
     // States for UI controls
     const [globalFilterValue, setGlobalFilterValue] = useState('');
@@ -737,27 +740,61 @@ const Processing = () => {
            
         </Button>
     );
+
+    // RIGHT SIDEBAR DETAILS
     
+    const personalStats = [
+        { icon: <Loader2 size={18} />, title: "Palay Bought", value: 9 },
+        { icon: <Undo2 size={18} />, title: "Processed", value: 4 },
+        { icon: <CheckCircle2 size={18} />, title: "Distributed", value: 2 },
+    ];
+
+    const totalValue = personalStats.reduce((acc, stat) => acc + stat.value, 0);
+
+    const rightSidebar = () => {
+        return (
+            <div className="p-4 bg-white rounded-lg flex flex-col gap-4">
+                <div className="header flex flex-col gap-4">
+                    <div className='flex flex-col items-center justify-center gap-2'>
+                        <p className="">Total</p>
+                        <p className="text-2xl sm:text-4xl font-semibold text-primary">{totalValue}</p>
+                    </div>
+                    <div className="flex gap-2">
+                        {personalStats.map((stat, index) => (
+                            <div key={index} className="flex flex-col gap-2 flex-1 items-center justify-center">
+                                <p className="text-sm">{stat.title}</p>
+                                <p className="font-semibold text-primary">{stat.value}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
     return (
-        <StaffLayout activePage="Processing" user={user}>
+        <StaffLayout activePage="Processing" user={user} isRightSidebarOpen={true} isLeftSidebarOpen={false} rightSidebar={rightSidebar()}>
             <Toast ref={toast} />
-            <div className="flex flex-col px-10 py-2 h-full bg-[#F1F5F9]">
-                <div className="flex flex-col justify-center items-center p-10 h-1/4 rounded-lg bg-gradient-to-r from-primary to-secondary mb-2">
-                    <h1 className="text-5xl text-white font-bold mb-2">Palay Processing</h1>
-                    <span className="p-input-icon-left w-1/2 mr-4 mb-4">
-                        <Search className="text-white ml-2 -translate-y-1"/>
-                        <InputText 
-                            type="search"
-                            value={globalFilterValue} 
-                            onChange={onGlobalFilterChange} 
-                            placeholder="Tap to Search" 
-                            className="w-full pl-10 pr-4 py-2 rounded-full text-white bg-transparent border border-white placeholder:text-white"
-                        />
+            <div className="flex flex-col h-full gap-4">
+                <div className="flex flex-col justify-center gap-4 items-center p-8 rounded-lg bg-gradient-to-r from-primary to-secondary">
+                    <h1 className="text-2xl sm:text-4xl text-white font-semibold">Palay Processing</h1>
+                    <span className="w-1/2">
+                        <IconField iconPosition="left">
+                            <InputIcon className=""> 
+                                <Search className="text-white" size={18} />
+                            </InputIcon>
+                            <InputText 
+                                className="ring-0 w-full rounded-full text-white bg-transparent border border-white placeholder:text-white" 
+                                value={globalFilterValue} 
+                                onChange={onGlobalFilterChange} 
+                                placeholder="Tap to search" 
+                            />
+                        </IconField>
                     </span>
                     <div className="flex justify-center space-x-4 w-full">
                         <Button 
                             label="Drying" 
-                            className={`p-button-sm ring-0 ${viewMode === 'drying' ? 'bg-white text-primary' : 'bg-transparent text-white border-white'}`} 
+                            className={`ring-0 ${viewMode === 'drying' ? 'bg-white text-primary border-0' : 'bg-transparent text-white border-white'}`} 
                             onClick={() => {
                                 setViewMode('drying');
                                 setSelectedFilter('request');
@@ -765,7 +802,7 @@ const Processing = () => {
                         />
                         <Button 
                             label="Milling" 
-                            className={`p-button-sm ring-0 ${viewMode === 'milling' ? 'bg-white text-primary' : 'bg-transparent text-white border-white'}`} 
+                            className={`ring-0 ${viewMode === 'milling' ? 'bg-white text-primary border-0' : 'bg-transparent text-white border-white'}`} 
                             onClick={() => {
                                 setViewMode('milling');
                                 setSelectedFilter('request');
@@ -775,30 +812,30 @@ const Processing = () => {
                 </div>
 
                 {/* Filters */}
-                <div className="flex justify-start mb-4 space-x-2 py-2">
-                    <div className="flex bg-white rounded-full gap-2">
+                <div className="flex justify-start">
+                    <div className="flex bg-white rounded-full gap-2 p-2">
                         <FilterButton label="Request" icon={<Box className="mr-2" size={16} />} filter="request" />
                         <FilterButton label={viewMode === 'milling' ? 'In Milling' : 'In Drying'} icon={<Sun className="mr-2" size={16} />} filter="process" />
                         <FilterButton label="Return" icon={<RotateCcw className="mr-2" size={16} />} filter="return" />
                     </div>
-                    <div className="flex items-center justify-center">
-                        <RotateCw 
-                            className="w-6 h-6 text-primary cursor-pointer hover:text-secondary transition-colors" 
-                            onClick={fetchData}
-                            title="Refresh data"
-                        />
-                    </div>
                 </div>
 
                 {/* Data Table */}
-                <div className="flex-grow flex flex-col overflow-hidden rounded-lg shadow">
-                    <div className="flex-grow overflow-hidden bg-white">
+                <div className="flex-grow flex flex-col overflow-hidden rounded-lg">
+                    <div className="overflow-hidden bg-white flex flex-col gap-4 p-5 rounded-lg">
+                    <div className='flex justify-between items-center'>
+                        <p className='font-medium text-black'>Storage</p>
+                        <RotateCw size={18} 
+                            onClick={fetchData}
+                            className='text-primary cursor-pointer hover:text-primaryHover'
+                            title="Refresh data"                                
+                        />
+                    </div>
                     <DataTable 
                             value={filteredData}
                             scrollable
                             scrollHeight="flex"
                             scrollDirection="both"
-                            className="p-datatable-sm pt-5" 
                             filters={filters}
                             globalFilterFields={['processingBatchId', 'palayBatchId', 'transactionStatus', 'processingStatus']}
                             emptyMessage="No data found."

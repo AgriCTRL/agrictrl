@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef  } from 'react';
-import StaffLayout from '@/Layouts/StaffLayout';
 
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -8,16 +7,31 @@ import { FilterMatchMode } from 'primereact/api';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { Toast } from 'primereact/toast';
-
-import { Settings2, Search, CircleAlert, FileX, RotateCw } from "lucide-react";
+import { IconField } from 'primereact/iconfield';
+import { InputIcon } from 'primereact/inputicon';
+        
+import { 
+    Settings2, 
+    Search, 
+    CircleAlert, 
+    FileX, 
+    RotateCw, 
+    Plus, 
+    Loader2,
+    Undo2,
+    CheckCircle2
+} from "lucide-react";
 
 import PalayRegister from './PalayRegister';
 import { useAuth } from '../../../Authentication/Login/AuthContext';
+import StaffLayout from '@/Layouts/StaffLayout';
 
 function BuyPalay() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const toast = useRef(null);
-    const { user } = useAuth();
+    // const { user } = useAuth();
+
+    const [user] = useState({ userType: 'NFA Branch Staff' });
 
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [filters, setFilters] = useState({
@@ -112,57 +126,99 @@ function BuyPalay() {
         });
     };
 
+    const personalStats = [
+        { icon: <Loader2 size={18} />, title: "Palay Bought", value: 9 },
+        { icon: <Undo2 size={18} />, title: "Processed", value: 4 },
+        { icon: <CheckCircle2 size={18} />, title: "Distributed", value: 2 },
+    ];
+
+    const totalValue = personalStats.reduce((acc, stat) => acc + stat.value, 0);
+
+    const rightSidebar = () => {
+        return (
+            <div className="p-4 bg-white rounded-lg flex flex-col gap-4">
+                <div className="header flex flex-col gap-4">
+                    <div className='flex flex-col items-center justify-center gap-2'>
+                        <p className="">Total</p>
+                        <p className="text-2xl sm:text-4xl font-semibold text-primary">{totalValue}</p>
+                    </div>
+                    <div className="flex gap-2">
+                        {personalStats.map((stat, index) => (
+                            <div key={index} className="flex flex-col gap-2 flex-1 items-center justify-center">
+                                <p className="text-sm">{stat.title}</p>
+                                <p className="font-semibold text-primary">{stat.value}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
     return (
-        <StaffLayout activePage="Procurement" user={user}>
+        <StaffLayout activePage="Procurement" user={user} isRightSidebarOpen={true} rightSidebar={rightSidebar()}>
             <Toast ref={toast} />
-            <div className="flex flex-col px-10 py-2 h-full bg-[#F1F5F9]">
-                <div className="flex flex-col justify-center items-center p-10 h-1/4 rounded-lg bg-gradient-to-r from-primary to-secondary mb-2">
-                    <h1 className="text-5xl text-white font-bold mb-2">Palay Procurement</h1>
-                    <span className="p-input-icon-left w-1/2 mr-4 mb-4">
-                        <Search className="text-white ml-2 -translate-y-1"/>
-                        <InputText 
-                            type="search"
-                            value={globalFilterValue} 
-                            onChange={onGlobalFilterChange} 
-                            placeholder="Tap to Search" 
-                            className="w-full pl-10 pr-4 py-2 rounded-full text-white bg-transparent border border-white placeholder:text-white"
-                        />
+            <div className="flex flex-col h-full gap-4">
+                <div className="flex flex-col justify-center gap-4 items-center p-8 rounded-lg bg-gradient-to-r from-primary to-secondary">
+                    <h1 className="text-2xl sm:text-4xl text-white font-semibold">Palay Procurement</h1>
+                    <span className="w-1/2">
+                        <IconField iconPosition="left">
+                            <InputIcon className=""> 
+                                <Search className="text-white" size={18} />
+                            </InputIcon>
+                            <InputText 
+                                className="ring-0 w-full rounded-full text-white bg-transparent border border-white placeholder:text-white" 
+                                value={globalFilterValue} 
+                                onChange={onGlobalFilterChange} 
+                                placeholder="Tap to search" 
+                            />
+                        </IconField>
                     </span>
                 </div>
 
                 {/* Buttons & Search bar */}
-                <div className="flex items-center space-x-2 justify-between mb-2 py-2">
-                    <div className="flex flex-row space-x-2 items-center w-1/2 drop-shadow-md">
-                        {/* <Button className="p-2 px-3 rounded-lg text-md font-medium text-white bg-primary ring-0">All</Button>
+                <div className="flex items-center justify-between">
+                    <div className="flex flex-row gap-2 items-center w-1/2">
+                        {/* <Button 
+                            className="font-medium text-white bg-primary hover:bg-primaryHover ring-0 border-0"
+                        >
+                            All
+                        </Button>
                         <Button 
-                            icon={<Settings2 className="mr-2 text-primary" />}
-                            label="Filters" 
-                            className="p-button-success text-primary border border-gray-300 rounded-full bg-white p-2 w-1/16 ring-0" /> */}
-                        <RotateCw 
-                            className="w-6 h-6 ml-5 text-primary cursor-pointer hover:text-secondary transition-colors" 
-                            onClick={fetchPalayData}
-                            title="Refresh data"
-                        />
+                            className="flex flex-center justify-between items-center gap-4 text-primary border border-gray-300 bg-white ring-0" 
+                        >
+                            <Settings2 size={18} />
+                            <p className='font-medium'>Filters</p>
+                        </Button> */}
                     </div>
                     
-
                     <div className="flex flex-row w-1/2 justify-end">
                         <Button 
-                            label="Buy Palay +" 
-                            className="w-1/16 p-2 rounded-md p-button-success text-white bg-gradient-to-r from-primary to-secondary ring-0"
-                            onClick={handleAddPalay} />
+                            className="ring-0 border-0 text-white bg-gradient-to-r from-primary to-secondary flex flex-center justify-between items-center gap-4"
+                            onClick={handleAddPalay} 
+                        >
+                            <p className='font-medium'>Buy Palay</p>
+                            <Plus size={18} />
+                        </Button>
                     </div>
                 </div>
 
                 {/* Data Table */}
-                <div className="flex-grow flex flex-col overflow-hidden rounded-lg shadow">
-                    <div className="flex-grow overflow-hidden bg-white">
+                <div className="flex flex-col overflow-hidden rounded-lg">
+                    <div className="overflow-hidden bg-white flex flex-col gap-4 p-5">
+                        <div className='flex justify-between items-center'>
+                            <p className='font-medium text-black'>Inventory</p>
+                            <RotateCw size={18} 
+                                onClick={fetchPalayData}
+                                className='text-primary cursor-pointer hover:text-primaryHover'
+                                title="Refresh data"                                
+                            />
+                        </div>
                         <DataTable 
                             value={inventoryData}
                             scrollable
                             scrollHeight="flex"
                             scrolldirection="both"
-                            className="p-datatable-sm pt-5"
                             filters={filters}
                             globalFilterFields={['id', 'status']}
                             emptyMessage="No inventory found."
@@ -192,7 +248,7 @@ function BuyPalay() {
                             <Column field="status" header="Status" body={statusBodyTemplate} className="text-center" headerClassName="text-center" frozen alignFrozen="right" />
                             <Column body={actionBodyTemplate} exportable={false} className="text-center" headerClassName="text-center" frozen alignFrozen="right" />
                         </DataTable>
-                    </div>
+                    </div>  
                 </div>
             </div>
 

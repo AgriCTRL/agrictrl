@@ -1,12 +1,34 @@
 import React, { useState } from 'react';
-import StaffLayout from '@/Layouts/StaffLayout';
+import { useNavigate } from 'react-router-dom';
+
 import { Carousel } from 'primereact/carousel';
-import { Fan, Loader2, Undo2, CheckCircle2 } from "lucide-react";
+import { Avatar } from 'primereact/avatar';
+import { Badge } from 'primereact/badge';
+import { Divider } from 'primereact/divider';
+import { Button } from 'primereact/button';
+import { Tag } from 'primereact/tag';
+import { Accordion, AccordionTab } from 'primereact/accordion';
+        
+import { 
+    Loader2, 
+    Undo2, 
+    CheckCircle2, 
+    User,
+    ChevronRight,
+    HandHelping,
+    Wheat,
+    WheatOff,
+    ArrowRightLeft
+} from "lucide-react";
+
 import { useAuth } from '../../Authentication/Login/AuthContext';
+import StaffLayout from '@/Layouts/StaffLayout';
 
 function Home({ isRightSidebarOpen }) {
-    const { user } = useAuth(); 
+    // const { user } = useAuth(); 
+    const navigate = useNavigate();
 
+    const [user] = useState({ userType: 'NFA Branch Staff' });
     const [carouselItems] = useState([
         {
             title: "Traceability Power",
@@ -26,69 +48,171 @@ function Home({ isRightSidebarOpen }) {
     ]);
 
     const statistics = [
-        { icon: Fan, title: "Total Palay Bought", date: "MM/DD/YYYY", value: 100 },
-        { icon: Fan, title: "Total Palay in Warehouse", date: "MM/DD/YYYY", value: 500 },
-        { icon: Fan, title: "Total Palay Processed", date: "MM/DD/YYYY", value: 1000 },
-        { icon: Fan, title: "Total Rice in Warehouse", date: "MM/DD/YYYY", value: 1500 },
-        { icon: Fan, title: "Total Rice Delivered", date: "MM/DD/YYYY", value: 800 },
+        { icon: <Wheat size={18} />, title: "Total Palay Bought", date: "MM/DD/YYYY", value: 100 },
+        { icon: <Wheat size={18} />, title: "Total Palay in Warehouse", date: "MM/DD/YYYY", value: 500 },
+        { icon: <Wheat size={18} />, title: "Total Palay Processed", date: "MM/DD/YYYY", value: 1000 },
+        { icon: <Wheat size={18} />, title: "Total Rice in Warehouse", date: "MM/DD/YYYY", value: 1500 },
+        { icon: <Wheat size={18} />, title: "Total Rice Delivered", date: "MM/DD/YYYY", value: 800 },
     ];
 
     const personalStats = [
-        { icon: Loader2, title: "Palay Bought", value: 9 },
-        { icon: Undo2, title: "Processed", value: 4 },
-        { icon: CheckCircle2, title: "Distributed", value: 2 },
+        { icon: <Loader2 size={18} />, title: "Palay Bought", value: 9 },
+        { icon: <Undo2 size={18} />, title: "Processed", value: 4 },
+        { icon: <CheckCircle2 size={18} />, title: "Distributed", value: 2 },
     ];
 
-    return (
-        <StaffLayout activePage="Home" user={user}>
-            <div className={`flex flex-row p-2 bg-[#F1F5F9] h-full ${isRightSidebarOpen ? 'pr-[20%]' : ''}`}>
-                
-                {/* Personal Stats Section */}
-                <div className={`flex flex-col items-center h-fit p-2 rounded-md ${
-                    window.innerWidth <= 1366 ? 'w-[20%]' : 'w-[15%]'
-                }`}>
-                    {/* Gradient background */}
-                    <div className="relative w-full bg-gradient-to-r from-primary to-secondary h-14 rounded-t-md">
-                        {/* Avatar */}
-                        <img 
-                            src="/profileAvatar.png"
-                            alt="Juan Pablo" 
-                            className="absolute left-1/2 transform -translate-x-1/2 -bottom-10 w-20 h-20 rounded-full border-4 border-white shadow-md object-cover"
-                        />
+    const leftSidebar = () => {
+        return (
+            <div className={`flex flex-col items-center`}>
+                {/* Gradient background */}
+                <div className="relative w-full bg-gradient-to-r from-secondary to-primary h-16 rounded-t-lg flex items-center justify-center">
+                    {/* Avatar */}
+                    <Avatar 
+                        size="xlarge"
+                        image={user.avatar ?? null} 
+                        icon={<User size={24} />}
+                        shape="circle"
+                        className="cursor-pointer border-2 border-white text-primary bg-tag-grey absolute bottom-0 translate-y-1/2 shadow-lg"
+                    />
+                </div>
+                <div className="w-full rounded-b-md bg-white flex flex-col gap-2 pt-12 px-4 pb-4">
+                    {/* Name and Position */}
+                    <div className="flex flex-col items-center pb-2">
+                        <h1 className="text-lg font-medium text-black">{(user.first_name && user.last_name) ? userFullName : 'username'}</h1>
+                        <p className="text-sm text-gray-400">{user.userType.toLowerCase()}</p>
                     </div>
-                    <div className="w-full rounded-b-md bg-white">
-                        {/* Name and Position */}
-                        <div className="flex flex-col items-center pt-12 pb-2">
-                            <h1 className="text-lg font-bold">{user.firstName + ' ' + user.lastName}</h1>
-                            <h2 className="text-sm text-gray-500">{user.jobTitlePosition}</h2>
-                        </div>
 
-                        <hr className="mx-2 pb-1"/>
-                        
-                        {/* Stat Items */}
-                        <div className="flex flex-col w-full">
-                            {personalStats.map((stat, index) => (
-                                <div key={index} className="flex items-center justify-between p-2 w-full">
-                                    <stat.icon className="w-5 h-5" />
-                                    <h1 className="text-sm font-medium">{stat.title}</h1>
-                                    <div className="flex items-center justify-center w-6 h-6 bg-primary text-white text-xs rounded-full">{stat.value}+</div>
-                                </div>
-                            ))}
-                        </div>
+                    <Divider className='my-0'/>
+                    
+                    {/* Stat Items */}
+                    <div className="flex flex-col w-full">
+                        {personalStats.map((stat, index) => (
+                            <div className="flex items-center hover:bg-background rounded-md pr-5">
+                                <Button
+                                    text
+                                    className="cursor-default pr-0 ring-0 w-full bg-transparent text-black flex justify-between"
+                                >
+                                    <div className="flex gap-4 items-center">
+                                        {stat.icon}
+                                        <p>{stat.title}</p>
+                                    </div>
+                                </Button>
+                                <Badge value={stat.value} className="ml-auto bg-primary" />
+                            </div>
+                        ))}
                     </div>
                 </div>
+            </div>
+        )
+    }
 
-                {/* Main Content */}
-                <div className={`flex flex-col ${
-                    window.innerWidth <= 1366 ? 'w-[80%]' : 'w-[85%]'
-                } h-full`}>
-                    <div className="flex flex-row justify-between items-center">
-                        <div className="flex flex-col items-center">
-                            <h1 className="text-xl">Welcome Back,</h1>
-                            <h1 className="text-2xl font-bold">{user.firstName}!</h1>
+    const [rightSidebarItems, setRightSidebarItems] = useState([
+        {
+            batchId: '123',
+            date_updated: '2021-01-01',
+            status: 'Processing',
+        },
+        {
+            batchId: '456',
+            date_updated: '2021-01-01',
+            status: 'Processing',
+        },
+        {
+            batchId: '789',
+            date_updated: '2021-01-01',
+            status: 'Processing',
+        },
+        {
+            batchId: '456',
+            date_updated: '2021-01-01',
+            status: 'Processing',
+        },
+        {
+            batchId: '789',
+            date_updated: '2021-01-01',
+            status: 'Processing',
+        }
+    ]) 
+
+    const rightSidebar = () => {
+        return (
+            <div className="p-4 bg-white rounded-lg flex flex-col gap-4">
+                <div className="header flex flex-col gap-2">
+                    <h2 className="text-lg font-semibold text-black">What's on the field</h2>
+                    <Divider className='my-0'/>
+                </div>
+                <div className="flex flex-col gap-2">
+                    {rightSidebarItems.length > 0 ? (
+                        <Accordion 
+                            expandIcon="false"
+                            collapseIcon="false"
+                            className='right-sidebar-accordion'
+                        >
+                            {rightSidebarItems.map((item, index) => {
+                                return (
+                                    <AccordionTab
+                                        key={index}
+                                        header={
+                                            <span className="flex items-center gap-4 w-full">
+                                                <ArrowRightLeft size={18} />
+                                                <div className="flex flex-col gap-2">
+                                                    <span className="font-medium">{item.batchId}</span>
+                                                    <small className='font-light'>{item.date_updated}</small>
+                                                </div>
+                                                <Tag value={item.status.toUpperCase()} className="bg-light-grey font-semibold ml-auto" rounded></Tag>
+                                            </span>
+                                        }
+                                        className="bg-none"
+                                    >
+                                    </AccordionTab>
+                                );
+                            })}
+                        </Accordion>
+                    ) : (
+                        <div className="w-full flex flex-col justify-center items-center gap-2">
+                            <WheatOff size={24} className="text-primary" />
+                            <p className="text-black">No data to show.</p>
+                            <Button
+                                outlined
+                                className="w-full ring-0 text-primary border-primary hover:bg-primary hover:text-white flex justify-center"
+                                onClick={() => navigate('/staff')}
+                            >
+                                Add new palay batch
+                            </Button>
                         </div>
+                    )}
+                    {rightSidebarItems.length > 0 && (
+                        <Button
+                            text
+                            className="ring-0 transition-all gap-4 hover:gap-6 hover:bg-transparent text-primary flex justify-end"
+                        >
+                            <p className='text-md font-medium'>View All</p>
+                            <ChevronRight size={18} />
+                        </Button>  
+                    )}
+                </div>
+            </div>
+        )
+    }
 
-                        <h1 className="text-md font-medium text-primary">Add new palay batch {'>'} </h1>
+    return (
+        <StaffLayout activePage="Home" user={user} leftSidebar={leftSidebar()} isRightSidebarOpen={true} isLeftSidebarOpen={true} rightSidebar={rightSidebar()}>
+            <div className={`flex flex-row bg-[#F1F5F9] h-full`}>
+                {/* Main Content */}
+                <div className={`flex flex-col w-full h-full gap-4`}>
+                    <div className="flex flex-row justify-between items-center">
+                        <div className="flex flex-col text-black">
+                            <h1 className="text-xl">Welcome Back,</h1>
+                            <h1 className="text-2xl sm:text-4xl font-semibold">{user.firstName ?? 'User'}!</h1>
+                        </div>
+                        <Button
+                            text
+                            className="ring-0 transition-all gap-4 hover:gap-6 hover:bg-transparent text-primary flex justify-between"
+                            onClick={() => navigate('/staff')}
+                        >
+                            <p className='text-md font-medium'>Add new palay batch</p>
+                            <ChevronRight size={18} />
+                        </Button>
                     </div>
 
                     {/* Carousel for Image Section */}
@@ -98,17 +222,17 @@ function Home({ isRightSidebarOpen }) {
                         numScroll={1} 
                         className="custom-carousel" 
                         itemTemplate={(item) => (
-                            <div className="relative rounded-lg overflow-hidden mb-2 md:h-70 sm:h-64">
+                            <div className="relative rounded-lg overflow-hidden mb-2 md:h-80 sm:h-64">
                                 <div className='h-full'>
                                     <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
                                 </div>
-                                <div className="absolute bg-gradient-to-r from-[#2A2A2A] to-transparent inset-0 flex flex-col gap-4 p-10">
+                                <div className="absolute bg-gradient-to-r from-[#2A2A2A] to-transparent inset-0 flex flex-col gap-4 p-8">
                                     <div className="text-green-400 flex items-center gap-4">
-                                        <Fan />
+                                        <HandHelping size={20} />
                                         <p>What We Offer</p>
                                     </div>
-                                    <h1 className="text-white text-heading font-bold mb-2">{item.title}</h1>
-                                    <p className="text-white mb-4">{item.description}</p>
+                                    <h1 className="text-white text-heading font-semibold">{item.title}</h1>
+                                    <p className="text-white">{item.description}</p>
                                 </div>
                             </div>
                         )}
@@ -123,38 +247,47 @@ function Home({ isRightSidebarOpen }) {
                         }}
                     />
 
-                    <div className="flex flex-row justify-between items-center">
-                        <h1 className="text-xl font-medium">Transactions at NFA Nueva Ecija</h1>
-                        <h1 className="text-md font-medium text-primary">View all {'>'} </h1>
-                    </div>
+                    <div className='flex flex-col gap-4'>
+                        <div className="flex flex-row justify-between items-center">
+                            <h1 className="text-xl font-medium">Transactions</h1>
+                            <Button
+                                text
+                                className="ring-0 transition-all gap-4 hover:gap-6 hover:bg-transparent text-primary flex justify-between"
+                                onClick={() => navigate('/staff')}
+                            >
+                                <p className='text-md font-medium'>View All</p>
+                                <ChevronRight size={18} />
+                            </Button>
+                        </div>
 
-                    {/* Carousel for Statistics */}
-                    <Carousel 
-                        value={statistics} 
-                        numVisible={3} 
-                        numScroll={1}
-                        className="custom-carousel"
-                        itemTemplate={(stat) => (
-                            <div className="flex overflow-hidden space-6 p-4 h-full">
-                                <div className="flex flex-col h-full w-full p-2 rounded-md bg-white">
-                                    <stat.icon className="text-primary ml-4 mt-1"/>
-                                    <h1 className="font-semibold pl-4">{stat.title}</h1>
-                                    
-                                    <div className="flex flex-row space-x-2 pl-4 mb-2">
-                                        <h1 className="text-sm font-light">as of</h1>
-                                        <h1 className="text-sm font-light">{stat.date}</h1>
-                                    </div>
+                        {/* Carousel for Statistics */}
+                        <Carousel 
+                            value={statistics} 
+                            numVisible={3} 
+                            numScroll={1}
+                            className="custom-carousel staff-transactions-carousel relative"
+                            itemTemplate={(stat) => (
+                                <div className="flex overflow-hidden h-full">
+                                    <div className="flex flex-col h-full w-full p-4 gap-2 rounded-md bg-white">
+                                        <div className="w-fit p-4 rounded-lg bg-background text-primary">
+                                            {stat.icon}
+                                        </div>
 
-                                    <div className="flex flex-row justify-center rounded-lg font-semibold space-x-1 p-1 mb-2 mx-14 bg-gray-300">
-                                        <h1>{stat.value}</h1>
-                                        <h1>mt</h1>
+                                        <div className="flex flex-col text-black">
+                                            <h1 className="font-semibold">{stat.title}</h1>
+                                            <h1 className="text-sm font-light">
+                                                as of {stat.date}
+                                            </h1>
+                                        </div>
+
+                                        <Tag value={stat.value} className='bg-tag-grey text-black w-1/2'></Tag>
                                     </div>
                                 </div>
-                            </div>
-                        )}
-                        showIndicators={false}
-                        showNavigators={true}
-                    />
+                            )}
+                            showIndicators={false}
+                            showNavigators={true}
+                        />
+                    </div>
                 </div>
             </div>
         </StaffLayout>

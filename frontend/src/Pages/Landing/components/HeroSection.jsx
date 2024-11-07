@@ -78,7 +78,7 @@ const HeroSection = () => {
                             className="flex flex-center items-center gap-4 bg-primary hover:bg-primaryHover px-6 sm:px-12 border-0"
                             onClick={ loginButton1 }
                         >
-                            <p className="font-semibold">Get Started</p>
+                            <p className="font-medium">Get Started</p>
                             <Wheat size={20}/>
                         </Button>
 
@@ -87,7 +87,7 @@ const HeroSection = () => {
                             onClick={ handleTnTClick }
                             outlined
                         >
-                            <p className="font-bold">Start Tracking!</p>
+                            <p>Start Tracking!</p>
                         </Button>
                     </div>
                 </section>
