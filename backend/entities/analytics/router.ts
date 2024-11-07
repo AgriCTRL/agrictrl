@@ -5,9 +5,10 @@ import {
   getMonthlySummary,
   getAnnualSummary,
   getMonthlyWeeklySummary,
-  getWarehouseInventoryTrend, 
+  getWarehouseInventoryStock, 
   getMillersEfficiencyComparison,
-  getRiceInventoryTimeSeries
+  getRiceInventoryTimeSeries,
+  getRiceOrderAnalytics
 } from "./db";
 
 const router = express.Router();
@@ -44,14 +45,9 @@ router.get("/monthly-weekly-summary", async (req, res) => {
   res.json(summary);
 });
 
-router.get("/warehouse-inventory-trend", async (req, res) => {
-    const { warehouseId, startDate, endDate } = req.query;
-    const trend = await getWarehouseInventoryTrend(
-        warehouseId as string,
-        new Date(startDate as string),
-        new Date(endDate as string)
-    );
-    res.json(trend);
+router.get("/warehouse-inventory-stock", async (_req, res) => {
+  const data = await getWarehouseInventoryStock();
+  res.json(data);
 });
 
 router.get("/millers-efficiency", async (req, res) => {
@@ -59,13 +55,18 @@ router.get("/millers-efficiency", async (req, res) => {
     res.json(efficiency);
 });
 
-router.get("/rice-inventory-timeseries", async (req, res) => {
-    const { startDate, endDate } = req.query;
-    const timeseries = await getRiceInventoryTimeSeries(
-        new Date(startDate as string),
-        new Date(endDate as string)
-    );
-    res.json(timeseries);
+router.get("/rice-inventory-timeseries", async (_req, res) => {
+  const batchData = await getRiceInventoryTimeSeries();
+  res.json(batchData);
+});
+
+router.get('/rice-order-analytics', async (_req, res) => {
+  try {
+    const analytics = await getRiceOrderAnalytics();
+    res.json(analytics);
+  } catch (error) {
+    res.status(500).json({ error: 'Error fetching rice order analytics' });
+  }
 });
 
 export function getRouter() {
