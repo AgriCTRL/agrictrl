@@ -15,7 +15,7 @@ function MillerRegister({ visible, onHide, onMillerRegistered }) {
     const [userId, setUserId] = useState('0');
     const [category, setCategory] = useState('');
     const [type, setType] = useState('In House');
-    const [location, setLocation] = useState('');
+    const [location, setLocation] = useState('Nueva Ecija');
     const [capacity, setCapacity] = useState('');
     const [processing, setProcessing] = useState('0');
     const [contactNumber, setContactNumber] = useState('');
@@ -38,7 +38,8 @@ function MillerRegister({ visible, onHide, onMillerRegistered }) {
     const resetForm = () => {
         setMillerName('');
         setCategory('');
-        setLocation('0');
+        setType('In House');
+        setLocation('Nueva Ecija');
         setCapacity('');
         setContactNumber('');
         setEmail('');
@@ -147,7 +148,7 @@ function MillerRegister({ visible, onHide, onMillerRegistered }) {
                         </div>
 
                         <div>
-                            <label htmlFor="capacity" className="block text-sm font-medium text-gray-700">Capacity</label>
+                            <label htmlFor="capacity" className="block text-sm font-medium text-gray-700">Capacity(bags)</label>
                             <InputText
                                 id="capacity"
                                 type='number'
@@ -173,10 +174,11 @@ function MillerRegister({ visible, onHide, onMillerRegistered }) {
                             <label htmlFor="contactNumber" className="block text-sm font-medium text-gray-700">Contact Number</label>
                             <InputText
                                 id="contactNumber"
-                                type='number'
                                 value={contactNumber}
                                 onChange={(e) => setContactNumber(e.target.value)}
                                 className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
+                                keyfilter="int"
+                                maxLength={11}
                             />
                         </div>
 

@@ -196,7 +196,7 @@ function WarehouseUpdate({
                 htmlFor="totalCapacity"
                 className="block text-sm font-medium text-gray-700"
               >
-                Capacity
+                Capacity(bags)
               </label>
               <InputText
                 id="totalCapacity"

@@ -5,6 +5,8 @@ import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Toast } from 'primereact/toast';
 
+const KILOS_PER_BAG = 50; // Constants for conversion
+
 const SendOrder = ({ visible, onHide, riceBatchesData, selectedOrder, user, onUpdate }) => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const toast = useRef();
@@ -12,6 +14,7 @@ const SendOrder = ({ visible, onHide, riceBatchesData, selectedOrder, user, onUp
 
     const [selectedBatches, setSelectedBatches] = useState([]);
     const [batchQuantities, setBatchQuantities] = useState([]);
+    const [totalCost, setTotalCost] = useState(0);
 
     useEffect(() => {
         if (selectedOrder && riceBatchesData.length > 0) {
@@ -19,6 +22,7 @@ const SendOrder = ({ visible, onHide, riceBatchesData, selectedOrder, user, onUp
             const batches = [];
             const quantities = [];
             let remainingQuantity = requiredQuantity;
+            let calculatedTotalCost = 0;
 
             for (const batch of riceBatchesData) {
                 if (remainingQuantity <= 0) break;
@@ -27,12 +31,16 @@ const SendOrder = ({ visible, onHide, riceBatchesData, selectedOrder, user, onUp
                 if (quantityFromBatch > 0) {
                     batches.push(batch);
                     quantities.push(quantityFromBatch);
+                    // Calculate cost: quantity * bags * kilos per bag * price per kilo
+                    const batchCost = quantityFromBatch * KILOS_PER_BAG * (batch.price || 0);
+                    calculatedTotalCost += batchCost;
                     remainingQuantity -= quantityFromBatch;
                 }
             }
 
             setSelectedBatches(batches);
             setBatchQuantities(quantities);
+            setTotalCost(calculatedTotalCost);
 
             // Update sendOrderData with the first batch
             if (batches.length > 0) {
@@ -54,17 +62,24 @@ const SendOrder = ({ visible, onHide, riceBatchesData, selectedOrder, user, onUp
         remarks: '',
         riceOrderId: null,
         riceRecipientId: null,
-        riceBatchId: null
+        riceBatchId: null,
+        totalCost: 0
     });
+
+    const calculateBatchCost = (quantity, pricePerKilo) => {
+        return quantity * KILOS_PER_BAG * (pricePerKilo || 0);
+    };
 
     const renderBatchesInfo = () => {
         return selectedBatches.map((batch, index) => (
             <div key={batch.id} className="mb-2 p-4 border rounded-lg bg-gray-50">
                 <h3 className="font-medium mb-2">{batch.name}</h3>
                 <div className="grid grid-cols-2 gap-2 text-sm">
-                        <div>Batch ID: {batch.id}</div>
-                    <div>Quantity to Sell: {batchQuantities[index]} bags</div>
-                    <div>Warehouse ID: {batch.warehouseId}</div>
+                    <div>Batch ID: {batch.id}</div>
+                    <div>Quantity to Send: {batchQuantities[index]} bags</div>
+                    <div>Price per Kilo: ₱{batch.price?.toLocaleString() || '0'}</div>
+                    <div>Price per Bag: ₱{((batch.price || 0) * KILOS_PER_BAG).toLocaleString()}</div>
+                    <div>Subtotal: ₱{calculateBatchCost(batchQuantities[index], batch.price).toLocaleString()}</div>
                     <div>Available Bags: {batch.currentCapacity} bags</div>
                 </div>
             </div>
@@ -91,10 +106,7 @@ const SendOrder = ({ visible, onHide, riceBatchesData, selectedOrder, user, onUp
                 throw new Error('Failed to fetch warehouses');
             }
             const warehouses = await warehousesResponse.json();
-            // console.log('Selected Order:', selectedOrder);
-            // console.log('Selected Batches:', selectedBatches);
-            // console.log('Batch Quantities:', batchQuantities);
-    
+
             if (!selectedBatches.length) {
                 throw new Error('No rice batches selected');
             }
@@ -105,7 +117,7 @@ const SendOrder = ({ visible, onHide, riceBatchesData, selectedOrder, user, onUp
                 throw new Error('User information is missing');
             }
     
-            // Create a single transaction body for the entire order
+            // Create transaction body with total cost
             const transactionBody = {
                 item: 'Rice',
                 riceBatchId: selectedBatches[0].id,
@@ -120,14 +132,12 @@ const SendOrder = ({ visible, onHide, riceBatchesData, selectedOrder, user, onUp
                 toLocationType: 'Distribution',
                 toLocationId: selectedOrder.riceRecipientId,
                 status: 'Pending',
-                remarks: `Sending ${selectedBatches.length} batches: ${sendOrderData.remarks || ''}`
+                remarks: `Sending ${selectedBatches.length} batches: ${sendOrderData.remarks || ''}`,
+                totalCost: totalCost // Total cost including all batches
             };    
-
-            // Log transaction body
-            // console.log('Transaction Body:', transactionBody);
     
             const promises = [
-                // Send the single transaction creation request
+                // Send the transaction creation request
                 fetch(`${apiUrl}/transactions`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -137,7 +147,6 @@ const SendOrder = ({ visible, onHide, riceBatchesData, selectedOrder, user, onUp
     
             // Create update requests for each batch
             selectedBatches.forEach((batch, index) => {
-                // Find the warehouse for this batch
                 const warehouse = warehouses.find(w => w.id === batch.warehouseId);
                 if (!warehouse) {
                     throw new Error(`Warehouse not found for batch ${batch.id}`);
@@ -161,9 +170,6 @@ const SendOrder = ({ visible, onHide, riceBatchesData, selectedOrder, user, onUp
                     currentCapacity: batch.currentCapacity - batchQuantities[index]
                 };
     
-                // Log each rice batch update
-                // console.log(`Rice Batch Update Body for Batch ${index + 1}:`, riceBatchBody);
-    
                 promises.push(
                     fetch(`${apiUrl}/ricebatches/update?id=${batch.id}`, {
                         method: 'POST',
@@ -173,14 +179,13 @@ const SendOrder = ({ visible, onHide, riceBatchesData, selectedOrder, user, onUp
                 );
             });
     
-            // Update rice order status
+            // Update rice order status and total cost
             const riceOrderBody = {
                 id: selectedOrder.id,
                 status: 'In Transit',
-                riceBatchId: selectedBatches.map(b => b.id).join(',')
+                riceBatchId: selectedBatches.map(b => b.id).join(','),
+                totalCost: `₱${totalCost.toLocaleString()}`
             };
-    
-            // console.log('Rice Order Update Body:', riceOrderBody);
     
             promises.push(
                 fetch(`${apiUrl}/riceorders/update`, {
@@ -190,7 +195,6 @@ const SendOrder = ({ visible, onHide, riceBatchesData, selectedOrder, user, onUp
                 })
             );
 
-            // Wait for all requests to complete
             const results = await Promise.all(promises);
 
             const failedRequests = results.filter(response => !response.ok);
@@ -222,6 +226,7 @@ const SendOrder = ({ visible, onHide, riceBatchesData, selectedOrder, user, onUp
     
     const handleClose = () => {
         resetSendOrderData();
+        setTotalCost(0);
         onHide();
     };
 
@@ -236,7 +241,8 @@ const SendOrder = ({ visible, onHide, riceBatchesData, selectedOrder, user, onUp
             remarks: '',
             riceOrderId: null,
             riceRecipientId: null,
-            riceBatchId: null
+            riceBatchId: null,
+            totalCost: 0
         });
     };
 
@@ -254,7 +260,6 @@ const SendOrder = ({ visible, onHide, riceBatchesData, selectedOrder, user, onUp
         if (!sendOrderData.transporterDescription) {
             errors.push('Please enter transporter description');
         }
-
     
         if (errors.length > 0) {
             errors.forEach(error => {
@@ -271,7 +276,6 @@ const SendOrder = ({ visible, onHide, riceBatchesData, selectedOrder, user, onUp
         return true;
     };
 
-    // Set initial data when selectedOrder changes
     React.useEffect(() => {
         if (selectedOrder) {
             setSendOrderData(prev => ({
@@ -298,6 +302,11 @@ const SendOrder = ({ visible, onHide, riceBatchesData, selectedOrder, user, onUp
                     <div className="">
                         <label className="block text-sm font-medium text-gray-700 mb-2">Selected Rice Batches</label>
                         {renderBatchesInfo()}
+                        <div className="mt-2 p-2 bg-primary/10 rounded-lg">
+                            <p className="font-medium text-right">
+                                Total Cost: ₱{totalCost.toLocaleString()}
+                            </p>
+                        </div>
                     </div>
 
                     <div className="w-full">

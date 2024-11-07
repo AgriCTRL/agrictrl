@@ -1,4 +1,8 @@
 import { PalayBatch } from "../palaybatches/db";
+import { Warehouse } from "../warehouses/db";
+import { Miller } from "../millers/db";
+import { RiceBatch } from "../ricebatches/db";
+import { MillingBatch } from "../millingbatches/db";
 import { AnalyticsSummary } from "./types";
 
 // Function to get average quantityBags for batches bought on a specific date
@@ -160,4 +164,96 @@ export async function getMonthlyWeeklySummary(year: number, month: number) {
     });
 
     return weeklySummary;
+}
+
+// Inventory Trend Analysis
+export async function getWarehouseInventoryTrend(warehouseId: string, startDate: Date, endDate: Date) {
+    const warehouse = await Warehouse.findOne({ where: { id: warehouseId } });
+    const riceBatches = await RiceBatch.find();
+    
+    // Create daily data points between start and end date
+    const dailyData = [];
+    let currentDate = new Date(startDate);
+    
+    while (currentDate <= endDate) {
+        const dateStr = currentDate.toISOString().split('T')[0];
+        
+        // Filter batches for this warehouse and date
+        const warehouseBatches = riceBatches.filter(batch => 
+            batch.warehouseId === warehouseId &&
+            new Date(batch.dateReceived).toISOString().split('T')[0] === dateStr
+        );
+        
+        // Calculate total current stock for this date
+        const currentStock = warehouseBatches.reduce((sum, batch) => 
+            sum + (batch.currentCapacity || 0), 0);
+            
+        dailyData.push({
+            date: dateStr,
+            currentStock,
+            maxCapacity: warehouse?.totalCapacity || 0
+        });
+        
+        // Move to next day
+        currentDate.setDate(currentDate.getDate() + 1);
+    }
+    
+    return dailyData;
+}
+
+// Milling Efficiency Analysis
+export async function getMillersEfficiencyComparison() {
+    const millers = await Miller.find();
+    const millingBatches = await MillingBatch.find();
+    
+    const millerEfficiencies = millers.map(miller => {
+        // Get all batches for this miller
+        const millerBatches = millingBatches.filter(batch => 
+            batch.millerId === miller.id);
+            
+        // Calculate average efficiency
+        const totalEfficiency = millerBatches.reduce((sum, batch) => 
+            sum + (batch.millingEfficiency || 0), 0);
+        const averageEfficiency = millerBatches.length > 0 ? 
+            totalEfficiency / millerBatches.length : 0;
+            
+        return {
+            millerName: miller.millerName,
+            averageEfficiency,
+            batchCount: millerBatches.length
+        };
+    });
+    
+    return millerEfficiencies;
+}
+
+// Rice Inventory Time Series
+export async function getRiceInventoryTimeSeries(startDate: Date, endDate: Date) {
+    const riceBatches = await RiceBatch.find();
+    
+    // Create daily data points
+    const dailyData = [];
+    let currentDate = new Date(startDate);
+    
+    while (currentDate <= endDate) {
+        const dateStr = currentDate.toISOString().split('T')[0];
+        
+        // Get all batches up to this date
+        const activeBatches = riceBatches.filter(batch => 
+            new Date(batch.dateReceived) <= currentDate);
+            
+        // Calculate total current capacity
+        const totalCapacity = activeBatches.reduce((sum, batch) => 
+            sum + (batch.currentCapacity || 0), 0);
+            
+        dailyData.push({
+            date: dateStr,
+            totalCapacity
+        });
+        
+        // Move to next day
+        currentDate.setDate(currentDate.getDate() + 1);
+    }
+    
+    return dailyData;
 }

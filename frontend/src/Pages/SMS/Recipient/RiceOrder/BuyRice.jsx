@@ -15,7 +15,7 @@ const initialFormData = {
     date: null,
     ricePrice: '30',
     weightInKilo: '',
-    totalPrice: '₱ 0',
+    totalPrice: '₱0',
     dropOffLocation: ''
 };
 
@@ -126,7 +126,7 @@ function BuyRice({ visible, onHide, onRiceOrdered }) {
         setFormData(prevState => ({
             ...prevState,
             weightInKilo: `${weightInKilo} kg`,
-            totalPrice: `₱ ${totalPrice.toLocaleString()}`
+            totalPrice: `₱${totalPrice.toLocaleString()}`
         }));
     };
 
@@ -390,7 +390,7 @@ function BuyRice({ visible, onHide, onRiceOrdered }) {
                             <div className="border-b-2 border-black mt-2"></div>
 
                             <div className="w-full">
-                                <label htmlFor="totalPrice" className="block text-sm font-medium text-gray-700 mb-1">Total Cost</label>
+                                <label htmlFor="totalPrice" className="block text-sm font-medium text-gray-700 mb-1">Estimated Total Cost</label>
                                 <InputText
                                     id="totalPrice"
                                     name="totalPrice"

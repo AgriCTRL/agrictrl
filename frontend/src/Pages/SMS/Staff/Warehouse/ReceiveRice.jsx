@@ -314,7 +314,6 @@ const AcceptRice = ({ visible, onHide, selectedItem = {}, onAcceptSuccess, user,
                                     disabled={!!batch.id}
                                     onChange={(e) => handleInputChange(index, 'riceBatchName', e.target.value)}
                                     className="w-full"
-                                    keyfilter="alphanum"
                                     maxLength={50}
                                 />
                             </div>
