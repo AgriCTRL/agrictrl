@@ -3,7 +3,10 @@ import { Warehouse } from "../warehouses/db";
 import { Miller } from "../millers/db";
 import { RiceBatch } from "../ricebatches/db";
 import { MillingBatch } from "../millingbatches/db";
+import { RiceOrder } from "../riceorders/db";
 import { AnalyticsSummary } from "./types";
+
+import { format } from 'date-fns';
 
 // Function to get average quantityBags for batches bought on a specific date
 export async function getAverageQuantityByDate(date: Date): Promise<AnalyticsSummary> {
@@ -167,38 +170,20 @@ export async function getMonthlyWeeklySummary(year: number, month: number) {
 }
 
 // Inventory Trend Analysis
-export async function getWarehouseInventoryTrend(warehouseId: string, startDate: Date, endDate: Date) {
-    const warehouse = await Warehouse.findOne({ where: { id: warehouseId } });
-    const riceBatches = await RiceBatch.find();
-    
-    // Create daily data points between start and end date
-    const dailyData = [];
-    let currentDate = new Date(startDate);
-    
-    while (currentDate <= endDate) {
-        const dateStr = currentDate.toISOString().split('T')[0];
-        
-        // Filter batches for this warehouse and date
-        const warehouseBatches = riceBatches.filter(batch => 
-            batch.warehouseId === warehouseId &&
-            new Date(batch.dateReceived).toISOString().split('T')[0] === dateStr
-        );
-        
-        // Calculate total current stock for this date
-        const currentStock = warehouseBatches.reduce((sum, batch) => 
-            sum + (batch.currentCapacity || 0), 0);
-            
-        dailyData.push({
-            date: dateStr,
-            currentStock,
-            maxCapacity: warehouse?.totalCapacity || 0
-        });
-        
-        // Move to next day
-        currentDate.setDate(currentDate.getDate() + 1);
-    }
-    
-    return dailyData;
+export async function getWarehouseInventoryStock() {
+    const warehouses = await Warehouse.find();
+  
+    const warehouseData = await Promise.all(
+      warehouses.map(async (warehouse) => {
+        return {
+          warehouseName: warehouse.facilityName,
+          totalCapacity: warehouse.totalCapacity,
+          currentStock: warehouse.currentStock
+        };
+      })
+    );
+  
+    return warehouseData;
 }
 
 // Milling Efficiency Analysis
@@ -228,32 +213,51 @@ export async function getMillersEfficiencyComparison() {
 }
 
 // Rice Inventory Time Series
-export async function getRiceInventoryTimeSeries(startDate: Date, endDate: Date) {
+export async function getRiceInventoryTimeSeries() {
     const riceBatches = await RiceBatch.find();
     
-    // Create daily data points
-    const dailyData = [];
-    let currentDate = new Date(startDate);
+    // Map each batch to show its current vs max capacity
+    const batchData = riceBatches.map(batch => ({
+        batchId: batch.id,
+        batchName: `Batch ${batch.id.slice(-4)}`,
+        currentCapacity: batch.currentCapacity || 0,
+        maxCapacity: batch.maxCapacity || 0
+    }));
     
-    while (currentDate <= endDate) {
-        const dateStr = currentDate.toISOString().split('T')[0];
-        
-        // Get all batches up to this date
-        const activeBatches = riceBatches.filter(batch => 
-            new Date(batch.dateReceived) <= currentDate);
-            
-        // Calculate total current capacity
-        const totalCapacity = activeBatches.reduce((sum, batch) => 
-            sum + (batch.currentCapacity || 0), 0);
-            
-        dailyData.push({
-            date: dateStr,
-            totalCapacity
-        });
-        
-        // Move to next day
-        currentDate.setDate(currentDate.getDate() + 1);
-    }
-    
-    return dailyData;
+    // Sort by batchId to ensure consistent ordering
+    return batchData.sort((a, b) => a.batchId.localeCompare(b.batchId));
 }
+
+// Rice Order Analytics
+export async function getRiceOrderAnalytics(): Promise<{ labels: string[]; data: number[] }> {
+    try {
+      // Fetch all rice orders with status 'Received'
+      const riceOrders = await RiceOrder.find({
+        where: {
+          status: 'Received',
+        },
+      });
+  
+      // Group the orders by date and calculate the total bags sold per day
+      const bagsSoldPerDay: { [key: string]: number } = {};
+  
+      riceOrders.forEach((order) => {
+        const orderDate = format(new Date(order.orderDate), 'yyyy-MM-dd');
+        // Accumulate the bags sold for the same day
+        if (bagsSoldPerDay[orderDate]) {
+          bagsSoldPerDay[orderDate] += order.riceQuantityBags;
+        } else {
+          bagsSoldPerDay[orderDate] = order.riceQuantityBags;
+        }
+      });
+  
+      const labels = Object.keys(bagsSoldPerDay);
+      const data = labels.map((label) => bagsSoldPerDay[label]);
+  
+      return { labels, data };
+    } catch (error) {
+      console.error('Error in getRiceOrderAnalytics:', error);
+      throw error;
+    }
+}
+  
