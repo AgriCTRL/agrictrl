@@ -11,7 +11,7 @@ import { Search, Settings2, FileX, Filter, Download, Plus } from 'lucide-react';
 
 import WarehouseRegister from './WarehouseRegister';
 import WarehouseUpdate from './WarehouseUpdate';
-import pdfPortraitExport from '../../../../../Components/pdfPortraitExport';
+import pdfPortraitExport from '../../../../../Components/Pdf/pdfPortraitExport';
 import { IconField } from 'primereact/iconfield';
 import { InputIcon } from 'primereact/inputicon';
 

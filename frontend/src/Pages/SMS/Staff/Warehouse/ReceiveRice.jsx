@@ -5,24 +5,15 @@ import { InputText } from 'primereact/inputtext';
 import { InputNumber } from 'primereact/inputnumber';
 import { Toast } from 'primereact/toast';
 
-const initialRiceAcceptData = {
-    riceBatchName: '',
-    riceType: 'NFA Rice',
-    price: '',
-    currentCapacity: '',
-    maxCapacity: 'maxBatchCapacity'
-};
-
 const AcceptRice = ({ visible, onHide, selectedItem = {}, onAcceptSuccess, user, refreshData }) => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const toast = useRef(null);
 
-	const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const [maxBatchCapacity, setMaxBatchCapacity] = useState(500);
-    
     const [riceBatches, setRiceBatches] = useState([]);
     const [batchInputs, setBatchInputs] = useState([]);
-	const [totalBagsEntered, setTotalBagsEntered] = useState(0);
+    const [totalBagsEntered, setTotalBagsEntered] = useState(0);
 
     useEffect(() => {
         if (visible) {
@@ -30,7 +21,7 @@ const AcceptRice = ({ visible, onHide, selectedItem = {}, onAcceptSuccess, user,
         }
     }, [visible]);
 
-	useEffect(() => {
+    useEffect(() => {
         const total = batchInputs.reduce((sum, batch) => sum + (batch.bagsToStore || 0), 0);
         setTotalBagsEntered(total);
     }, [batchInputs]);
@@ -58,8 +49,7 @@ const AcceptRice = ({ visible, onHide, selectedItem = {}, onAcceptSuccess, user,
     };
 
     const handleReceiveRice = async () => {
-
-		setIsLoading(true);
+        setIsLoading(true);
         try {
             if (totalBagsEntered === 0) {
                 toast.current.show({
@@ -71,7 +61,7 @@ const AcceptRice = ({ visible, onHide, selectedItem = {}, onAcceptSuccess, user,
                 return;
             }
 
-            const requiredBags = selectedItem?.batchQuantityBags || 0;
+            const requiredBags = selectedItem?.quantityBags || 0;
             if (totalBagsEntered !== requiredBags) {
                 toast.current.show({
                     severity: 'error',
@@ -84,8 +74,8 @@ const AcceptRice = ({ visible, onHide, selectedItem = {}, onAcceptSuccess, user,
 
             // Calculate weights per bag
             const weightPerBag = {
-                gross: selectedItem?.grossWeight ? selectedItem.grossWeight / selectedItem.batchQuantityBags : 0,
-                net: selectedItem?.netWeight ? selectedItem.netWeight / selectedItem.batchQuantityBags : 0
+                gross: selectedItem?.grossWeight ? selectedItem.grossWeight / selectedItem.quantityBags : 0,
+                net: selectedItem?.netWeight ? selectedItem.netWeight / selectedItem.quantityBags : 0
             };
 
             // Process each batch
@@ -167,6 +157,9 @@ const AcceptRice = ({ visible, onHide, selectedItem = {}, onAcceptSuccess, user,
                 }
             }
 
+            const currentDate = new Date();
+            currentDate.setHours(currentDate.getHours()+8);
+
             // Update transaction status
             if (selectedItem?.transactionId) {
                 await fetch(`${apiUrl}/transactions/update`, {
@@ -177,7 +170,7 @@ const AcceptRice = ({ visible, onHide, selectedItem = {}, onAcceptSuccess, user,
                     body: JSON.stringify({
                         id: selectedItem.transactionId,
                         status: 'Received',
-                        receiveDateTime: new Date().toISOString(),
+                        receiveDateTime: currentDate.toISOString(),
                         receiverId: user?.id
                     })
                 });
@@ -202,14 +195,14 @@ const AcceptRice = ({ visible, onHide, selectedItem = {}, onAcceptSuccess, user,
                 life: 3000
             });
         } finally {
-			setIsLoading(false);
-		}
+            setIsLoading(false);
+        }
     };
-	
+
     const handleInputChange = (batchIndex, field, value) => {
         const updatedInputs = [...batchInputs];
         const currentBatch = updatedInputs[batchIndex];
-        const totalQuantityBags = selectedItem?.batchQuantityBags || 0;
+        const totalQuantityBags = selectedItem?.quantityBags || 0;
         const remainingTotalBags = totalQuantityBags - (totalBagsEntered - (currentBatch.bagsToStore || 0));
 
         if (field === 'bagsToStore') {
@@ -272,7 +265,7 @@ const AcceptRice = ({ visible, onHide, selectedItem = {}, onAcceptSuccess, user,
 
         setBatchInputs(updatedInputs);
     };
-	
+
     const handleClose = () => {
         setBatchInputs([{ riceBatchName: `Rice Batch 1`, price: '', bagsToStore: 0 }]);
         setTotalBagsEntered(0);
@@ -285,12 +278,12 @@ const AcceptRice = ({ visible, onHide, selectedItem = {}, onAcceptSuccess, user,
             <div className="flex items-center gap-2">
                 <span className="font-medium">Bags of Rice to Store:</span>
                 <span className="px-2 py-1 bg-gray-100 rounded">
-                    {totalBagsEntered} / {selectedItem?.batchQuantityBags || 0}
+                    {totalBagsEntered} / {selectedItem?.quantityBags || 0}
                 </span>
             </div>
         </div>
     );
-	
+
     const dialogFooter = (
         <div className="flex justify-end gap-2">
             <Button label="Cancel" icon="pi pi-times" onClick={handleClose} className="p-button-text" disabled={isLoading}/>
@@ -299,7 +292,7 @@ const AcceptRice = ({ visible, onHide, selectedItem = {}, onAcceptSuccess, user,
     );
 
     return (
-		<Dialog
+        <Dialog
             visible={visible}
             onHide={isLoading ? null : onHide}
             header={dialogHeader}
@@ -358,7 +351,7 @@ const AcceptRice = ({ visible, onHide, selectedItem = {}, onAcceptSuccess, user,
                                 min={0}
                                 max={Math.min(
                                     batch.id ? maxBatchCapacity - batch.currentCapacity : maxBatchCapacity,
-                                    (selectedItem?.batchQuantityBags || 0) - (totalBagsEntered - (batch.bagsToStore || 0))
+                                    (selectedItem?.quantityBags || 0) - (totalBagsEntered - (batch.bagsToStore || 0))
                                 )}
                                 disabled={
                                     batch.bagsToStore >=

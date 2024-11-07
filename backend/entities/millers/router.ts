@@ -5,7 +5,8 @@ import {
     createMiller,
     getMiller,
     getMillers,
-    updateMiller
+    updateMiller,
+    getMillerByUserId
 } from './db';
 
 export function getRouter(): Router {
@@ -26,6 +27,19 @@ export function getRouter(): Router {
         }
     );
 
+    router.get('/user/:userId', async (req, res) => {
+        const { userId } = req.params;
+        try {
+            const miller = await getMillerByUserId(String(userId));
+            if (!miller) {
+                return res.status(404).json({ message: 'Miller not found for this user' });
+            }
+            res.json(miller);
+        } catch (error) {
+            res.status(500).json({ message: 'Error fetching miller by userId' });
+        }
+    });
+
     router.get('/count', async (_req, res) => {
         res.json(await countMillers());
     });
@@ -33,7 +47,7 @@ export function getRouter(): Router {
     router.get('/:id', async (req, res) => {
         const { id } = req.params;
 
-        const miller = await getMiller(Number(id));
+        const miller = await getMiller(String(id));
 
         res.json(miller);
     });
@@ -41,7 +55,7 @@ export function getRouter(): Router {
     router.post(
         '/',
         async (
-            req: Request<any, any, { millerName: string; userId: number; category: string; type: string; location: string; capacity: number; processing: number; contactNumber: string; email: string; status: string }>,
+            req: Request<any, any, { millerName: string; userId: string; category: string; type: string; location: string; capacity: number; processing: number; contactNumber: string; email: string; status: string }>,
             res
         ) => {
             const { millerName, userId, category, type, location, capacity, processing, contactNumber, email, status } = req.body;
@@ -69,7 +83,7 @@ export function getRouter(): Router {
 }
 
 async function updateHandler(
-    req: Request<any, any, { id: number; millerName?: string; userId?: number; category?: string; type?: string; location?: string; capacity?: number; processing?: number; contactNumber?: string; email?: string; status?: string }>,
+    req: Request<any, any, { id: string; millerName?: string; userId?: string; category?: string; type?: string; location?: string; capacity?: number; processing?: number; contactNumber?: string; email?: string; status?: string }>,
     res: Response
 ): Promise<void> {
     const { id, millerName, userId, category, type, location, capacity, processing, contactNumber, email, status } = req.body;

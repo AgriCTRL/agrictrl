@@ -1,18 +1,18 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity, Column, Entity, PrimaryColumn, BeforeInsert } from 'typeorm';
 
 @Entity()
 export class DryingBatch extends BaseEntity {
-    @PrimaryGeneratedColumn()
-    id: number;
+    @PrimaryColumn('varchar', { length: 10 })
+    id: string;
 
     @Column()
-    palayBatchId: number;
+    palayBatchId: string;
 
     @Column({ nullable: true})
     dryingMethod: string;
 
     @Column()
-    dryerId: number;
+    dryerId: string;
 
     @Column()
     startDateTime: Date;
@@ -34,6 +34,24 @@ export class DryingBatch extends BaseEntity {
 
     @Column({ default: 'in progress' })
     status: string;
+
+    @BeforeInsert()
+    async generateId() {
+        const prefix = '030402';
+        const lastOrder = await DryingBatch.find({
+            order: { id: 'DESC' },
+            take: 1
+        });
+
+        let nextNumber = 1;
+        if (lastOrder.length > 0) {
+            const lastId = lastOrder[0].id;
+            const lastNumber = parseInt(lastId.slice(-4));
+            nextNumber = lastNumber + 1;
+        }
+
+        this.id = `${prefix}${nextNumber.toString().padStart(4, '0')}`;
+    }
 }
 
 export type DryingBatchCreate = Pick<DryingBatch, 'palayBatchId' | 'dryingMethod' | 'dryerId' | 'startDateTime' | 'endDateTime' | 'driedQuantityBags' | 'driedGrossWeight' | 'driedNetWeight' | 'moistureContent' | 'status' >;
@@ -52,7 +70,7 @@ export async function getDryingBatches(limit: number, offset: number): Promise<D
     });
 }
 
-export async function getDryingBatch(id: number): Promise<DryingBatch | null> {
+export async function getDryingBatch(id: string): Promise<DryingBatch | null> {
     return await DryingBatch.findOne({
         where: {
             id
@@ -103,4 +121,13 @@ export async function updateDryingBatch(dryingBatchUpdate: DryingBatchUpdate): P
     }
 
     return dryingBatch;
+}
+
+export async function getTotalQuantityBags(): Promise<number> {
+    const result = await DryingBatch
+        .createQueryBuilder('dryingBatch')
+        .select('SUM(dryingBatch.driedQuantityBags)', 'total')
+        .getRawOne();
+    
+    return result?.total || 0;
 }

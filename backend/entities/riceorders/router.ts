@@ -2,10 +2,12 @@ import express, { Request, Response, Router } from 'express';
 
 import {
     countRiceOrders,
+    countReceivedRiceOrders,
     createRiceOrder,
     getRiceOrder,
     getRiceOrders,
-    updateRiceOrder
+    updateRiceOrder,
+    getTotalQuantityBags
 } from './db';
 
 export function getRouter(): Router {
@@ -34,10 +36,19 @@ export function getRouter(): Router {
         res.json(await countRiceOrders());
     });
 
+    router.get('/received/count', async (_req, res) => {
+        res.json(await countReceivedRiceOrders());
+    });
+
+    router.get('/totals/quantity-bags', async (_req, res) => {
+        const total = await getTotalQuantityBags();
+        res.json({ total });
+    });
+
     router.get('/:id', async (req, res) => {
         const { id } = req.params;
 
-        const riceOrder = await getRiceOrder(Number(id));
+        const riceOrder = await getRiceOrder(String(id));
 
         res.json(riceOrder);
     });
@@ -45,7 +56,7 @@ export function getRouter(): Router {
     router.post(
         '/',
         async (
-            req: Request<any, any, { riceRecipientId: number; riceBatchId: number; orderDate: Date; dropOffLocation: string; riceQuantityBags: number; description: string; totalCost: number; preferredDeliveryDate: Date; status: string; isAccepted: boolean; remarks: string }>,
+            req: Request<any, any, { riceRecipientId: string; riceBatchId: string; orderDate: Date; dropOffLocation: string; riceQuantityBags: number; description: string; totalCost: number; preferredDeliveryDate: Date; status: string; isAccepted: boolean; remarks: string }>,
             res
         ) => {
             const { riceRecipientId, riceBatchId, orderDate, dropOffLocation, riceQuantityBags, description, totalCost, preferredDeliveryDate, status, isAccepted, remarks } = req.body;
@@ -74,7 +85,7 @@ export function getRouter(): Router {
 }
 
 async function updateHandler(
-    req: Request<any, any, { id: number; riceRecipientId?: number; riceBatchId?: number; orderDate?: Date; dropOffLocation?: string; riceQuantityBags?: number; description?: string; totalCost?: number; preferredDeliveryDate?: Date; status?: string; isAccepted?: boolean; remarks?: string }>,
+    req: Request<any, any, { id: string; riceRecipientId?: string; riceBatchId?: string; orderDate?: Date; dropOffLocation?: string; riceQuantityBags?: number; description?: string; totalCost?: number; preferredDeliveryDate?: Date; status?: string; isAccepted?: boolean; remarks?: string }>,
     res: Response
 ): Promise<void> {
     const { id, riceRecipientId, riceBatchId, orderDate, dropOffLocation, riceQuantityBags, description, totalCost, preferredDeliveryDate, status, isAccepted, remarks } = req.body;

@@ -815,6 +815,7 @@ function Profile() {
                             disabled={!editing}
                             inputClassName="w-full p-3 ring-0"
                             toggleMask
+                            className="w-full"
                         />
                         {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
                     </div>
@@ -827,6 +828,7 @@ function Profile() {
                             inputClassName="w-full p-3 ring-0"
                             toggleMask
                             feedback={false}
+                            className="w-full"
                         />
                         {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
                     </div>

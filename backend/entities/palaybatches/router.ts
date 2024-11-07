@@ -9,7 +9,9 @@ import {
     createPalayBatch,
     getPalayBatch,
     getPalayBatches,
-    updatePalayBatch
+    updatePalayBatch,
+    getTotalQuantityBags,
+    getTotalPalayQuantityBags
 } from './db';
 
 export function getRouter(): Router {
@@ -34,10 +36,20 @@ export function getRouter(): Router {
         res.json(await countPalayBatches());
     });
 
+    router.get('/totals/quantity-bags', async (_req, res) => {
+        const total = await getTotalQuantityBags();
+        res.json({ total });
+    });
+
+    router.get('/totals/palay-quantity-bags', async (_req, res) => {
+        const total = await getTotalPalayQuantityBags();
+        res.json({ total });
+    });
+
     router.get('/:id', async (req, res) => {
         const { id } = req.params;
 
-        const palayBatch = await getPalayBatch(Number(id));
+        const palayBatch = await getPalayBatch(String(id));
 
         res.json(palayBatch);
     });
@@ -183,7 +195,7 @@ export function getRouter(): Router {
 }
 
 async function updateHandler(
-    req: Request<any, any, { id: number;
+    req: Request<any, any, { id: string;
         palayVariety?: string
         dateBought?: Date;
         buyingStationName?: string;

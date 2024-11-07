@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Carousel } from 'primereact/carousel';
@@ -24,11 +24,90 @@ import {
 import { useAuth } from '../../Authentication/Login/AuthContext';
 import StaffLayout from '@/Layouts/StaffLayout';
 
-function Home({ isRightSidebarOpen }) {
-    // const { user } = useAuth(); 
-    const navigate = useNavigate();
 
-    const [user] = useState({ userType: 'NFA Branch Staff' });
+function Home({ isRightSidebarOpen }) {
+    const { user } = useAuth();
+
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    const navigate = useNavigate();
+    const [palayCount, setPalayCount] = useState(0);
+    const [processedCount, setProcessedCount] = useState(0);
+    const [distributedCount, setDistributedCount] = useState(0);
+    const [totalPalayBought, setTotalPalayBought] = useState(0);
+    const [totalPalayWarehouse, setTotalPalayWarehouse] = useState(0);
+    const [totalPalayProcessed, setTotalPalayProcessed] = useState(0);
+    const [totalRiceWarehouse, setTotalRiceWarehouse] = useState(0);
+    const [totalRiceDelivered, setTotalRiceDelivered] = useState(0);
+    const [currentDate, setCurrentDate] = useState(() => {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = (now.getMonth() + 1).toString().padStart(2, '0');
+        const day = now.getDate().toString().padStart(2, '0');   
+    
+        return `${month}/${day}/${year}`;
+    });
+
+    const viewAllTransactions = () => {
+        navigate('/staff/warehouse')
+    }
+
+    const toProcurement = () => {
+        navigate('/staff/buy')
+    }
+
+    const fetchData = async () => {
+        const palayCountRes = await fetch(`${apiUrl}/palaybatches/count`);
+        setPalayCount(await palayCountRes.json());
+        const millingCountRes = await fetch(`${apiUrl}/millingbatches/count`);
+        const millingCount = await millingCountRes.json();
+        const dryingCountRes = await fetch(`${apiUrl}/dryingbatches/count`);
+        const dryingCount = await dryingCountRes.json();
+        setProcessedCount( millingCount + dryingCount );
+        const distributeCountRes = await fetch(`${apiUrl}/riceorders/received/count`);
+        setDistributedCount(await distributeCountRes.json());
+    }
+
+    const fetchTotalPalayBought = async () => {
+        const res = await fetch(`${apiUrl}/palaybatches/totals/quantity-bags`);
+        const count = await res.json();
+        setTotalPalayBought(count.total);
+    }
+
+    const fetchTotalPalayWarehouse = async () => {
+        const res = await fetch(`${apiUrl}/palaybatches/totals/palay-quantity-bags`);
+        const count = await res.json();
+        setTotalPalayWarehouse(count.total);
+    }
+
+    const fetchTotalPalayProcessed = async () => {
+        const dryingRes = await fetch(`${apiUrl}/dryingbatches/totals/quantity-bags`);
+        const dryingCount = await dryingRes.json();
+        const millingRes = await fetch(`${apiUrl}/millingbatches/totals/quantity-bags`);
+        const millingCount = await millingRes.json();
+        setTotalPalayProcessed(dryingCount.total + millingCount.total);
+    }
+
+    const fetchTotalRiceWarehouse = async () => {
+        const res = await fetch(`${apiUrl}/ricebatches/totals/current-capacity`);
+        const count = await res.json();
+        setTotalRiceWarehouse(count.total);
+    }
+
+    const fetchTotalRiceDelivered = async () => {
+        const res = await fetch(`${apiUrl}/riceorders/totals/quantity-bags`);
+        const count = await res.json();
+        setTotalRiceDelivered(count.total);
+    }
+
+    useEffect(() => {
+        fetchData();
+        fetchTotalPalayBought();
+        fetchTotalPalayWarehouse();
+        fetchTotalPalayProcessed();
+        fetchTotalRiceWarehouse();
+        fetchTotalRiceDelivered();
+    }, []);
+
     const [carouselItems] = useState([
         {
             title: "Traceability Power",

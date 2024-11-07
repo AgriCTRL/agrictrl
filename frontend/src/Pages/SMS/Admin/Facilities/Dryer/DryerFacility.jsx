@@ -173,8 +173,8 @@ function DryerFacility() {
                         <Column field="id" header="ID" className="text-center" headerClassName="text-center"/>
                         <Column field="dryerName" header="Dryer Name" className="text-center" headerClassName="text-center"/>
                         <Column field="location" header="Location" className="text-center" headerClassName="text-center"/>
-                        <Column field="capacity" header="Capacity (mt/hrs)" className="text-center" headerClassName="text-center"/>
-                        {/* <Column field="processing" header="Processing" className="text-center" headerClassName="text-center"/> */}
+                        <Column field="capacity" header="Capacity (bags)" className="text-center" headerClassName="text-center"/>
+                        <Column field="processing" header="Processing" className="text-center" headerClassName="text-center"/>
                         <Column field="status" header="Status" body={statusBodyTemplate} className="text-center" headerClassName="text-center"/>
                         <Column body={actionBodyTemplate} exportable={false} className="text-center" headerClassName="text-center"/>
                     </DataTable>

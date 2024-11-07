@@ -2,11 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 
 import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
-import { InputTextarea } from 'primereact/inputtextarea';
-import { Dropdown } from 'primereact/dropdown';
-import { Calendar } from 'primereact/calendar';
 import { Toast } from 'primereact/toast';
-import { InputText } from 'primereact/inputtext';
+
+import { WSR } from '../../../../Components/Pdf/pdfWarehouseStockReceipt';
 
 import { Wheat, UserIcon, CheckIcon, TruckIcon } from 'lucide-react';
 
@@ -82,6 +80,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
     const { user } = useAuth();
 
     const [userData, setUserData] = useState(null);
+    const [selectedSupplier, setSelectedSupplier] = useState(null);
     const [warehouseData, setWarehouseData] = useState([]);
     const [palayData, setPalayData] = useState({
         // Farmer Info
@@ -163,7 +162,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
     })
     .map(warehouse => ({
         label: `${warehouse.facilityName} (Available: ${warehouse.totalCapacity - warehouse.currentStock} bags)`,
-        name: `${warehouse.facilityName}`,
+        name: warehouse.facilityName,
         value: warehouse.id
     }));
 
@@ -288,11 +287,15 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
 
     const handleQualityTypeInputChange = (e) => {
         const { name, value } = e.target;
-    
+        
         setPalayData((prevState) => ({
             ...prevState,
             [name]: value,
-            status: value === 'Wet' ? 'To be Dry' : value === 'Dry' ? 'To be Mill' : prevState.status
+            status: value === 'Wet' ? 'To be Dry' : value === 'Dry' ? 'To be Mill' : prevState.status,
+            // Set predetermined values based on quality type
+            moistureContent: value === 'Wet' ? 20 : value === 'Dry' ? 7 : prevState.moistureContent,
+            purity: value === 'Wet' ? 97 : value === 'Dry' ? 99 : prevState.purity,
+            damaged: value === 'Wet' ? 4 : value === 'Dry' ? 1 : prevState.damaged
         }));
     };
 
@@ -354,7 +357,6 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
     const handleSubmit = async () => {
         const isValid = validateForm(activeStep);
         if (!isValid) return;
-        console.log(palayData);
     
         setIsLoading(true);
         try {
@@ -370,6 +372,8 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                     birthDate: palayData.birthDate ? palayData.birthDate.toISOString().split('T')[0] : null,
                     plantedDate: palayData.plantedDate ? palayData.plantedDate.toISOString().split('T')[0] : null,
                     harvestedDate: palayData.harvestedDate ? palayData.harvestedDate.toISOString().split('T')[0] : null,
+                    // If we have a selected supplier, use their ID
+                    palaySupplierID: selectedSupplier ? selectedSupplier.id : null
                 })
             });
     
@@ -391,6 +395,9 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                     itemId: palayId
                 })
             });
+
+            const transactionResult = await transactionResponse.json();
+            const transactionId = transactionResult.id;
     
             if (!transactionResponse.ok) {
                 throw new Error('Failed to submit transaction data');
@@ -402,7 +409,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
             if (!targetWarehouse) {
                 throw new Error('Target warehouse not found');
             }
-    
+
             const newStock = Number(palayData.quantityBags) + Number(targetWarehouse.currentStock);
     
             const warehouseResponse = await fetch(`${apiUrl}/warehouses/update`, {
@@ -415,10 +422,20 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                     currentStock: newStock
                 })
             });
-    
+
             if (!warehouseResponse.ok) {
                 throw new Error('Failed to update warehouse stock');
             }
+
+            // generate WSR
+            const receiptData = {
+                ...palayData,
+                ...transactionData,
+                palayId,
+                transactionId
+            };
+            const pdf = WSR(receiptData);
+            pdf.save(`WSR-${palayId}.pdf`);
     
             // Reset states and show success message
             setPalayData(initialPalayData);
@@ -433,6 +450,8 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
     
             onPalayRegistered(palayResult);
             onHide();
+
+            
     
             refreshData();
         } catch (error) {
@@ -447,12 +466,17 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
             setIsLoading(false);
         }
     };
+
+    const handleSupplierSelect = (supplier) => {
+        setSelectedSupplier(supplier);
+    };
     
     const renderFarmerInfo = () => (
         <FarmerInfoForm 
             palayData={palayData}
             handlePalayInputChange={handlePalayInputChange}
             errors={errors}
+            onSupplierSelect={handleSupplierSelect}
         />
     );
 

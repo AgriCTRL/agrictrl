@@ -20,7 +20,7 @@ export function getRouter(): Router {
         ) => {
             const limit = Number(req.query.limit ?? -1);
             const offset = Number(req.query.offset ?? 0);
-            const toLocationId = req.query.toLocationId ? Number(req.query.toLocationId) : undefined;
+            const toLocationId = req.query.toLocationId ? String(req.query.toLocationId) : undefined;
             const toLocationType = req.query.toLocationType;
             const status = req.query.status;
     
@@ -38,7 +38,7 @@ export function getRouter(): Router {
     router.get('/:id', async (req, res) => {
         const { id } = req.params;
 
-        const transaction = await getTransaction(Number(id));
+        const transaction = await getTransaction(String(id));
 
         res.json(transaction);
     });
@@ -47,7 +47,7 @@ export function getRouter(): Router {
         const { toLocationId } = req.params;
         const toLocationType = req.query.toLocationType as string | undefined;
     
-        const transaction = await getTransactionByToLocationId(Number(toLocationId), toLocationType);
+        const transaction = await getTransactionByToLocationId(String(toLocationId), toLocationType);
     
         res.json(transaction);
     });
@@ -55,14 +55,15 @@ export function getRouter(): Router {
     router.post(
         '/',
         async (
-            req: Request<any, any, { item: string; itemId: number; senderId: number; sendDateTime: Date; fromLocationType: string; fromLocationId: number; transporterName: string; transporterDesc: string; receiverId: number; receiveDateTime: Date; toLocationType: string; toLocationId: number; status: string; remarks: string }>,
+            req: Request<any, any, { item: string; itemId: string; riceBatchId: string; senderId: string; sendDateTime: Date; fromLocationType: string; fromLocationId: string; transporterName: string; transporterDesc: string; receiverId: string; receiveDateTime: Date; toLocationType: string; toLocationId: string; status: string; remarks: string }>,
             res
         ) => {
-            const { item, itemId, senderId, sendDateTime, fromLocationType, fromLocationId, transporterName, transporterDesc, receiverId, receiveDateTime, toLocationType, toLocationId, status, remarks } = req.body;
+            const { item, itemId, riceBatchId, senderId, sendDateTime, fromLocationType, fromLocationId, transporterName, transporterDesc, receiverId, receiveDateTime, toLocationType, toLocationId, status, remarks } = req.body;
             
             const transaction = await createTransaction({
                 item,
                 itemId,
+                riceBatchId,
                 senderId,
                 sendDateTime,
                 fromLocationType,
@@ -87,15 +88,16 @@ export function getRouter(): Router {
 }
 
 async function updateHandler(
-    req: Request<any, any, { id: number; item?: string; itemId?: number; senderId?: number; sendDateTime?: Date; fromLocationType?: string; fromLocationId?: number; transporterName?: string; transporterDesc?: string; receiverId?: number; receiveDateTime?: Date; toLocationType?: string; toLocationId?: number; status?: string; remarks?: string }>,
+    req: Request<any, any, { id: string; item?: string; itemId?: string; riceBatchId?: string; senderId?: string; sendDateTime?: Date; fromLocationType?: string; fromLocationId?: string; transporterName?: string; transporterDesc?: string; receiverId?: string; receiveDateTime?: Date; toLocationType?: string; toLocationId?: string; status?: string; remarks?: string }>,
     res: Response
 ): Promise<void> {
-    const { id, item, itemId, senderId, sendDateTime, fromLocationType, fromLocationId, transporterName, transporterDesc, receiverId, receiveDateTime, toLocationType, toLocationId, status, remarks } = req.body;
+    const { id, item, itemId, senderId, riceBatchId, sendDateTime, fromLocationType, fromLocationId, transporterName, transporterDesc, receiverId, receiveDateTime, toLocationType, toLocationId, status, remarks } = req.body;
 
     const transaction = await updateTransaction({
         id,
         item,
         itemId,
+        riceBatchId,
         senderId,
         sendDateTime,
         fromLocationType,

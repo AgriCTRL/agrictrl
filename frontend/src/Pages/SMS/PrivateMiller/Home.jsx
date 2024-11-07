@@ -1,12 +1,37 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PrivateMillerLayout from '../../../Layouts/PrivateMillerLayout';
 import { useAuth } from '../../Authentication/Login/AuthContext';
 
 import { Carousel } from 'primereact/carousel';
 import { Fan } from "lucide-react";
+import { useNavigate } from 'react-router-dom';
 
 function Home({ isRightSidebarOpen }) {
     const { user } = useAuth();
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    const navigate = useNavigate();
+    const [millingBatches, setMillingBatches] = useState([]);
+
+    const viewAllTransactions = () => {
+        navigate('/miller/transactions')
+    }
+
+    const fetchMillingBatches = async () => {
+        try {
+            const millerRes = await fetch(`${apiUrl}/millers/user/${user.id}`);
+            const miller = await millerRes.json();
+            const millingBatchesRes = await fetch(`${apiUrl}/millingbatches?millerId=${miller.id}&status=In%20Progress`);
+            const millingBatchesData = await millingBatchesRes.json();
+            setMillingBatches(millingBatchesData);
+        } catch (error) {
+            console.error('Error fetching milling batches:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchMillingBatches();
+    }, []);
+
     const [carouselItems] = useState([
         {
             title: "Traceability Power",
@@ -24,14 +49,23 @@ function Home({ isRightSidebarOpen }) {
             image: "palay.png"
         }
     ]);
+    
+    const formatDate = (date) => {
+        const formattedDate = new Date(date).toISOString().split('T')[0];
 
-    const Orders = [
-        { icon: Fan, title: "Order #1111", date: "MM/DD/YYYY", value: "preparing" },
-        { icon: Fan, title: "Order #2222", date: "MM/DD/YYYY", value: "transporting" },
-        { icon: Fan, title: "Order #3333", date: "MM/DD/YYYY", value: "preparing" },
-        { icon: Fan, title: "Order #4444", date: "MM/DD/YYYY", value: "preparing" },
-        { icon: Fan, title: "Order #5555", date: "MM/DD/YYYY", value: "transporting" },
-    ];
+        return new Date(formattedDate).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+        });
+    }
+
+    const Orders = millingBatches.map(batch => ({
+        icon: Fan,
+        title: `Order #${batch.id}`,
+        date: formatDate(batch.startDateTime),
+        value: batch.status
+    }));
 
     return (
         <PrivateMillerLayout activePage="Home" user={user}>
@@ -80,11 +114,17 @@ function Home({ isRightSidebarOpen }) {
 
                     <div className="flex flex-row justify-between items-center">
                         <h1 className="text-xl font-medium">Milling Orders</h1>
-                        <h1 className="text-md font-medium text-primary">View all {'>'} </h1>
+                        <h1 className="text-md font-medium text-primary hover:cursor-pointer" onClick={viewAllTransactions}>View all {'>'} </h1>
                     </div>
 
                     {/* Carousel for Orders */}
-                    <Carousel 
+                    {Orders.length === 0 && (
+                        <div className="flex flex-row justify-center items-center mt-10">
+                            <h1 className="text-lg font-medium">No Milling Orders Found</h1>
+                        </div>
+                    )}
+                    {Orders.length > 0 && (
+                        <Carousel 
                         value={Orders} 
                         numVisible={3} 
                         numScroll={1}
@@ -105,10 +145,11 @@ function Home({ isRightSidebarOpen }) {
                                     </div>
                                 </div>
                             </div>
-                        )}
-                        showIndicators={false}
-                        showNavigators={true}
-                    />
+                            )}
+                            showIndicators={false}
+                            showNavigators={true}
+                        />
+                    )}
                 </div>
             </div>
         </PrivateMillerLayout>

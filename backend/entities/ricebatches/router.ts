@@ -5,7 +5,8 @@ import {
     createRiceBatch,
     getRiceBatch,
     getRiceBatches,
-    updateRiceBatch
+    updateRiceBatch,
+    getTotalCurrentCapacity
 } from './db';
 
 export function getRouter(): Router {
@@ -32,10 +33,15 @@ export function getRouter(): Router {
         res.json(await countRiceBatches());
     });
 
+    router.get('/totals/current-capacity', async (_req, res) => {
+        const total = await getTotalCurrentCapacity();
+        res.json({ total });
+    });
+
     router.get('/:id', async (req, res) => {
         const { id } = req.params;
 
-        const riceBatch = await getRiceBatch(Number(id));
+        const riceBatch = await getRiceBatch(String(id));
 
         res.json(riceBatch);
     });
@@ -43,7 +49,7 @@ export function getRouter(): Router {
     router.post(
         '/',
         async (
-            req: Request<any, any, { name: string; dateReceived: Date; riceType: string; warehouseId: number; price: number; currentCapacity: number; maxCapacity: number; isFull: boolean; forSale: boolean; }>,
+            req: Request<any, any, { name: string; dateReceived: Date; riceType: string; warehouseId: string; price: number; currentCapacity: number; maxCapacity: number; isFull: boolean; forSale: boolean; }>,
             res
         ) => {
             const { name, dateReceived, riceType, warehouseId, price, currentCapacity, maxCapacity, isFull, forSale } = req.body;
@@ -70,10 +76,10 @@ export function getRouter(): Router {
 }
 
 async function updateHandler(
-    req: Request<any, any, { id?: number; name?: string; dateReceived?: Date; riceType?: string; warehouseId?: number; price?: number; currentCapacity?: number; maxCapacity?: number; isFull?: boolean; forSale?: boolean; }>,
+    req: Request<any, any, { id?: string; name?: string; dateReceived?: Date; riceType?: string; warehouseId?: string; price?: number; currentCapacity?: number; maxCapacity?: number; isFull?: boolean; forSale?: boolean; }>,
     res: Response
 ): Promise<void> {
-    const id = Number(req.query.id) || req.body.id;
+    const id = String(req.query.id) || req.body.id;
 
     if (!id) {
         res.status(400).json({ error: 'Missing id parameter.' });

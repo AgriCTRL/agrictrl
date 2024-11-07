@@ -31,7 +31,6 @@ export function getRouter(): express.Router {
 
     router.get('/enhanced', async (req, res) => {
         try {
-            // Convert string array to ProcessingType array
             const processingTypes = (Array.isArray(req.query.processingBatch) 
                 ? req.query.processingBatch 
                 : req.query.processingBatch 
@@ -45,9 +44,7 @@ export function getRouter(): express.Router {
                 palayBatchStatus: req.query.palayBatchStatus as string,
                 transactionStatus: req.query.transactionStatus as string,
                 processingTypes,
-                millingBatchId: req.query.millingBatchId 
-                    ? parseInt(req.query.millingBatchId as string, 10) 
-                    : undefined
+                millingBatchId: req.query.millingBatchId as string // Changed to not parse as integer
             };
 
             const inventory = await getEnhancedInventory(filters);
@@ -63,4 +60,3 @@ export function getRouter(): express.Router {
     
     return router;
 }
-

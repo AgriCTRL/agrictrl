@@ -1,15 +1,15 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, In } from 'typeorm';
+import { BaseEntity, Column, Entity, PrimaryColumn, BeforeInsert, In } from 'typeorm';
 
 @Entity()
 export class RiceOrder extends BaseEntity {
-    @PrimaryGeneratedColumn()
-    id: number;
+    @PrimaryColumn('varchar', { length: 10 })
+    id: string;
 
     @Column()
-    riceRecipientId: number;
+    riceRecipientId: string;
 
     @Column({ nullable: true})
-    riceBatchId: number;
+    riceBatchId: string;
 
     @Column()
     orderDate: Date;
@@ -37,6 +37,24 @@ export class RiceOrder extends BaseEntity {
 
     @Column({ nullable: true })
     remarks: string;
+
+    @BeforeInsert()
+    async generateId() {
+        const prefix = '030442';
+        const lastOrder = await RiceOrder.find({
+            order: { id: 'DESC' },
+            take: 1
+        });
+
+        let nextNumber = 1;
+        if (lastOrder.length > 0) {
+            const lastId = lastOrder[0].id;
+            const lastNumber = parseInt(lastId.slice(-4));
+            nextNumber = lastNumber + 1;
+        }
+
+        this.id = `${prefix}${nextNumber.toString().padStart(4, '0')}`;
+    }
 }
 
 export type RiceOrderCreate = Pick<RiceOrder, 'riceRecipientId' | 'riceBatchId' | 'orderDate' | 'dropOffLocation' | 'riceQuantityBags' | 'description' | 'totalCost' | 'preferredDeliveryDate' | 'status' | 'isAccepted' | 'remarks'>;
@@ -66,7 +84,7 @@ export async function getRiceOrders(limit: number, offset: number, riceRecipient
     });
 }
 
-export async function getRiceOrder(id: number): Promise<RiceOrder | null> {
+export async function getRiceOrder(id: string): Promise<RiceOrder | null> {
     return await RiceOrder.findOne({
         where: {
             id
@@ -76,6 +94,14 @@ export async function getRiceOrder(id: number): Promise<RiceOrder | null> {
 
 export async function countRiceOrders(): Promise<number> {
     return await RiceOrder.count();
+}
+
+export async function countReceivedRiceOrders(): Promise<number> {
+    return await RiceOrder.count({
+        where: {
+            status: 'Received'
+        }
+    });
 }
 
 export async function createRiceOrder(riceOrderCreate: RiceOrderCreate): Promise<RiceOrder> {
@@ -118,4 +144,14 @@ export async function updateRiceOrder(riceOrderUpdate: RiceOrderUpdate): Promise
     }
 
     return riceOrder;
+}
+
+export async function getTotalQuantityBags(): Promise<number> {
+    const result = await RiceOrder
+        .createQueryBuilder('riceOrder')
+        .select('SUM(riceOrder.riceQuantityBags)', 'total')
+        .where('riceOrder.status = :status', { status: 'Received' })
+        .getRawOne();
+    
+    return result?.total || 0;
 }

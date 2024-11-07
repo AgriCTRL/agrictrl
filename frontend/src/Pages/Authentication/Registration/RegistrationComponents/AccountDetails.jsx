@@ -164,7 +164,7 @@ const AccountDetails = ({ setSelectedFile, contactInfo }) => {
               placeholder="job title"
               className="w-full focus:ring-0"
               invalid={!contactInfo.jobTitlePosition}
-              keyfilter={/^[a-zA-Z\s]/}
+              keyfilter={/^[a-zA-Z\s0-9]/}
               maxLength={50}
             />
             {!contactInfo.jobTitlePosition &&

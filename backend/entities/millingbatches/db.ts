@@ -1,19 +1,19 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { BaseEntity, Column, Entity, PrimaryColumn, OneToMany, BeforeInsert } from 'typeorm';
 import { RiceBatchMillingBatch } from '../riceBatchMillingBatches/db';
 
 @Entity()
 export class MillingBatch extends BaseEntity {
-    @PrimaryGeneratedColumn()
-    id: number;
+    @PrimaryColumn('varchar', { length: 10 })
+    id: string;
 
     @Column()
-    dryingBatchId: number;
+    dryingBatchId: string;
 
     @Column()
-    palayBatchId: number;
+    palayBatchId: string;
 
     @Column()
-    millerId: number;
+    millerId: string;
 
     @Column()
     millerType: string;
@@ -41,6 +41,24 @@ export class MillingBatch extends BaseEntity {
 
     @OneToMany(() => RiceBatchMillingBatch, riceBatchMillingBatch => riceBatchMillingBatch.millingBatch)
     riceBatchMillingBatches: RiceBatchMillingBatch[];
+
+    @BeforeInsert()
+    async generateId() {
+        const prefix = '030403';
+        const lastOrder = await MillingBatch.find({
+            order: { id: 'DESC' },
+            take: 1
+        });
+
+        let nextNumber = 1;
+        if (lastOrder.length > 0) {
+            const lastId = lastOrder[0].id;
+            const lastNumber = parseInt(lastId.slice(-4));
+            nextNumber = lastNumber + 1;
+        }
+
+        this.id = `${prefix}${nextNumber.toString().padStart(4, '0')}`;
+    }
 }
 
 export type MillingBatchCreate = Pick<MillingBatch, 'dryingBatchId' | 'palayBatchId' | 'millerId' | 'millerType' | 'startDateTime' | 'endDateTime' | 'milledQuantityBags' | 'milledGrossWeight' | 'milledNetWeight' | 'millingEfficiency' | 'status' >;
@@ -59,7 +77,7 @@ export async function getMillingBatches(limit: number, offset: number): Promise<
     });
 }
 
-export async function getMillingBatch(id: number): Promise<MillingBatch | null> {
+export async function getMillingBatch(id: string): Promise<MillingBatch | null> {
     return await MillingBatch.findOne({
         where: {
             id
@@ -112,4 +130,32 @@ export async function updateMillingBatch(millingBatchUpdate: MillingBatchUpdate)
     }
 
     return millingBatch;
+}
+
+export async function getTotalQuantityBags(): Promise<number> {
+    const result = await MillingBatch
+        .createQueryBuilder('millingBatch')
+        .select('SUM(millingBatch.milledQuantityBags)', 'total')
+        .getRawOne();
+    
+    return result?.total || 0;
+}
+
+export async function getMillingBatchesByMillerAndStatus(
+    millerId: string,
+    status: string,
+    limit: number,
+    offset: number
+): Promise<MillingBatch[]> {
+    return await MillingBatch.find({
+        where: {
+            millerId,
+            status
+        },
+        take: limit,
+        skip: offset,
+        order: {
+            startDateTime: 'DESC' // Most recent first
+        }
+    });
 }

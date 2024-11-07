@@ -43,7 +43,7 @@ import RecipientProfile from "./SMS/Recipient/Profile";
 import PrivateMillerHome from "./SMS/PrivateMiller/Home";
 import PrivateMillerMillingTransactions from "./SMS/PrivateMiller/MillingTransactions";
 import PrivateMillerManageMiller from "./SMS/PrivateMiller/ManageMiller";
-// import PrivateMillerHistory from "./SMS/PrivateMiller/History";
+import PrivateMillerHistory from "./SMS/PrivateMiller/History";
 import PrivateMillerProfile from "./SMS/PrivateMiller/Profile";
 
 const ProtectedRoute = ({ children, allowedUserTypes }) => {
@@ -135,12 +135,12 @@ function App() {
                 <Route path="/admin/*" element={
                     <ProtectedRoute allowedUserTypes={['Admin']}>
                         <AdminRoutes />
-                    </ProtectedRoute>
+                    </ProtectedRoute> 
                 } />
                 <Route path="/staff/*" element={
-                    // <ProtectedRoute allowedUserTypes={['NFA Branch Staff']}>
-                    // </ProtectedRoute>
-                    <StaffRoutes />
+                    <ProtectedRoute allowedUserTypes={['NFA Branch Staff']}>
+                        <StaffRoutes />
+                    </ProtectedRoute>
                 } />
                 <Route path="/recipient/*" element={
                     <ProtectedRoute allowedUserTypes={['Rice Recipient']}>
@@ -206,7 +206,7 @@ function PrivateMillerRoutes() {
             <Route index element={<PrivateMillerHome />} />
             <Route path="transactions" element={<PrivateMillerMillingTransactions />} />
             <Route path="facility" element={<PrivateMillerManageMiller />} />
-            {/* <Route path="history" element={<PrivateMillerHistory />} /> */}
+            <Route path="history" element={<PrivateMillerHistory />} />
             <Route path="profile" element={<PrivateMillerProfile />} />
         </Routes>
     );

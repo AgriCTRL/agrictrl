@@ -4,6 +4,7 @@ import CryptoJS from 'crypto-js';
 import { createOfficeAddress } from '../officeaddresses/db';
 import {
     countUsers,
+    countRecipientUsers,
     createUser,
     getUser,
     getUsers,
@@ -47,10 +48,14 @@ export function getRouter(): Router {
         res.json(await countUsers());
     });
 
+    router.get('/recipients/count', async (_req, res) => {
+        res.json(await countRecipientUsers());
+    });
+
     router.get('/:id', async (req, res) => {
         const { id } = req.params;
 
-        const user = await getUser(Number(id));
+        const user = await getUser(String(id));
 
         res.json(user);
     });
@@ -60,6 +65,18 @@ export function getRouter(): Router {
 
             try {
                 const decryptedPayload = decryptData(encryptedPayload);
+                const parsedData = JSON.parse(decryptedPayload);
+
+                const existingUser = await User.findOne({
+                    where: { email: parsedData.email }
+                });
+        
+                if (existingUser) {
+                    return res.status(409).json({ 
+                        message: 'Email already exists' 
+                    });
+                }
+
                 const {
                     principal,
                     firstName,
@@ -85,7 +102,7 @@ export function getRouter(): Router {
                     isVerified,
                     dateCreated,
                     code
-                } = JSON.parse(decryptedPayload);
+                } = parsedData;
     
                 const officeAddress = await createOfficeAddress({
                     region: region,
@@ -118,7 +135,7 @@ export function getRouter(): Router {
                     code
                 });
     
-                res.json(null);
+                res.json({success: true});
             } catch (error) {
                 console.error('Error decrypting or registering user:', error);
                 res.status(500).json({ message: 'Failed to register user' });
@@ -189,10 +206,13 @@ export function getRouter(): Router {
             const decryptedPayload = decryptData(encryptedPayload);
             const { email, password, userType } = JSON.parse(decryptedPayload);
             const user = await User.findOne({ 
-            where: { email, password, userType, isVerified: true } 
+            where: { email, password, userType } 
             });
 
             if (user) {
+                if (!user.isVerified) {
+                    return res.status(403).json({ message: 'Account is not verified' });
+                }
                 const encryptedData = encryptData(user);
                 res.json({ data: encryptedData });
             } else {

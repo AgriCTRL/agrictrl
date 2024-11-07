@@ -264,6 +264,17 @@
     .p-datepicker table td > span.p-highlight {
         background: #00C261 !important;
         color: #ffffff !important;
+
+    }
+
+    .p-monthpicker .p-monthpicker-month.p-highlight {
+        background: #00C261 !important;
+        color: #ffffff !important;
+    }
+
+    .p-yearpicker .p-yearpicker-year.p-highlight {
+        background: #00C261 !important;
+        color: #ffffff !important;
     }
 
     .p-accordion {

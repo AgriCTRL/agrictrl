@@ -19,31 +19,6 @@ const HeroSection = () => {
         navigate('/login');
     }
 
-    const loginButton = async () => {   
-        try {
-            const authClient = await AuthClient.create();
-
-            const width = 500;
-            const height = 500;
-            const left = (window.screen.width / 2) - (width / 2);
-            const top = (window.screen.height / 2) - (height / 2) - 25;
-
-            await new Promise((resolve, reject) => {
-                authClient.login({
-                    identityProvider: `${identityUrl}/`,
-                    onSuccess: resolve,
-                    onError: reject,
-                    windowOpenerFeatures: `width=${width},height=${height},left=${left},top=${top}`
-                });
-            });
-            window.location.reload();
-        }
-        catch (error) {
-            console.log(error.message);
-        }
-        return false;
-    }
-
     useEffect(() => {
         const timer = setTimeout(() => {
             setOverlayOpacity(true);
@@ -82,13 +57,13 @@ const HeroSection = () => {
                             <Wheat size={20}/>
                         </Button>
 
-                        <Button 
+                        {/* <Button 
                             className="font-medium px-6 sm:px-12 text-white"
                             onClick={ handleTnTClick }
                             outlined
                         >
-                            <p>Start Tracking!</p>
-                        </Button>
+                            <p className="font-bold">Start Tracking!</p>
+                        </Button> */}
                     </div>
                 </section>
 

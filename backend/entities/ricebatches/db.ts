@@ -1,10 +1,11 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, LessThan, OneToMany } from 'typeorm';
+import { BaseEntity, Column, Entity, PrimaryColumn, BeforeInsert, LessThan, OneToMany } from 'typeorm';
 import { RiceBatchMillingBatch } from '../riceBatchMillingBatches/db';
+import { Transaction } from '../transactions/db';
 
 @Entity()
 export class RiceBatch extends BaseEntity {
-    @PrimaryGeneratedColumn()
-    id: number;
+    @PrimaryColumn('varchar', { length: 10 })
+    id: string;
 
     @Column()
     name: string;
@@ -16,7 +17,7 @@ export class RiceBatch extends BaseEntity {
     riceType: string;
 
     @Column()
-    warehouseId: number;
+    warehouseId: string;
 
     @Column()
     price: number;
@@ -33,8 +34,29 @@ export class RiceBatch extends BaseEntity {
     @Column({ default: false })
     forSale: boolean;
 
+    @OneToMany(() => Transaction, transaction => transaction.riceBatch)
+    transactions: Transaction[];
+
     @OneToMany(() => RiceBatchMillingBatch, riceBatchMillingBatch => riceBatchMillingBatch.riceBatch)
     riceBatchMillingBatches: RiceBatchMillingBatch[];
+
+    @BeforeInsert()
+    async generateId() {
+        const prefix = '030404';
+        const lastOrder = await RiceBatch.find({
+            order: { id: 'DESC' },
+            take: 1
+        });
+
+        let nextNumber = 1;
+        if (lastOrder.length > 0) {
+            const lastId = lastOrder[0].id;
+            const lastNumber = parseInt(lastId.slice(-4));
+            nextNumber = lastNumber + 1;
+        }
+
+        this.id = `${prefix}${nextNumber.toString().padStart(4, '0')}`;
+    }
 }
 
 export type RiceBatchCreate = Pick<RiceBatch, 'name' | 'dateReceived' | 'riceType' | 'warehouseId' | 'price' | 'currentCapacity' | 'maxCapacity' | 'isFull' | 'forSale' >;
@@ -64,7 +86,7 @@ export async function getRiceBatches(limit: number, offset: number, currentCapac
     });
 }
 
-export async function getRiceBatch(id: number): Promise<RiceBatch | null> {
+export async function getRiceBatch(id: string): Promise<RiceBatch | null> {
     return await RiceBatch.findOne({
         where: {
             id
@@ -116,4 +138,13 @@ export async function updateRiceBatch(riceBatchUpdate: RiceBatchUpdate): Promise
     }
 
     return riceBatch;
+}
+
+export async function getTotalCurrentCapacity(): Promise<number> {
+    const result = await RiceBatch
+        .createQueryBuilder('riceBatch')
+        .select('SUM(riceBatch.currentCapacity)', 'total')
+        .getRawOne();
+    
+    return result?.total || 0;
 }

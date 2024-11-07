@@ -1,15 +1,15 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity, Column, Entity, PrimaryColumn, BeforeInsert } from 'typeorm';
 
 @Entity()
 export class Dryer extends BaseEntity {
-    @PrimaryGeneratedColumn()
-    id: number;
+    @PrimaryColumn('varchar', { length: 10 })
+    id: string;
 
     @Column()
     dryerName: string;
 
     @Column()
-    userId: number;
+    userId: string;
 
     @Column()
     location: string;
@@ -28,6 +28,24 @@ export class Dryer extends BaseEntity {
 
     @Column()
     status: string;
+
+    @BeforeInsert()
+    async generateId() {
+        const prefix = '030421';
+        const lastOrder = await Dryer.find({
+            order: { id: 'DESC' },
+            take: 1
+        });
+
+        let nextNumber = 1;
+        if (lastOrder.length > 0) {
+            const lastId = lastOrder[0].id;
+            const lastNumber = parseInt(lastId.slice(-4));
+            nextNumber = lastNumber + 1;
+        }
+
+        this.id = `${prefix}${nextNumber.toString().padStart(4, '0')}`;
+    }
 }
 
 export type DryerCreate = Pick<Dryer, 'dryerName' | 'userId' | 'location' | 'capacity' | 'processing' | 'contactNumber' | 'email' | 'status'>;
@@ -40,7 +58,7 @@ export async function getDryers(limit: number, offset: number): Promise<Dryer[]>
     });
 }
 
-export async function getDryer(id: number): Promise<Dryer | null> {
+export async function getDryer(id: string): Promise<Dryer | null> {
     return await Dryer.findOne({
         where: {
             id

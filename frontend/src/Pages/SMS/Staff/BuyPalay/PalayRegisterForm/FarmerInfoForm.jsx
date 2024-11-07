@@ -2,12 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { Calendar } from 'primereact/calendar';
+import { AutoComplete } from 'primereact/autocomplete';
 
-const FarmerInfoForm = ({ palayData, handlePalayInputChange, errors }) => {
+const FarmerInfoForm = ({ palayData, handlePalayInputChange, errors, onSupplierSelect }) => {
   const [regionOptions, setRegionOptions] = useState([]);
   const [provinceOptions, setProvinceOptions] = useState([]);
   const [cityTownOptions, setCityTownOptions] = useState([]);
   const [barangayOptions, setBarangayOptions] = useState([]);
+  const [palaySuppliers, setPalaySuppliers] = useState([]);
+  const [filteredSuppliers, setFilteredSuppliers] = useState([]);
+  const [selectedSupplier, setSelectedSupplier] = useState(null);
 
   let today = new Date();
   let year = today.getFullYear();
@@ -17,6 +21,7 @@ const FarmerInfoForm = ({ palayData, handlePalayInputChange, errors }) => {
 
   useEffect(() => {
     fetchRegions();
+    fetchPalaySuppliers();
   }, []);
 
   useEffect(() => {
@@ -208,6 +213,58 @@ const FarmerInfoForm = ({ palayData, handlePalayInputChange, errors }) => {
       });
     }
   };
+
+  const fetchPalaySuppliers = async () => {
+    try {
+      const apiUrl = import.meta.env.VITE_API_BASE_URL;
+      const res = await fetch(`${apiUrl}/palaysuppliers`);
+      const data = await res.json();
+      setPalaySuppliers(data);
+    } catch (error) {
+      console.error('Error fetching palay suppliers:', error);
+    }
+  };
+
+  const searchSuppliers = (event) => {
+    const query = event.query.toLowerCase();
+    const filtered = palaySuppliers.filter(supplier => 
+      supplier.farmerName.toLowerCase().includes(query)
+    );
+    setFilteredSuppliers(filtered);
+  };
+
+  const handleSupplierSelect = (e) => {
+    const supplier = e.value;
+    setSelectedSupplier(supplier); // Store the selected supplier
+    
+    // Create synthetic events for form updates
+    const createEvent = (name, value) => ({
+      target: { name, value }
+    });
+
+    // Update form fields with supplier data
+    handlePalayInputChange(createEvent('farmerName', supplier.farmerName));
+    handlePalayInputChange(createEvent('category', supplier.category));
+    handlePalayInputChange(createEvent('email', supplier.email));
+    handlePalayInputChange(createEvent('contactNumber', supplier.contactNumber));
+    
+    if (supplier.category === 'individual') {
+      handlePalayInputChange(createEvent('birthDate', new Date(supplier.birthDate)));
+      handlePalayInputChange(createEvent('gender', supplier.gender));
+    } else {
+      handlePalayInputChange(createEvent('numOfFarmer', supplier.numOfFarmer));
+    }
+
+    // Update address fields
+    handlePalayInputChange(createEvent('palaySupplierRegion', supplier.houseOfficeAddress.region));
+    handlePalayInputChange(createEvent('palaySupplierProvince', supplier.houseOfficeAddress.province));
+    handlePalayInputChange(createEvent('palaySupplierCityTown', supplier.houseOfficeAddress.cityTown));
+    handlePalayInputChange(createEvent('palaySupplierBarangay', supplier.houseOfficeAddress.barangay));
+    handlePalayInputChange(createEvent('palaySupplierStreet', supplier.houseOfficeAddress.street));
+
+    // Pass the full supplier object to parent
+    onSupplierSelect(supplier);
+  };
   
   return (
     <div className="flex flex-col gap-4 h-full">
@@ -228,15 +285,18 @@ const FarmerInfoForm = ({ palayData, handlePalayInputChange, errors }) => {
       <div className="flex flex-row w-full gap-4">
         <div className="w-1/2">
           <label htmlFor="farmerName" className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-          <InputText
-            id="farmerName" 
+          <AutoComplete
+            id="farmerName"
             name="farmerName"
             value={palayData.farmerName}
-            onChange={handlePalayInputChange} 
+            suggestions={filteredSuppliers}
+            completeMethod={searchSuppliers}
+            field="farmerName"
+            onChange={handlePalayInputChange}
+            onSelect={handleSupplierSelect}
             placeholder="Enter your name"
-            className="w-full ring-0"
-            keyfilter={/^[a-zA-Z\s]/}
-            maxLength={50}
+            className="w-full"
+            inputClassName='ring-0 w-full'
           />
           {errors.farmerName && <p className="text-red-500 text-xs mt-1">{errors.farmerName}</p>}
         </div>
@@ -315,7 +375,7 @@ const FarmerInfoForm = ({ palayData, handlePalayInputChange, errors }) => {
             placeholder="Enter your phone number"
             className="w-full ring-0"
             keyfilter="alphanum"
-            maxLength={15}
+            maxLength={11}
           />
           {errors.contactNumber && <p className="text-red-500 text-xs mt-1">{errors.contactNumber}</p>}
         </div>

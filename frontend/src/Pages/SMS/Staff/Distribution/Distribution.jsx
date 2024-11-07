@@ -9,14 +9,15 @@ import { FilterMatchMode } from 'primereact/api';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { Toast } from 'primereact/toast';
-import { useAuth } from '../../../Authentication/Login/AuthContext';
+import { IconField } from 'primereact/iconfield';
+import { InputIcon } from 'primereact/inputicon';
 
+import { useAuth } from '../../../Authentication/Login/AuthContext';
 import AcceptOrder from './AcceptOrder';
 import DeclineOrder from './DeclineOrder';
 import SendOrder from './SendOrder';
 import DeclineDetails from './DeclineDetails';
-import { IconField } from 'primereact/iconfield';
-import { InputIcon } from 'primereact/inputicon';
+import OrderDetails from './OrderDetails';
 
 function Distribution() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -47,6 +48,9 @@ function Distribution() {
     const [declineReason, setDeclineReason] = useState('');
     const [declinedDetails, setDeclinedDetails] = useState({});
 
+    const [showOrderDetailsDialog, setShowOrderDetailsDialog] = useState(false);
+    const [orderDetails, setOrderDetails] = useState({});
+
     const [sendOrderData, setSendOrderData] = useState({});
     
 
@@ -54,7 +58,8 @@ function Distribution() {
         ACCEPT: 'accept',
         DECLINE: 'decline',
         SEND: 'send',
-        VIEW_DETAILS: 'view_details'
+        VIEW_DETAILS: 'view_details',
+        VIEW_ORDER_DETAILS: 'view_order_details'
     };
 
     useEffect(() => {
@@ -157,6 +162,8 @@ function Distribution() {
             case 'for approval': return 'warning';
             case 'accepted': return 'success';
             case 'declined': return 'danger';
+            case 'in transit': return 'info';
+            case 'received': return 'success';
             default: return 'info';
         }
     };
@@ -278,6 +285,17 @@ function Distribution() {
                 });
                 setShowDeclinedDetailsDialog(true);
                 break;
+
+            case ACTION_TYPES.VIEW_ORDER_DETAILS:
+                setOrderDetails({
+                    orderID: rowData.id,
+                    quantity: rowData.riceQuantityBags,
+                    description: rowData.description,
+                    orderDate: new Date(rowData.orderDate).toISOString().split('T')[0],
+                    status: rowData.status
+                });
+                setShowOrderDetailsDialog(true);
+                break;
             
             default:
                 console.warn('Unknown action type:', actionType);
@@ -320,6 +338,15 @@ function Distribution() {
                         onClick={() => handleActionClick(ACTION_TYPES.VIEW_DETAILS, rowData)} 
                     />
                 );
+            case 'In Transit':
+            case 'Received':
+                return (
+                    <Button 
+                        label="View Details"
+                        className="p-button-primary p-button-sm ring-0"
+                        onClick={() => handleActionClick(ACTION_TYPES.VIEW_ORDER_DETAILS, rowData)} 
+                    />
+                );
             default:
                 return null;
         }
@@ -333,10 +360,6 @@ function Distribution() {
         });
     };
 
-    const orderIdBodyTemplate = (rowData) => {
-        return `0304-${rowData.id}`;
-    };
-
     const filteredData = ordersData.filter(item => {
         switch(selectedFilter) {
             case 'request':
@@ -345,6 +368,8 @@ function Distribution() {
                 return item.status === 'Accepted';
             case 'declined':
                 return item.status === 'Declined';
+            case 'delivered':
+                return item.status === 'In Transit' || item.status === 'Received';
             default:
                 return true;
         }
@@ -427,6 +452,19 @@ function Distribution() {
                             className={`p-button-success p-button-sm border-0 ring-0 rounded-full ${buttonStyle(selectedFilter === 'declined')}`} 
                             onClick={() => handleFilterChange('declined')}
                         />
+
+                        <Button 
+                            icon={<RotateCw size={16} className="mr-2" />}
+                            label="Delivered" 
+                            className={`p-button-success p-2 w-1/16 ring-0 rounded-full ${buttonStyle(selectedFilter === 'delivered')}`} 
+                            onClick={() => handleFilterChange('delivered')}
+                        />
+
+                        <RotateCw 
+                            className="w-6 h-6 text-primary cursor-pointer hover:text-secondary transition-colors" 
+                            onClick={onUpdate}
+                            title="Refresh data"
+                        />
                     </div>
 
                     <div className="text-white p-3 rounded-lg bg-primary">
@@ -456,12 +494,12 @@ function Distribution() {
                         paginator
                         rows={10}
                     > 
-                        <Column field="id" header="Order ID" body={orderIdBodyTemplate} className="text-center" headerClassName="text-center" />
+                        <Column field="id" header="Order ID" className="text-center" headerClassName="text-center" />
                         <Column field="dropOffLocation" header="To Be Deliver At" className="text-center" headerClassName="text-center" />
                         <Column field="riceQuantityBags" header="Bags to Deliver" className="text-center" headerClassName="text-center" />
                         <Column field="orderDate" header="Date Ordered" body={(rowData) => dateBodyTemplate(rowData, 'orderDate')} className="text-center" headerClassName="text-center" />
                         <Column field="orderedBy" header="Ordered By" className="text-center" headerClassName="text-center" />
-                        <Column field="status" header="Status" body={statusBodyTemplate} className="text-center" headerClassName="text-center"/>
+                        <Column field="status" header="Status" body={statusBodyTemplate} className="text-center" headerClassName="text-center" />
                         <Column body={actionBodyTemplate} header="Action" className="text-center" headerClassName="text-center"/>
                     </DataTable>
                     </div>
@@ -505,6 +543,14 @@ function Distribution() {
                 formatDate={formatDate}
                 selectedOrder={selectedOrder}
                 onUpdate={onUpdate}
+            />
+
+            <OrderDetails 
+                visible={showOrderDetailsDialog}
+                onHide={() => setShowOrderDetailsDialog(false)}
+                isLoading={isLoading}
+                orderDetails={orderDetails}
+                formatDate={formatDate}
             />
 
         </StaffLayout> 

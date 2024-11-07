@@ -33,7 +33,7 @@ export function getRouter(): Router {
     router.get('/:id', async (req, res) => {
         const { id } = req.params;
 
-        const farm = await getFarm(Number(id));
+        const farm = await getFarm(String(id));
 
         res.json(farm);
     });
@@ -41,7 +41,7 @@ export function getRouter(): Router {
     router.post(
         '/',
         async (
-            req: Request<any, any, { palaySupplierId: number; farmSize: number; region: string; province: string; cityTown: string; barangay: string; street: string }>,
+            req: Request<any, any, { palaySupplierId: string; farmSize: number; region: string; province: string; cityTown: string; barangay: string; street: string }>,
             res
         ) => {
             const { palaySupplierId, farmSize, region, province, cityTown, barangay, street } = req.body;
@@ -66,7 +66,7 @@ export function getRouter(): Router {
 }
 
 async function updateHandler(
-    req: Request<any, any, { id: number; palaySupplierId?: number; farmSize?: number; region?: string; province?: string; cityTown?: string; barangay?: string; street?: string }>,
+    req: Request<any, any, { id: string; palaySupplierId?: string; farmSize?: number; region?: string; province?: string; cityTown?: string; barangay?: string; street?: string }>,
     res: Response
 ): Promise<void> {
     const { id, palaySupplierId, farmSize, region, province, cityTown, barangay, street } = req.body;
