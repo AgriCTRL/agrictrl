@@ -220,7 +220,7 @@ function Home({ isRightSidebarOpen }) {
             <div className="p-4 bg-white rounded-lg flex flex-col gap-4">
                 <div className="header flex flex-col gap-2">
                     <h2 className="text-lg font-semibold text-black">What's on the field</h2>
-                    <DivideCircle className='my-0'/>
+                    <Divider className='my-0'/>
                 </div>
                 <div className="flex flex-col gap-2">
                     {rightSidebarItems.length > 0 ? (
@@ -278,7 +278,7 @@ function Home({ isRightSidebarOpen }) {
     }
 
     return (
-        <StaffLayout activePage="Home" user={user} leftSidebar={leftSidebar()} isRightSidebarOpen={true} isLeftSidebarOpen={true} rightSidebar={rightSidebar()}>
+        <StaffLayout activePage="Home" user={user} leftSidebar={leftSidebar()} isRightSidebarOpen={false} isLeftSidebarOpen={true} rightSidebar={rightSidebar()}>
             <div className={`flex flex-row bg-[#F1F5F9] h-full`}>
                 {/* Main Content */}
                 <div className={`flex flex-col w-full h-full gap-4`}>

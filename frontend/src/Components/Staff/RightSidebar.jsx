@@ -4,7 +4,7 @@ const RightSidebar = ({ isRightSidebarOpen, rightSidebar }) => {
     return (
         <div 
             className={`transition-all duration-300 overflow-hidden rounded-lg h-fit ${
-                isRightSidebarOpen ? 'w-1/4' : 'w-0'
+                isRightSidebarOpen ? 'w-1/4' : 'w-0 hidden'
             }`}
         >
             {rightSidebar}

@@ -138,14 +138,14 @@ function App() {
                     </ProtectedRoute> 
                 } />
                 <Route path="/staff/*" element={
-                    // <ProtectedRoute allowedUserTypes={['NFA Branch Staff']}>
-                    // </ProtectedRoute>
+                    <ProtectedRoute allowedUserTypes={['NFA Branch Staff']}>
                         <StaffRoutes />
-                } />
+                    </ProtectedRoute>
+                    } />
                 <Route path="/recipient/*" element={
-                    // <ProtectedRoute allowedUserTypes={['Rice Recipient']}>
-                    // </ProtectedRoute>
+                    <ProtectedRoute allowedUserTypes={['Rice Recipient']}>
                         <RecipientRoutes />
+                    </ProtectedRoute>
                 } />
                 <Route path="/miller/*" element={
                     <ProtectedRoute allowedUserTypes={['Private Miller']}>

@@ -71,7 +71,7 @@ function StaffLayout({ children, activePage, user, leftSidebar, isRightSidebarOp
                 />
 
                 {/* Main content */}
-                <main className="flex-1 overflow-auto transition-all duration-300 w-[55%]">
+                <main className="flex-1 overflow-auto transition-all duration-300">
                     {children}
                 </main>
 
