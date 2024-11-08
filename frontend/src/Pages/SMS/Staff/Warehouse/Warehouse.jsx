@@ -1,15 +1,17 @@
 import React, { useEffect, useState, useRef } from "react";
 import StaffLayout from "@/Layouts/StaffLayout";
 
-import { DataTable } from "primereact/datatable";
-import { Column } from "primereact/column";
-import { Tag } from "primereact/tag";
-import { FilterMatchMode } from "primereact/api";
-import { Button } from "primereact/button";
-import { InputText } from "primereact/inputtext";
-import { Toast } from "primereact/toast";
+    import { DataTable } from 'primereact/datatable';
+    import { Column } from 'primereact/column';
+    import { Tag } from 'primereact/tag';
+    import { FilterMatchMode } from 'primereact/api';
+    import { Button } from 'primereact/button';
+    import { InputText } from 'primereact/inputtext';
+    import { Toast } from 'primereact/toast';
+    import { IconField } from 'primereact/iconfield';
+    import { InputIcon } from 'primereact/inputicon';
 
-import { Search, Wheat, RotateCw } from "lucide-react";
+    import { Search, Wheat, RotateCw, Loader2, Undo2, CheckCircle2 } from "lucide-react";
 
 import { useAuth } from "../../../Authentication/Login/AuthContext";
 import ReceiveRice from "./ReceiveRice";
@@ -22,7 +24,7 @@ function Warehouse() {
   const toast = useRef(null);
   const { user } = useAuth();
 
-  const [globalFilterValue, setGlobalFilterValue] = useState("");
+  const [globalFilterValue, setGlobalFilterValue] = useState(""); 
   const [filters, setFilters] = useState({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
   });
@@ -474,229 +476,194 @@ function Warehouse() {
     return "Unknown Location";
   };
 
-  const FilterButton = ({ label, icon, filter }) => (
-    <Button
-      label={label}
-      icon={icon}
-      className={`p-button-sm ring-0 border-none rounded-full ${
-        selectedFilter === filter
-          ? "p-button-outlined bg-primary text-white"
-          : "p-button-text text-primary"
-      } flex items-center`}
-      onClick={() => setSelectedFilter(filter)}
-    >
-      <span
-        className={`ring-0 border-none rounded-full ml-2 px-1 ${
-          selectedFilter === filter
-            ? "p-button-outlined bg-gray-200 text-primary"
-            : "p-button-text text-white bg-primary"
-        } flex items-center`}
-      >
-        {getFilterCount(filter)}
-      </span>
-    </Button>
-  );
-
-  return (
-    <StaffLayout activePage="Warehouse" user={user}>
-      <Toast ref={toast} />
-      <div className="flex flex-col px-10 py-2 h-full bg-[#F1F5F9]">
-        <div className="flex flex-col justify-center items-center p-10 h-1/4 rounded-lg bg-gradient-to-r from-primary to-secondary mb-2">
-          <h1 className="text-5xl text-white font-bold mb-2">Stocks Storage</h1>
-          <span className="p-input-icon-left w-1/2 mr-4 mb-4">
-            <Search className="text-white ml-2 -translate-y-1" />
-            <InputText
-              type="search"
-              value={globalFilterValue}
-              onChange={onGlobalFilterChange}
-              placeholder="Tap to Search"
-              className="w-full pl-10 pr-4 py-2 rounded-full text-white bg-transparent border border-white placeholder:text-white"
-            />
-          </span>
-          <div className="flex justify-center space-x-4 w-full">
-            <Button
-              label="Requests"
-              className={`p-button-sm ring-0 ${
-                viewMode === "requests"
-                  ? "bg-white text-primary"
-                  : "bg-transparent text-white border-white"
-              }`}
-              onClick={() => {
-                setViewMode("requests");
-                setSelectedFilter("palay");
-              }}
-            />
-            <Button
-              label="In Warehouse"
-              className={`p-button-sm ring-0 ${
-                viewMode === "inWarehouse"
-                  ? "bg-white text-primary"
-                  : "bg-transparent text-white border-white"
-              }`}
-              onClick={() => {
-                setViewMode("inWarehouse");
-                setSelectedFilter("palay");
-              }}
-            />
-          </div>
-        </div>
-
-        {/* Filters */}
-        <div className="flex justify-start mb-4 space-x-2 py-2">
-          <div className="flex bg-white rounded-full gap-2">
-            <FilterButton
-              label="Palay"
-              icon={<Wheat className="mr-2" size={16} />}
-              filter="palay"
-            />
-            <FilterButton
-              label="Rice"
-              icon={<Wheat className="mr-2" size={16} />}
-              filter="rice"
-            />
-          </div>
-          <div className="flex items-center justify-center">
-            <RotateCw
-              className="w-6 h-6 text-primary cursor-pointer hover:text-secondary transition-colors"
-              onClick={refreshData}
-              title="Refresh data"
-            />
-          </div>
-        </div>
-
-        {/* Data Table */}
-        <div className="flex-grow flex flex-col overflow-hidden rounded-lg shadow">
-          <div className="flex-grow overflow-hidden bg-white">
-            <DataTable
-              value={filteredData}
-              scrollable
-              scrollHeight="flex"
-              scrolldirection="both"
-              className="p-datatable-sm pt-5"
-              filters={filters}
-              globalFilterFields={
-                viewMode === "inWarehouse"
-                  ? [
-                      "id",
-                      "from",
-                      "currentlyAt",
-                      "receivedOn",
-                      "transportedBy",
-                      "status",
-                      "riceBatchName",
-                    ]
-                  : [
-                      "id",
-                      "from",
-                      "toBeStoreAt",
-                      "dateRequest",
-                      "transportedBy",
-                      "status",
-                    ]
-              }
-              emptyMessage="No inventory found."
-              paginator
-              rows={10}
+        const FilterButton = ({ label, icon, filter }) => (
+            <Button 
+                label={label} 
+                icon={icon} 
+                className={`p-button-sm ring-0 border-none rounded-full ${
+                    selectedFilter === filter 
+                        ? 'p-button-outlined bg-primary text-white' 
+                        : 'p-button-text text-primary'
+                } flex items-center`} 
+                onClick={() => setSelectedFilter(filter)}
             >
-              <Column
-                field="id"
-                header={
-                  selectedFilter === "all"
-                    ? "Batch ID"
-                    : selectedFilter === "rice"
-                    ? "Rice Batch ID"
-                    : "Palay Batch ID"
-                }
-                className="text-center"
-                headerClassName="text-center"
-              />
-              {viewMode === "inWarehouse" && selectedFilter === "rice" && (
-                <Column
-                  field="riceBatchName"
-                  header="Batch Name"
-                  className="text-center"
-                  headerClassName="text-center"
-                />
-              )}
-              <Column
-                field="quantityBags"
-                header="Quantity in Bags"
-                className="text-center"
-                headerClassName="text-center"
-              />
-              {!(viewMode === "inWarehouse" && selectedFilter === "rice") && (
-                <Column
-                  field="from"
-                  header="From"
-                  className="text-center"
-                  headerClassName="text-center"
-                />
-              )}
-              {!(viewMode === "inWarehouse" && selectedFilter === "rice") && (
-                <Column
-                  field={
-                    viewMode === "inWarehouse" ? "currentlyAt" : "toBeStoreAt"
-                  }
-                  header={
-                    viewMode === "inWarehouse"
-                      ? "Currently at"
-                      : "To be Store at"
-                  }
-                  className="text-center"
-                  headerClassName="text-center"
-                />
-              )}
-              <Column
-                field={
-                  viewMode === "inWarehouse" ? "receivedOn" : "dateRequest"
-                }
-                header={
-                  viewMode === "inWarehouse" ? "Received On" : "Date Request"
-                }
-                className="text-center"
-                headerClassName="text-center"
-              />
-              {!(viewMode === "inWarehouse" && selectedFilter === "rice") && (
-                <Column
-                  field="transportedBy"
-                  header="Transported By"
-                  className="text-center"
-                  headerClassName="text-center"
-                />
-              )}
-              {/* <Column field="qualityType" header="Quality Type" className="text-center" headerClassName="text-center" /> */}
-              {!(viewMode === "inWarehouse" && selectedFilter === "rice") && (
-                <Column
-                  field={
-                    viewMode === "requests"
-                      ? "transactionStatus"
-                      : "palayStatus"
-                  }
-                  header="Status"
-                  body={statusBodyTemplate}
-                  className="text-center"
-                  headerClassName="text-center"
-                />
-              )}
+                <span className={`ring-0 border-none rounded-full ml-2 px-1 ${
+                    selectedFilter === filter 
+                        ? 'p-button-outlined bg-gray-200 text-primary' 
+                        : 'p-button-text text-white bg-primary'
+                } flex items-center`}>
+                    {getFilterCount(filter)}
+                </span>
+            </Button>
+        );
 
-              {viewMode === "inWarehouse" && selectedFilter === "rice" && (
-                <Column
-                  header="Status"
-                  body={forSaleBodyTemplate}
-                  className="text-center"
-                  headerClassName="text-center"
-                />
-              )}
-              <Column
-                header="Action"
-                body={actionBodyTemplate}
-                className="text-center"
-                headerClassName="text-center"
-              />
-            </DataTable>
-          </div>
-        </div>
-      </div>
+        const personalStats = [
+            { icon: <Loader2 size={18} />, title: "Palay Bought", value: 9 },
+            { icon: <Undo2 size={18} />, title: "Processed", value: 4 },
+            { icon: <CheckCircle2 size={18} />, title: "Distributed", value: 2 },
+        ];
+    
+        const totalValue = personalStats.reduce((acc, stat) => acc + stat.value, 0);
+    
+        const rightSidebar = () => {
+            return (
+                <div className="p-4 bg-white rounded-lg flex flex-col gap-4">
+                    <div className="header flex flex-col gap-4">
+                        <div className='flex flex-col items-center justify-center gap-2'>
+                            <p className="">Total</p>
+                            <p className="text-2xl sm:text-4xl font-semibold text-primary">{totalValue}</p>
+                        </div>
+                        <div className="flex gap-2">
+                            {personalStats.map((stat, index) => (
+                                <div key={index} className="flex flex-col gap-2 flex-1 items-center justify-center">
+                                    <p className="text-sm">{stat.title}</p>
+                                    <p className="font-semibold text-primary">{stat.value}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )
+        };
+        
+        return (
+            <StaffLayout activePage="Warehouse" user={user} isRightSidebarOpen={true} isLeftSidebarOpen={false} rightSidebar={rightSidebar()}>
+                <Toast ref={toast} />
+                <div className="flex flex-col h-full gap-4">
+                    <div className="flex flex-col justify-center gap-4 items-center p-8 rounded-lg bg-gradient-to-r from-primary to-secondary">
+                        <h1 className="text-2xl sm:text-4xl text-white font-semibold">Stocks Storage</h1>
+                        <span className="w-1/2">
+                            <IconField iconPosition="left">
+                                <InputIcon className=""> 
+                                    <Search className="text-white" size={18} />
+                                </InputIcon>
+                                <InputText 
+                                    className="ring-0 w-full rounded-full text-white bg-transparent border border-white placeholder:text-white" 
+                                    value={globalFilterValue} 
+                                    onChange={onGlobalFilterChange} 
+                                    placeholder="Tap to search" 
+                                />
+                            </IconField>
+                        </span>
+                        <div className="flex justify-center space-x-4 w-full">
+                            <Button 
+                                label="Requests" 
+                                className={`ring-0 ${viewMode === 'requests' ? 'bg-white text-primary border-0' : 'bg-transparent text-white border-white'}`} 
+                                onClick={() => {
+                                    setViewMode('requests');
+                                    setSelectedFilter('palay');
+                                }} 
+                            />
+                            <Button 
+                                label="In Warehouse" 
+                                className={`ring-0 ${viewMode === 'inWarehouse' ? 'bg-white text-primary border-0' : 'bg-transparent text-white border-white'}`} 
+                                onClick={() => {
+                                    setViewMode('inWarehouse');
+                                    setSelectedFilter('palay');
+                                }} 
+                            />
+                        </div>
+                    </div>
+
+                    {/* Filters */}
+                    <div className="flex justify-start">
+                        <div className="flex bg-white rounded-full gap-2 p-2">
+                            <FilterButton 
+                                label="Palay" 
+                                icon={<Wheat 
+                                className="mr-2" 
+                                size={16} />} 
+                                filter="palay" 
+                            />
+                            <FilterButton 
+                                label="Rice" 
+                                icon={<Wheat 
+                                className="mr-2" 
+                                size={16} />} 
+                                filter="rice" 
+                            />
+                        </div>
+                    </div>
+
+                    {/* Data Table */}
+                    <div className="flex-grow flex flex-col overflow-hidden rounded-lg">
+                        <div className="overflow-hidden bg-white flex flex-col gap-4 p-5 rounded-lg">
+                            <div className='flex justify-between items-center'>
+                                <p className='font-medium text-black'>Storage</p>
+                                <RotateCw size={18} 
+                                    onClick={refreshData}
+                                    className='text-primary cursor-pointer hover:text-primaryHover'
+                                    title="Refresh data"                                
+                                />
+                            </div>
+                            <DataTable 
+                                value={filteredData}
+                                scrollable
+                                scrollHeight="flex"
+                                scrolldirection="both"
+                                filters={filters}
+                                globalFilterFields={viewMode === 'inWarehouse' ? 
+                                    ['id', 'from', 'currentlyAt', 'receivedOn', 'transportedBy', 'status', 'riceBatchName'] : 
+                                    ['id', 'from', 'toBeStoreAt', 'dateRequest', 'transportedBy', 'status']}
+                                emptyMessage="No inventory found."
+                                paginator
+                                rows={10}
+                            >
+                                <Column
+                                    field="id" 
+                                    header={selectedFilter === 'all' ? 'Batch ID' : (selectedFilter === 'rice' ? 'Rice Batch ID' : 'Palay Batch ID')} 
+                                    className="text-center" 
+                                    headerClassName="text-center" 
+                                />
+                                {viewMode === 'inWarehouse' && selectedFilter === 'rice' && (
+                                    <Column
+                                        field="riceBatchName" 
+                                        header="Batch Name" 
+                                        className="text-center" 
+                                        headerClassName="text-center"
+                                    />
+                                )}
+                                <Column
+                                    field="quantity" header="Quantity in Bags" 
+                                    body={(rowData) => rowData.batchQuantityBags ?? rowData.palayQuantityBags}
+                                    className="text-center" headerClassName="text-center" 
+                                />
+                                {!(viewMode === 'inWarehouse' && selectedFilter === 'rice') && (
+                                    <Column field="from" header="From" className="text-center" headerClassName="text-center" />
+                                )}
+                                {!(viewMode === 'inWarehouse' && selectedFilter === 'rice') && (
+                                    <Column 
+                                        field={viewMode === 'inWarehouse' ? "currentlyAt" : "toBeStoreAt"} 
+                                        header={viewMode === 'inWarehouse' ? "Currently at" : "To be Store at"} 
+                                        className="text-center" headerClassName="text-center" 
+                                    />
+                                )}
+                                <Column 
+                                    field={viewMode === 'inWarehouse' ? "receivedOn" : "dateRequest"} 
+                                    header={viewMode === 'inWarehouse' ? "Received On" : "Date Request"} 
+                                    className="text-center" headerClassName="text-center" />
+                                {!(viewMode === 'inWarehouse' && selectedFilter === 'rice') && (
+                                    <Column field="transportedBy" header="Transported By" className="text-center" headerClassName="text-center" />
+                                )}
+                                {/* <Column field="qualityType" header="Quality Type" className="text-center" headerClassName="text-center" /> */}
+                                {!(viewMode === 'inWarehouse' && selectedFilter === 'rice') && (
+                                    <Column 
+                                        field={viewMode === 'requests' ? 'transactionStatus' : 'palayStatus'} 
+                                        header="Status" 
+                                        body={statusBodyTemplate} 
+                                        className="text-center" 
+                                        headerClassName="text-center"
+                                    />
+                                )}
+                                
+                                {(viewMode === 'inWarehouse' && selectedFilter === 'rice') && (
+                                    <Column header="Status" body={forSaleBodyTemplate} className="text-center" headerClassName="text-center"/> 
+                                )}
+                                <Column header="Action" body={actionBodyTemplate} className="text-center" headerClassName="text-center"/>
+                            </DataTable>
+                        </div>
+                    </div>
+                </div>
 
       <SendTo
         visible={showSendToDialog}

@@ -523,8 +523,8 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
 
     const customDialogHeader = (
         <div className="flex items-center space-x-2">
-            <Wheat size={22} className="text-black" />
-            <h3 className="text-md font-bold text-black">Buy Palay</h3>
+            <Wheat className="text-black" />
+            <h3 className="text-md font-semibold text-black">Buy Palay</h3>
         </div>
     );
 
@@ -725,13 +725,13 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
                         label="Previous" 
                         onClick={handlePrevious} 
                         disabled={activeStep === 0 || isLoading} 
-                        className="py-2 px-14 bg-primary"
+                        className="bg-primary w-1/2"
                     />
                     <Button 
                         label={activeStep === steps.length - 1 ? 'Buy Palay' : 'Next'} 
                         onClick={activeStep === steps.length - 1 ? handleSubmit : handleNext}
                         disabled={isLoading} 
-                        className="py-2 px-14 bg-primary"
+                        className="bg-primary w-1/2"
                         loading={isLoading}
                     />
                 </div>

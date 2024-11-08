@@ -64,7 +64,7 @@ function AdminSidebarComponent({ children, expanded, items }) {
                         `}
                     >
                         <LogOut size={20} />
-                        {expanded && <p className='font-semibold'>Logout</p>}
+                        {expanded && <p className='font-medium'>Logout</p>}
                     </Button>
                 </div>
             </nav>
@@ -93,7 +93,7 @@ function SidebarItem({ icon, text, active, link }) {
                 `}
             >
                 {icon}
-                {expanded && <p className='font-semibold'>{text}</p>}
+                {expanded && <p className='font-medium'>{text}</p>}
             </Button>
             {!expanded &&
                 <Tooltip 

@@ -1,12 +1,20 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+
 import { Bell } from 'lucide-react';
+
 import { Avatar } from 'primereact/avatar';
 import { Divider } from 'primereact/divider';
 
-function RecipientLayout({ children, activePage, user }) {
-    const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
+import Navbar from '../Components/Recipient/Navbar';
+import { useAuth } from '../Pages/Authentication/Login/AuthContext';
+import RightSidebar from '../Components/Recipient/RightSidebar';
+
+function RecipientLayout({ children, activePage, user, isRightSidebarOpen, rightSidebar }) {
     const navigate = useNavigate();
+    const { logout } = useAuth();
+
+    const [userFullName] = useState(`${user.first_name} ${user.last_name}`);
 
     const navItems = [
         { text: 'Home', link: '/recipient' },
@@ -23,72 +31,41 @@ function RecipientLayout({ children, activePage, user }) {
         navigate('/recipient/profile');
     }
 
+    const handleLogoutBtn = async () => {
+        try {
+            await logout();
+            navigate('/');
+        }
+        catch (error) {
+            console.log(error.message);
+        }
+    }
+
     return (
         <div className="flex flex-col h-screen w-screen bg-[#F1F5F9]">
             {/* Header */}
-            <header className="w-full py-8 bg-white shadow-md">
-                <nav className="flex items-center justify-between px-4">
-                    <div className='flex items-center gap-10'>
-                        <img 
-                            src="/favicon_expanded.ico"
-                            className="w-[15rem]"
-                            alt="AgriCTRL+ logo"
-                        />
-                        {navItems.map((item, index) => (
-                            <Link 
-                                key={index} 
-                                to={item.link} 
-                                className={`text-black font-medium ${activePage === item.text ? 'font-bold text-white p-3 rounded-md bg-gradient-to-r from-secondary to-primary' : ''}`}
-                            >
-                                {item.text}
-                            </Link>
-                        ))}
-                    </div>
-                    <div className='flex items-center gap-10'>
-                        {/* <Bell 
-                            className="cursor-pointer text-black" 
-                            size={20} 
-                            onClick={toggleRightSidebar} 
-                        /> */}
-                        <div className='flex items-center gap-4'>
-                            <Avatar 
-                                image="/profileAvatar.png"
-                                size="large" 
-                                shape="circle"
-                                onClick={profileClick}
-                                className="cursor-pointer border-primary border-2"
-                            />
-                            <div>
-                                <p className="font-bold text-primary">
-                                    {user.firstName + ' ' + user.lastName}
-                                </p> 
-                                <p>
-                                    {user.userType}
-                                </p>
-                            </div> 
-                        </div>
-                    </div>
-                </nav>
-            </header>
+            <Navbar 
+                navItems={navItems}
+                user={user}
+                activePage={activePage}
+                userFullName={userFullName}
+                profileClick={profileClick}
+                navigate={navigate}
+                handleLogoutBtn={handleLogoutBtn}
+            />
 
             {/* Main content and right sidebar */}
-            <div className="flex flex-1 overflow-hidden">
+            <div className="flex flex-1 p-4 sm:p-6 gap-4 bg-background">
                 {/* Main content */}
                 <main className={`flex-1 overflow-auto transition-all duration-300 ${isRightSidebarOpen ? 'w-3/4' : 'w-full'}`}>
                     {children}
                 </main>
 
                 {/* Right sidebar */}
-                <div 
-                    className={`bg-black shadow-lg transition-all duration-300 overflow-hidden ${
-                        isRightSidebarOpen ? 'w-[20%]' : 'w-0'
-                    }`}
-                >
-                    <div className="p-4">
-                        <h2 className="text-lg font-semibold mb-4">Notifications</h2>
-                        {/* Add your notification content here */}
-                    </div>
-                </div>
+                <RightSidebar 
+                    isRightSidebarOpen={isRightSidebarOpen}
+                    rightSidebar={rightSidebar}
+                />
             </div>
         </div>
     );

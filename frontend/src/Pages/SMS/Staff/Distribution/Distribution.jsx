@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import StaffLayout from '@/Layouts/StaffLayout';
-import { Search, ShoppingCart, ThumbsUp, ThumbsDown, RotateCw, PackageCheck  } from "lucide-react";
+import { Search, ShoppingCart, ThumbsUp, ThumbsDown, RotateCw, PackageCheck , Loader2, Undo2, CheckCircle2 } from "lucide-react";
 
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -9,8 +9,10 @@ import { FilterMatchMode } from 'primereact/api';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { Toast } from 'primereact/toast';
-import { useAuth } from '../../../Authentication/Login/AuthContext';
+import { IconField } from 'primereact/iconfield';
+import { InputIcon } from 'primereact/inputicon';
 
+import { useAuth } from '../../../Authentication/Login/AuthContext';
 import AcceptOrder from './AcceptOrder';
 import DeclineOrder from './DeclineOrder';
 import SendOrder from './SendOrder';
@@ -20,7 +22,8 @@ import OrderDetails from './OrderDetails';
 function Distribution() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const toast = useRef();
-    const { user } = useAuth();
+    // const { user } = useAuth();
+    const [user] = useState({ userType: 'NFA Branch Staff' });
 
     const [isLoading, setIsLoading] = useState(false);
     const [selectedFilter, setSelectedFilter] = useState('request');
@@ -386,50 +389,84 @@ function Distribution() {
         ? 'bg-primary text-white'
         : 'bg-white text-primary border border-gray-300';
 
+    
+    // RIGHT SIDEBAR DETAILS
+    const personalStats = [
+        { icon: <Loader2 size={18} />, title: "Palay Bought", value: 9 },
+        { icon: <Undo2 size={18} />, title: "Processed", value: 4 },
+        { icon: <CheckCircle2 size={18} />, title: "Distributed", value: 2 },
+    ];
+
+    const totalValue = personalStats.reduce((acc, stat) => acc + stat.value, 0);
+    
+    const rightSidebar = () => {
+        return (
+            <div className="p-4 bg-white rounded-lg flex flex-col gap-4">
+                <div className="header flex flex-col gap-4">
+                    <div className='flex flex-col items-center justify-center gap-2'>
+                        <p className="">Total</p>
+                        <p className="text-2xl sm:text-4xl font-semibold text-primary">{totalValue}</p>
+                    </div>
+                    <div className="flex gap-2">
+                        {personalStats.map((stat, index) => (
+                            <div key={index} className="flex flex-col gap-2 flex-1 items-center justify-center">
+                                <p className="text-sm">{stat.title}</p>
+                                <p className="font-semibold text-primary">{stat.value}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
     return (
-        <StaffLayout activePage="Distribution" user={user}>
+        <StaffLayout activePage="Distribution" user={user} isRightSidebarOpen={true} rightSidebar={rightSidebar()}>
             <Toast ref={toast} />
-            <div className="flex flex-col px-10 py-2 h-full bg-[#F1F5F9]">
-                <div className="flex flex-col justify-center items-center p-10 h-1/4 rounded-lg bg-gradient-to-r from-primary to-secondary mb-2">
-                    <h1 className="text-5xl h-full text-white font-bold mb-2">Manage Orders</h1>
-                    <span className="p-input-icon-left w-1/2 mr-4">
-                        <Search className="text-primary ml-2 -translate-y-1"/>
-                        <InputText 
-                            type="search"
-                            value={globalFilterValue} 
-                            onChange={onGlobalFilterChange} 
-                            placeholder="Tap to Search" 
-                            className="w-full pl-10 pr-4 py-2 rounded-full text-primary border border-gray-300 ring-0 placeholder:text-primary"
-                        />
+            <div className="flex flex-col h-full gap-4">
+                <div className="flex flex-col justify-center gap-4 items-center p-8 rounded-lg bg-gradient-to-r from-primary to-secondary">
+                    <h1 className="text-2xl sm:text-4xl text-white font-semibold">Manage Orders</h1>
+                    <span className="w-1/2">
+                        <IconField iconPosition="left">
+                            <InputIcon className=""> 
+                                <Search className="text-white" size={18} />
+                            </InputIcon>
+                            <InputText 
+                                className="ring-0 w-full rounded-full text-white bg-transparent border border-white placeholder:text-white" 
+                                value={globalFilterValue} 
+                                onChange={onGlobalFilterChange} 
+                                placeholder="Tap to search" 
+                            />
+                        </IconField>
                     </span>
                 </div>
 
                 {/* Buttons & Search bar */}
-                <div className="flex items-center space-x-2 justify-between mb-2 py-2">
-                    <div className="flex space-x-2 items-center w-1/2 drop-shadow-md">
+                <div className="flex items-center justify-between">
+                    <div className="flex gap-2 items-center bg-white w-fit p-2 rounded-full">
                         <Button 
                             icon={<ShoppingCart size={16} className="mr-2" />} 
                             label="Request" 
-                            className={`p-button-success p-2 w-1/16 ring-0 rounded-full ${buttonStyle(selectedFilter === 'request')}`} 
+                            className={`p-button-success p-button-sm border-0 ring-0 rounded-full ${buttonStyle(selectedFilter === 'request')}`} 
                             onClick={() => handleFilterChange('request')}
                         />
                         <Button 
                             icon={<ThumbsUp size={16} className="mr-2" />}
                             label="Accepted" 
-                            className={`p-button-success p-2 w-1/16 ring-0 rounded-full ${buttonStyle(selectedFilter === 'accepted')}`} 
+                            className={`p-button-success p-button-sm border-0 ring-0 rounded-full ${buttonStyle(selectedFilter === 'accepted')}`} 
                             onClick={() => handleFilterChange('accepted')}
                         />
                         <Button 
                             icon={<ThumbsDown size={16} className="mr-2" />}
                             label="Declined" 
-                            className={`p-button-success p-2 w-1/16 ring-0 rounded-full ${buttonStyle(selectedFilter === 'declined')}`} 
+                            className={`p-button-success p-button-sm border-0 ring-0 rounded-full ${buttonStyle(selectedFilter === 'declined')}`} 
                             onClick={() => handleFilterChange('declined')}
                         />
 
                         <Button 
-                            icon={<PackageCheck size={16} className="mr-2" />}
-                            label="Deliveries" 
-                            className={`p-button-success p-2 w-1/16 ring-0 rounded-full ${buttonStyle(selectedFilter === 'delivered')}`} 
+                            icon={<RotateCw size={16} className="mr-2" />}
+                            label="Delivered" 
+                            className={`p-button-success p-button-sm border-0 ring-0 rounded-full ${buttonStyle(selectedFilter === 'delivered')}`} 
                             onClick={() => handleFilterChange('delivered')}
                         />
 
@@ -440,20 +477,27 @@ function Distribution() {
                         />
                     </div>
 
-                    <div className="text-xl text-white p-3 rounded-lg bg-primary">
-                        Total Rice Bags Available: {totalAvailableQuantity} Bags
+                    <div className="text-white p-3 rounded-lg bg-primary">
+                        Total Rice Bags Available: <span className='font-semibold'>{totalAvailableQuantity} Bags</span>
                     </div>
                 </div>
 
                 {/* Data Table */}
-                <div className="flex-grow flex flex-col overflow-hidden rounded-lg shadow">
-                    <div className="flex-grow overflow-hidden bg-white">
+                <div className="flex-grow flex flex-col overflow-hidden rounded-lg">
+                    <div className="overflow-hidden bg-white flex flex-col gap-4 p-5 rounded-lg">
+                    <div className='flex justify-between items-center'>
+                        <p className='font-medium text-black'>Orders</p>
+                        <RotateCw size={18} 
+                            onClick={onUpdate}
+                            className='text-primary cursor-pointer hover:text-primaryHover'
+                            title="Refresh data"                                
+                        />
+                    </div>
                     <DataTable 
                         value={filteredData}
                         scrollable
                         scrollHeight="flex"
                         scrolldirection="both"
-                        className="p-datatable-sm pt-5" 
                         filters={filters}
                         globalFilterFields={['id', 'status']}
                         emptyMessage="No orders found."

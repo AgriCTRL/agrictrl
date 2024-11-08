@@ -2,6 +2,10 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap');
 
+* {
+    font-family: 'Poppins', sans-serif;
+}
+
 @layer tailwind-base {
     @tailwind base;
 }
@@ -9,12 +13,6 @@
 @layer tailwind-utilities {
     @tailwind components;
     @tailwind utilities;
-}
-
-@layer base {
-    body {
-        @apply font-poppins;
-    }
 }
 
 @layer utilities {
@@ -71,16 +69,14 @@
     .p-datatable {
         .p-datatable-thead {
             th {
-                @apply font-bold !important;
+                @apply font-medium !important;
                 @apply text-black;
-                @apply bg-white !important;
             }
         }
 
         &:not(.tracking) .p-datatable-thead {
             th {
                 border-bottom: 1px solid #dee2e6 !important;
-                border-top: 1px solid #D9D9D9 !important;
             }
         }
 
@@ -157,6 +153,32 @@
                 width: 4rem !important;
             }
         }
+
+        &.staff-transactions-carousel {
+            .p-carousel-content {
+                .p-carousel-container {
+                    position: relative;
+
+                    button {
+                        position: absolute;
+                        color: #00C261;
+
+                        &.p-carousel-prev {
+                            left: 0;
+                            z-index: 9999;
+                        }
+
+                        &.p-carousel-next {
+                            right: 0;
+                        }
+                    }
+
+                    .p-carousel-items-container {
+                        gap: 1rem;
+                    }
+                }
+            }
+        }
     }
 
     .p-calendar:not(.p-calendar-disabled).p-focus > .p-inputtext {
@@ -225,6 +247,10 @@
         }
     }
 
+    .p-button-label {
+        @apply font-medium !important;  
+    }
+
     .p-calendar-w-btn {
         button {
             background-color: #00C261;
@@ -251,7 +277,16 @@
         color: #ffffff !important;
     }
 
-
-
-     
+    .p-accordion {
+        &.right-sidebar-accordion {
+            .p-accordion-header {
+                .p-accordion-header-link {
+                    background: none !important;
+                    .p-accordion-toggle-icon {
+                        display: none;
+                    }
+                }
+            }
+        }
+    }
 }
