@@ -29,9 +29,13 @@ import StaffLayout from '@/Layouts/StaffLayout';
 function BuyPalay() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const toast = useRef(null);
-    // const { user } = useAuth();
+    const { user } = useAuth();
 
-    const [user] = useState({ userType: 'NFA Branch Staff' });
+    // const [user] = useState({ userType: 'NFA Branch Staff' });
+
+    const [palayCount, setPalayCount] = useState(0);
+    const [processedCount, setProcessedCount] = useState(0);
+    const [distributedCount, setDistributedCount] = useState(0);
 
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [filters, setFilters] = useState({
@@ -43,6 +47,7 @@ function BuyPalay() {
 
     useEffect(() => {
         fetchPalayData();
+        fetchData();
     }, []);
 
     useEffect(() => {
@@ -76,6 +81,18 @@ function BuyPalay() {
             });
         }
     };
+
+    const fetchData = async () => {
+        const palayCountRes = await fetch(`${apiUrl}/palaybatches/count`);
+        setPalayCount(await palayCountRes.json());
+        const millingCountRes = await fetch(`${apiUrl}/millingbatches/count`);
+        const millingCount = await millingCountRes.json();
+        const dryingCountRes = await fetch(`${apiUrl}/dryingbatches/count`);
+        const dryingCount = await dryingCountRes.json();
+        setProcessedCount( millingCount + dryingCount );
+        const distributeCountRes = await fetch(`${apiUrl}/riceorders/received/count`);
+        setDistributedCount(await distributeCountRes.json());
+    }
 
     const getSeverity = (status) => {
         switch (status.toLowerCase()) {
@@ -120,9 +137,9 @@ function BuyPalay() {
     };
 
     const personalStats = [
-        { icon: <Loader2 size={18} />, title: "Palay Bought", value: 9 },
-        { icon: <Undo2 size={18} />, title: "Processed", value: 4 },
-        { icon: <CheckCircle2 size={18} />, title: "Distributed", value: 2 },
+        { icon: <Loader2 size={18} />, title: "Palay Bought", value: palayCount },
+        { icon: <Undo2 size={18} />, title: "Processed", value: processedCount },
+        { icon: <CheckCircle2 size={18} />, title: "Distributed", value: distributedCount },
     ];
 
     const totalValue = personalStats.reduce((acc, stat) => acc + stat.value, 0);

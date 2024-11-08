@@ -195,14 +195,17 @@ const ReturnDialog = ({
         ...newTransactionData,
         item: "Palay",
         itemId: selectedItem.palayBatchId,
+        senderId: user.id,
         fromLocationType: viewMode === "drying" ? "Dryer" : "Miller",
         fromLocationId: selectedItem.toLocationId,
         toLocationType: "Warehouse",
-        senderId: user.id,
+        
         receiverId: "0",
         status: "Pending",
         receiveDateTime: "0",
       };
+
+      console.log("transaction data: ", newTransaction)
 
       const createTransactionResponse = await fetch(`${apiUrl}/transactions`, {
         method: "POST",

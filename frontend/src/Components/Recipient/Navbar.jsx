@@ -51,7 +51,7 @@ const Navbar = ({ navItems, user, activePage, userFullName, profileClick, naviga
                         className="cursor-pointer border-primary border text-primary bg-tag-grey"
                     />
                     <div className="flex flex-col items-start">
-                        <small className='font-semibold text-black'>{(user.first_name && user.last_name) ? userFullName : 'username'}</small>                        
+                        <small className='font-semibold text-black'>{(user.firstName && user.lastName) ? userFullName : 'username'}</small>                        
                         <small className='text-light-grey'>{user.userType.toLowerCase()}</small>                        
                     </div>
                     <ChevronDown size={18} />

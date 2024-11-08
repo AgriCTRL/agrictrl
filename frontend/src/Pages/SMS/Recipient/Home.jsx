@@ -162,14 +162,14 @@ function Home({ isRightSidebarOpen }) {
     }
 
     return (
-        <RecipientLayout activePage="Home" user={user} isRightSidebarOpen={true} rightSidebar={rightSidebar()}>
+        <RecipientLayout activePage="Home" user={user} isRightSidebarOpen={false} rightSidebar={rightSidebar()}>
             <div className={`flex flex-row bg-[#F1F5F9] h-full`}>
                 {/* Main Content */}
                 <div className={`flex flex-col w-full h-full gap-4`}>
                     <div className="flex flex-row justify-between items-center">
                         <div className="flex flex-col text-black">
                             <h1 className="text-xl">Welcome Back,</h1>
-                            <h1 className="text-2xl sm:text-4xl font-semibold">{user.first_name ?? 'User'}!</h1>
+                            <h1 className="text-2xl sm:text-4xl font-semibold">{user.firstName ?? 'User'}!</h1>
                         </div>
                     </div>
 

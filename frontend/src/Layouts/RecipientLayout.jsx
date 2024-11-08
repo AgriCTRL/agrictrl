@@ -14,7 +14,7 @@ function RecipientLayout({ children, activePage, user, isRightSidebarOpen, right
     const navigate = useNavigate();
     const { logout } = useAuth();
 
-    const [userFullName] = useState(`${user.first_name} ${user.last_name}`);
+    const [userFullName] = useState(`${user.firstName} ${user.lastName}`);
 
     const navItems = [
         { text: 'Home', link: '/recipient' },

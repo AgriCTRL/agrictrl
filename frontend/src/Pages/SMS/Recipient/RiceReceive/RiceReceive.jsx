@@ -151,7 +151,7 @@ function RiceReceive() {
     }
 
     return (
-        <RecipientLayout activePage="Rice Receive" user={user} isRightSidebarOpen={true} rightSidebar={rightSidebar()}>
+        <RecipientLayout activePage="Rice Receive" user={user} isRightSidebarOpen={false} rightSidebar={rightSidebar()}>
             <div className="flex flex-col h-full gap-4 bg-[#F1F5F9]">
                 <div className="flex flex-col justify-center gap-4 items-center p-8 rounded-lg bg-gradient-to-r from-primary to-secondary">
                     <h1 className="text-2xl sm:text-4xl text-white font-semibold">Rice Receive</h1>

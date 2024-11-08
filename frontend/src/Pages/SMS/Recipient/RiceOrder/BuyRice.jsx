@@ -418,7 +418,7 @@ function BuyRice({ visible, onHide, onRiceOrdered }) {
                         {errors.dropOffLocation && <p className="text-red-500 text-xs mt-1">{errors.dropOffLocation}</p>}
                     </div>
                     <div className="w-full">
-                        <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                        <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">Order Description</label>
                         <InputTextarea
                             id="description"
                             name="description"

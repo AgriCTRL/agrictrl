@@ -41,21 +41,24 @@ const WarehouseInventoryTrend = ({ apiUrl, setInterpretations }) => {
               const totalCapacity = data.map((d) => d.totalCapacity);
               const currentStock = data.map((d) => d.currentStock);
 
+              const remainingCapacity = data.map((d) => d.totalCapacity - d.currentStock);
+
               setChartData({
-                  labels,
-                  datasets: [
-                      {
-                          label: "Current Stock",
-                          data: currentStock,
-                          backgroundColor: "#00C261",
-                      },
-                      {
-                          label: "Remaining Capacity",
-                          data: totalCapacity,
-                          backgroundColor: "#005155",
-                      },
-                  ],
-              });
+                labels,
+                datasets: [
+                    {
+                        label: "Current Stock",
+                        data: currentStock,
+                        backgroundColor: "#00C261",
+                    },
+                    {
+                        label: "Remaining Capacity",
+                        data: remainingCapacity,
+                        backgroundColor: "#B0A6A6",
+                    },
+                ],
+            });
+            
 
               // Generate and set interpretation text based on fetched data
               const interpretationText = generateInterpretation(data);

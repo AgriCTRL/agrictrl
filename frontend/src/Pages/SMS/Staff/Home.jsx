@@ -28,7 +28,7 @@ import StaffLayout from '@/Layouts/StaffLayout';
 
 function Home({ isRightSidebarOpen }) {
     const { user } = useAuth();
-    const [userFullName] = useState(`${user.first_name} ${user.last_name}`);
+    const [userFullName] = useState(`${user.firstName} ${user.lastName}`);
 
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const navigate = useNavigate();
@@ -129,17 +129,17 @@ function Home({ isRightSidebarOpen }) {
     ]);
 
     const statistics = [
-        { icon: <Wheat size={18} />, title: "Total Palay Bought", date: "MM/DD/YYYY", value: 100 },
-        { icon: <Wheat size={18} />, title: "Total Palay in Warehouse", date: "MM/DD/YYYY", value: 500 },
-        { icon: <Wheat size={18} />, title: "Total Palay Processed", date: "MM/DD/YYYY", value: 1000 },
-        { icon: <Wheat size={18} />, title: "Total Rice in Warehouse", date: "MM/DD/YYYY", value: 1500 },
-        { icon: <Wheat size={18} />, title: "Total Rice Delivered", date: "MM/DD/YYYY", value: 800 },
+        { icon: <Wheat size={18} />, title: "Total Palay Bought", date: "MM/DD/YYYY", value: totalPalayBought },
+        { icon: <Wheat size={18} />, title: "Total Palay in Warehouse", date: "MM/DD/YYYY", value: totalPalayWarehouse },
+        { icon: <Wheat size={18} />, title: "Total Palay Processed", date: "MM/DD/YYYY", value: totalPalayProcessed },
+        { icon: <Wheat size={18} />, title: "Total Rice in Warehouse", date: "MM/DD/YYYY", value: totalRiceWarehouse },
+        { icon: <Wheat size={18} />, title: "Total Rice Delivered", date: "MM/DD/YYYY", value: totalRiceDelivered },
     ];
 
     const personalStats = [
-        { icon: <Loader2 size={18} />, title: "Palay Bought", value: 9 },
-        { icon: <Undo2 size={18} />, title: "Processed", value: 4 },
-        { icon: <CheckCircle2 size={18} />, title: "Distributed", value: 2 },
+        { icon: <Loader2 size={18} />, title: "Palay Bought", value: palayCount },
+        { icon: <Undo2 size={18} />, title: "Processed", value: processedCount },
+        { icon: <CheckCircle2 size={18} />, title: "Distributed", value: distributedCount },
     ];
 
     const leftSidebar = () => {
@@ -159,7 +159,7 @@ function Home({ isRightSidebarOpen }) {
                 <div className="w-full rounded-b-md bg-white flex flex-col gap-2 pt-12 px-4 pb-4">
                     {/* Name and Position */}
                     <div className="flex flex-col items-center pb-2">
-                        <h1 className="text-lg font-medium text-black">{(user.first_name && user.last_name) ? userFullName : 'username'}</h1>
+                        <h1 className="text-lg font-medium text-black">{(user.firstName && user.lastName) ? userFullName : 'username'}</h1>
                         <p className="text-sm text-gray-400">{user.userType.toLowerCase()}</p>
                     </div>
 

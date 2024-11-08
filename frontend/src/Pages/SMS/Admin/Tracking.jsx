@@ -328,7 +328,7 @@ const Tracking = () => {
                         >
                             <Column expander={true} style={{ width: '5rem' }} />
                             <Column field="tracking_id" header={headerTemplate(<MapPin />, 'Tracking ID')} />
-                            <Column field="farmers.name" header={headerTemplate(<Shovel />, 'Farmer Name')} />
+                            {/* <Column field="farmers.name" header={headerTemplate(<Shovel />, 'Farmer Name')} /> */}
                         </DataTable>
                     </CardComponent>
                 )}

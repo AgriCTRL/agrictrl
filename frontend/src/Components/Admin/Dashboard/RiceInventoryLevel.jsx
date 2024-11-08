@@ -20,16 +20,14 @@ const RiceInventoryLevels = ({ apiUrl, setInterpretations }) => {
                     {
                         label: 'Current Capacity',
                         data: data.map(d => d.currentCapacity),
-                        backgroundColor: 'rgba(0, 194, 97, 1)',
-                        borderColor: 'rgba(0, 194, 97, 1)',
+                        backgroundColor: "#00C261",
                         borderWidth: 1,
                         stack: 'Capacity'
                     },
                     {
                         label: 'Remaining Capacity',
                         data: data.map(d => d.maxCapacity - d.currentCapacity),
-                        backgroundColor: 'rgba(0, 158, 79, 1)',
-                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: "#B0A6A6",
                         borderWidth: 1,
                         stack: 'Capacity'
                     }

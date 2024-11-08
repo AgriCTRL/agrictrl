@@ -26,6 +26,7 @@ const ManageRice = ({ visible, onHide, selectedItem, onUpdateSuccess, user, refr
                 body: JSON.stringify({
                     id: selectedItem.id,
                     forSale: forSale,
+                    price: price
                 })
             });
     
@@ -77,6 +78,10 @@ const ManageRice = ({ visible, onHide, selectedItem, onUpdateSuccess, user, refr
             setForSale(selectedItem.forSale || false);
         }
     }, [selectedItem]);
+
+    const handlePriceChange = (e) => {
+        setPrice(e.value);
+    };
 
     return (
         <>
@@ -142,6 +147,7 @@ const ManageRice = ({ visible, onHide, selectedItem, onUpdateSuccess, user, refr
                             <InputNumber
                                 id="price"
                                 value={price}
+                                onChange={handlePriceChange}
                                 mode="currency"
                                 currency="PHP"
                                 locale="en-US"
