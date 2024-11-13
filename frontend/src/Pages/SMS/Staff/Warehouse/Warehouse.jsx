@@ -1,8 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import StaffLayout from "@/Layouts/StaffLayout";
 
-import { DataTable } from "primereact/datatable";
-import { Column } from "primereact/column";
+import { DataView } from "primereact/dataview";
 import { Tag } from "primereact/tag";
 import { FilterMatchMode } from "primereact/api";
 import { Button } from "primereact/button";
@@ -10,10 +9,12 @@ import { InputText } from "primereact/inputtext";
 import { Toast } from "primereact/toast";
 import { IconField } from "primereact/iconfield";
 import { InputIcon } from "primereact/inputicon";
+import { Dialog } from "primereact/dialog";
 
 import {
   Search,
   Wheat,
+  WheatOff,
   RotateCw,
   Loader2,
   Undo2,
@@ -54,6 +55,9 @@ function Warehouse() {
   const [dryerData, setDryerData] = useState([]);
   const [riceBatchData, setRiceBatchData] = useState([]);
   const [warehouseData, setWarehouseData] = useState([]);
+
+  const [showDetailsDialog, setShowDetailsDialog] = useState(false);
+  const [selectedBatchDetails, setSelectedBatchDetails] = useState(null);
 
   useEffect(() => {
     const newFilters = {
@@ -148,12 +152,8 @@ function Warehouse() {
           toBeStoreAt: item.palayBatch.currentlyAt,
           currentlyAt: item.palayBatch.currentlyAt,
           palayStatus: item.palayBatch.status,
-          dateRequest: item.transaction.sendDateTime
-            ? new Date(item.transaction.sendDateTime).toLocaleDateString()
-            : "",
-          receivedOn: item.transaction.receiveDateTime
-            ? new Date(item.transaction.receiveDateTime).toLocaleDateString()
-            : "",
+          dateRequest: item.transaction.sendDateTime,
+          receivedOn: item.transaction.receiveDateTime,
           transportedBy: item.transaction.transporterName,
           transactionStatus: item.transaction.status,
           fromLocationType: item.transaction.fromLocationType,
@@ -169,7 +169,7 @@ function Warehouse() {
           grossWeight: (() => {
             switch (item.transaction.fromLocationType) {
               case "Procurement":
-                return null;
+                return item.palayBatch.grossWeight;
               case "Dryer":
                 return batchData.driedGrossWeight;
               case "Miller":
@@ -181,7 +181,7 @@ function Warehouse() {
           netWeight: (() => {
             switch (item.transaction.fromLocationType) {
               case "Procurement":
-                return null;
+                return item.palayBatch.netWeight;
               case "Dryer":
                 return batchData.driedNetWeight;
               case "Miller":
@@ -304,22 +304,9 @@ function Warehouse() {
     setDistributedCount(await distributeCountRes.json());
   };
 
-  const handleActionClick = (rowData) => {
-    if (viewMode === "requests") {
-      setSelectedItem(rowData);
-      if (["To be Mill", "To be Dry"].includes(rowData.palayStatus)) {
-        setShowPalayAcceptDialog(true);
-      } else if (rowData.palayStatus === "Milled") {
-        setShowRiceAcceptDialog(true);
-      }
-    } else if (viewMode === "inWarehouse") {
-      setSelectedItem(rowData);
-      if (selectedFilter === "rice") {
-        setShowManageRiceDialog(true);
-      } else {
-        setShowSendToDialog(true);
-      }
-    }
+  const handleItemClick = (item) => {
+    setSelectedBatchDetails(item);
+    setShowDetailsDialog(true);
   };
 
   const getSeverity = (status, viewMode) => {
@@ -364,14 +351,18 @@ function Warehouse() {
     );
   };
 
-  const actionBodyTemplate = (rowData) => {
+  const actionBodyTemplate = (item) => {
     if (viewMode === "inWarehouse") {
-      if (rowData.item === "Rice") {
+      if (item.item === "Rice") {
         return (
           <Button
             label="Manage"
             className="p-button-text p-button-sm text-primary ring-0"
-            onClick={() => handleActionClick(rowData)}
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent event bubbling
+              setSelectedItem(item);
+              setShowManageRiceDialog(true);
+            }}
           />
         );
       }
@@ -379,7 +370,11 @@ function Warehouse() {
         <Button
           label="Send to"
           className="p-button-text p-button-sm text-primary ring-0"
-          onClick={() => handleActionClick(rowData)}
+          onClick={(e) => {
+            e.stopPropagation(); // Prevent event bubbling
+            setSelectedItem(item);
+            setShowSendToDialog(true);
+          }}
         />
       );
     }
@@ -387,21 +382,15 @@ function Warehouse() {
       <Button
         label="Accept"
         className="p-button-text p-button-sm text-primary ring-0"
-        onClick={() => handleActionClick(rowData)}
-      />
-    );
-  };
-
-  const forSaleBodyTemplate = (rowData) => {
-    const forSaleText = rowData.forSale ? "For Sale" : "Not for Sale";
-    const severity = rowData.forSale ? "success" : "danger"; // Assuming success shows green and danger shows red
-
-    return (
-      <Tag
-        value={forSaleText}
-        severity={severity}
-        style={{ minWidth: "100px", textAlign: "center" }}
-        className="text-sm px-2 rounded-md"
+        onClick={(e) => {
+          e.stopPropagation(); // Prevent event bubbling
+          setSelectedItem(item);
+          if (["To be Mill", "To be Dry"].includes(item.palayStatus)) {
+            setShowPalayAcceptDialog(true);
+          } else if (item.palayStatus === "Milled") {
+            setShowRiceAcceptDialog(true);
+          }
+        }}
       />
     );
   };
@@ -515,7 +504,7 @@ function Warehouse() {
     <Button
       label={label}
       icon={icon}
-      className={`p-button-sm ring-0 border-none rounded-full ${
+      className={`p-button-sm ring-0 border border-primary rounded-full ${
         selectedFilter === filter
           ? "p-button-outlined bg-primary text-white"
           : "p-button-text text-primary"
@@ -537,7 +526,11 @@ function Warehouse() {
   const personalStats = [
     { icon: <Loader2 size={18} />, title: "Palay Bought", value: palayCount },
     { icon: <Undo2 size={18} />, title: "Processed", value: processedCount },
-    { icon: <CheckCircle2 size={18} />, title: "Distributed", value: distributedCount },
+    {
+      icon: <CheckCircle2 size={18} />,
+      title: "Distributed",
+      value: distributedCount,
+    },
   ];
 
   const totalValue = personalStats.reduce((acc, stat) => acc + stat.value, 0);
@@ -565,6 +558,97 @@ function Warehouse() {
           </div>
         </div>
       </div>
+    );
+  };
+
+  const itemTemplate = (item) => {
+    return (
+      <div className="col-12" onClick={() => handleItemClick(item)}>
+        <div className="flex flex-row items-center p-4 gap-4 cursor-pointer bg-gray-100 hover:bg-gray-200 rounded-lg mb-4">
+          {/* Left Side - Icon */}
+          <div className="flex-none">
+            {selectedFilter === "palay" ? <Wheat size={40} className="text-gray-400"/> : <WheatOff size={40} className="text-gray-400"/>}
+          </div>
+
+          {/* Middle - Main Info */}
+          <div className="flex-1">
+            <div className="font-medium text-xl mb-1">
+              {selectedFilter === "palay" ? "Palay" : "Rice"} Batch #{item.id}
+            </div>
+            <div className="text-gray-600 mb-1">
+              {item?.receivedOn &&
+              item?.receivedOn !== "0000-01-01T00:00:00.000Z"
+                ? new Date(item?.receivedOn).toLocaleDateString()
+                : new Date(item?.dateRequest).toLocaleDateString()}
+            </div>
+
+            <div className="flex items-center">
+              <span className=" py-1 text-sm">
+                {item.quantityBags} bags
+              </span>
+            </div>
+          </div>
+
+          {/* Right Side - Status and Action */}
+          <div className="flex-none flex flex-col items-center gap-2">
+            {statusBodyTemplate(item)}
+            {actionBodyTemplate(item)}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderDetailsDialog = () => {
+    if (!selectedBatchDetails) return null;
+
+    return (
+      <Dialog
+        visible={showDetailsDialog}
+        onHide={() => setShowDetailsDialog(false)}
+        header={`Batch Details - ${selectedBatchDetails.id}`}
+        className="w-full max-w-2xl"
+      >
+        <div className="grid grid-cols-2 gap-4">
+          <div className="col-span-2 border-b pb-2">
+            <h3 className="font-semibold">Basic Information</h3>
+          </div>
+          <div>
+            <p className="text-gray-600">Gross Weight</p>
+            <p>{selectedBatchDetails.grossWeight} Kg</p>
+          </div>
+          <div>
+            <p className="text-gray-600">Net Weight</p>
+            <p>{selectedBatchDetails.netWeight} Kg</p>
+          </div>
+          {selectedFilter === "palay" && (
+            <div>
+              <p className="text-gray-600">Quality Type</p>
+              <p>{selectedBatchDetails.qualityType}</p>
+            </div>
+          )}
+
+          <div className="col-span-2 border-b pb-2 mt-4">
+            <h3 className="font-semibold">Source Information</h3>
+          </div>
+          <div>
+            <p className="text-gray-600">From</p>
+            <p>{selectedBatchDetails.from}</p>
+          </div>
+          <div>
+            <p className="text-gray-600">To be Stored at</p>
+            <p>{selectedBatchDetails.toBeStoreAt}</p>
+          </div>
+
+          <div className="col-span-2 border-b pb-2 mt-4">
+            <h3 className="font-semibold">Transport Information</h3>
+          </div>
+          <div>
+            <p className="text-gray-600">Transported by</p>
+            <p>{selectedBatchDetails.transportedBy}</p>
+          </div>
+        </div>
+      </Dialog>
     );
   };
 
@@ -623,163 +707,51 @@ function Warehouse() {
           </div>
         </div>
 
-        {/* Filters */}
-        <div className="flex justify-start">
-          <div className="flex bg-white rounded-full gap-2 p-2">
-            <FilterButton
-              label="Palay"
-              icon={<Wheat className="mr-2" size={16} />}
-              filter="palay"
-            />
-            <FilterButton
-              label="Rice"
-              icon={<Wheat className="mr-2" size={16} />}
-              filter="rice"
-            />
-          </div>
-        </div>
-
-        {/* Data Table */}
+        {/* Data View */}
         <div className="flex-grow flex flex-col overflow-hidden rounded-lg">
           <div className="overflow-hidden bg-white flex flex-col gap-4 p-5 rounded-lg">
             <div className="flex justify-between items-center">
-              <p className="font-medium text-black">Storage</p>
-              <RotateCw
-                size={18}
-                onClick={refreshData}
-                className="text-primary cursor-pointer hover:text-primaryHover"
-                title="Refresh data"
+              <div className="flex bg-white rounded-full gap-2 p-2">
+                <FilterButton
+                  label="Palay"
+                  icon={<Wheat className="mr-2" size={16} />}
+                  filter="palay"
+                />
+                <FilterButton
+                  label="Rice"
+                  icon={<Wheat className="mr-2" size={16} />}
+                  filter="rice"
+                />
+              </div>
+              <div className="flex gap-4">
+                <p className="font-medium text-black">Refresh Data</p>
+                <RotateCw
+                  size={25}
+                  onClick={refreshData}
+                  className="text-primary cursor-pointer hover:text-primaryHover"
+                  title="Refresh data"
+                />
+              </div>
+            </div>
+
+            {/* Container with relative positioning */}
+            <div className="relative flex flex-col" style={{ height: "calc(100vh - 510px)" }}>
+              <DataView
+                value={filteredData}
+                itemTemplate={itemTemplate}
+                paginator
+                rows={10}
+                emptyMessage="No inventory found."
+                className="overflow-y-auto pb-16"
+                paginatorClassName="absolute bottom-0 left-0 right-0 bg-white border-t"
+                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
               />
             </div>
-            <DataTable
-              value={filteredData}
-              scrollable
-              scrollHeight="flex"
-              scrolldirection="both"
-              filters={filters}
-              globalFilterFields={
-                viewMode === "inWarehouse"
-                  ? [
-                      "id",
-                      "from",
-                      "currentlyAt",
-                      "receivedOn",
-                      "transportedBy",
-                      "status",
-                      "riceBatchName",
-                    ]
-                  : [
-                      "id",
-                      "from",
-                      "toBeStoreAt",
-                      "dateRequest",
-                      "transportedBy",
-                      "status",
-                    ]
-              }
-              emptyMessage="No inventory found."
-              paginator
-              rows={10}
-            >
-              <Column
-                field="id"
-                header={
-                  selectedFilter === "all"
-                    ? "Batch ID"
-                    : selectedFilter === "rice"
-                    ? "Rice Batch ID"
-                    : "Palay Batch ID"
-                }
-                className="text-center"
-                headerClassName="text-center"
-              />
-              {viewMode === "inWarehouse" && selectedFilter === "rice" && (
-                <Column
-                  field="riceBatchName"
-                  header="Batch Name"
-                  className="text-center"
-                  headerClassName="text-center"
-                />
-              )}
-              <Column
-                field="quantityBags"
-                header="Quantity in Bags"
-                className="text-center"
-                headerClassName="text-center"
-              />
-              {!(viewMode === "inWarehouse" && selectedFilter === "rice") && (
-                <Column
-                  field="from"
-                  header="From"
-                  className="text-center"
-                  headerClassName="text-center"
-                />
-              )}
-              {!(viewMode === "inWarehouse" && selectedFilter === "rice") && (
-                <Column
-                  field={
-                    viewMode === "inWarehouse" ? "currentlyAt" : "toBeStoreAt"
-                  }
-                  header={
-                    viewMode === "inWarehouse"
-                      ? "Currently at"
-                      : "To be Store at"
-                  }
-                  className="text-center"
-                  headerClassName="text-center"
-                />
-              )}
-              <Column
-                field={
-                  viewMode === "inWarehouse" ? "receivedOn" : "dateRequest"
-                }
-                header={
-                  viewMode === "inWarehouse" ? "Received On" : "Date Request"
-                }
-                className="text-center"
-                headerClassName="text-center"
-              />
-              {!(viewMode === "inWarehouse" && selectedFilter === "rice") && (
-                <Column
-                  field="transportedBy"
-                  header="Transported By"
-                  className="text-center"
-                  headerClassName="text-center"
-                />
-              )}
-              {/* <Column field="qualityType" header="Quality Type" className="text-center" headerClassName="text-center" /> */}
-              {!(viewMode === "inWarehouse" && selectedFilter === "rice") && (
-                <Column
-                  field={
-                    viewMode === "requests"
-                      ? "transactionStatus"
-                      : "palayStatus"
-                  }
-                  header="Status"
-                  body={statusBodyTemplate}
-                  className="text-center"
-                  headerClassName="text-center"
-                />
-              )}
-
-              {viewMode === "inWarehouse" && selectedFilter === "rice" && (
-                <Column
-                  header="Status"
-                  body={forSaleBodyTemplate}
-                  className="text-center"
-                  headerClassName="text-center"
-                />
-              )}
-              <Column
-                header="Action"
-                body={actionBodyTemplate}
-                className="text-center"
-                headerClassName="text-center"
-              />
-            </DataTable>
           </div>
         </div>
       </div>
+
+      {renderDetailsDialog()}
 
       <SendTo
         visible={showSendToDialog}

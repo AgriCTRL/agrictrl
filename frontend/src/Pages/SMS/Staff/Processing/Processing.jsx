@@ -1,5 +1,16 @@
 import React, { useEffect, useState, useRef } from "react";
 import StaffLayout from "@/Layouts/StaffLayout";
+
+import { DataView } from "primereact/dataview";
+import { Dialog } from "primereact/dialog";
+import { Tag } from "primereact/tag";
+import { FilterMatchMode } from "primereact/api";
+import { Button } from "primereact/button";
+import { InputText } from "primereact/inputtext";
+import { Toast } from "primereact/toast";
+import { IconField } from "primereact/iconfield";
+import { InputIcon } from "primereact/inputicon";
+
 import {
   Search,
   Box,
@@ -9,19 +20,8 @@ import {
   Loader2,
   Undo2,
   CheckCircle2,
+  Wheat,
 } from "lucide-react";
-import { DataTable } from "primereact/datatable";
-import { Column } from "primereact/column";
-import { Tag } from "primereact/tag";
-import { FilterMatchMode } from "primereact/api";
-import { Button } from "primereact/button";
-import { InputText } from "primereact/inputtext";
-import { Dialog } from "primereact/dialog";
-import { Dropdown } from "primereact/dropdown";
-import { InputTextarea } from "primereact/inputtextarea";
-import { Toast } from "primereact/toast";
-import { IconField } from "primereact/iconfield";
-import { InputIcon } from "primereact/inputicon";
 
 import { useAuth } from "../../../Authentication/Login/AuthContext";
 import AcceptDialog from "./AcceptDialog";
@@ -86,6 +86,7 @@ const Processing = () => {
   const [viewMode, setViewMode] = useState("drying");
   const [selectedFilter, setSelectedFilter] = useState("request");
   const [selectedItem, setSelectedItem] = useState(null);
+  const [showDetailsDialog, setShowDetailsDialog] = useState(false);
 
   const [palayCount, setPalayCount] = useState(0);
   const [processedCount, setProcessedCount] = useState(0);
@@ -272,10 +273,12 @@ const Processing = () => {
     const millingCount = await millingCountRes.json();
     const dryingCountRes = await fetch(`${apiUrl}/dryingbatches/count`);
     const dryingCount = await dryingCountRes.json();
-    setProcessedCount( millingCount + dryingCount );
-    const distributeCountRes = await fetch(`${apiUrl}/riceorders/received/count`);
+    setProcessedCount(millingCount + dryingCount);
+    const distributeCountRes = await fetch(
+      `${apiUrl}/riceorders/received/count`
+    );
     setDistributedCount(await distributeCountRes.json());
-}
+  };
 
   const handleActionClick = (rowData) => {
     setSelectedItem(rowData);
@@ -301,50 +304,52 @@ const Processing = () => {
     }
   };
 
+  const handleItemClick = (item) => {
+    setSelectedItem(item);
+    setShowDetailsDialog(true);
+  };
+
   const getSeverity = (status, type) => {
     const statusLower = status?.toLowerCase();
 
-    // Processing status severities
     if (statusLower === "in progress") return "warning";
     if (statusLower === "done") return "success";
-
-    // Transaction status severities
     if (statusLower === "pending") return "warning";
     if (statusLower === "received") return "success";
-
-    // Palay/Processing status severities
     if (statusLower === "to be dry" || statusLower === "to be mill")
       return "info";
     if (statusLower === "in drying" || statusLower === "in milling")
       return "warning";
     if (statusLower === "dried" || statusLower === "milled") return "success";
 
-    return "secondary"; // default severity
+    return "secondary";
   };
 
-  const statusBodyTemplate = (rowData, options) => {
-    const { field } = options;
-    const status = rowData[field];
+  const statusBodyTemplate = (item) => {
+    const status =
+      selectedFilter === "request"
+        ? item.transactionStatus
+        : item.processingStatus;
 
     return (
       <Tag
         value={status}
-        severity={getSeverity(status, field)}
+        severity={getSeverity(status)}
         className="text-sm px-2 rounded-md"
       />
     );
   };
 
-  const actionBodyTemplate = (rowData) => {
+  const actionBodyTemplate = (item) => {
     let actionText = "Action";
-    switch (rowData.transactionStatus?.toLowerCase()) {
+    switch (item.transactionStatus?.toLowerCase()) {
       case "pending":
         actionText = "Accept";
         break;
       case "received":
-        if (rowData.processingStatus?.toLowerCase() === "in progress") {
+        if (item.processingStatus?.toLowerCase() === "in progress") {
           actionText = "Done";
-        } else if (rowData.processingStatus?.toLowerCase() === "done") {
+        } else if (item.processingStatus?.toLowerCase() === "done") {
           actionText = "Return";
         }
         break;
@@ -354,8 +359,179 @@ const Processing = () => {
       <Button
         label={actionText}
         className="p-button-text p-button-sm text-primary ring-0"
-        onClick={() => handleActionClick(rowData)}
+        onClick={(e) => {
+          e.stopPropagation();
+          handleActionClick(item);
+        }}
       />
+    );
+  };
+
+  const itemTemplate = (item) => {
+    return (
+      <div className="col-12" onClick={() => handleItemClick(item)}>
+        <div className="flex flex-row items-center p-4 gap-4 cursor-pointer bg-gray-100 hover:bg-gray-200 rounded-lg mb-4">
+          {/* Left Side - Icon */}
+          <div className="flex-none">
+            <Wheat size={40} className="text-gray-400" />
+          </div>
+
+          {/* Middle - Main Info */}
+          <div className="flex-1">
+            <div className="font-medium text-xl mb-1">
+              Palay Batch #{item.palayBatchId}
+            </div>
+            {selectedFilter === "request" && (
+              <>
+                <div className="text-gray-600 mb-1">From {item.from}</div>
+                <div className="text-gray-600">
+                  To be {viewMode === "drying" ? "Dry" : "Mill"} at{" "}
+                  {item.location}
+                </div>
+              </>
+            )}
+            {selectedFilter === "process" && (
+              <>
+                <div className="text-gray-600 mb-1">
+                  Start Date: {item.startDate}
+                </div>
+                <div className="text-gray-600">
+                  {viewMode === "drying" ? "Drying" : "Milling"} at{" "}
+                  {item.location}
+                </div>
+              </>
+            )}
+            {selectedFilter === "return" && (
+              <>
+                <div className="text-gray-600 mb-1">
+                  Start Date: {item.startDate}
+                </div>
+                <div className="text-gray-600 mb-1">
+                  End Date: {item.endDate}
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Right Side - Status and Action */}
+          <div className="flex-none flex flex-col items-center gap-2">
+            {statusBodyTemplate(item)}
+            {actionBodyTemplate(item)}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderDetailsDialog = () => {
+    if (!selectedItem) return null;
+
+    return (
+      <Dialog
+        visible={showDetailsDialog}
+        onHide={() => setShowDetailsDialog(false)}
+        header={`Processing Details - ${
+          viewMode === "drying" ? "Drying" : "Milling"
+        } Batch`}
+        className="w-full max-w-2xl"
+      >
+        <div className="grid grid-cols-2 gap-4">
+          <div className="col-span-2 border-b pb-2">
+            <h3 className="font-semibold">Basic Information</h3>
+          </div>
+          <div>
+            <p className="text-gray-600">Palay Batch ID</p>
+            <p>{selectedItem.palayBatchId}</p>
+          </div>
+          <div>
+            <p className="text-gray-600">Quantity (Bags)</p>
+            <p>{selectedItem.quantityBags}</p>
+          </div>
+          <div>
+            <p className="text-gray-600">Gross Weight</p>
+            <p>{selectedItem.grossWeight} kg</p>
+          </div>
+          <div>
+            <p className="text-gray-600">Net Weight</p>
+            <p>{selectedItem.netWeight} kg</p>
+          </div>
+          {/* {viewMode === "drying" && (
+            <div>
+              <p className="text-gray-600">Moisture Content</p>
+              <p>{selectedItem.moistureContent}%</p>
+            </div>
+          )} */}
+
+          <div className="col-span-2 border-b pb-2 mt-4">
+            <h3 className="font-semibold">Location Information</h3>
+          </div>
+          <div>
+            <p className="text-gray-600">From</p>
+            <p>{selectedItem.from}</p>
+          </div>
+          <div>
+            <p className="text-gray-600">
+              {selectedFilter === "request"
+                ? viewMode === "drying"
+                  ? "To be Dry at"
+                  : "To be Mill at"
+                : selectedFilter === "process"
+                ? viewMode === "drying"
+                  ? "Drying at"
+                  : "Milling at"
+                : selectedFilter === "return"
+                ? viewMode === "drying"
+                  ? "Dried at"
+                  : "Milled at"
+                : viewMode === "drying"
+                ? "To be Dry at"
+                : "To be Mill at"}
+            </p>
+            <p>{selectedItem.location}</p>
+          </div>
+
+          {selectedFilter === "request" && (
+            <div>
+              <p className="text-gray-600">Transported By</p>
+              <p>{selectedItem.transportedBy}</p>
+            </div>
+          )}
+
+          {selectedFilter === "return" && (
+            <div className="grid col-span-2 gap-4">
+              <div className="col-span-2 border-b pb-2 mt-4">
+                <h3 className="font-semibold">Processing Information</h3>
+              </div>
+
+              <div>
+                <p className="text-gray-600">Start Date</p>
+                <p>{selectedItem.startDate || "Not started"}</p>
+              </div>
+
+              {selectedFilter === "return" && (
+                <div>
+                  <p className="text-gray-600">End Date</p>
+                  <p>{selectedItem.endDate || "Not completed"}</p>
+                </div>
+              )}
+
+              {selectedItem.dryingMethod && (
+                <div>
+                  <p className="text-gray-600">Drying Method</p>
+                  <p>{selectedItem.dryingMethod}</p>
+                </div>
+              )}
+
+              {selectedItem.millerType && (
+                <div>
+                  <p className="text-gray-600">Miller Type</p>
+                  <p>{selectedItem.millerType}</p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </Dialog>
     );
   };
 
@@ -399,53 +575,11 @@ const Processing = () => {
     }
   });
 
-  const getFilterCount = (filterType) => {
-    return combinedData.filter((item) => {
-      if (viewMode === "drying") {
-        switch (filterType) {
-          case "request":
-            return item.transactionStatus === "Pending";
-          case "process":
-            return (
-              item.transactionStatus === "Received" &&
-              item.palayStatus === "In Drying" &&
-              item.processingStatus === "In Progress"
-            );
-          case "return":
-            return (
-              item.transactionStatus === "Received" &&
-              item.processingStatus === "Done"
-            );
-          default:
-            return false;
-        }
-      } else {
-        switch (filterType) {
-          case "request":
-            return item.transactionStatus === "Pending";
-          case "process":
-            return (
-              item.transactionStatus === "Received" &&
-              item.palayStatus === "In Milling" &&
-              item.processingStatus === "In Progress"
-            );
-          case "return":
-            return (
-              item.transactionStatus === "Received" &&
-              item.processingStatus === "Done"
-            );
-          default:
-            return false;
-        }
-      }
-    }).length;
-  };
-
   const FilterButton = ({ label, icon, filter }) => (
     <Button
       label={label}
       icon={icon}
-      className={`p-button-sm ring-0 border-none rounded-full ${
+      className={`p-button-sm ring-0 border border-primary rounded-full ${
         selectedFilter === filter
           ? "p-button-outlined bg-primary text-white"
           : "p-button-text text-primary"
@@ -459,7 +593,11 @@ const Processing = () => {
   const personalStats = [
     { icon: <Loader2 size={18} />, title: "Palay Bought", value: palayCount },
     { icon: <Undo2 size={18} />, title: "Processed", value: processedCount },
-    { icon: <CheckCircle2 size={18} />, title: "Distributed", value: distributedCount },
+    {
+      icon: <CheckCircle2 size={18} />,
+      title: "Distributed",
+      value: distributedCount,
+    },
   ];
 
   const totalValue = personalStats.reduce((acc, stat) => acc + stat.value, 0);
@@ -545,217 +683,56 @@ const Processing = () => {
           </div>
         </div>
 
-        {/* Filters */}
-        <div className="flex justify-start">
-          <div className="flex bg-white rounded-full gap-2 p-2">
-            <FilterButton
-              label="Request"
-              icon={<Box className="mr-2" size={16} />}
-              filter="request"
-            />
-            <FilterButton
-              label={viewMode === "milling" ? "In Milling" : "In Drying"}
-              icon={<Sun className="mr-2" size={16} />}
-              filter="process"
-            />
-            <FilterButton
-              label="Return"
-              icon={<RotateCcw className="mr-2" size={16} />}
-              filter="return"
-            />
-          </div>
-        </div>
-
-        {/* Data Table */}
+        {/* Data View */}
         <div className="flex-grow flex flex-col overflow-hidden rounded-lg">
           <div className="overflow-hidden bg-white flex flex-col gap-4 p-5 rounded-lg">
             <div className="flex justify-between items-center">
-              <p className="font-medium text-black">Storage</p>
-              <RotateCw
-                size={18}
-                onClick={fetchData}
-                className="text-primary cursor-pointer hover:text-primaryHover"
-                title="Refresh data"
+              <div className="flex bg-white rounded-full gap-2 p-2">
+                <FilterButton
+                  label="Request"
+                  icon={<Box className="mr-2" size={16} />}
+                  filter="request"
+                />
+                <FilterButton
+                  label={viewMode === "milling" ? "In Milling" : "In Drying"}
+                  icon={<Sun className="mr-2" size={16} />}
+                  filter="process"
+                />
+                <FilterButton
+                  label="Return"
+                  icon={<RotateCcw className="mr-2" size={16} />}
+                  filter="return"
+                />
+              </div>
+              <div className="flex gap-4">
+                <p className="font-medium text-black">Refresh Data</p>
+                <RotateCw
+                  size={25}
+                  onClick={fetchData}
+                  className="text-primary cursor-pointer hover:text-primaryHover"
+                  title="Refresh data"
+                />
+              </div>
+            </div>
+
+            {/* Container with relative positioning */}
+            <div className="relative flex flex-col" style={{ height: "calc(100vh - 510px)" }}>
+              <DataView
+                value={filteredData}
+                itemTemplate={itemTemplate}
+                paginator
+                rows={10}
+                emptyMessage="No data found."
+                className="overflow-y-auto pb-16"
+                paginatorClassName="absolute bottom-0 left-0 right-0 bg-white border-t"
+                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
               />
             </div>
-            <DataTable
-              value={filteredData}
-              scrollable
-              scrollHeight="flex"
-              scrollDirection="both"
-              filters={filters}
-              globalFilterFields={[
-                "processingBatchId",
-                "palayBatchId",
-                "transactionStatus",
-                "processingStatus",
-              ]}
-              emptyMessage="No data found."
-              paginator
-              rows={10}
-              // tableStyle={{ minWidth: '2200px' }}
-            >
-              {selectedFilter !== "request" && (
-                <Column
-                  field="processingBatchId"
-                  header={
-                    viewMode === "drying"
-                      ? "Drying Batch ID"
-                      : "Milling Batch ID"
-                  }
-                  body={(rowData) =>
-                    rowData.millingBatchId ?? rowData.dryingBatchId
-                  }
-                  className="text-center"
-                  headerClassName="text-center"
-                />
-              )}
-              <Column
-                field="palayBatchId"
-                header="Palay Batch ID"
-                className="text-center"
-                headerClassName="text-center"
-              />
-              <Column
-                field="quantityBags"
-                header="Quantity in Bags"
-                className="text-center"
-                headerClassName="text-center"
-              />
-              <Column
-                field="grossweight"
-                header="Gross Weight"
-                className="text-center"
-                headerClassName="text-center"
-                body={(rowData) =>
-                  rowData.batchGrossWeight ?? rowData.grossWeight
-                }
-              />
-              <Column
-                field="netweight"
-                header="Net Weight"
-                className="text-center"
-                headerClassName="text-center"
-                body={(rowData) => rowData.batchNetWeight ?? rowData.netWeight}
-              />
-              {viewMode === "drying" && selectedFilter === "return" && (
-                <Column
-                  field="moistureContent"
-                  header="Moisture Content"
-                  className="text-center"
-                  headerClassName="text-center"
-                />
-              )}
-              <Column
-                field="from"
-                header="From"
-                className="text-center"
-                headerClassName="text-center"
-              />
-              <Column
-                field="location"
-                header={
-                  viewMode === "drying"
-                    ? selectedFilter === "request"
-                      ? "To be Dry at"
-                      : selectedFilter === "process"
-                      ? "Drying at"
-                      : "Dried at"
-                    : selectedFilter === "request"
-                    ? "To be Milled at"
-                    : selectedFilter === "process"
-                    ? "Milling at"
-                    : "Milled at"
-                }
-                className="text-center"
-                headerClassName="text-center"
-              />
-              {viewMode === "drying" && selectedFilter === "return" && (
-                <Column
-                  field="dryingMethod"
-                  header="Drying Method"
-                  className="text-center"
-                  headerClassName="text-center"
-                />
-              )}
-              {viewMode === "milling" && selectedFilter === "return" && (
-                <Column
-                  field="millerType"
-                  header="Miller Type"
-                  className="text-center"
-                  headerClassName="text-center"
-                />
-              )}
-              {selectedFilter === "return" && (
-                <Column
-                  field="startDate"
-                  header="Start Date"
-                  className="text-center"
-                  headerClassName="text-center"
-                />
-              )}
-              <Column
-                field={
-                  selectedFilter === "request"
-                    ? "requestDate"
-                    : selectedFilter === "process"
-                    ? "startDate"
-                    : "endDate"
-                }
-                header={
-                  selectedFilter === "request"
-                    ? "Request Date"
-                    : selectedFilter === "process"
-                    ? "Start Date"
-                    : "End Date"
-                }
-                className="text-center"
-                headerClassName="text-center"
-              />
-              <Column
-                field="transportedBy"
-                header="Transported By"
-                className="text-center"
-                headerClassName="text-center"
-              />
-              {selectedFilter === "request" && (
-                <Column
-                  field="transactionStatus"
-                  header="Status"
-                  body={(rowData) =>
-                    statusBodyTemplate(rowData, { field: "transactionStatus" })
-                  }
-                  className="text-center"
-                  headerClassName="text-center"
-                />
-              )}
-              {selectedFilter !== "request" && (
-                <Column
-                  field="processingStatus"
-                  header={
-                    viewMode === "drying" ? "Drying Status" : "Milling Status"
-                  }
-                  className="text-center"
-                  headerClassName="text-center"
-                  frozen
-                  alignFrozen="right"
-                  body={(rowData) =>
-                    statusBodyTemplate(rowData, { field: "processingStatus" })
-                  }
-                />
-              )}
-              <Column
-                header="Action"
-                body={actionBodyTemplate}
-                className="text-center"
-                headerClassName="text-center"
-                frozen
-                alignFrozen="right"
-              />
-            </DataTable>
           </div>
         </div>
       </div>
+
+      {renderDetailsDialog()}
 
       <AcceptDialog
         visible={showAcceptDialog}

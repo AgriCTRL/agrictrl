@@ -48,7 +48,7 @@ function DeclinedDetails({ visible, onHide, data }) {
             onHide={onHide} 
             header={customDialogHeader} 
             modal 
-            style={{ minWidth: '60vw', maxWidth: '60vw' }}
+            className="w-1/3"
             footer={
                 <div className="flex justify-center">
                     <Button 

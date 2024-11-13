@@ -1,8 +1,18 @@
 import React, { useState, useEffect, useRef } from "react";
 import PrivateMillerLayout from "../../../Layouts/PrivateMillerLayout";
-import { Search, Box, Factory, RotateCcw, RotateCw } from "lucide-react";
+
+import {
+  Search,
+  Box,
+  Factory,
+  RotateCcw,
+  RotateCw,
+  Wheat,
+} from "lucide-react";
+
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
+import { DataView } from "primereact/dataview";
 import { FilterMatchMode } from "primereact/api";
 import { Tag } from "primereact/tag";
 import { Button } from "primereact/button";
@@ -56,6 +66,8 @@ const MillingTransactions = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState("request");
   const [selectedItem, setSelectedItem] = useState(null);
+  const [showDetailsDialog, setShowDetailsDialog] = useState(false);
+  const [selectedItemDetails, setSelectedItemDetails] = useState(null);
 
   const [showAcceptDialog, setShowAcceptDialog] = useState(false);
   const [showProcessDialog, setProcessDialog] = useState(false);
@@ -232,7 +244,6 @@ const MillingTransactions = () => {
 
   const handleActionClick = (rowData) => {
     setSelectedItem(rowData);
-    console.log(rowData);
 
     switch (rowData.transactionStatus?.toLowerCase()) {
       case "pending":
@@ -398,8 +409,6 @@ const MillingTransactions = () => {
         milledQuantityBags,
         selectedItem.quantityBags
       );
-
-      
 
       const updateData = {
         id: millingBatchId,
@@ -619,6 +628,11 @@ const MillingTransactions = () => {
     }
   };
 
+  const handleItemClick = (item) => {
+    setSelectedItemDetails(item);
+    setShowDetailsDialog(true);
+  };
+
   const calculateMillingEfficiency = (milledBags, totalBags) => {
     if (totalBags === 0) return 0;
     return ((milledBags / totalBags) * 100).toFixed(2);
@@ -702,7 +716,11 @@ const MillingTransactions = () => {
       <Button
         label={actionText}
         className="p-button-text p-button-sm text-primary ring-0"
-        onClick={() => handleActionClick(rowData)}
+        
+        onClick={(e) => {
+          e.stopPropagation();
+          handleActionClick(rowData);
+        }}
       />
     );
   };
@@ -776,8 +794,8 @@ const MillingTransactions = () => {
 
   const validateForm = () => {
     let newErrors = {};
-  
-    if (selectedFilter === 'process') {
+
+    if (selectedFilter === "process") {
       if (!newMillingData.milledQuantityBags) {
         newErrors.milledQuantityBags = "Please enter milled quantity";
         toast.current.show({
@@ -787,7 +805,7 @@ const MillingTransactions = () => {
           life: 3000,
         });
       }
-  
+
       if (!newMillingData.milledGrossWeight) {
         newErrors.milledGrossWeight = "Please enter milled gross weight";
         toast.current.show({
@@ -797,7 +815,7 @@ const MillingTransactions = () => {
           life: 3000,
         });
       }
-  
+
       if (!newMillingData.milledNetWeight) {
         newErrors.milledNetWeight = "Please enter milled net weight";
         toast.current.show({
@@ -817,7 +835,7 @@ const MillingTransactions = () => {
           life: 3000,
         });
       }
-    } else if (selectedFilter === 'return') {
+    } else if (selectedFilter === "return") {
       if (!newTransactionData.toLocationId) {
         newErrors.toLocationId = "Please select a facility";
         toast.current.show({
@@ -827,7 +845,7 @@ const MillingTransactions = () => {
           life: 3000,
         });
       }
-  
+
       if (!newTransactionData.transporterName.trim()) {
         newErrors.transporterName = "Transporter name is required";
         toast.current.show({
@@ -837,7 +855,7 @@ const MillingTransactions = () => {
           life: 3000,
         });
       }
-  
+
       if (!newTransactionData.transporterDesc.trim()) {
         newErrors.transporterDesc = "Transport description is required";
         toast.current.show({
@@ -847,7 +865,7 @@ const MillingTransactions = () => {
           life: 3000,
         });
       }
-  
+
       if (!newTransactionData.remarks.trim()) {
         newErrors.remarks = "Remarks are required";
         toast.current.show({
@@ -858,9 +876,142 @@ const MillingTransactions = () => {
         });
       }
     }
-  
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  const itemTemplate = (item) => {
+    return (
+      <div className="col-12" onClick={() => handleItemClick(item)}>
+        <div className="flex flex-row items-center p-4 gap-4 cursor-pointer bg-gray-100 hover:bg-gray-200 rounded-lg mb-4">
+          {/* Left Side - Icon */}
+          <div className="flex-none">
+            <Wheat size={40} className="text-gray-400" />
+          </div>
+
+          {/* Middle - Main Info */}
+          <div className="flex-1">
+            <div className="font-medium text-xl mb-1">
+              Batch #{item.palayBatchId}
+            </div>
+            <div className="text-gray-600 mb-1">
+              {item.requestDate || item.startDate || item.endDate}
+            </div>
+            <div className="flex items-center">
+              <span className="py-1 text-sm">{item.quantityBags} bags</span>
+            </div>
+          </div>
+
+          {/* Right Side - Status and Action */}
+          <div className="flex-none flex flex-col items-center gap-2">
+            {statusBodyTemplate(item, {
+              field:
+                selectedFilter === "request"
+                  ? "transactionStatus"
+                  : "processingStatus",
+            })}
+            {actionBodyTemplate(item)}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderDetailsDialog = () => {
+    if (!selectedItem) return null;
+
+    return (
+      <Dialog
+        visible={showDetailsDialog}
+        onHide={() => setShowDetailsDialog(false)}
+        header="Processing Details - Milling Batch"
+        className="w-full max-w-2xl"
+      >
+        <div className="grid grid-cols-2 gap-4">
+          <div className="col-span-2 border-b pb-2">
+            <h3 className="font-semibold">Basic Information</h3>
+          </div>
+          <div>
+            <p className="text-gray-600">Palay Batch ID</p>
+            <p>{selectedItem.palayBatchId}</p>
+          </div>
+          <div>
+            <p className="text-gray-600">Quantity (Bags)</p>
+            <p>{selectedItem.quantityBags}</p>
+          </div>
+          <div>
+            <p className="text-gray-600">Gross Weight</p>
+            <p>{selectedItem.grossWeight} kg</p>
+          </div>
+          <div>
+            <p className="text-gray-600">Net Weight</p>
+            <p>{selectedItem.netWeight} kg</p>
+          </div>
+
+          <div className="col-span-2 border-b pb-2 mt-4">
+            <h3 className="font-semibold">Location Information</h3>
+          </div>
+          <div>
+            <p className="text-gray-600">From</p>
+            <p>{selectedItem.from}</p>
+          </div>
+          <div>
+            <p className="text-gray-600">
+              {selectedFilter === "request"
+                ? "To be Mill at"
+                : selectedFilter === "process"
+                ? "Milling at"
+                : selectedFilter === "return"
+                ? "Milled at"
+                : "To be Mill at"}
+            </p>
+            <p>{selectedItem.location}</p>
+          </div>
+
+          {selectedFilter === "request" && (
+            <div>
+              <p className="text-gray-600">Transported By</p>
+              <p>{selectedItem.transportedBy}</p>
+            </div>
+          )}
+
+          {selectedFilter === "return" && (
+            <div className="grid col-span-2 gap-4">
+              <div className="col-span-2 border-b pb-2 mt-4">
+                <h3 className="font-semibold">Processing Information</h3>
+              </div>
+
+              <div>
+                <p className="text-gray-600">Start Date</p>
+                <p>{selectedItem.startDate || "Not started"}</p>
+              </div>
+
+              {selectedFilter === "return" && (
+                <div>
+                  <p className="text-gray-600">End Date</p>
+                  <p>{selectedItem.endDate || "Not completed"}</p>
+                </div>
+              )}
+
+              {selectedItem.dryingMethod && (
+                <div>
+                  <p className="text-gray-600">Drying Method</p>
+                  <p>{selectedItem.dryingMethod}</p>
+                </div>
+              )}
+
+              {selectedItem.millerType && (
+                <div>
+                  <p className="text-gray-600">Miller Type</p>
+                  <p>{selectedItem.millerType}</p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </Dialog>
+    );
   };
 
   return (
@@ -883,179 +1034,55 @@ const MillingTransactions = () => {
           </span>
         </div>
 
-        {/* Buttons & Filters */}
-        <div className="flex justify-start mb-4 space-x-2 py-2">
-          <div className="flex bg-white rounded-full gap-2">
-            <FilterButton
-              label="Request"
-              icon={<Box className="mr-2" size={16} />}
-              filter="request"
-            />
-            <FilterButton
-              label="In milling"
-              icon={<Factory className="mr-2" size={16} />}
-              filter="process"
-            />
-            <FilterButton
-              label="To return"
-              icon={<RotateCcw className="mr-2" size={16} />}
-              filter="return"
-            />
-          </div>
-          <div className="flex items-center justify-center">
-            <RotateCw
-              className="w-6 h-6 text-primary cursor-pointer hover:text-secondary transition-colors"
-              onClick={fetchData}
-              title="Refresh data"
-            />
-          </div>
-        </div>
+        <div className="flex-grow flex flex-col overflow-hidden rounded-lg">
+          <div className="overflow-hidden bg-white flex flex-col gap-4 p-5 rounded-lg">
+            <div className="flex justify-between items-center">
+              <div className="flex bg-white rounded-full gap-2 p-2">
+                <FilterButton
+                  label="Request"
+                  icon={<Box className="mr-2" size={16} />}
+                  filter="request"
+                />
+                <FilterButton
+                  label="In Milling"
+                  icon={<Factory className="mr-2" size={16} />}
+                  filter="process"
+                />
+                <FilterButton
+                  label="Return"
+                  icon={<RotateCcw className="mr-2" size={16} />}
+                  filter="return"
+                />
+              </div>
+              <div className="flex gap-4">
+                <p className="font-medium text-black">Refresh Data</p>
+                <RotateCw
+                  size={25}
+                  onClick={fetchData}
+                  className="text-primary cursor-pointer hover:text-primaryHover"
+                  title="Refresh data"
+                />
+              </div>
+            </div>
 
-        {/* Data Table */}
-        <div className="flex-grow flex flex-col overflow-hidden rounded-lg shadow">
-          <div className="flex-grow overflow-hidden bg-white">
-            <DataTable
-              value={filteredData}
-              scrollable
-              scrollHeight="flex"
-              scrollDirection="both"
-              className="p-datatable-sm pt-5"
-              filters={filters}
-              globalFilterFields={[
-                "processingBatchId",
-                "palayBatchId",
-                "transactionStatus",
-                "processingStatus",
-              ]}
-              emptyMessage="No inventory found."
-              paginator
-              rows={10}
-            >
-              {selectedFilter !== "request" && (
-                <Column
-                  field="millingBatchId"
-                  header="Milling Batch ID"
-                  className="text-center"
-                  headerClassName="text-center"
-                />
-              )}
-              <Column
-                field="palayBatchId"
-                header="Palay Batch ID"
-                className="text-center"
-                headerClassName="text-center"
+            {/* Container with relative positioning */}
+            <div className="relative flex flex-col" style={{ height: "510px" }}>
+              <DataView
+                value={filteredData}
+                itemTemplate={itemTemplate}
+                paginator
+                rows={10}
+                emptyMessage="No data found."
+                className="overflow-y-auto pb-16"
+                paginatorClassName="absolute bottom-0 left-0 right-0 bg-white border-t"
+                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
               />
-              <Column
-                field="quantityBags"
-                header="Quantity In Bags"
-                className="text-center"
-                headerClassName="text-center"
-              />
-              <Column
-                field="grossWeight"
-                header="Gross Weight (Kg)"
-                className="text-center"
-                headerClassName="text-center"
-              />
-              <Column
-                field="netWeight"
-                header="Net Weight (Kg)"
-                className="text-center"
-                headerClassName="text-center"
-              />
-              <Column
-                field="from"
-                header="From"
-                className="text-center"
-                headerClassName="text-center"
-              />
-              <Column
-                field="location"
-                header={
-                  selectedFilter === "request"
-                    ? "To be Milled at"
-                    : selectedFilter === "process"
-                    ? "Milling at"
-                    : "Milled at"
-                }
-                className="text-center"
-                headerClassName="text-center"
-              />
-              {selectedFilter === "return" && (
-                <Column
-                  field="millerType"
-                  header="Miller Type"
-                  className="text-center"
-                  headerClassName="text-center"
-                />
-              )}
-              {selectedFilter === "return" && (
-                <Column
-                  field="startDate"
-                  header="Start Date"
-                  className="text-center"
-                  headerClassName="text-center"
-                />
-              )}
-              <Column
-                field={
-                  selectedFilter === "request"
-                    ? "requestDate"
-                    : selectedFilter === "process"
-                    ? "startDate"
-                    : "endDate"
-                }
-                header={
-                  selectedFilter === "request"
-                    ? "Request Date"
-                    : selectedFilter === "process"
-                    ? "Start Date"
-                    : "End Date"
-                }
-                className="text-center"
-                headerClassName="text-center"
-              />
-              <Column
-                field="transportedBy"
-                header="Transported By"
-                className="text-center"
-                headerClassName="text-center"
-              />
-              {selectedFilter === "request" && (
-                <Column
-                  field="transactionStatus"
-                  header="Status"
-                  body={(rowData) =>
-                    statusBodyTemplate(rowData, { field: "transactionStatus" })
-                  }
-                  className="text-center"
-                  headerClassName="text-center"
-                />
-              )}
-              {selectedFilter !== "request" && (
-                <Column
-                  field="processingStatus"
-                  header="Milling Status"
-                  className="text-center"
-                  headerClassName="text-center"
-                  body={(rowData) =>
-                    statusBodyTemplate(rowData, { field: "processingStatus" })
-                  }
-                />
-              )}
-
-              <Column
-                header="Action"
-                body={actionBodyTemplate}
-                className="text-center"
-                headerClassName="text-center"
-                frozen
-                alignFrozen="right"
-              />
-            </DataTable>
+            </div>
           </div>
         </div>
       </div>
+
+      {renderDetailsDialog()}
 
       {/* Accept Dialog */}
       <Dialog

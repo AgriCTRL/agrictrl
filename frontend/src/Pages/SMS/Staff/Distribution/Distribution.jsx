@@ -1,19 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import StaffLayout from "@/Layouts/StaffLayout";
-import {
-  Search,
-  ShoppingCart,
-  ThumbsUp,
-  ThumbsDown,
-  RotateCw,
-  PackageCheck,
-  Loader2,
-  Undo2,
-  CheckCircle2,
-} from "lucide-react";
 
-import { DataTable } from "primereact/datatable";
-import { Column } from "primereact/column";
+import { DataView } from "primereact/dataview";
+import { Dialog } from "primereact/dialog";
 import { Tag } from "primereact/tag";
 import { FilterMatchMode } from "primereact/api";
 import { Button } from "primereact/button";
@@ -21,6 +10,18 @@ import { InputText } from "primereact/inputtext";
 import { Toast } from "primereact/toast";
 import { IconField } from "primereact/iconfield";
 import { InputIcon } from "primereact/inputicon";
+
+import {
+  Search,
+  ShoppingCart,
+  ThumbsUp,
+  ThumbsDown,
+  RotateCw,
+  Loader2,
+  Undo2,
+  CheckCircle2,
+  Package,
+} from "lucide-react";
 
 import { useAuth } from "../../../Authentication/Login/AuthContext";
 import AcceptOrder from "./AcceptOrder";
@@ -49,6 +50,7 @@ function Distribution() {
     useState(false);
 
   const [ordersData, setOrdersData] = useState([]);
+  const [showOrderDetails, setShowOrderDetails] = useState(false);
   const [recipients, setRecipients] = useState({});
 
   const [riceBatchData, setRiceBatchData] = useState([]);
@@ -137,10 +139,12 @@ function Distribution() {
     const millingCount = await millingCountRes.json();
     const dryingCountRes = await fetch(`${apiUrl}/dryingbatches/count`);
     const dryingCount = await dryingCountRes.json();
-    setProcessedCount( millingCount + dryingCount );
-    const distributeCountRes = await fetch(`${apiUrl}/riceorders/received/count`);
+    setProcessedCount(millingCount + dryingCount);
+    const distributeCountRes = await fetch(
+      `${apiUrl}/riceorders/received/count`
+    );
     setDistributedCount(await distributeCountRes.json());
-}
+  };
 
   const onUpdate = () => {
     fetchRecipients();
@@ -347,6 +351,11 @@ function Distribution() {
     }
   };
 
+  const handleItemClick = (item) => {
+    setSelectedOrder(item);
+    setShowOrderDetails(true);
+  };
+
   const actionBodyTemplate = (rowData) => {
     switch (rowData.status) {
       case "For Approval":
@@ -355,7 +364,10 @@ function Distribution() {
             <Button
               label="Accept"
               className="p-button-success p-button-sm"
-              onClick={() => handleActionClick(ACTION_TYPES.ACCEPT, rowData)}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleActionClick(ACTION_TYPES.ACCEPT, rowData);
+              }}
               tooltip={
                 totalAvailableQuantity < rowData.riceQuantityBags
                   ? "Insufficient rice bags available"
@@ -365,7 +377,10 @@ function Distribution() {
             <Button
               label="Decline"
               className="p-button-danger p-button-sm ring-0"
-              onClick={() => handleActionClick(ACTION_TYPES.DECLINE, rowData)}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleActionClick(ACTION_TYPES.DECLINE, rowData);
+              }}
             />
           </div>
         );
@@ -374,7 +389,10 @@ function Distribution() {
           <Button
             label="Send"
             className="p-button-primary p-button-sm ring-0"
-            onClick={() => handleActionClick(ACTION_TYPES.SEND, rowData)}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleActionClick(ACTION_TYPES.SEND, rowData);
+            }}
             tooltip={
               totalAvailableQuantity < rowData.riceQuantityBags
                 ? "Insufficient rice bags available"
@@ -387,9 +405,10 @@ function Distribution() {
           <Button
             label="View Details"
             className="p-button-primary p-button-sm ring-0"
-            onClick={() =>
-              handleActionClick(ACTION_TYPES.VIEW_DETAILS, rowData)
-            }
+            onClick={(e) => {
+              e.stopPropagation();
+              handleActionClick(ACTION_TYPES.VIEW_DETAILS, rowData);
+            }}
           />
         );
       case "In Transit":
@@ -398,9 +417,10 @@ function Distribution() {
           <Button
             label="View Details"
             className="p-button-primary p-button-sm ring-0"
-            onClick={() =>
-              handleActionClick(ACTION_TYPES.VIEW_ORDER_DETAILS, rowData)
-            }
+            onClick={(e) => {
+              e.stopPropagation();
+              handleActionClick(ACTION_TYPES.VIEW_ORDER_DETAILS, rowData);
+            }}
           />
         );
       default:
@@ -440,7 +460,11 @@ function Distribution() {
   const personalStats = [
     { icon: <Loader2 size={18} />, title: "Palay Bought", value: palayCount },
     { icon: <Undo2 size={18} />, title: "Processed", value: processedCount },
-    { icon: <CheckCircle2 size={18} />, title: "Distributed", value: distributedCount },
+    {
+      icon: <CheckCircle2 size={18} />,
+      title: "Distributed",
+      value: distributedCount,
+    },
   ];
 
   const totalValue = personalStats.reduce((acc, stat) => acc + stat.value, 0);
@@ -465,6 +489,41 @@ function Distribution() {
                 <p className="font-semibold text-primary">{stat.value}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const itemTemplate = (item) => {
+    return (
+      <div className="col-12">
+        <div
+          className="flex flex-row items-center p-4 gap-4 cursor-pointer bg-gray-100 hover:bg-gray-200 rounded-lg mb-4"
+          onClick={() => handleItemClick(item)}
+        >
+          {/* Left Side - Icon */}
+          <div className="flex-none">
+            <Package size={40} className="text-gray-400" />
+          </div>
+
+          {/* Middle - Main Info */}
+          <div className="flex-1">
+            <div className="font-medium text-xl mb-1">Order #{item.id}</div>
+            <div className="text-gray-600 mb-1">
+              {formatDate(item.orderDate)}
+            </div>
+            <div className="flex items-center gap-4">
+              <span className="py-1 text-sm">{item.riceQuantityBags} bags</span>
+              
+              <span className="py-1 text-sm">To: {item.dropOffLocation}</span>
+            </div>
+          </div>
+
+          {/* Right Side - Status and Action */}
+          <div className="flex-none flex flex-col items-center gap-2">
+            {statusBodyTemplate(item)}
+            {actionBodyTemplate(item)}
           </div>
         </div>
       </div>
@@ -500,12 +559,17 @@ function Distribution() {
         </div>
 
         {/* Buttons & Search bar */}
-        <div className="flex items-center justify-between">
+        
+
+        {/* Data View */}
+        <div className="flex-grow flex flex-col overflow-hidden rounded-lg">
+          <div className="overflow-hidden bg-white flex flex-col gap-4 p-5 rounded-lg">
+          <div className="flex items-center justify-between">
           <div className="flex gap-2 items-center bg-white w-fit p-2 rounded-full">
             <Button
               icon={<ShoppingCart size={16} className="mr-2" />}
               label="Request"
-              className={`p-button-success p-button-sm border-0 ring-0 rounded-full ${buttonStyle(
+              className={`p-button-success p-button-sm border border-primary ring-0 rounded-full ${buttonStyle(
                 selectedFilter === "request"
               )}`}
               onClick={() => handleFilterChange("request")}
@@ -513,7 +577,7 @@ function Distribution() {
             <Button
               icon={<ThumbsUp size={16} className="mr-2" />}
               label="Accepted"
-              className={`p-button-success p-button-sm border-0 ring-0 rounded-full ${buttonStyle(
+              className={`p-button-success p-button-sm border border-primary ring-0 rounded-full ${buttonStyle(
                 selectedFilter === "accepted"
               )}`}
               onClick={() => handleFilterChange("accepted")}
@@ -521,7 +585,7 @@ function Distribution() {
             <Button
               icon={<ThumbsDown size={16} className="mr-2" />}
               label="Declined"
-              className={`p-button-success p-button-sm border-0 ring-0 rounded-full ${buttonStyle(
+              className={`p-button-success p-button-sm border border-primary ring-0 rounded-full ${buttonStyle(
                 selectedFilter === "declined"
               )}`}
               onClick={() => handleFilterChange("declined")}
@@ -530,7 +594,7 @@ function Distribution() {
             <Button
               icon={<RotateCw size={16} className="mr-2" />}
               label="Delivered"
-              className={`p-button-success p-button-sm border-0 ring-0 rounded-full ${buttonStyle(
+              className={`p-button-success p-button-sm border border-primary ring-0 rounded-full ${buttonStyle(
                 selectedFilter === "delivered"
               )}`}
               onClick={() => handleFilterChange("delivered")}
@@ -548,75 +612,18 @@ function Distribution() {
             <span className="font-semibold">{totalAvailableQuantity} Bags</span>
           </div>
         </div>
-
-        {/* Data Table */}
-        <div className="flex-grow flex flex-col overflow-hidden rounded-lg">
-          <div className="overflow-hidden bg-white flex flex-col gap-4 p-5 rounded-lg">
-            <div className="flex justify-between items-center">
-              <p className="font-medium text-black">Orders</p>
-              <RotateCw
-                size={18}
-                onClick={onUpdate}
-                className="text-primary cursor-pointer hover:text-primaryHover"
-                title="Refresh data"
+            <div className="relative flex flex-col" style={{ height: "calc(100vh - 440px)" }}>
+              <DataView
+                value={filteredData}
+                itemTemplate={itemTemplate}
+                paginator
+                rows={10}
+                emptyMessage="No orders found."
+                className="overflow-y-auto pb-16"
+                paginatorClassName="absolute bottom-0 left-0 right-0 bg-white border-t"
+                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
               />
             </div>
-            <DataTable
-              value={filteredData}
-              scrollable
-              scrollHeight="flex"
-              scrolldirection="both"
-              filters={filters}
-              globalFilterFields={["id", "status"]}
-              emptyMessage="No orders found."
-              paginator
-              rows={10}
-            >
-              <Column
-                field="id"
-                header="Order ID"
-                className="text-center"
-                headerClassName="text-center"
-              />
-              <Column
-                field="dropOffLocation"
-                header="To Be Deliver At"
-                className="text-center"
-                headerClassName="text-center"
-              />
-              <Column
-                field="riceQuantityBags"
-                header="Bags to Deliver"
-                className="text-center"
-                headerClassName="text-center"
-              />
-              <Column
-                field="orderDate"
-                header="Date Ordered"
-                body={(rowData) => dateBodyTemplate(rowData, "orderDate")}
-                className="text-center"
-                headerClassName="text-center"
-              />
-              <Column
-                field="orderedBy"
-                header="Ordered By"
-                className="text-center"
-                headerClassName="text-center"
-              />
-              <Column
-                field="status"
-                header="Status"
-                body={statusBodyTemplate}
-                className="text-center"
-                headerClassName="text-center"
-              />
-              <Column
-                body={actionBodyTemplate}
-                header="Action"
-                className="text-center"
-                headerClassName="text-center"
-              />
-            </DataTable>
           </div>
         </div>
       </div>
@@ -667,6 +674,54 @@ function Distribution() {
         orderDetails={orderDetails}
         formatDate={formatDate}
       />
+
+      <Dialog
+        visible={showOrderDetails}
+        onHide={() => setShowOrderDetails(false)}
+        header="Order Details"
+        className="w-full max-w-2xl"
+      >
+        {selectedOrder && (
+          <div className="flex flex-col gap-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <h3 className="text-gray-600">Order ID</h3>
+                <p className="font-medium">#{selectedOrder.id}</p>
+              </div>
+              <div>
+                <h3 className="text-gray-600">Status</h3>
+                <div className="mt-1">{statusBodyTemplate(selectedOrder)}</div>
+              </div>
+              <div>
+                <h3 className="text-gray-600">Order Date</h3>
+                <p className="font-medium">
+                  {formatDate(selectedOrder.orderDate)}
+                </p>
+              </div>
+              <div>
+                <h3 className="text-gray-600">Delivery Location</h3>
+                <p className="font-medium">{selectedOrder.dropOffLocation}</p>
+              </div>
+              <div>
+                <h3 className="text-gray-600">Quantity</h3>
+                <p className="font-medium">
+                  {selectedOrder.riceQuantityBags} bags
+                </p>
+              </div>
+              <div>
+                <h3 className="text-gray-600">Ordered By</h3>
+                <p className="font-medium">{selectedOrder.orderedBy}</p>
+              </div>
+              {selectedOrder.description && (
+                <div className="col-span-2">
+                  <h3 className="text-gray-600">Description</h3>
+                  <p className="font-medium">{selectedOrder.description}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </Dialog>
     </StaffLayout>
   );
 }

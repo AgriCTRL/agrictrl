@@ -102,6 +102,12 @@
         }
     }
 
+    .p-paginator .p-paginator-pages .p-paginator-page.p-highlight {
+        background: #00C261 !important;
+        border-color: #00C261 !important;
+        color: #ffffff !important;
+    }
+
     .p-timeline {
         &.p-timeline-horizontal {
             .p-timeline-event {
