@@ -632,7 +632,7 @@ const Processing = () => {
     <StaffLayout
       activePage="Processing"
       user={user}
-      isRightSidebarOpen={true}
+      isRightSidebarOpen={false}
       isLeftSidebarOpen={false}
       rightSidebar={rightSidebar()}
     >

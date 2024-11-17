@@ -534,7 +534,7 @@ function Distribution() {
     <StaffLayout
       activePage="Distribution"
       user={user}
-      isRightSidebarOpen={true}
+      isRightSidebarOpen={false}
       rightSidebar={rightSidebar()}
     >
       <Toast ref={toast} />

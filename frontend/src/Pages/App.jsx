@@ -28,7 +28,7 @@ import AdminProfile from "./SMS/Admin/Profile";
 import NoAdminPage from "./SMS/Admin/NoAdminPage";
 
 import StaffHome from "./SMS/Staff/Home";
-import StaffBuyPalay from "./SMS/Staff/BuyPalay/BuyPalay";
+import StaffProcurement from "./SMS/Staff/Procurement/Procurement";
 import StaffDistribution from "./SMS/Staff/Distribution/Distribution";
 import StaffProcessing from "./SMS/Staff/Processing/Processing";
 import StaffWarehouse from "./SMS/Staff/Warehouse/Warehouse";
@@ -179,7 +179,7 @@ function StaffRoutes() {
     return (
         <Routes>
             <Route index element={<StaffHome />} />
-            <Route path="buy" element={<StaffBuyPalay />} />
+            <Route path="procurement" element={<StaffProcurement />} />
             <Route path="distribution" element={<StaffDistribution />} />
             <Route path="processing" element={<StaffProcessing />} />
             <Route path="warehouse" element={<StaffWarehouse />} />

@@ -656,7 +656,7 @@ function Warehouse() {
     <StaffLayout
       activePage="Warehouse"
       user={user}
-      isRightSidebarOpen={true}
+      isRightSidebarOpen={false}
       isLeftSidebarOpen={false}
       rightSidebar={rightSidebar()}
     >

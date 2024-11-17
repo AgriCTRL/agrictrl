@@ -203,7 +203,7 @@ function BuyPalay() {
     <StaffLayout
       activePage="Procurement"
       user={user}
-      isRightSidebarOpen={true}
+      isRightSidebarOpen={false}
       rightSidebar={rightSidebar()}
     >
       <Toast ref={toast} />
