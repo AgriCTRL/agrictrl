@@ -205,7 +205,10 @@ const Processing = () => {
             dryingBatch.driedNetWeight ||
             palayBatch.netWeight ||
             0,
-          from: fromWarehouse?.facilityName || "Unknown Warehouse",
+          from:
+            transaction.fromLocationType === "Procurement"
+              ? "Procurement"
+              : fromWarehouse?.facilityName || "Unknown Warehouse",
           location: toFacility?.[`${processType}Name`] || "Unknown Facility",
           toLocationId: transaction.toLocationId || null,
           millerType: toFacility?.type || null,
@@ -716,7 +719,10 @@ const Processing = () => {
             </div>
 
             {/* Container with relative positioning */}
-            <div className="relative flex flex-col" style={{ height: "calc(100vh - 510px)" }}>
+            <div
+              className="relative flex flex-col"
+              style={{ height: "calc(100vh - 510px)" }}
+            >
               <DataView
                 value={filteredData}
                 itemTemplate={itemTemplate}

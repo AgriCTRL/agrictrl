@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 
 import { Dialog } from "primereact/dialog";
 import { Button } from "primereact/button";
@@ -70,7 +70,7 @@ const initialTransactionData = {
   transporterDesc: "asd",
   receiverId: 0,
   receiveDateTime: "0",
-  toLocationType: "Warehouse",
+  toLocationType: "",
   toLocationId: "",
   status: "Pending",
   remarks: "",
@@ -84,6 +84,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
 
   const [selectedSupplier, setSelectedSupplier] = useState(null);
   const [warehouseData, setWarehouseData] = useState([]);
+  const [dryerData, setDryerData] = useState([]);
   const [palayData, setPalayData] = useState({
     // Farmer Info
     category: "individual",
@@ -138,7 +139,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
     transporterDesc: "asd",
     receiverId: 0,
     receiveDateTime: "0",
-    toLocationType: "Warehouse",
+    toLocationType: "",
     toLocationId: "",
     status: "Pending",
     remarks: "",
@@ -156,26 +157,35 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
     { label: "Logistics", icon: <TruckIcon /> },
   ];
 
-  const locationOptions = warehouseData
-    .filter((warehouse) => {
-      // Check both capacity and warehouse name
-      const canAccommodate =
-        warehouse.status === "active" &&
-        warehouse.totalCapacity - warehouse.currentStock >=
-          parseInt(palayData.quantityBags || 0);
-      const isPalayWarehouse = warehouse.facilityName
-        .toLowerCase()
-        .includes("palay");
-
-      return canAccommodate && isPalayWarehouse;
-    })
-    .map((warehouse) => ({
-      label: `${warehouse.facilityName} (Available: ${
-        warehouse.totalCapacity - warehouse.currentStock
-      } bags)`,
-      name: warehouse.facilityName,
-      value: warehouse.id,
-    }));
+  const locationOptions = useMemo(() => {
+    const facilityData = palayData.qualityType === "Wet" ? dryerData : warehouseData;
+    
+    return facilityData
+      .filter((facility) => {
+        // Different capacity field names for warehouses vs dryers
+        const maxCapacity = palayData.qualityType === "Wet" ? facility.capacity : facility.totalCapacity;
+        const currentOccupancy = palayData.qualityType === "Wet" ? facility.processing : facility.currentStock;
+        
+        const canAccommodate =
+          facility.status === "active" &&
+          maxCapacity - currentOccupancy >= parseInt(palayData.quantityBags || 0);
+            
+        if (palayData.qualityType === "Wet") {
+          return canAccommodate; // For dryers, we just check capacity
+        } else {
+          // For warehouses, we also check if it's a palay warehouse
+          return canAccommodate && facility.facilityName.toLowerCase().includes("palay");
+        }
+      })
+      .map((facility) => ({
+        label: `${palayData.qualityType === "Wet" ? facility.dryerName : facility.facilityName} (Available: ${
+          (palayData.qualityType === "Wet" ? facility.capacity : facility.totalCapacity) 
+          - (palayData.qualityType === "Wet" ? facility.processing : facility.currentStock)
+        } bags)`,
+        name: palayData.qualityType === "Wet" ? facility.dryerName : facility.facilityName,
+        value: facility.id,
+      }));
+  }, [palayData.qualityType, palayData.quantityBags, warehouseData, dryerData]);
 
   useEffect(() => {
     if (visible) {
@@ -185,6 +195,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
 
   useEffect(() => {
     fetchWarehouseData();
+    fetchDryerData();
   }, []);
 
   const refreshData = () => {
@@ -210,20 +221,39 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
     }
   };
 
+  const fetchDryerData = async () => {
+    try {
+      const res = await fetch(`${apiUrl}/dryers`);
+      if (!res.ok) {
+        throw new Error("Failed to fetch dryer data");
+      }
+      const data = await res.json();
+      setDryerData(data);
+    } catch (error) {
+      console.log(error.message);
+      toast.current.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Failed to fetch dryer data",
+        life: 3000,
+      });
+    }
+  };
+
   const handlePalayInputChange = (e) => {
     const { name, value } = e.target;
-  
+
     // Prevent negative values
     if (typeof value === "string" && value.includes("-")) {
       return;
     }
-  
+
     setPalayData((prevState) => {
       let updates = {
         ...prevState,
         [name]: value,
       };
-  
+
       // Format the estimatedCapital field with commas
       if (name === "estimatedCapital") {
         const numericValue = value.replace(/,/g, "");
@@ -232,12 +262,12 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
           updates[name] = parseInt(numericValue, 10).toLocaleString();
         }
       }
-  
+
       if (sameAsHomeAddress && name.startsWith("palaySupplier")) {
         const farmField = name.replace("palaySupplier", "farm");
         updates[farmField] = value;
       }
-  
+
       if (name === "quantityBags") {
         // Reset specific transaction fields
         setTransactionData((prev) => ({
@@ -246,7 +276,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
         }));
         updates.currentlyAt = "";
       }
-  
+
       return updates;
     });
   };
@@ -261,7 +291,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
 
   const handleQualityTypeInputChange = (e) => {
     const { name, value } = e.target;
-
+  
     setPalayData((prevState) => ({
       ...prevState,
       [name]: value,
@@ -271,11 +301,23 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
           : value === "Dry"
           ? "To be Mill"
           : prevState.status,
-      // Set predetermined values based on quality type
       moistureContent:
         value === "Wet" ? 20 : value === "Dry" ? 7 : prevState.moistureContent,
       purity: value === "Wet" ? 97 : value === "Dry" ? 99 : prevState.purity,
       damaged: value === "Wet" ? 4 : value === "Dry" ? 1 : prevState.damaged,
+    }));
+  
+    // Reset location related fields when quality type changes
+    setTransactionData(prevState => ({
+      ...prevState,
+      toLocationType: value === "Wet" ? "Dryer" : "Warehouse",
+      toLocationId: "", // Reset selected location
+    }));
+  
+    // Reset currentlyAt in palayData
+    setPalayData(prevState => ({
+      ...prevState,
+      currentlyAt: "",
     }));
   };
 
@@ -339,7 +381,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
   const handleSubmit = async () => {
     const isValid = validateForm(activeStep);
     if (!isValid) return;
-
+  
     setIsLoading(true);
     try {
       // Step 1: Create palay data first
@@ -362,18 +404,17 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
           harvestedDate: palayData.harvestedDate
             ? palayData.harvestedDate.toISOString().split("T")[0]
             : null,
-          // If we have a selected supplier, use their ID
           palaySupplierID: selectedSupplier ? selectedSupplier.id : null,
         }),
       });
-
+  
       if (!palayResponse.ok) {
         throw new Error("Failed to submit palay data");
       }
-
+  
       const palayResult = await palayResponse.json();
       const palayId = palayResult.id;
-
+  
       // Step 2: Create the transaction with the palay ID
       const transactionResponse = await fetch(`${apiUrl}/transactions`, {
         method: "POST",
@@ -385,42 +426,72 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
           itemId: palayId,
         }),
       });
-
-      const transactionResult = await transactionResponse.json();
-      const transactionId = transactionResult.id;
-
+  
       if (!transactionResponse.ok) {
         throw new Error("Failed to submit transaction data");
       }
-
-      // Step 3: Find the target warehouse and update its stock
-      const targetWarehouse = warehouseData.find(
-        (warehouse) => warehouse.id === transactionData.toLocationId
-      );
-
-      if (!targetWarehouse) {
-        throw new Error("Target warehouse not found");
+  
+      const transactionResult = await transactionResponse.json();
+      const transactionId = transactionResult.id;
+  
+      // Step 3: Update facility stock based on quality type
+      if (palayData.qualityType === "Wet") {
+        // Update dryer processing count
+        const targetDryer = dryerData.find(
+          (dryer) => dryer.id === transactionData.toLocationId
+        );
+  
+        if (!targetDryer) {
+          throw new Error("Target dryer not found");
+        }
+  
+        const newProcessing = 
+          Number(palayData.quantityBags) + Number(targetDryer.processing);
+  
+        const dryerResponse = await fetch(`${apiUrl}/dryers/update`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            id: transactionData.toLocationId,
+            processing: newProcessing,
+          }),
+        });
+  
+        if (!dryerResponse.ok) {
+          throw new Error("Failed to update dryer processing count");
+        }
+      } else {
+        // Update warehouse stock
+        const targetWarehouse = warehouseData.find(
+          (warehouse) => warehouse.id === transactionData.toLocationId
+        );
+  
+        if (!targetWarehouse) {
+          throw new Error("Target warehouse not found");
+        }
+  
+        const newStock =
+          Number(palayData.quantityBags) + Number(targetWarehouse.currentStock);
+  
+        const warehouseResponse = await fetch(`${apiUrl}/warehouses/update`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            id: transactionData.toLocationId,
+            currentStock: newStock,
+          }),
+        });
+  
+        if (!warehouseResponse.ok) {
+          throw new Error("Failed to update warehouse stock");
+        }
       }
-
-      const newStock =
-        Number(palayData.quantityBags) + Number(targetWarehouse.currentStock);
-
-      const warehouseResponse = await fetch(`${apiUrl}/warehouses/update`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          id: transactionData.toLocationId,
-          currentStock: newStock,
-        }),
-      });
-
-      if (!warehouseResponse.ok) {
-        throw new Error("Failed to update warehouse stock");
-      }
-
-      // generate WSR
+  
+      // Generate WSR and handle success
       const receiptData = {
         ...palayData,
         ...transactionData,
@@ -429,21 +500,21 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
       };
       const pdf = WSR(receiptData);
       pdf.save(`WSR-${palayId}.pdf`);
-
+  
       // Reset states and show success message
       setPalayData(initialPalayData);
       setTransactionData(initialTransactionData);
-
+  
       toast.current.show({
         severity: "success",
         summary: "Success",
         detail: "Records successfully created",
         life: 3000,
       });
-
+  
       onPalayRegistered(palayResult);
       onHide();
-
+  
       refreshData();
     } catch (error) {
       console.error("Error:", error);
@@ -688,15 +759,15 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
       if (!transactionData.toLocationId) {
         newErrors.toLocationId = "Destination is required";
       }
-    //   if (!palayData.weighedBy) {
-    //     newErrors.weighedBy = "Weigher is required";
-    //   }
-    //   if (!palayData.correctedBy) {
-    //     newErrors.correctedBy = "Checker is required";
-    //   }
-    //   if (!palayData.classifier) {
-    //     newErrors.classifier = "Classifier is required";
-    //   }
+      //   if (!palayData.weighedBy) {
+      //     newErrors.weighedBy = "Weigher is required";
+      //   }
+      //   if (!palayData.correctedBy) {
+      //     newErrors.correctedBy = "Checker is required";
+      //   }
+      //   if (!palayData.classifier) {
+      //     newErrors.classifier = "Classifier is required";
+      //   }
       if (!transactionData.remarks) {
         newErrors.remarks = "Remarks is required";
       }

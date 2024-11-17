@@ -105,14 +105,16 @@ const LogisticsInfoForm = ({
         </label>
         <div className="flex flex-row w-full space-x-2">
           <div className="flex flex-col w-full">
-            <InputText
-              id="sendToWarehouse"
-              name="sendToWarehouse"
+            <Dropdown
+              id="toLocationType"
+              name="toLocationType"
               value={transactionData.toLocationType}
-              placeholder="Select location"
+              options={[
+                { label: "Warehouse", value: "Warehouse" },
+                { label: "Dryer", value: "Dryer" },
+              ]}
+              disabled={true}
               className="ring-0 w-full placeholder:text-gray-400"
-              disabled
-              maxLength={50}
             />
             {errors.toLocationType && (
               <p className="text-red-500 text-xs mt-1">
