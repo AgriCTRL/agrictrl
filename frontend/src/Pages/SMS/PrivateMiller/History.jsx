@@ -16,7 +16,7 @@ function CustomDateRangeSelector({ selectedFilter, onChange, disabled }) {
   function getStartOfWeek(date) {
     const d = new Date(date);
     const day = d.getDay();
-    const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is Sunday
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
     return new Date(d.setDate(diff));
   }
 
@@ -87,7 +87,7 @@ function History() {
     function getStartOfWeek(date) {
       const d = new Date(date);
       const day = d.getDay();
-      const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is Sunday
+      const diff = d.getDate() - day + (day === 0 ? -6 : 1);
       return new Date(d.setDate(diff));
     }
 
@@ -123,7 +123,7 @@ function History() {
             const transformedTransactions = userTransactions.map(transaction => ({
                 ...transaction,
                 date: new Date(transaction.sendDateTime || transaction.receiveDateTime),
-                description: `Transaction ${transaction.id} - ${transaction.item}`,
+                description: `Transaction ${transaction.id}`,
                 displayStatus: getDisplayStatus(transaction)
             }));
     

@@ -19,7 +19,7 @@ function StaffLayout({ children, activePage, user, leftSidebar, isRightSidebarOp
 
     const navItems = [
         { text: 'Home', link: '/staff' },
-        { text: 'Procurement', link: '/staff/buy' },
+        { text: 'Procurement', link: '/staff/procurement' },
         { text: 'Warehouse', link: '/staff/warehouse' },
         { text: 'Processing', link: '/staff/processing' },
         { text: 'Distribution', link: '/staff/distribution' },

@@ -1,242 +1,329 @@
 import {
-    BaseEntity,
-    Column,
-    Entity,
-    ManyToOne,
-    OneToMany,
-    PrimaryColumn,
-    BeforeInsert
-} from 'typeorm';
+  BaseEntity,
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryColumn,
+  BeforeInsert,
+} from "typeorm";
 
-import { getQualitySpec, QualitySpec } from '../qualityspecs/db';
-import { getPalaySupplier, PalaySupplier } from '../palaysuppliers/db';
-import { getFarm, Farm } from '../farms/db';
-import { Transaction } from '../transactions/db';
+import { getQualitySpec, QualitySpec } from "../qualityspecs/db";
+import { getPalaySupplier, PalaySupplier } from "../palaysuppliers/db";
+import { getFarm, Farm } from "../farms/db";
+import { Transaction } from "../transactions/db";
 
 @Entity()
 export class PalayBatch extends BaseEntity {
-    @PrimaryColumn('varchar', { length: 10 })
-    id: string;
+  @PrimaryColumn("varchar", { length: 10 })
+  id: string;
 
-    @Column()
-    palayVariety: string;
+  @Column()
+  dateBought: Date;
 
-    @Column()
-    dateBought: Date;
+  @Column()
+  age: number;
 
-    @Column()
-    buyingStationName: string;
+  @Column()
+  buyingStationName: string;
 
-    @Column()
-    buyingStationLoc: string;
+  @Column()
+  buyingStationLoc: string;
 
-    @Column()
-    quantityBags: number;
+  @Column()
+  quantityBags: number;
 
-    @Column()
-    grossWeight: number;
+  @Column()
+  grossWeight: number;
 
-    @Column()
-    netWeight: number;
-    
-    @Column()
-    qualityType: string;
+  @Column()
+  netWeight: number;
 
-    @Column()
-    qualitySpecId: string;
+  @Column()
+  qualityType: string;
 
-    @ManyToOne(() => QualitySpec)
-    qualitySpec: QualitySpec;
+  @Column()
+  qualitySpecId: string;
 
-    @Column()
-    price: number;
+  @ManyToOne(() => QualitySpec)
+  qualitySpec: QualitySpec;
 
-    @Column()
-    palaySupplierId: string;
+  @Column()
+  varietyCode: string;
 
-    @ManyToOne(() => PalaySupplier)
-    palaySupplier: PalaySupplier;
+  @Column()
+  price: number;
 
-    @Column()
-    farmId: string;
+  @Column()
+  palaySupplierId: string;
 
-    @ManyToOne(() => Farm)
-    farm: Farm;
+  @ManyToOne(() => PalaySupplier)
+  palaySupplier: PalaySupplier;
 
-    @Column({ nullable: true })
-    plantedDate: Date;
+  @Column()
+  farmId: string;
 
-    @Column({ nullable: true })
-    harvestedDate: Date;
+  @ManyToOne(() => Farm)
+  farm: Farm;
 
-    @Column({ nullable: true })
-    estimatedCapital: number;
+  @Column({ nullable: true })
+  plantedDate: Date;
 
-    @Column()
-    currentlyAt: string;
+  @Column({ nullable: true })
+  harvestedDate: Date;
 
-    @Column()
-    status: string;
+  @Column({ nullable: true })
+  estimatedCapital: number;
 
-    @OneToMany(() => Transaction, transaction => transaction.palayBatch)
-    transactions: Transaction[];
+  @Column()
+  currentlyAt: string;
 
-    @BeforeInsert()
-    async generateId() {
-        const prefix = '030401';
-        const lastOrder = await PalayBatch.find({
-            order: { id: 'DESC' },
-            take: 1
-        });
+  @Column()
+  weighedBy: string;
 
-        let nextNumber = 1;
-        if (lastOrder.length > 0) {
-            const lastId = lastOrder[0].id;
-            const lastNumber = parseInt(lastId.slice(-4));
-            nextNumber = lastNumber + 1;
-        }
+  @Column()
+  correctedBy: string;
 
-        this.id = `${prefix}${nextNumber.toString().padStart(4, '0')}`;
+  @Column()
+  classifiedBy: string;
+
+  @Column()
+  status: string;
+
+  @OneToMany(() => Transaction, (transaction) => transaction.palayBatch)
+  transactions: Transaction[];
+
+  @BeforeInsert()
+  async generateId() {
+    const prefix = "030401";
+    const lastOrder = await PalayBatch.find({
+      order: { id: "DESC" },
+      take: 1,
+    });
+
+    let nextNumber = 1;
+    if (lastOrder.length > 0) {
+      const lastId = lastOrder[0].id;
+      const lastNumber = parseInt(lastId.slice(-4));
+      nextNumber = lastNumber + 1;
     }
+
+    this.id = `${prefix}${nextNumber.toString().padStart(4, "0")}`;
+  }
 }
 
-export type PalayBatchCreate = Pick<PalayBatch, 'palayVariety' | 'dateBought' | 'buyingStationName' | 'buyingStationLoc' | 'quantityBags' | 'grossWeight' | 'netWeight' | 'qualityType' | 'qualitySpecId' | 'price' | 'palaySupplierId' | 'farmId' | 'plantedDate' | 'harvestedDate' | 'estimatedCapital' | 'currentlyAt' | 'status'> &
-{  qualitySpecId: QualitySpec['id'];
-    palaySupplierId: PalaySupplier['id'];
-    farmId: Farm['id'];
- };
-export type PalayBatchUpdate = Pick<PalayBatch, 'id'> & Partial<PalayBatchCreate>;
+export type PalayBatchCreate = Pick<
+  PalayBatch,
+  | "dateBought"
+  | "age"
+  | "buyingStationName"
+  | "buyingStationLoc"
+  | "quantityBags"
+  | "grossWeight"
+  | "netWeight"
+  | "qualityType"
+  | "qualitySpecId"
+  | "varietyCode"
+  | "price"
+  | "palaySupplierId"
+  | "farmId"
+  | "plantedDate"
+  | "harvestedDate"
+  | "estimatedCapital"
+  | "currentlyAt"
+  | "weighedBy"
+  | "correctedBy"
+  | "classifiedBy"
+  | "status"
+> & {
+  qualitySpecId: QualitySpec["id"];
+  palaySupplierId: PalaySupplier["id"];
+  farmId: Farm["id"];
+};
+export type PalayBatchUpdate = Pick<PalayBatch, "id"> &
+  Partial<PalayBatchCreate>;
 
 function getCurrentPST(): Date {
-    const now = new Date();
-    const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-    return new Date(utc + (3600000 * 8));
+  const now = new Date();
+  const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+  return new Date(utc + 3600000 * 8);
 }
 
-export async function getPalayBatches(limit: number, offset: number): Promise<PalayBatch[]> {
-    return await PalayBatch.find({
-        take: limit,
-        skip: offset,
-        relations: {
-            qualitySpec: true,
-            palaySupplier: true,
-            farm: true
-        }
-    });
+export async function getPalayBatches(
+  limit: number,
+  offset: number
+): Promise<{ data: PalayBatch[]; total: number }> {
+  const [data, total] = await PalayBatch.findAndCount({
+    take: limit,
+    skip: offset,
+    relations: {
+      qualitySpec: true,
+      palaySupplier: true,
+      farm: true,
+    },
+  });
+
+  return { data, total };
 }
 
 export async function getPalayBatch(id: string): Promise<PalayBatch | null> {
-    return await PalayBatch.findOne({
-        where: {
-            id
-        },
-        relations: {
-            qualitySpec: true,
-            palaySupplier: true,
-            farm: true
-        }
-    });
+  return await PalayBatch.findOne({
+    where: {
+      id,
+    },
+    relations: {
+      qualitySpec: true,
+      palaySupplier: true,
+      farm: true,
+    },
+  });
 }
 
 export async function countPalayBatches(): Promise<number> {
-    return await PalayBatch.count();
+  return await PalayBatch.count();
 }
 
-export async function createPalayBatch(palayBatchCreate: PalayBatchCreate): Promise<PalayBatch> {
-    let palayBatch = new PalayBatch();
+export async function createPalayBatch(
+  palayBatchCreate: PalayBatchCreate
+): Promise<PalayBatch> {
+  let palayBatch = new PalayBatch();
 
-    palayBatch.palayVariety = palayBatchCreate.palayVariety;
-    palayBatch.dateBought = getCurrentPST();
-    palayBatch.buyingStationName = palayBatchCreate.buyingStationName;
-    palayBatch.buyingStationLoc = palayBatchCreate.buyingStationLoc;
-    palayBatch.quantityBags = palayBatchCreate.quantityBags;
-    palayBatch.grossWeight = palayBatchCreate.grossWeight;
-    palayBatch.netWeight = palayBatchCreate.netWeight;
-    palayBatch.qualityType = palayBatchCreate.qualityType;
+  palayBatch.dateBought = getCurrentPST();
+  palayBatch.age = palayBatchCreate.age;
+  palayBatch.buyingStationName = palayBatchCreate.buyingStationName;
+  palayBatch.buyingStationLoc = palayBatchCreate.buyingStationLoc;
+  palayBatch.quantityBags = palayBatchCreate.quantityBags;
+  palayBatch.grossWeight = palayBatchCreate.grossWeight;
+  palayBatch.netWeight = palayBatchCreate.netWeight;
+  palayBatch.qualityType = palayBatchCreate.qualityType;
 
-    // qualitySpec
+  // qualitySpec
 
-    const qualitySpec = await getQualitySpec(palayBatchCreate.qualitySpecId);
+  const qualitySpec = await getQualitySpec(palayBatchCreate.qualitySpecId);
 
-    if (qualitySpec === null) {
-        throw new Error(``);
-    }
+  if (qualitySpec === null) {
+    throw new Error(``);
+  }
 
-    palayBatch.qualitySpecId = qualitySpec.id;
+  palayBatch.qualitySpecId = qualitySpec.id;
 
-    palayBatch.price = palayBatchCreate.price;
+  palayBatch.varietyCode = palayBatchCreate.varietyCode;
 
-    // palaySupplier
+  palayBatch.price = palayBatchCreate.price;
 
-    const palaySupplier = await getPalaySupplier(palayBatchCreate.palaySupplierId);
+  // palaySupplier
 
-    if (palaySupplier === null) {
-        throw new Error(``);
-    }
+  const palaySupplier = await getPalaySupplier(
+    palayBatchCreate.palaySupplierId
+  );
 
-    palayBatch.palaySupplierId = palaySupplier.id;
+  if (palaySupplier === null) {
+    throw new Error(``);
+  }
 
-    // farm
+  palayBatch.palaySupplierId = palaySupplier.id;
 
-    const farm = await getFarm(palayBatchCreate.farmId);
+  // farm
 
-    if (farm === null) {
-        throw new Error(``);
-    }
+  const farm = await getFarm(palayBatchCreate.farmId);
 
-    palayBatch.farmId = farm.id;
+  if (farm === null) {
+    throw new Error(``);
+  }
 
-    palayBatch.plantedDate = palayBatchCreate.plantedDate;
-    palayBatch.harvestedDate = palayBatchCreate.harvestedDate;
-    palayBatch.estimatedCapital = palayBatchCreate.estimatedCapital;
-    palayBatch.currentlyAt = palayBatchCreate.currentlyAt;
-    palayBatch.status = palayBatchCreate.status;
+  palayBatch.farmId = farm.id;
 
-    return await palayBatch.save();
+  palayBatch.plantedDate = palayBatchCreate.plantedDate;
+  palayBatch.harvestedDate = palayBatchCreate.harvestedDate;
+  palayBatch.estimatedCapital = palayBatchCreate.estimatedCapital;
+  palayBatch.currentlyAt = palayBatchCreate.currentlyAt;
+  palayBatch.weighedBy = palayBatchCreate.weighedBy;
+  palayBatch.correctedBy = palayBatchCreate.correctedBy;
+  palayBatch.classifiedBy = palayBatchCreate.classifiedBy;
+  palayBatch.status = palayBatchCreate.status;
+
+  return await palayBatch.save();
 }
 
-export async function updatePalayBatch(palayBatchUpdate: PalayBatchUpdate): Promise<PalayBatch> {
-    await PalayBatch.update(palayBatchUpdate.id, {
-        palayVariety: palayBatchUpdate.palayVariety,
-        dateBought: palayBatchUpdate.dateBought,
-        buyingStationName: palayBatchUpdate.buyingStationName,
-        buyingStationLoc: palayBatchUpdate.buyingStationLoc,
-        quantityBags: palayBatchUpdate.quantityBags,
-        grossWeight: palayBatchUpdate.grossWeight,
-        netWeight: palayBatchUpdate.netWeight,
-        qualityType: palayBatchUpdate.qualityType,
-        price: palayBatchUpdate.price,
-        plantedDate: palayBatchUpdate.plantedDate,
-        harvestedDate: palayBatchUpdate.harvestedDate,
-        estimatedCapital: palayBatchUpdate.estimatedCapital,
-        currentlyAt: palayBatchUpdate.currentlyAt,
-        status: palayBatchUpdate.status
-    });
+export async function updatePalayBatch(
+  palayBatchUpdate: PalayBatchUpdate
+): Promise<PalayBatch> {
+  await PalayBatch.update(palayBatchUpdate.id, {
+    dateBought: palayBatchUpdate.dateBought,
+    age: palayBatchUpdate.age,
+    buyingStationName: palayBatchUpdate.buyingStationName,
+    buyingStationLoc: palayBatchUpdate.buyingStationLoc,
+    quantityBags: palayBatchUpdate.quantityBags,
+    grossWeight: palayBatchUpdate.grossWeight,
+    netWeight: palayBatchUpdate.netWeight,
+    qualityType: palayBatchUpdate.qualityType,
+    varietyCode: palayBatchUpdate.varietyCode,
+    price: palayBatchUpdate.price,
+    plantedDate: palayBatchUpdate.plantedDate,
+    harvestedDate: palayBatchUpdate.harvestedDate,
+    estimatedCapital: palayBatchUpdate.estimatedCapital,
+    currentlyAt: palayBatchUpdate.currentlyAt,
+    weighedBy: palayBatchUpdate.weighedBy,
+    correctedBy: palayBatchUpdate.correctedBy,
+    classifiedBy: palayBatchUpdate.classifiedBy,
+    status: palayBatchUpdate.status,
+  });
 
-    const palayBatch = await getPalayBatch(palayBatchUpdate.id);
+  const palayBatch = await getPalayBatch(palayBatchUpdate.id);
 
-    if (palayBatch === null) {
-        throw new Error(`updatePalayBatch: failed for id ${palayBatchUpdate.id}`);
-    }
+  if (palayBatch === null) {
+    throw new Error(`updatePalayBatch: failed for id ${palayBatchUpdate.id}`);
+  }
 
-    return palayBatch;
+  return palayBatch;
 }
 
 export async function getTotalQuantityBags(): Promise<number> {
-    const result = await PalayBatch
-        .createQueryBuilder('palayBatch')
-        .select('SUM(palayBatch.quantityBags)', 'total')
-        .getRawOne();
-    
-    return result?.total || 0;
+  const result = await PalayBatch.createQueryBuilder("palayBatch")
+    .select("SUM(palayBatch.quantityBags)", "total")
+    .getRawOne();
+
+  return result?.total || 0;
 }
 
 export async function getTotalPalayQuantityBags(): Promise<number> {
-    const result = await PalayBatch
-        .createQueryBuilder('palayBatch')
-        .select('SUM(palayBatch.quantityBags)', 'total')
-        .where('LOWER(palayBatch.currentlyAt) LIKE LOWER(:term)', { term: '%palay%' })
-        .getRawOne();
-    
-    return result?.total || 0;
+  const result = await PalayBatch.createQueryBuilder("palayBatch")
+    .select("SUM(palayBatch.quantityBags)", "total")
+    .where("LOWER(palayBatch.currentlyAt) LIKE LOWER(:term)", {
+      term: "%palay%",
+    })
+    .getRawOne();
+
+  return result?.total || 0;
+}
+
+export async function searchPalayBatches(
+  searchParams: {
+    id?: string;
+    // buyingStationName?: string;
+    // status?: string;
+  },
+  limit: number,
+  offset: number
+): Promise<{ data: PalayBatch[]; total: number }> {
+  const queryBuilder = PalayBatch.createQueryBuilder("palayBatch")
+    .leftJoinAndSelect("palayBatch.qualitySpec", "qualitySpec")
+    .leftJoinAndSelect("palayBatch.palaySupplier", "palaySupplier")
+    .leftJoinAndSelect("palayBatch.farm", "farm");
+
+  if (searchParams.id) {
+    queryBuilder.andWhere("palayBatch.id LIKE :id", {
+      id: `%${searchParams.id}%`,
+    });
+  }
+  // Add other search conditions as needed
+  // if (searchParams.buyingStationName) {
+  //   queryBuilder.andWhere("palayBatch.buyingStationName LIKE :name", { name: `%${searchParams.buyingStationName}%` });
+  // }
+
+  const total = await queryBuilder.getCount();
+
+  const data = await queryBuilder.take(limit).skip(offset).getMany();
+
+  return { data, total };
 }

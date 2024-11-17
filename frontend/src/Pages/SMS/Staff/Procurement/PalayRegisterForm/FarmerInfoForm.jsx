@@ -343,6 +343,8 @@ const FarmerInfoForm = ({ palayData, handlePalayInputChange, errors, onSupplierS
               placeholder="Enter number of farmers"
               className="w-full ring-0"
               keyfilter="int"
+              pattern="^[0-9]*$"
+              min={0}
             />
             {errors.numOfFarmer && <p className="text-red-500 text-xs mt-1">{errors.numOfFarmer}</p>}
           </div>

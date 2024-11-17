@@ -205,8 +205,6 @@ const ReturnDialog = ({
         receiveDateTime: "0",
       };
 
-      console.log("transaction data: ", newTransaction)
-
       const createTransactionResponse = await fetch(`${apiUrl}/transactions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -237,7 +235,7 @@ const ReturnDialog = ({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          id: newTransactionData.toLocationId,
+          id: targetWarehouse.id,
           currentStock: newStock,
         }),
       });

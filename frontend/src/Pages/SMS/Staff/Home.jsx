@@ -54,7 +54,7 @@ function Home({ isRightSidebarOpen }) {
     }
 
     const toProcurement = () => {
-        navigate('/staff/buy')
+        navigate('/staff/procurement')
     }
 
     const fetchData = async () => {
@@ -290,7 +290,7 @@ function Home({ isRightSidebarOpen }) {
                         <Button
                             text
                             className="ring-0 transition-all gap-4 hover:gap-6 hover:bg-transparent text-primary flex justify-between"
-                            onClick={() => navigate('/staff/buy')}
+                            onClick={() => navigate('/staff/procurement')}
                         >
                             <p className='text-md font-medium'>Add new palay batch</p>
                             <ChevronRight size={18} />
@@ -335,7 +335,7 @@ function Home({ isRightSidebarOpen }) {
                             <Button
                                 text
                                 className="ring-0 transition-all gap-4 hover:gap-6 hover:bg-transparent text-primary flex justify-between"
-                                onClick={() => navigate('/staff/buy')}
+                                onClick={() => navigate('/staff/warehouse')}
                             >
                                 <p className='text-md font-medium'>View All</p>
                                 <ChevronRight size={18} />
