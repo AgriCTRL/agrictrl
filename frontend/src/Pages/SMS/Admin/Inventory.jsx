@@ -16,34 +16,55 @@ function Inventory() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
     const [inventoryData, setInventoryData] = useState([]);
+    const [totalRecords, setTotalRecords] = useState(0);
+    const [first, setFirst] = useState(0);
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [filters, setFilters] = useState({
         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     });
     const [showDetails, setShowDetails] = useState(false);
     const [selectedPalay, setSelectedPalay] = useState(null);
+    
+    // Update filters when search value changes
+    useEffect(() => {
+        const newFilters = {
+            global: { value: globalFilterValue, matchMode: FilterMatchMode.CONTAINS },
+        };
+        setFilters(newFilters);
+    }, [globalFilterValue]);
 
     useEffect(() => {
-        fetchInventoryData();
-    }, []);
+        fetchInventoryData(Math.floor(first / 10), globalFilterValue);
+    }, [first, globalFilterValue]);
 
-    const fetchInventoryData = async () => {
+    const fetchInventoryData = async (page = 0, searchValue = '') => {
         try {
-            const response = await fetch(`${apiUrl}/palaybatches`);
+            const limit = 10;
+            const offset = page * limit;
+
+            let url = `${apiUrl}/palaybatches?limit=${limit}&offset=${offset}`;
+
+            if (searchValue) {
+                url = `${apiUrl}/palaybatches/search?id=${searchValue}&limit=${limit}&offset=${offset}`;
+            }
+
+            const response = await fetch(url);
             if (!response.ok) {
                 throw new Error('Failed to fetch inventory data');
             }
-            const data = await response.json();
+
+            const { data, total } = await response.json();
             setInventoryData(data);
+            setTotalRecords(total);
         } catch (error) {
             console.error('Error:', error);
-            toast.current.show({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'Failed to fetch inventory data',
-                life: 3000
-            });
+        } finally {
+            
         }
+    };
+
+    const onGlobalFilterChange = (e) => {
+        setGlobalFilterValue(e.target.value);
     };
 
     const getSeverity = (status) => {
@@ -76,7 +97,7 @@ function Inventory() {
                         Palay Batch #{item.id}
                     </div>
                     <div className="text-gray-600 mb-2">
-                        {new Date(item.dateBought).toLocaleDateString()}
+                        {formatDate(item.dateBought)}
                     </div>
                     <div className="text-sm text-gray-500">{item.quantityBags} bags</div>
                 </div>
@@ -91,16 +112,6 @@ function Inventory() {
         );
     };
 
-    const filterByGlobal = (value) => {
-        setFilters({
-            global: { value, matchMode: 'contains' },
-        });
-    };
-
-    const formatDate = (isoString) => {
-        const date = new Date(isoString);
-        return date.toISOString().slice(0, 10);
-    };
 
     const exportPdf = () => {
         const columns = ['ID', 'Date Bought', 'Quantity in Bags', 'Quality Type', 'Price', 'Farmer', 'Origin Farm', 'Current Location', 'Status'];
@@ -119,6 +130,12 @@ function Inventory() {
         pdfLandscapeExport('Inventory Data Export', columns, data);
     };
 
+    const formatDate = (isoString) => {
+        if (!isoString) return 'N/A';
+        const date = new Date(isoString);
+        return date.toISOString().split('T')[0];
+    };
+
     return (
         <AdminLayout activePage="Inventory">
             <div className="flex flex-col h-full gap-4">
@@ -127,13 +144,10 @@ function Inventory() {
                     <IconField iconPosition="left" className="w-1/2">
                         <InputIcon className="pi pi-search text-light-grey" />
                         <InputText
-                            placeholder="Tap to Search"
+                            placeholder="Search inventory..."
                             type="search"
                             value={globalFilterValue}
-                            onChange={(e) => {
-                                setGlobalFilterValue(e.target.value);
-                                filterByGlobal(e.target.value);
-                            }}
+                            onChange={onGlobalFilterChange}
                             className="w-full ring-0 hover:border-primary focus:border-primary placeholder:text-light-grey"
                         />
                     </IconField>
@@ -156,11 +170,13 @@ function Inventory() {
                             <DataView
                                 value={inventoryData}
                                 itemTemplate={itemTemplate}
-                                filters={filters}
-                                globalFilterFields={["id", "status"]}
                                 emptyMessage="No inventory found."
+                                lazy
                                 paginator
                                 rows={10}
+                                first={first}
+                                onPage={(e) => setFirst(e.first)}
+                                totalRecords={totalRecords}
                                 className="overflow-y-auto pb-16 p-4"
                                 paginatorClassName="absolute bottom-0 left-0 right-0 bg-white border-t"
                                 paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
@@ -171,69 +187,140 @@ function Inventory() {
 
                 {/* Details Dialog */}
                 <Dialog
-                    visible={showDetails}
-                    onHide={() => setShowDetails(false)}
-                    header={`Batch #${selectedPalay?.id} Details`}
-                    className="w-full max-w-2xl"
-                >
-                    {selectedPalay && (
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="col-span-2 border-b pb-2">
-                                <h3 className="font-semibold">Basic Information</h3>
-                            </div>
-                            <div>
-                                <p className="text-gray-600">Gross Weight</p>
-                                <p>{selectedPalay.grossWeight} Kg</p>
-                            </div>
-                            <div>
-                                <p className="text-gray-600">Net Weight</p>
-                                <p>{selectedPalay.netWeight} Kg</p>
-                            </div>
-                            <div>
-                                <p className="text-gray-600">Quality Type</p>
-                                <p>{selectedPalay.qualityType}</p>
-                            </div>
-                            <div>
-                                <p className="text-gray-600">Price/Kg</p>
-                                <p>{selectedPalay.price}</p>
-                            </div>
-
-                            <div className="col-span-2 border-b pb-2 mt-4">
-                                <h3 className="font-semibold">Quality Specifications</h3>
-                            </div>
-                            <div>
-                                <p className="text-gray-600">Moisture Content</p>
-                                <p>{selectedPalay.qualitySpec.moistureContent}%</p>
-                            </div>
-                            <div>
-                                <p className="text-gray-600">Purity</p>
-                                <p>{selectedPalay.qualitySpec.purity}%</p>
-                            </div>
-                            <div>
-                                <p className="text-gray-600">Damage</p>
-                                <p>{selectedPalay.qualitySpec.damaged}%</p>
-                            </div>
-
-                            <div className="col-span-2 border-b pb-2 mt-4">
-                                <h3 className="font-semibold">Source Information</h3>
-                            </div>
-                            <div>
-                                <p className="text-gray-600">Supplier</p>
-                                <p>{selectedPalay.palaySupplier.farmerName}</p>
-                            </div>
-                            <div>
-                                <p className="text-gray-600">Farm Origin</p>
-                                <p>
-                                    {selectedPalay.farm.region}, {selectedPalay.farm.province}
-                                </p>
-                            </div>
-                            <div>
-                                <p className="text-gray-600">Current Location</p>
-                                <p>{selectedPalay.currentlyAt}</p>
-                            </div>
+                visible={showDetails}
+                onHide={() => setShowDetails(false)}
+                header={`Batch #${selectedPalay?.id} Details`}
+                className="w-full max-w-4xl"
+            >
+                {selectedPalay && (
+                    <div className="grid grid-cols-3 gap-4">
+                        {/* Basic Information */}
+                        <div className="col-span-3 border-b pb-2">
+                            <h3 className="font-semibold">Basic Information</h3>
                         </div>
-                    )}
-                </Dialog>
+                        <div>
+                            <p className="text-gray-600">Quantity (Bags)</p>
+                            <p>{selectedPalay.quantityBags}</p>
+                        </div>
+                        <div>
+                            <p className="text-gray-600">Gross Weight</p>
+                            <p>{selectedPalay.grossWeight} Kg</p>
+                        </div>
+                        <div>
+                            <p className="text-gray-600">Net Weight</p>
+                            <p>{selectedPalay.netWeight} Kg</p>
+                        </div>
+                        <div>
+                            <p className="text-gray-600">Quality Type</p>
+                            <p>{selectedPalay.qualityType}</p>
+                        </div>
+                        <div>
+                            <p className="text-gray-600">Price/Kg</p>
+                            <p>₱{selectedPalay.price}</p>
+                        </div>
+                        <div>
+                            <p className="text-gray-600">Estimated Capital</p>
+                            <p>₱{selectedPalay.estimatedCapital}</p>
+                        </div>
+
+                        {/* Dates Information */}
+                        <div className="col-span-3 border-b pb-2 mt-4">
+                            <h3 className="font-semibold">Important Dates</h3>
+                        </div>
+                        <div>
+                            <p className="text-gray-600">Date Bought</p>
+                            <p>{formatDate(selectedPalay.dateBought)}</p>
+                        </div>
+                        <div>
+                            <p className="text-gray-600">Date Planted</p>
+                            <p>{formatDate(selectedPalay.plantedDate)}</p>
+                        </div>
+                        <div>
+                            <p className="text-gray-600">Date Harvested</p>
+                            <p>{formatDate(selectedPalay.harvestedDate)}</p>
+                        </div>
+
+                        {/* Quality Specifications */}
+                        <div className="col-span-3 border-b pb-2 mt-4">
+                            <h3 className="font-semibold">Quality Specifications</h3>
+                        </div>
+                        <div>
+                            <p className="text-gray-600">Moisture Content</p>
+                            <p>{selectedPalay.qualitySpec.moistureContent}%</p>
+                        </div>
+                        <div>
+                            <p className="text-gray-600">Purity</p>
+                            <p>{selectedPalay.qualitySpec.purity}%</p>
+                        </div>
+                        <div>
+                            <p className="text-gray-600">Damage</p>
+                            <p>{selectedPalay.qualitySpec.damaged}%</p>
+                        </div>
+
+                        {/* Buying Station Information */}
+                        <div className="col-span-3 border-b pb-2 mt-4">
+                            <h3 className="font-semibold">Buying Station Information</h3>
+                        </div>
+                        <div>
+                            <p className="text-gray-600">Station Name</p>
+                            <p>{selectedPalay.buyingStationName}</p>
+                        </div>
+                        <div>
+                            <p className="text-gray-600">Station Location</p>
+                            <p>{selectedPalay.buyingStationLoc}</p>
+                        </div>
+                        <div>
+                            <p className="text-gray-600">Current Location</p>
+                            <p>{selectedPalay.currentlyAt}</p>
+                        </div>
+                        <div>
+                            <p className="text-gray-600">Weigher</p>
+                            <p>{selectedPalay.weighedBy}</p>
+                        </div>
+                        <div>
+                            <p className="text-gray-600">Checker</p>
+                            <p>{selectedPalay.correctedBy}</p>
+                        </div>
+                        <div>
+                            <p className="text-gray-600">Classifier</p>
+                            <p>{selectedPalay.classifiedBy}</p>
+                        </div>
+
+                        {/* Source Information */}
+                        <div className="col-span-3 border-b pb-2 mt-4">
+                            <h3 className="font-semibold">Source Information</h3>
+                        </div>
+                        <div>
+                            <p className="text-gray-600">Farmer Name</p>
+                            <p>{selectedPalay.palaySupplier.farmerName}</p>
+                        </div>
+                        <div>
+                            <p className="text-gray-600">Contact Number</p>
+                            <p>{selectedPalay.palaySupplier.contactNumber}</p>
+                        </div>
+                        <div>
+                            <p className="text-gray-600">Email</p>
+                            <p>{selectedPalay.palaySupplier.email}</p>
+                        </div>
+
+                        {/* Farm Information */}
+                        <div className="col-span-3 border-b pb-2 mt-4">
+                            <h3 className="font-semibold">Farm Information</h3>
+                        </div>
+                        <div>
+                            <p className="text-gray-600">Farm Size</p>
+                            <p>{selectedPalay.farm.farmSize} hectares</p>
+                        </div>
+                        <div className="col-span-2">
+                            <p className="text-gray-600">Complete Address</p>
+                            <p>
+                                {selectedPalay.farm.street}, {selectedPalay.farm.barangay}, {selectedPalay.farm.cityTown},{' '}
+                                {selectedPalay.farm.province}, {selectedPalay.farm.region}
+                            </p>
+                        </div>
+                    </div>
+                )}
+            </Dialog>
             </div>
         </AdminLayout>
     );

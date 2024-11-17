@@ -105,8 +105,8 @@ function PalayDetails({ visible, onHide, palay }) {
           <p>{palay.correctedBy}</p>
         </div>
         <div>
-          <p className="text-gray-600">Classifier</p>
-          <p>{palay.classifier}</p>
+          <p className="text-gray-600">classifier</p>
+          <p>{palay.classifiedBy}</p>
         </div>
 
         {/* Source Information */}
@@ -134,7 +134,7 @@ function PalayDetails({ visible, onHide, palay }) {
           <p className="text-gray-600">Farm Size</p>
           <p>{palay.farm.farmSize} hectares</p>
         </div>
-        <div>
+        <div className='col-span-2'>
           <p className="text-gray-600">Complete Address</p>
           <p>
             {palay.farm.street}, {palay.farm.barangay}, {palay.farm.cityTown},{' '}

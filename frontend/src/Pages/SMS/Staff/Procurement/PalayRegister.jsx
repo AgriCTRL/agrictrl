@@ -32,6 +32,7 @@ const initialPalayData = {
   palaySupplierStreet: "",
   // Palay Info
   dateBought: "",
+  age: "",
   buyingStationName: "",
   buyingStationLoc: "",
   quantityBags: "",
@@ -56,7 +57,7 @@ const initialPalayData = {
   currentlyAt: "",
   weighedBy: "",
   correctedBy: "",
-  classifier: "",
+  classifiedBy: "",
   status: "",
 };
 
@@ -102,6 +103,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
     palaySupplierStreet: "",
     // Palay Info
     dateBought: "",
+    age: "0",
     buyingStationName: "",
     buyingStationLoc: "",
     quantityBags: "",
@@ -126,7 +128,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
     currentlyAt: "",
     weighedBy: "",
     correctedBy: "",
-    classifier: "",
+    classifiedBy: "",
     status: "",
   });
   const [transactionData, setTransactionData] = useState({
@@ -759,15 +761,15 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
       if (!transactionData.toLocationId) {
         newErrors.toLocationId = "Destination is required";
       }
-      //   if (!palayData.weighedBy) {
-      //     newErrors.weighedBy = "Weigher is required";
-      //   }
-      //   if (!palayData.correctedBy) {
-      //     newErrors.correctedBy = "Checker is required";
-      //   }
-      //   if (!palayData.classifier) {
-      //     newErrors.classifier = "Classifier is required";
-      //   }
+        if (!palayData.weighedBy) {
+          newErrors.weighedBy = "Weigher is required";
+        }
+        if (!palayData.correctedBy) {
+          newErrors.correctedBy = "Checker is required";
+        }
+        if (!palayData.classifiedBy) {
+          newErrors.classifiedBy = "classifiedBy is required";
+        }
       if (!transactionData.remarks) {
         newErrors.remarks = "Remarks is required";
       }

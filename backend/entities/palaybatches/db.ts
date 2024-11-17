@@ -22,6 +22,9 @@ export class PalayBatch extends BaseEntity {
   dateBought: Date;
 
   @Column()
+  age: number;
+
+  @Column()
   buyingStationName: string;
 
   @Column()
@@ -82,7 +85,7 @@ export class PalayBatch extends BaseEntity {
   correctedBy: string;
 
   @Column()
-  classifier: string;
+  classifiedBy: string;
 
   @Column()
   status: string;
@@ -112,6 +115,7 @@ export class PalayBatch extends BaseEntity {
 export type PalayBatchCreate = Pick<
   PalayBatch,
   | "dateBought"
+  | "age"
   | "buyingStationName"
   | "buyingStationLoc"
   | "quantityBags"
@@ -129,7 +133,7 @@ export type PalayBatchCreate = Pick<
   | "currentlyAt"
   | "weighedBy"
   | "correctedBy"
-  | "classifier"
+  | "classifiedBy"
   | "status"
 > & {
   qualitySpecId: QualitySpec["id"];
@@ -185,6 +189,7 @@ export async function createPalayBatch(
   let palayBatch = new PalayBatch();
 
   palayBatch.dateBought = getCurrentPST();
+  palayBatch.age = palayBatchCreate.age;
   palayBatch.buyingStationName = palayBatchCreate.buyingStationName;
   palayBatch.buyingStationLoc = palayBatchCreate.buyingStationLoc;
   palayBatch.quantityBags = palayBatchCreate.quantityBags;
@@ -234,7 +239,7 @@ export async function createPalayBatch(
   palayBatch.currentlyAt = palayBatchCreate.currentlyAt;
   palayBatch.weighedBy = palayBatchCreate.weighedBy;
   palayBatch.correctedBy = palayBatchCreate.correctedBy;
-  palayBatch.classifier = palayBatchCreate.classifier;
+  palayBatch.classifiedBy = palayBatchCreate.classifiedBy;
   palayBatch.status = palayBatchCreate.status;
 
   return await palayBatch.save();
@@ -245,6 +250,7 @@ export async function updatePalayBatch(
 ): Promise<PalayBatch> {
   await PalayBatch.update(palayBatchUpdate.id, {
     dateBought: palayBatchUpdate.dateBought,
+    age: palayBatchUpdate.age,
     buyingStationName: palayBatchUpdate.buyingStationName,
     buyingStationLoc: palayBatchUpdate.buyingStationLoc,
     quantityBags: palayBatchUpdate.quantityBags,
@@ -259,7 +265,7 @@ export async function updatePalayBatch(
     currentlyAt: palayBatchUpdate.currentlyAt,
     weighedBy: palayBatchUpdate.weighedBy,
     correctedBy: palayBatchUpdate.correctedBy,
-    classifier: palayBatchUpdate.classifier,
+    classifiedBy: palayBatchUpdate.classifiedBy,
     status: palayBatchUpdate.status,
   });
 

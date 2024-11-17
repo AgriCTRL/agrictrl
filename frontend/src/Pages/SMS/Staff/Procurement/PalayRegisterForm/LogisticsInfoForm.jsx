@@ -184,21 +184,21 @@ const LogisticsInfoForm = ({
       <div className="flex w-full gap-4">
         <div className="w-full">
           <label
-            htmlFor="classifier"
+            htmlFor="classifiedBy"
             className="block text-sm font-medium text-gray-700 mb-1"
           >
             Classified By
           </label>
           <InputText
-            id="classifier"
-            name="classifier"
-            value={palayData.classifier}
+            id="classifiedBy"
+            name="classifiedBy"
+            value={palayData.classifiedBy}
             onChange={handlePalayInputChange}
             className="w-full ring-0"
             maxLength={250}
           />
-          {errors.classifier && (
-            <p className="text-red-500 text-xs mt-1">{errors.classifier}</p>
+          {errors.classifiedBy && (
+            <p className="text-red-500 text-xs mt-1">{errors.classifiedBy}</p>
           )}
         </div>
 

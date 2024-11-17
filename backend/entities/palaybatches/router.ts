@@ -85,6 +85,7 @@ export function getRouter(): Router {
         any,
         {
           dateBought: Date;
+          age: number;
           buyingStationName: string;
           buyingStationLoc: string;
           quantityBags: number;
@@ -120,7 +121,7 @@ export function getRouter(): Router {
           currentlyAt: string;
           weighedBy: string;
           correctedBy: string;
-          classifier: string;
+          classifiedBy: string;
           status: string;
         }
       >,
@@ -128,6 +129,7 @@ export function getRouter(): Router {
     ) => {
       const {
         dateBought,
+        age,
         buyingStationName,
         buyingStationLoc,
         quantityBags,
@@ -163,7 +165,7 @@ export function getRouter(): Router {
         currentlyAt,
         weighedBy,
         correctedBy,
-        classifier,
+        classifiedBy,
         status,
       } = req.body;
 
@@ -204,6 +206,7 @@ export function getRouter(): Router {
 
       const palayBatch = await createPalayBatch({
         dateBought,
+        age,
         buyingStationName,
         buyingStationLoc,
         quantityBags,
@@ -221,7 +224,7 @@ export function getRouter(): Router {
         currentlyAt,
         weighedBy,
         correctedBy,
-        classifier,
+        classifiedBy,
         status,
       });
 
@@ -241,6 +244,7 @@ async function updateHandler(
     {
       id: string;
       dateBought?: Date;
+      age?: number;
       buyingStationName?: string;
       buyingStationLoc?: string;
       quantityBags?: number;
@@ -255,7 +259,7 @@ async function updateHandler(
       currentlyAt?: string;
       weighedBy?: string;
       correctedBy?: string;
-      classifier?: string;
+      classifiedBy?: string;
       status?: string;
     }
   >,
@@ -264,6 +268,7 @@ async function updateHandler(
   const {
     id,
     dateBought,
+    age,
     buyingStationName,
     buyingStationLoc,
     quantityBags,
@@ -278,13 +283,14 @@ async function updateHandler(
     currentlyAt,
     weighedBy,
     correctedBy,
-    classifier,
+    classifiedBy,
     status,
   } = req.body;
 
   const palayBatch = await updatePalayBatch({
     id,
     dateBought,
+    age,
     buyingStationName,
     buyingStationLoc,
     quantityBags,
@@ -299,7 +305,7 @@ async function updateHandler(
     currentlyAt,
     weighedBy,
     correctedBy,
-    classifier,
+    classifiedBy,
     status,
   });
 
