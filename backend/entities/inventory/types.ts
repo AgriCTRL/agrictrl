@@ -8,95 +8,9 @@ import { RiceBatchMillingBatch } from "../riceBatchMillingBatches/db";
 
 export type ProcessingType = 'drying' | 'milling';
 
-export interface DBTransaction {
-    id: string;  
-    status: string;
-    sendDateTime: Date;
-    receiveDateTime: Date;
-    transporterName: string;
-    fromLocationType: string;
-    toLocationType: string;
-    fromLocationId: string;  
-    toLocationId: string;    
-    itemId: string;         
-    item: string;
-}
-
-export interface ProcessedTransaction {
-    id: string;
-    status: string;
-    sendDateTime: string;
-    receiveDateTime: string;
-    transporterName: string;
-    fromLocationType: string;
-    toLocationType: string;
-    fromLocationId: string;
-    toLocationId: string;
-    itemId: string;
-    item: string;
-}
-
-export interface DBDryingBatch {
-    id: string;
-    status: string;
-    startDateTime: Date | null;
-    endDateTime: Date | null;
-    driedQuantityBags: number | null;
-    driedNetWeight: number | null;
-    driedGrossWeight: number | null;
-    dryingMethod: string;
-}
-
-export interface DBMillingBatch {
-    id: string;
-    status: string;
-    startDateTime: Date | null;
-    endDateTime: Date | null;
-    milledQuantityBags: number | null;
-    milledNetWeight: number | null;
-    milledGrossWeight: number | null;
-}
-
-export interface DBPalayBatch {
-    id: string;
-    status: string;
-    buyingStationLoc: string;
-    quantityBags: number;
-    grossWeight: number;
-    netWeight: number;
-    currentlyAt: string;
-    qualityType: string;
-    qualitySpec?: {
-        moistureContent: number;
-    } | null;
-}
-
 export interface ProcessingBatch {
-    dryingBatch?: {
-        id: string;
-        status: string;
-        startDateTime: string | null;
-        endDateTime: string | null;
-        driedQuantityBags: number | null;
-        driedNetWeight: number | null;
-        driedGrossWeight: number | null;
-        dryingMethod: string;
-    } | null;
-    millingBatch?: {
-        id: string;
-        status: string;
-        startDateTime: string | null;
-        endDateTime: string | null;
-        milledQuantityBags: number | null;
-        milledNetWeight: number | null;
-        milledGrossWeight: number | null;
-    } | null;
-}
-
-export interface InventoryItem {
-    transaction: ProcessedTransaction;
-    palayBatch: DBPalayBatch | null;
-    processingBatch: ProcessingBatch;
+    dryingBatch?: DryingBatch | null;
+    millingBatch?: MillingBatch | null;
 }
 
 export interface RiceDetails {
@@ -108,6 +22,12 @@ export interface RiceDetails {
     allRiceOrders: RiceOrder[];
 }
 
+export interface InventoryItem {
+    transaction: Transaction;
+    palayBatch: PalayBatch | null;
+    processingBatch: ProcessingBatch;
+}
+
 export interface EnhancedInventoryItem {
     palayBatch: PalayBatch;
     transactions: Transaction[];
@@ -115,9 +35,20 @@ export interface EnhancedInventoryItem {
     riceDetails?: RiceDetails;
 }
 
+export interface PaginatedResponse<T> {
+    items: T[];
+    total: number;
+}
+
 export interface InventoryFilters {
-    palayBatchStatus?: string;
-    transactionStatus?: string;
+    toLocationType?: string;
+    status?: string;
+    palayStatus?: string | string[];
+    item?: string;
+    millerType?: 'In House' | 'Private';
+    userId?: string;
+    limit?: number;
+    offset?: number;
     processingTypes?: ProcessingType[];
-    millingBatchId?: string;  
+    millingBatchId?: string;
 }
