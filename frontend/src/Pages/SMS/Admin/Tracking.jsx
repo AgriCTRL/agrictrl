@@ -14,6 +14,7 @@ import {
 
 import emptyIllustration from '@/images/illustrations/space.svg';
 import CardComponent from '../../../Components/CardComponent';
+import Loader from '../../../Components/Loader';
 
 const Tracking = () => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -313,7 +314,7 @@ const Tracking = () => {
                 <StatusSelector />
                 
                 {loading ? (
-                    <div>Loading...</div>
+                    <Loader />
                 ) : filteredTransactions.length === 0 ? (
                     emptyData()
                 ) : (

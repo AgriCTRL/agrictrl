@@ -133,9 +133,9 @@ function App() {
 
                 {/* Protected routes */}
                 <Route path="/admin/*" element={
-                    <ProtectedRoute allowedUserTypes={['Admin']}>
+                    // <ProtectedRoute allowedUserTypes={['Admin']}>
+                    // </ProtectedRoute> 
                         <AdminRoutes />
-                    </ProtectedRoute> 
                 } />
                 <Route path="/staff/*" element={
                     <ProtectedRoute allowedUserTypes={['NFA Branch Staff']}>
