@@ -51,13 +51,7 @@ const sidebarItems = [
 ];
  
 function AdminLayout({ children, activePage }) {
-    // const { user } = useAuth();
-    const [user] = useState({ 
-        firstName: 'John', 
-        lastName: 'Doe', 
-        email: 'jy6kS@example.com', 
-        userType: 'admin' 
-    });
+    const { user } = useAuth();
 
     const name = user.firstName + ' ' + user.lastName;
 
