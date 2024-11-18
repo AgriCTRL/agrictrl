@@ -22,7 +22,7 @@ import AdminHome from "./SMS/Admin/Home";
 import AdminDashboard from "./SMS/Admin/Dashboard";
 import AdminTracking from "./SMS/Admin/Tracking";
 import AdminInventory from "./SMS/Admin/Inventory";
-import AdminFacilities from "./SMS/Admin/Facilities/Category";
+import AdminFacilities from "./SMS/Admin/Facilities/Facilities.jsx";
 import AdminUsers from "./SMS/Admin/Users/Users";
 import AdminProfile from "./SMS/Admin/Profile";
 import NoAdminPage from "./SMS/Admin/NoAdminPage";

@@ -15,7 +15,7 @@ import DryerComponent from './Dryer/DryerFacility';
 import MillerComponent from './Miller/MillerFacility';
 import { Button } from 'primereact/button';
 
-function Category() {
+function Facilities() {
     const categories = [
         { label: 'Warehouses', value: 'warehouse', icon: <Warehouse size={20} /> },
         { label: 'Dryers', value: 'dryer', icon: <ThermometerSun size={20} /> },
@@ -40,9 +40,9 @@ function Category() {
     return (
         <AdminLayout activePage="Facilities">
             <div className='flex flex-col h-full w-full gap-4'>
-                <SelectButton 
+                <SelectButton
                     invalid
-                    id="category"
+                    id="facilities"
                     value={selectedCard}
                     onChange={(e) => setSelectedCard(e.value)} 
                     options={categories}
@@ -74,4 +74,4 @@ function Category() {
     );
 }
 
-export default Category;
+export default Facilities;

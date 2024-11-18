@@ -11,6 +11,7 @@ import { Download, Wheat } from 'lucide-react';
 
 import AdminLayout from '@/Layouts/AdminLayout';
 import pdfLandscapeExport from '../../../Components/Pdf/pdfLandscapeExport';
+import EmptyRecord from '../../../Components/EmptyRecord';
 
 function Inventory() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -170,7 +171,7 @@ function Inventory() {
                             <DataView
                                 value={inventoryData}
                                 itemTemplate={itemTemplate}
-                                emptyMessage="No inventory found."
+                                emptyMessage={<EmptyRecord label={'No Inventory Data'}/>}
                                 lazy
                                 paginator
                                 rows={10}

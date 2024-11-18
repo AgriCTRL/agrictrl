@@ -6,14 +6,23 @@ import { Button } from 'primereact/button';
 import { Tag } from 'primereact/tag';
 import { InputText } from 'primereact/inputtext';
 import { Toast } from 'primereact/toast';
+import { IconField } from 'primereact/iconfield';
+import { InputIcon } from 'primereact/inputicon';
 
-import { Search, Settings2, FileX, Filter, Download, Plus } from 'lucide-react';
+import { 
+    Search, 
+    Settings2, 
+    FileX, 
+    Filter, 
+    Download, 
+    Plus 
+} from 'lucide-react';
 
 import WarehouseRegister from './WarehouseRegister';
 import WarehouseUpdate from './WarehouseUpdate';
 import pdfPortraitExport from '../../../../../Components/Pdf/pdfPortraitExport';
-import { IconField } from 'primereact/iconfield';
-import { InputIcon } from 'primereact/inputicon';
+import Loader from '../../../../../Components/Loader';
+import EmptyRecord from '../../../../../Components/EmptyRecord';
 
 function Warehouse() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -193,7 +202,7 @@ function Warehouse() {
                         className="p-datatable-sm px-5 pt-5"
                         filters={filters}
                         globalFilterFields={['id', 'facilityName', 'location', 'status']}
-                        emptyMessage="No inventory found."
+                        emptyMessage={<EmptyRecord label="No records found"/>}
                         paginator
                         paginatorClassName="border-t-2 border-gray-300"
                         rows={30}

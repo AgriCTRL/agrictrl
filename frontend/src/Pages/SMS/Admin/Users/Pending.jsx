@@ -1,15 +1,24 @@
 import React, { useState, useEffect, useRef } from 'react';
+
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
-import { Search, Settings2, FileX, Filter, Download } from 'lucide-react';
 import { Tag } from 'primereact/tag';
 import { InputText } from 'primereact/inputtext';
 import { Toast } from 'primereact/toast';
-
-import UserDetails from './UserDetails';
 import { IconField } from 'primereact/iconfield';
 import { InputIcon } from 'primereact/inputicon';
+
+import { 
+    Search, 
+    Settings2, 
+    FileX, 
+    Filter, 
+    Download 
+} from 'lucide-react';
+
+import UserDetails from './UserDetails';
+import EmptyRecord from '../../../../Components/EmptyRecord';
 
 function Pending() {
 
@@ -138,7 +147,7 @@ function Pending() {
                         scrollHeight="flex"
                         className="p-datatable-sm px-5 pt-5"
                         globalFilterFields={['id', 'userType', 'name', 'status']}
-                        emptyMessage="No pending users found."
+                        emptyMessage={<EmptyRecord label={"Pending Users"} />}
                         paginator
                         paginatorClassName="border-t-2 border-gray-300"
                         rows={10}

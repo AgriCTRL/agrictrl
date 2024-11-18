@@ -307,6 +307,7 @@ const Tracking = () => {
                             type="search"
                             onChange={(e) => setGlobalFilter(e.target.value)}
                             className="w-full pl-12 pr-4 py-4 rounded-lg placeholder-primary text-primary border-transparent focus:border-primary hover:border-primary ring-0"
+                            placeholder="Search by Batch ID"
                         />
                     </span>
                 </div>
