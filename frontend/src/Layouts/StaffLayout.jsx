@@ -16,14 +16,44 @@ function StaffLayout({ children, activePage, user, leftSidebar, isRightSidebarOp
     const navigate = useNavigate();
     const { logout } = useAuth();
     const [userFullName] = useState(`${user.firstName} ${user.lastName}`);
+    const position = user.jobTitlePosition;
+    
+    let navItems = [];
 
-    const navItems = [
-        { text: 'Home', link: '/staff' },
-        { text: 'Procurement', link: '/staff/procurement' },
-        { text: 'Warehouse', link: '/staff/warehouse' },
-        { text: 'Processing', link: '/staff/processing' },
-        { text: 'Distribution', link: '/staff/distribution' },
-    ];
+    switch (position) {
+        case 'Procurement Officer':
+            navItems = [
+                { text: 'Home', link: '/staff' },
+                { text: 'Procurement', link: '/staff/procurement' },
+            ];
+            break;
+        case 'Warehouse Manager':
+            navItems = [
+                { text: 'Home', link: '/staff' },
+                { text: 'Warehouse', link: '/staff/warehouse' },
+            ];
+            break;
+        case 'Processing Officer':
+            navItems = [
+                { text: 'Home', link: '/staff' },
+                { text: 'Processing', link: '/staff/processing' },
+            ];
+            break;
+        case 'Distribution Officer':
+            navItems = [
+                { text: 'Home', link: '/staff' },
+                { text: 'Distribution', link: '/staff/distribution' },
+            ];
+            break;
+        default: 
+            navItems = [
+                { text: 'Home', link: '/staff' },
+                { text: 'Procurement', link: '/staff/procurement' },
+                { text: 'Warehouse', link: '/staff/warehouse' },
+                { text: 'Processing', link: '/staff/processing' },
+                { text: 'Distribution', link: '/staff/distribution' },
+            ];    
+    }
 
     const toggleRightSidebar = () => {
         setIsRightSidebarOpen(!isRightSidebarOpen);

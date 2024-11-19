@@ -15,6 +15,14 @@ const AccountDetails = ({ setSelectedFile, contactInfo }) => {
     { label: 'Rice Recipient', value: 'Rice Recipient' }
   ];
 
+  const positionOptions = [
+    { label: 'Procurement Officer', value: 'Procurement Officer' },
+    { label: 'Warehouse Manager', value: 'Warehouse Manager' },
+    { label: 'Processing Officer', value: 'Processing Officer' },
+    { label: 'Distribution Officer', value: 'Distribution Officer' },
+    { label: 'Maintenance Officer', value: 'Maintenance Officer' }
+  ];
+
   const [branchRegionOptions, setBranchRegionOptions] = useState([]);
   const [branchOfficeOptions, setBranchOfficeOptions] = useState([]);
 
@@ -157,16 +165,28 @@ const AccountDetails = ({ setSelectedFile, contactInfo }) => {
 
           <div className="flex flex-col gap-2">
             <label htmlFor="jobTitlePosition" className="block text-sm text-black">Job Title / Position</label>
-            <InputText
-              id="jobTitlePosition"
-              value={jobTitlePosition}
-              onChange={(e) => handleInputChange('jobTitlePosition', e.target.value)}
-              placeholder="job title"
-              className="w-full focus:ring-0"
-              invalid={!contactInfo.jobTitlePosition}
-              keyfilter={/^[a-zA-Z\s0-9]/}
-              maxLength={50}
-            />
+            {userType === 'NFA Branch Staff' ? (
+              <Dropdown
+                id="jobTitlePosition"
+                value={jobTitlePosition}
+                options={positionOptions}
+                onChange={(e) => handleInputChange('jobTitlePosition', e.value)}
+                placeholder="job title"
+                className="w-full focus:ring-0"
+                invalid={!contactInfo.jobTitlePosition}
+              />
+            ) : (
+              <InputText
+                id="jobTitlePosition"
+                value={jobTitlePosition}
+                onChange={(e) => handleInputChange('jobTitlePosition', e.target.value)}
+                placeholder="job title"
+                className="w-full focus:ring-0"
+                invalid={!contactInfo.jobTitlePosition}
+                keyfilter={/^[a-zA-Z\s0-9]/}
+                maxLength={50}
+              />
+            )}
             {!contactInfo.jobTitlePosition &&
               <small className='p-error'>Please input your job title.</small>
             }

@@ -15,7 +15,7 @@ export class PalaySupplier extends BaseEntity {
     id: string;
 
     @Column()
-    farmerName: string;
+    farmerName?: string;
 
     @Column()
     houseOfficeAddressId: string;
@@ -24,22 +24,22 @@ export class PalaySupplier extends BaseEntity {
     houseOfficeAddress: HouseOfficeAddress;
 
     @Column()
-    category: string;
+    category?: string;
 
     @Column({ nullable: true })
-    numOfFarmer: number;
+    numOfFarmer?: number;
 
     @Column()
-    contactNumber: string;
+    contactNumber?: string;
 
     @Column()
-    email: string;
+    email?: string;
 
     @Column({ nullable: true })
-    birthDate: Date;
+    birthDate?: Date;
 
     @Column({ nullable: true })
-    gender: string;
+    gender?: string;
 
     @BeforeInsert()
     async generateId() {

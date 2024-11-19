@@ -6,19 +6,19 @@ export class HouseOfficeAddress extends BaseEntity {
     id: string;
 
     @Column()
-    region: string;
+    region?: string;
 
     @Column()
-    province: string;
+    province?: string;
 
     @Column()
-    cityTown: string;
+    cityTown?: string;
 
     @Column()
-    barangay: string;
+    barangay?: string;
 
     @Column()
-    street: string;
+    street?: string;
 
     @BeforeInsert()
     async generateId() {

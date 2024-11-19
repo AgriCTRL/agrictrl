@@ -96,6 +96,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
     email: "",
     contactNumber: "",
     // House Address
+    palaySupplierId: "",
     palaySupplierRegion: "",
     palaySupplierProvince: "",
     palaySupplierCityTown: "",
@@ -386,28 +387,47 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
   
     setIsLoading(true);
     try {
+      // Prepare the request body based on whether we have a selected supplier
+    const requestBody = {
+      ...palayData,
+      dateBought: palayData.dateBought
+        ? palayData.dateBought.toISOString().split("T")[0]
+        : null,
+      birthDate: palayData.birthDate
+        ? palayData.birthDate.toISOString().split("T")[0]
+        : null,
+      plantedDate: palayData.plantedDate
+        ? palayData.plantedDate.toISOString().split("T")[0]
+        : null,
+      harvestedDate: palayData.harvestedDate
+        ? palayData.harvestedDate.toISOString().split("T")[0]
+        : null,
+    };
+
+    // If we have a selected supplier, only send the ID
+    if (selectedSupplier) {
+      requestBody.palaySupplierId = selectedSupplier.id;
+      // Remove supplier-related fields that we don't need to send
+      delete requestBody.farmerName;
+      delete requestBody.palaySupplierRegion;
+      delete requestBody.palaySupplierProvince;
+      delete requestBody.palaySupplierCityTown;
+      delete requestBody.palaySupplierBarangay;
+      delete requestBody.palaySupplierStreet;
+      delete requestBody.category;
+      delete requestBody.numOfFarmer;
+      delete requestBody.contactNumber;
+      delete requestBody.email;
+      delete requestBody.birthDate;
+      delete requestBody.gender;
+    }
       // Step 1: Create palay data first
       const palayResponse = await fetch(`${apiUrl}/palaybatches`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          ...palayData,
-          dateBought: palayData.dateBought
-            ? palayData.dateBought.toISOString().split("T")[0]
-            : null,
-          birthDate: palayData.birthDate
-            ? palayData.birthDate.toISOString().split("T")[0]
-            : null,
-          plantedDate: palayData.plantedDate
-            ? palayData.plantedDate.toISOString().split("T")[0]
-            : null,
-          harvestedDate: palayData.harvestedDate
-            ? palayData.harvestedDate.toISOString().split("T")[0]
-            : null,
-          palaySupplierID: selectedSupplier ? selectedSupplier.id : null,
-        }),
+        body: JSON.stringify(requestBody),
       });
   
       if (!palayResponse.ok) {

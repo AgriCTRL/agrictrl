@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
@@ -7,9 +8,15 @@ import { InputText } from 'primereact/inputtext';
 import { Toast } from 'primereact/toast';
 import { IconField } from 'primereact/iconfield';
 import { InputIcon } from 'primereact/inputicon';
-import { Plus, Download } from 'lucide-react';
+
+import { 
+    Plus, 
+    Download 
+} from 'lucide-react';
+
 import DryerRegister from './DryerRegister';
 import DryerUpdate from './DryerUpdate';
+import EmptyRecord from '../../../../../Components/EmptyRecord';
 
 function DryerFacility() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -165,7 +172,7 @@ function DryerFacility() {
                         className="p-datatable-sm px-5 pt-5"
                         filters={filters} // Pass filters here
                         globalFilterFields={['id', 'dryerName', 'status']}
-                        emptyMessage="No inventory found."
+                        emptyMessage={<EmptyRecord label="No dryers found" />}
                         paginator
                         paginatorClassName="border-t-2 border-gray-300"
                         rows={30}

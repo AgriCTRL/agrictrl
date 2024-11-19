@@ -13,6 +13,7 @@ import MillerRegister from './MillerRegister';
 import MillerUpdate from './MillerUpdate';
 import { IconField } from 'primereact/iconfield';
 import { InputIcon } from 'primereact/inputicon';
+import EmptyRecord from '../../../../../Components/EmptyRecord';
 
 function MillerFacility() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -177,7 +178,7 @@ function MillerFacility() {
                         className="p-datatable-sm px-5 pt-5"
                         filters={filters}
                         globalFilterFields={['id', 'millerName', 'status']}
-                        emptyMessage="No inventory found."
+                        emptyMessage={<EmptyRecord label="No millers found" />}
                         paginator
                         paginatorClassName="border-t-2 border-gray-300"
                         rows={30}

@@ -9,6 +9,7 @@ import { Toast } from 'primereact/toast';
 import UserDetails from './UserDetails';
 import { IconField } from 'primereact/iconfield';
 import { InputIcon } from 'primereact/inputicon';
+import EmptyRecord from '../../../../Components/EmptyRecord';
 
 function Active() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -117,7 +118,7 @@ function Active() {
                         scrollHeight="flex"
                         className="p-datatable-sm px-5 pt-5"
                         globalFilterFields={['id', 'userType', 'name', 'status']} // Ensure 'status' is included
-                        emptyMessage="No active users found."
+                        emptyMessage={<EmptyRecord label="No active users found." />}
                         paginator
                         paginatorClassName="border-t-2 border-gray-300"
                         rows={10}

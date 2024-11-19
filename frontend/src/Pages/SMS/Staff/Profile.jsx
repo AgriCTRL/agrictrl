@@ -60,6 +60,14 @@ function Profile() {
     const [branchRegionOptions, setBranchRegionOptions] = useState([]);
     const [branchOfficeOptions, setBranchOfficeOptions] = useState([]);
 
+    const positionOptions = [
+        { label: 'Procurement Officer', value: 'Procurement Officer' },
+        { label: 'Warehouse Manager', value: 'Warehouse Manager' },
+        { label: 'Processing Officer', value: 'Processing Officer' },
+        { label: 'Distribution Officer', value: 'Distribution Officer' },
+        { label: 'Maintenance Officer', value: 'Maintenance Officer' }
+    ];
+
     let today = new Date();
     let year = today.getFullYear();
     let maxYear = year - 18;
@@ -693,8 +701,9 @@ function Profile() {
             </div>
             <div>
             <label className="block mb-2 text-sm font-medium text-gray-700">Job Title/Position</label>
-                <InputText
+                <Dropdown
                     value={userData.accountDetails.jobTitlePosition}
+                    options={positionOptions}
                     onChange={(e) => handleInputChange('accountDetails', 'jobTitlePosition', e.target.value)}
                     disabled={!editing}
                     className="w-full focus:ring-0"

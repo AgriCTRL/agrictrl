@@ -1,7 +1,7 @@
 import express, { Request, Response, Router } from "express";
 
 import { createQualitySpec } from "../qualityspecs/db";
-import { createPalaySupplier } from "../palaysuppliers/db";
+import { createPalaySupplier, getPalaySupplier } from "../palaysuppliers/db";
 import { createHouseOfficeAddress } from "../houseofficeaddresses/db";
 import { createFarm } from "../farms/db";
 import {
@@ -97,18 +97,19 @@ export function getRouter(): Router {
           damaged: number;
           varietyCode: string;
           price: number;
-          farmerName: string;
-          palaySupplierRegion: string;
-          palaySupplierProvince: string;
-          palaySupplierCityTown: string;
-          palaySupplierBarangay: string;
-          palaySupplierStreet: string;
-          category: string;
-          numOfFarmer: number;
-          contactNumber: string;
-          email: string;
-          birthDate: Date;
-          gender: string;
+          palaySupplierId?: string;
+          farmerName?: string;
+          palaySupplierRegion?: string;
+          palaySupplierProvince?: string;
+          palaySupplierCityTown?: string;
+          palaySupplierBarangay?: string;
+          palaySupplierStreet?: string;
+          category?: string;
+          numOfFarmer?: number;
+          contactNumber?: string;
+          email?: string;
+          birthDate?: Date;
+          gender?: string;
           farmSize: number;
           farmRegion: string;
           farmProvince: string;
@@ -141,6 +142,7 @@ export function getRouter(): Router {
         damaged,
         varietyCode,
         price,
+        palaySupplierId,
         farmerName,
         palaySupplierRegion,
         palaySupplierProvince,
@@ -169,66 +171,108 @@ export function getRouter(): Router {
         status,
       } = req.body;
 
-      const qualitySpec = await createQualitySpec({
-        moistureContent: moistureContent,
-        purity: purity,
-        damaged: damaged,
-      });
+      if (!palaySupplierId) {
+        const houseOfficeAddress = await createHouseOfficeAddress({
+          region: palaySupplierRegion,
+          province: palaySupplierProvince,
+          cityTown: palaySupplierCityTown,
+          barangay: palaySupplierBarangay,
+          street: palaySupplierStreet,
+        });
+  
+        const palaySupplier = await createPalaySupplier({
+          farmerName: farmerName,
+          houseOfficeAddressId: houseOfficeAddress.id,
+          category: category,
+          numOfFarmer: numOfFarmer,
+          contactNumber: contactNumber,
+          email: email,
+          birthDate: birthDate,
+          gender: gender,
+        });
 
-      const houseOfficeAddress = await createHouseOfficeAddress({
-        region: palaySupplierRegion,
-        province: palaySupplierProvince,
-        cityTown: palaySupplierCityTown,
-        barangay: palaySupplierBarangay,
-        street: palaySupplierStreet,
-      });
-
-      const palaySupplier = await createPalaySupplier({
-        farmerName: farmerName,
-        houseOfficeAddressId: houseOfficeAddress.id,
-        category: category,
-        numOfFarmer: numOfFarmer,
-        contactNumber: contactNumber,
-        email: email,
-        birthDate: birthDate,
-        gender: gender,
-      });
-
-      const farm = await createFarm({
-        palaySupplierId: palaySupplier.id,
-        farmSize: farmSize,
-        region: farmRegion,
-        province: farmProvince,
-        cityTown: farmCityTown,
-        barangay: farmBarangay,
-        street: farmStreet,
-      });
-
-      const palayBatch = await createPalayBatch({
-        dateBought,
-        age,
-        buyingStationName,
-        buyingStationLoc,
-        quantityBags,
-        grossWeight,
-        netWeight,
-        qualityType,
-        qualitySpecId: qualitySpec.id,
-        varietyCode,
-        price,
-        palaySupplierId: palaySupplier.id,
-        farmId: farm.id,
-        plantedDate,
-        harvestedDate,
-        estimatedCapital,
-        currentlyAt,
-        weighedBy,
-        correctedBy,
-        classifiedBy,
-        status,
-      });
-
-      res.json(palayBatch);
+        const qualitySpec = await createQualitySpec({
+          moistureContent: moistureContent,
+          purity: purity,
+          damaged: damaged,
+        });
+  
+        const farm = await createFarm({
+          palaySupplierId: palaySupplier.id,
+          farmSize: farmSize,
+          region: farmRegion,
+          province: farmProvince,
+          cityTown: farmCityTown,
+          barangay: farmBarangay,
+          street: farmStreet,
+        });
+  
+        const palayBatch = await createPalayBatch({
+          dateBought,
+          age,
+          buyingStationName,
+          buyingStationLoc,
+          quantityBags,
+          grossWeight,
+          netWeight,
+          qualityType,
+          qualitySpecId: qualitySpec.id,
+          varietyCode,
+          price,
+          palaySupplierId: palaySupplier.id,
+          farmId: farm.id,
+          plantedDate,
+          harvestedDate,
+          estimatedCapital,
+          currentlyAt,
+          weighedBy,
+          correctedBy,
+          classifiedBy,
+          status,
+        });
+        res.json(palayBatch);
+      } else {
+        const qualitySpec = await createQualitySpec({
+          moistureContent: moistureContent,
+          purity: purity,
+          damaged: damaged,
+        });
+  
+        const farm = await createFarm({
+          palaySupplierId: palaySupplierId,
+          farmSize: farmSize,
+          region: farmRegion,
+          province: farmProvince,
+          cityTown: farmCityTown,
+          barangay: farmBarangay,
+          street: farmStreet,
+        });
+  
+        const palayBatch = await createPalayBatch({
+          dateBought,
+          age,
+          buyingStationName,
+          buyingStationLoc,
+          quantityBags,
+          grossWeight,
+          netWeight,
+          qualityType,
+          qualitySpecId: qualitySpec.id,
+          varietyCode,
+          price,
+          palaySupplierId: palaySupplierId,
+          farmId: farm.id,
+          plantedDate,
+          harvestedDate,
+          estimatedCapital,
+          currentlyAt,
+          weighedBy,
+          correctedBy,
+          classifiedBy,
+          status,
+        });
+        res.json(palayBatch);
+      }
     }
   );
 
