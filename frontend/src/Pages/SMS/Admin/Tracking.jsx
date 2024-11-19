@@ -5,7 +5,6 @@ import { Divider } from 'primereact/divider';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { AlertCircle, Search, Wheat, ThermometerSun, Factory, Warehouse,  MapPin, ChevronDown, ChevronUp } from 'lucide-react';
 import emptyIllustration from '@/images/illustrations/space.svg';
-import CardComponent from '../../../Components/CardComponent';
 import Loader from '../../../Components/Loader';
 
 const Tracking = () => {
@@ -355,7 +354,7 @@ const Tracking = () => {
                                 setFirst(0);
                             }}
                             className="w-full pl-12 pr-4 py-4 rounded-lg placeholder-primary text-primary border-transparent focus:border-primary hover:border-primary ring-0"
-                            placeholder="Search by Batch ID"
+                            placeholder="Search tracking ID or farmer name..."
                         />
                     </span>
                 </div>
@@ -364,23 +363,26 @@ const Tracking = () => {
 
                 {loading ? (
                     <Loader />
-                ) : filteredTransactions.length === 0 ? (
-                    emptyData()
                 ) : (
-                    <CardComponent className="bg-white">
-                        <DataTable 
-                            value={filteredTransactions} 
-                            expandedRows={expandedRows} 
-                            onRowToggle={(e) => setExpandedRows(e.data)}
-                            rowExpansionTemplate={rowExpansionTemplate}
-                            dataKey="id" 
-                            className='w-full tracking'
-                        >
-                            <Column expander={true} style={{ width: '5rem' }} />
-                            <Column field="tracking_id" header={headerTemplate(<MapPin />, 'Tracking ID')} />
-                            {/* <Column field="farmers.name" header={headerTemplate(<Shovel />, 'Farmer Name')} /> */}
-                        </DataTable>
-                    </CardComponent>
+                    <div 
+                        className="relative flex flex-col"
+                        style={{ height: "calc(100vh - 360px)" }}
+                    >
+                        <DataView
+                            value={transactions}
+                            itemTemplate={itemTemplate}
+                            lazy
+                            paginator
+                            rows={rows}
+                            first={first}
+                            totalRecords={totalRecords}
+                            onPage={onPage}
+                            emptyMessage={emptyMessage}
+                            className="overflow-y-auto pb-16"
+                            paginatorClassName="absolute bottom-0 left-0 right-0 bg-white border-t"
+                            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
+                        />
+                    </div>
                 )}
             </div>
         </AdminLayout>
