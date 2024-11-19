@@ -193,13 +193,12 @@ const ReturnDialog = ({
       // 5. Create new return transaction
       const newTransaction = {
         ...newTransactionData,
-        item: "Palay",
+        item: viewMode === "drying" ? "Palay" : "Rice",
         itemId: selectedItem.palayBatchId,
         senderId: user.id,
         fromLocationType: viewMode === "drying" ? "Dryer" : "Miller",
         fromLocationId: selectedItem.toLocationId,
         toLocationType: "Warehouse",
-        
         receiverId: "0",
         status: "Pending",
         receiveDateTime: "0",

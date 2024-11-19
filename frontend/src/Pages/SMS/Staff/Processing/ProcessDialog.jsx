@@ -16,6 +16,7 @@ const ProcessDialog = ({
   selectedItem,
   onSuccess,
   apiUrl,
+  refreshData,
 }) => {
   const toast = useRef(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -192,6 +193,7 @@ const ProcessDialog = ({
         life: 3000,
       });
 
+      refreshData();
       onSuccess();
     } catch (error) {
       console.error("Error in handleProcess:", error);

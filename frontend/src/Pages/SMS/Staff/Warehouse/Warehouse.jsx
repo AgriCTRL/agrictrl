@@ -9,7 +9,6 @@ import { InputText } from "primereact/inputtext";
 import { Toast } from "primereact/toast";
 import { IconField } from "primereact/iconfield";
 import { InputIcon } from "primereact/inputicon";
-import { Dialog } from "primereact/dialog";
 
 import {
   Search,
@@ -26,6 +25,7 @@ import ReceiveRice from "./ReceiveRice";
 import ReceivePalay from "./ReceivePalay";
 import SendTo from "./SendTo";
 import ManageRice from "./ManageRice";
+import ItemDetails from "./ItemDetails";
 
 function Warehouse() {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -44,19 +44,26 @@ function Warehouse() {
   const [palayCount, setPalayCount] = useState(0);
   const [processedCount, setProcessedCount] = useState(0);
   const [distributedCount, setDistributedCount] = useState(0);
+  const [palayTotal, setPalayTotal] = useState(0);
+  const [riceTotal, setRiceTotal] = useState(0);
 
   const [showSendToDialog, setShowSendToDialog] = useState(false);
   const [showRiceAcceptDialog, setShowRiceAcceptDialog] = useState(false);
   const [showPalayAcceptDialog, setShowPalayAcceptDialog] = useState(false);
   const [showManageRiceDialog, setShowManageRiceDialog] = useState(false);
+  const [showDetailsDialog, setShowDetailsDialog] = useState(false);
 
   const [combinedData, setCombinedData] = useState([]);
+  const [totalRecords, setTotalRecords] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [first, setFirst] = useState(0);
+  const [rows, setRows] = useState(10);
+
   const [millerData, setMillerData] = useState([]);
   const [dryerData, setDryerData] = useState([]);
   const [riceBatchData, setRiceBatchData] = useState([]);
   const [warehouseData, setWarehouseData] = useState([]);
 
-  const [showDetailsDialog, setShowDetailsDialog] = useState(false);
   const [selectedBatchDetails, setSelectedBatchDetails] = useState(null);
 
   useEffect(() => {
@@ -71,30 +78,64 @@ function Warehouse() {
   };
 
   useEffect(() => {
-    fetchInventory();
+    fetchInventory(first, rows);
     fetchDryerData();
     fetchMillerData();
     fetchWarehouseData();
     fetchData();
-  }, [viewMode]);
+  }, [viewMode, first, rows, selectedFilter]);
 
   const refreshData = () => {
-    fetchInventory();
+    fetchInventory(first, rows);
     fetchDryerData();
     fetchMillerData();
     fetchWarehouseData();
   };
 
-  const fetchInventory = async () => {
+  const fetchInventory = async (offset, limit) => {
+    setLoading(true);
     try {
       const status = viewMode === "requests" ? "Pending" : "Received";
+
+      const [palayRes, riceRes] = await Promise.all([
+        fetch(
+          `${apiUrl}/inventory?toLocationType=Warehouse&status=${status}&item=Palay`
+        ),
+        fetch(
+          `${apiUrl}/inventory?toLocationType=Warehouse&status=${status}&item=Rice`
+        ),
+      ]);
+
+      const [palayData, riceData] = await Promise.all([
+        palayRes.json(),
+        riceRes.json(),
+      ]);
+
+      setPalayTotal(palayData.total);
+      setRiceTotal(riceData.total);
+
+      // Fetch the actual data for the current filter
+      let inventoryUrl = `${apiUrl}/inventory?toLocationType=Warehouse&status=${status}&offset=${offset}&limit=${limit}`;
+
+      // Add filter parameters based on viewMode and selectedFilter
+      if (viewMode === "requests") {
+        if (selectedFilter === "palay") {
+          inventoryUrl += "&palayStatus=To be Mill&palayStatus=To be Dry";
+        } else if (selectedFilter === "rice") {
+          inventoryUrl += "&palayStatus=Milled";
+        }
+      } else {
+        if (selectedFilter === "palay") {
+          inventoryUrl += "&palayStatus=To be Mill&palayStatus=To be Dry";
+        } else if (selectedFilter === "rice") {
+          inventoryUrl += "&palayStatus=Milled";
+        }
+      }
 
       // Fetch all required data
       const [inventoryRes, dryersRes, millersRes, riceBatchesRes] =
         await Promise.all([
-          fetch(
-            `${apiUrl}/inventory?toLocationType=Warehouse&status=${status}&batchType=drying&batchType=milling`
-          ),
+          fetch(inventoryUrl),
           fetch(`${apiUrl}/dryers`),
           fetch(`${apiUrl}/millers`),
           viewMode === "inWarehouse"
@@ -108,15 +149,18 @@ function Warehouse() {
       }
 
       // Parse JSON responses
-      const [inventory, dryers, millers, riceBatches] = await Promise.all([
+      const [inventoryData, dryers, millers, riceBatches] = await Promise.all([
         inventoryRes.json(),
         dryersRes.json(),
         millersRes.json(),
         viewMode === "inWarehouse" ? riceBatchesRes.json() : null,
       ]);
 
+      // Update total records
+      setTotalRecords(inventoryData.total);
+
       // Transform inventory data
-      const transformedInventory = inventory.map((item) => {
+      const transformedInventory = inventoryData.items.map((item) => {
         // Determine batch data based on fromLocationType
         let batchData = {};
 
@@ -215,10 +259,18 @@ function Warehouse() {
           forSale: riceBatch.forSale,
         }));
 
-        const filteredInventory = transformedInventory.filter(
-          (item) => item.palayStatus !== "Milled"
-        );
-        setCombinedData([...filteredInventory, ...transformedRiceBatches]);
+        let finalData;
+        if (selectedFilter === "palay") {
+          finalData = transformedInventory.filter(
+            (item) => item.item === "Palay"
+          );
+        } else if (selectedFilter === "rice") {
+          finalData = transformedRiceBatches;
+        } else {
+          finalData = [...transformedInventory, ...transformedRiceBatches];
+        }
+
+        setCombinedData(finalData);
       } else {
         setCombinedData(transformedInventory);
       }
@@ -230,6 +282,8 @@ function Warehouse() {
         detail: "Failed to fetch warehouse inventory",
         life: 3000,
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -305,6 +359,7 @@ function Warehouse() {
   };
 
   const handleItemClick = (item) => {
+    console.log(combinedData);
     setSelectedBatchDetails(item);
     setShowDetailsDialog(true);
   };
@@ -359,9 +414,10 @@ function Warehouse() {
             label="Manage"
             className="p-button-text p-button-sm text-primary ring-0"
             onClick={(e) => {
-              e.stopPropagation(); // Prevent event bubbling
+              e.stopPropagation();
               setSelectedItem(item);
               setShowManageRiceDialog(true);
+              console.log(item);
             }}
           />
         );
@@ -371,7 +427,7 @@ function Warehouse() {
           label="Send to"
           className="p-button-text p-button-sm text-primary ring-0"
           onClick={(e) => {
-            e.stopPropagation(); // Prevent event bubbling
+            e.stopPropagation();
             setSelectedItem(item);
             setShowSendToDialog(true);
           }}
@@ -383,7 +439,7 @@ function Warehouse() {
         label="Accept"
         className="p-button-text p-button-sm text-primary ring-0"
         onClick={(e) => {
-          e.stopPropagation(); // Prevent event bubbling
+          e.stopPropagation();
           setSelectedItem(item);
           if (["To be Mill", "To be Dry"].includes(item.palayStatus)) {
             setShowPalayAcceptDialog(true);
@@ -395,80 +451,14 @@ function Warehouse() {
     );
   };
 
-  const filteredData = combinedData.filter((item) => {
-    // First apply view mode filter
-    if (viewMode === "inWarehouse") {
-      const allowedStatuses = ["To be Mill", "To be Dry", "Milled"];
-      if (!allowedStatuses.includes(item.palayStatus)) return false;
-      if (["In Milling", "In Drying"].includes(item.palayStatus)) return false;
-
-      // Apply item type filter for inWarehouse view
-      switch (selectedFilter) {
-        case "palay":
-          return item.item === "Palay";
-        case "rice":
-          return item.item === "Rice";
-        default:
-          return true;
-      }
-    } else {
-      // For requests viewMode, filter based on palayStatus
-      switch (selectedFilter) {
-        case "palay":
-          return ["To be Mill", "To be Dry"].includes(item.palayStatus);
-        case "rice":
-          return item.palayStatus === "Milled";
-        default:
-          return true;
-      }
-    }
-  });
-
   const getFilterCount = (filter) => {
-    const excludedStatuses = ["In Milling", "In Drying"];
-
-    let baseData =
-      viewMode === "inWarehouse"
-        ? [...combinedData, ...riceBatchData]
-        : combinedData;
-
-    if (viewMode === "requests") {
-      baseData = baseData.filter(
-        (item) => item.transactionStatus === "Pending"
-      );
-
-      // Update count logic for requests viewMode
-      switch (filter) {
-        case "palay":
-          return baseData.filter((item) =>
-            ["To be Mill", "To be Dry"].includes(item.palayStatus)
-          ).length;
-        case "rice":
-          return baseData.filter((item) => item.palayStatus === "Milled")
-            .length;
-        default:
-          return baseData.length;
-      }
-    } else {
-      baseData = baseData.filter((item) => {
-        if (item.item === "Rice") {
-          return true;
-        }
-        return (
-          item.transactionStatus === "Received" &&
-          !excludedStatuses.includes(item.palayStatus)
-        );
-      });
-
-      // Original count logic for inWarehouse viewMode
-      switch (filter) {
-        case "palay":
-          return baseData.filter((item) => item.item === "Palay").length;
-        case "rice":
-          return baseData.filter((item) => item.item === "Rice").length;
-        default:
-          return baseData.length;
-      }
+    switch (filter) {
+      case "palay":
+        return palayTotal;
+      case "rice":
+        return riceTotal;
+      default:
+        return palayTotal + riceTotal;
     }
   };
 
@@ -567,7 +557,11 @@ function Warehouse() {
         <div className="flex flex-row items-center p-4 gap-4 cursor-pointer bg-gray-100 hover:bg-gray-200 rounded-lg mb-4">
           {/* Left Side - Icon */}
           <div className="flex-none">
-            {selectedFilter === "palay" ? <Wheat size={40} className="text-gray-400"/> : <WheatOff size={40} className="text-gray-400"/>}
+            {selectedFilter === "palay" ? (
+              <Wheat size={40} className="text-gray-400" />
+            ) : (
+              <WheatOff size={40} className="text-gray-400" />
+            )}
           </div>
 
           {/* Middle - Main Info */}
@@ -583,9 +577,7 @@ function Warehouse() {
             </div>
 
             <div className="flex items-center">
-              <span className=" py-1 text-sm">
-                {item.quantityBags} bags
-              </span>
+              <span className=" py-1 text-sm">{item.quantityBags} bags</span>
             </div>
           </div>
 
@@ -599,57 +591,13 @@ function Warehouse() {
     );
   };
 
-  const renderDetailsDialog = () => {
-    if (!selectedBatchDetails) return null;
+  const onPage = (event) => {
+    const newFirst = event.first;
+    const newRows = event.rows;
+    setFirst(newFirst);
+    setRows(newRows);
 
-    return (
-      <Dialog
-        visible={showDetailsDialog}
-        onHide={() => setShowDetailsDialog(false)}
-        header={`Batch Details - ${selectedBatchDetails.id}`}
-        className="w-full max-w-2xl"
-      >
-        <div className="grid grid-cols-2 gap-4">
-          <div className="col-span-2 border-b pb-2">
-            <h3 className="font-semibold">Basic Information</h3>
-          </div>
-          <div>
-            <p className="text-gray-600">Gross Weight</p>
-            <p>{selectedBatchDetails.grossWeight} Kg</p>
-          </div>
-          <div>
-            <p className="text-gray-600">Net Weight</p>
-            <p>{selectedBatchDetails.netWeight} Kg</p>
-          </div>
-          {selectedFilter === "palay" && (
-            <div>
-              <p className="text-gray-600">Quality Type</p>
-              <p>{selectedBatchDetails.qualityType}</p>
-            </div>
-          )}
-
-          <div className="col-span-2 border-b pb-2 mt-4">
-            <h3 className="font-semibold">Source Information</h3>
-          </div>
-          <div>
-            <p className="text-gray-600">From</p>
-            <p>{selectedBatchDetails.from}</p>
-          </div>
-          <div>
-            <p className="text-gray-600">To be Stored at</p>
-            <p>{selectedBatchDetails.toBeStoreAt}</p>
-          </div>
-
-          <div className="col-span-2 border-b pb-2 mt-4">
-            <h3 className="font-semibold">Transport Information</h3>
-          </div>
-          <div>
-            <p className="text-gray-600">Transported by</p>
-            <p>{selectedBatchDetails.transportedBy}</p>
-          </div>
-        </div>
-      </Dialog>
-    );
+    fetchInventory(newFirst, newRows);
   };
 
   return (
@@ -735,29 +683,43 @@ function Warehouse() {
             </div>
 
             {/* Container with relative positioning */}
-            <div className="relative flex flex-col" style={{ height: "calc(100vh - 510px)" }}>
+            <div
+              className="relative flex flex-col"
+              style={{ height: "calc(100vh - 510px)" }}
+            >
               <DataView
-                value={filteredData}
+                value={combinedData}
                 itemTemplate={itemTemplate}
                 paginator
-                rows={10}
+                rows={rows}
+                first={first}
+                totalRecords={totalRecords}
+                onPage={onPage}
                 emptyMessage="No inventory found."
                 className="overflow-y-auto pb-16"
                 paginatorClassName="absolute bottom-0 left-0 right-0 bg-white border-t"
                 paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
+                lazy
               />
             </div>
           </div>
         </div>
       </div>
 
-      {renderDetailsDialog()}
+      <ItemDetails
+        visible={showDetailsDialog}
+        onHide={() => setShowDetailsDialog(false)}
+        selectedBatchDetails={selectedBatchDetails}
+        selectedFilter={selectedFilter}
+      />
 
       <SendTo
         visible={showSendToDialog}
         onHide={() => setShowSendToDialog(false)}
         selectedItem={selectedItem}
-        onSendSuccess={fetchInventory}
+        onSendSuccess={() => {
+          fetchInventory(first, rows);
+        }}
         user={user}
         dryerData={dryerData}
         millerData={millerData}
@@ -769,7 +731,9 @@ function Warehouse() {
         visible={showRiceAcceptDialog}
         onHide={() => setShowRiceAcceptDialog(false)}
         selectedItem={selectedItem}
-        onAcceptSuccess={fetchInventory}
+        onAcceptSuccess={() => {
+          fetchInventory(first, rows);
+        }}
         user={user}
         refreshData={refreshData}
       />
@@ -778,7 +742,9 @@ function Warehouse() {
         visible={showPalayAcceptDialog}
         onHide={() => setShowPalayAcceptDialog(false)}
         selectedItem={selectedItem}
-        onAcceptSuccess={fetchInventory}
+        onAcceptSuccess={() => {
+          fetchInventory(first, rows);
+        }}
         user={user}
         refreshData={refreshData}
       />
@@ -787,7 +753,9 @@ function Warehouse() {
         visible={showManageRiceDialog}
         onHide={() => setShowManageRiceDialog(false)}
         selectedItem={selectedItem}
-        onUpdateSuccess={fetchInventory}
+        onUpdateSuccess={() => {
+          fetchInventory(first, rows);
+        }}
         user={user}
         refreshData={refreshData}
       />
