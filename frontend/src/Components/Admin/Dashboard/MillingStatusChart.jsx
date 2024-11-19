@@ -18,7 +18,7 @@ const MillingStatusChart = ({ palayBatches, setInterpretations }) => {
         const updatedMillingStatusGroups = { Milled: 0, 'Not Milled': 0 };
         const notMilledStatuses = ['To be Dry', 'To be Mill', 'In Milling', 'In Drying'];
 
-        palayBatches.forEach(batch => {
+        palayBatches.data.forEach(batch => {
             if (batch.status === 'Milled') {
                 updatedMillingStatusGroups.Milled += batch.netWeight;
             } else if (notMilledStatuses.includes(batch.status)) {

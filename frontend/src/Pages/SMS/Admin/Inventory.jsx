@@ -112,7 +112,6 @@ function Inventory() {
         );
     };
 
-
     const exportPdf = () => {
         const columns = ['ID', 'Date Bought', 'Quantity in Bags', 'Quality Type', 'Price', 'Farmer', 'Origin Farm', 'Current Location', 'Status'];
         const data = inventoryData.map(inventory => [
