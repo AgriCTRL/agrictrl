@@ -98,13 +98,17 @@ function Warehouse() {
       const status = viewMode === "requests" ? "Pending" : "Received";
 
       const [palayRes, riceRes] = await Promise.all([
-        fetch(`${apiUrl}/inventory?toLocationType=Warehouse&status=${status}&item=Palay`),
-        fetch(`${apiUrl}/inventory?toLocationType=Warehouse&status=${status}&item=Rice`)
+        fetch(
+          `${apiUrl}/inventory?toLocationType=Warehouse&status=${status}&item=Palay`
+        ),
+        fetch(
+          `${apiUrl}/inventory?toLocationType=Warehouse&status=${status}&item=Rice`
+        ),
       ]);
 
       const [palayData, riceData] = await Promise.all([
         palayRes.json(),
-        riceRes.json()
+        riceRes.json(),
       ]);
 
       setPalayTotal(palayData.total);
@@ -113,11 +117,19 @@ function Warehouse() {
       // Fetch the actual data for the current filter
       let inventoryUrl = `${apiUrl}/inventory?toLocationType=Warehouse&status=${status}&offset=${offset}&limit=${limit}`;
 
-      // Apply item-based filter based on selectedFilter
-      if (selectedFilter === "palay") {
-        inventoryUrl += "&item=Palay";
-      } else if (selectedFilter === "rice") {
-        inventoryUrl += "&item=Rice";
+      // Add filter parameters based on viewMode and selectedFilter
+      if (viewMode === "requests") {
+        if (selectedFilter === "palay") {
+          inventoryUrl += "&palayStatus=To be Mill&palayStatus=To be Dry";
+        } else if (selectedFilter === "rice") {
+          inventoryUrl += "&palayStatus=Milled";
+        }
+      } else {
+        if (selectedFilter === "palay") {
+          inventoryUrl += "&palayStatus=To be Mill&palayStatus=To be Dry";
+        } else if (selectedFilter === "rice") {
+          inventoryUrl += "&palayStatus=Milled";
+        }
       }
 
       // Fetch all required data
@@ -253,10 +265,7 @@ function Warehouse() {
             (item) => item.item === "Palay"
           );
         } else if (selectedFilter === "rice") {
-          finalData = [
-            ...transformedInventory.filter((item) => item.item === "Rice"),
-            ...transformedRiceBatches,
-          ];
+          finalData = transformedRiceBatches;
         } else {
           finalData = [...transformedInventory, ...transformedRiceBatches];
         }
@@ -405,9 +414,10 @@ function Warehouse() {
             label="Manage"
             className="p-button-text p-button-sm text-primary ring-0"
             onClick={(e) => {
-              e.stopPropagation(); // Prevent event bubbling
+              e.stopPropagation();
               setSelectedItem(item);
               setShowManageRiceDialog(true);
+              console.log(item);
             }}
           />
         );
@@ -417,7 +427,7 @@ function Warehouse() {
           label="Send to"
           className="p-button-text p-button-sm text-primary ring-0"
           onClick={(e) => {
-            e.stopPropagation(); // Prevent event bubbling
+            e.stopPropagation();
             setSelectedItem(item);
             setShowSendToDialog(true);
           }}
@@ -429,7 +439,7 @@ function Warehouse() {
         label="Accept"
         className="p-button-text p-button-sm text-primary ring-0"
         onClick={(e) => {
-          e.stopPropagation(); // Prevent event bubbling
+          e.stopPropagation();
           setSelectedItem(item);
           if (["To be Mill", "To be Dry"].includes(item.palayStatus)) {
             setShowPalayAcceptDialog(true);
@@ -707,7 +717,9 @@ function Warehouse() {
         visible={showSendToDialog}
         onHide={() => setShowSendToDialog(false)}
         selectedItem={selectedItem}
-        onSendSuccess={fetchInventory}
+        onSendSuccess={() => {
+          fetchInventory(first, rows);
+        }}
         user={user}
         dryerData={dryerData}
         millerData={millerData}
@@ -719,7 +731,9 @@ function Warehouse() {
         visible={showRiceAcceptDialog}
         onHide={() => setShowRiceAcceptDialog(false)}
         selectedItem={selectedItem}
-        onAcceptSuccess={fetchInventory}
+        onAcceptSuccess={() => {
+          fetchInventory(first, rows);
+        }}
         user={user}
         refreshData={refreshData}
       />
@@ -729,7 +743,7 @@ function Warehouse() {
         onHide={() => setShowPalayAcceptDialog(false)}
         selectedItem={selectedItem}
         onAcceptSuccess={() => {
-          fetchInventory(first, rows); // Pass the current pagination values
+          fetchInventory(first, rows);
         }}
         user={user}
         refreshData={refreshData}
@@ -739,7 +753,9 @@ function Warehouse() {
         visible={showManageRiceDialog}
         onHide={() => setShowManageRiceDialog(false)}
         selectedItem={selectedItem}
-        onUpdateSuccess={fetchInventory}
+        onUpdateSuccess={() => {
+          fetchInventory(first, rows);
+        }}
         user={user}
         refreshData={refreshData}
       />

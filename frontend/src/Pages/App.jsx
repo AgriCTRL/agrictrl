@@ -41,7 +41,7 @@ import RecipientRiceReceive from "./SMS/Recipient/RiceReceive/RiceReceive";
 import RecipientProfile from "./SMS/Recipient/Profile";
 
 import PrivateMillerHome from "./SMS/PrivateMiller/Home";
-import PrivateMillerMillingTransactions from "./SMS/PrivateMiller/MillingTransactions";
+import PrivateMillerMillingTransactions from "./SMS/PrivateMiller/MillingTransactions/MillingTransactions";
 import PrivateMillerManageMiller from "./SMS/PrivateMiller/ManageMiller";
 import PrivateMillerHistory from "./SMS/PrivateMiller/History";
 import PrivateMillerProfile from "./SMS/PrivateMiller/Profile";

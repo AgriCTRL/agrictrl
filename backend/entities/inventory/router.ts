@@ -10,7 +10,8 @@ export function getRouter(): express.Router {
         try {
             const filters: InventoryFilters = {
                 toLocationType: req.query.toLocationType as string,
-                status: req.query.status as string,
+                transactionStatus: req.query.status as string,
+                processingStatus: req.query.processingStatus as string,
                 item: req.query.item as string,
                 millerType: req.query.millerType as 'In House' | 'Private' | undefined,
                 userId: req.query.userId as string,
@@ -63,7 +64,8 @@ export function getRouter(): express.Router {
     
             const filters: InventoryFilters = {
                 palayStatus: req.query.palayBatchStatus as string,
-                status: req.query.transactionStatus as string,
+                transactionStatus: req.query.transactionStatus as string,
+                processingStatus: req.query.processingStatus as string,
                 processingTypes,
                 millingBatchId: req.query.millingBatchId as string,
                 limit: req.query.limit ? parseInt(req.query.limit as string) : undefined,

@@ -5,7 +5,7 @@ import { PalayBatch } from '../palaybatches/db';
 import { DryingBatch } from '../dryingbatches/db';
 import { MillingBatch } from '../millingbatches/db';
 import { Miller } from '../millers/db';
-import {  InventoryFilters, ProcessingBatch, RiceDetails, PaginatedResponse } from './types';
+import { InventoryFilters, ProcessingBatch, RiceDetails, PaginatedResponse } from './types';
 import { EnhancedInventoryItem, InventoryItem } from './types';
 import { RiceBatchMillingBatch } from '../riceBatchMillingBatches/db';
 import { RiceBatch } from '../ricebatches/db';
@@ -32,26 +32,16 @@ export async function getInventory(
             }
         }
 
-        if (filters.status) {
+        if (filters.transactionStatus) {
             transactionQuery = transactionQuery
                 .andWhere('transaction.status = :status', 
-                    { status: filters.status });
+                    { status: filters.transactionStatus });
         }
 
         if (filters.item) {
             transactionQuery = transactionQuery
                 .andWhere('transaction.item = :item', 
                     { item: filters.item });
-        }
-
-        // Get total count before applying limit/offset
-        const total = await transactionQuery.getCount();
-
-        // Apply pagination
-        if (filters.limit !== undefined && filters.offset !== undefined) {
-            transactionQuery = transactionQuery
-                .skip(filters.offset)
-                .take(filters.limit);
         }
 
         const transactions = await transactionQuery.getMany();
@@ -80,15 +70,23 @@ export async function getInventory(
 
                 // Handle processing batch filters
                 if (!filters.processingTypes || filters.processingTypes.includes('drying')) {
-                    processingBatch.dryingBatch = await DryingBatch.findOne({ 
-                        where: { palayBatchId: transaction.itemId }
+                    const dryingBatch = await DryingBatch.findOne({ 
+                        where: { 
+                            palayBatchId: transaction.itemId,
+                            ...(filters.processingStatus && { status: filters.processingStatus })
+                        }
                     });
+                    processingBatch.dryingBatch = dryingBatch;
                 }
 
                 if (!filters.processingTypes || filters.processingTypes.includes('milling')) {
-                    processingBatch.millingBatch = await MillingBatch.findOne({ 
-                        where: { palayBatchId: transaction.itemId }
+                    const millingBatch = await MillingBatch.findOne({ 
+                        where: { 
+                            palayBatchId: transaction.itemId,
+                            ...(filters.processingStatus && { status: filters.processingStatus })
+                        }
                     });
+                    processingBatch.millingBatch = millingBatch;
                 }
 
                 return {
@@ -99,8 +97,27 @@ export async function getInventory(
             })
         );
 
+        // Filter items based on processing status if applicable
+        const filteredInventoryItems = filters.processingStatus
+            ? inventoryItems.filter(item => 
+                item.processingBatch.dryingBatch?.status === filters.processingStatus ||
+                item.processingBatch.millingBatch?.status === filters.processingStatus
+            )
+            : inventoryItems;
+
+        // Filter out items with null palayBatch
+        const validInventoryItems = filteredInventoryItems.filter(item => item.palayBatch !== null);
+        
+        // Calculate total before pagination
+        const total = validInventoryItems.length;
+
+        // Apply pagination
+        const paginatedItems = filters.limit !== undefined && filters.offset !== undefined
+            ? validInventoryItems.slice(filters.offset, filters.offset + filters.limit)
+            : validInventoryItems;
+
         return {
-            items: inventoryItems.filter(item => item.palayBatch !== null), // Filter out items with no matching palayBatch
+            items: paginatedItems,
             total
         };
     } catch (error) {
@@ -123,26 +140,16 @@ export async function getEnhancedInventory(
                 .where('palayBatch.status = :status', { status: filters.palayStatus });
         }
 
-        // Get total count before pagination
-        const total = await palayBatchQuery.getCount();
-
-        // Apply pagination if provided
-        if (filters.limit !== undefined && filters.offset !== undefined) {
-            palayBatchQuery = palayBatchQuery
-                .skip(filters.offset)
-                .take(filters.limit);
-        }
-
         const palayBatches = await palayBatchQuery.getMany();
 
         const inventoryItems = await Promise.all(
             palayBatches.map(async (palayBatch) => {
                 let transactions = await Transaction.createQueryBuilder('transaction')
                     .where('transaction.itemId = :palayBatchId', { palayBatchId: palayBatch.id })
-                    .andWhere(filters.status 
+                    .andWhere(filters.transactionStatus 
                         ? 'transaction.status = :status' 
                         : '1=1', 
-                        { status: filters.status }
+                        { status: filters.transactionStatus }
                     )
                     .getMany();
 
@@ -150,13 +157,19 @@ export async function getEnhancedInventory(
 
                 if (!filters.processingTypes || filters.processingTypes.includes('drying')) {
                     processingBatch.dryingBatch = await DryingBatch.findOne({
-                        where: { palayBatchId: palayBatch.id }
+                        where: { 
+                            palayBatchId: palayBatch.id,
+                            ...(filters.processingStatus && { status: filters.processingStatus })
+                        }
                     });
                 }
 
                 if (!filters.processingTypes || filters.processingTypes.includes('milling')) {
                     processingBatch.millingBatch = await MillingBatch.findOne({
-                        where: { palayBatchId: palayBatch.id }
+                        where: { 
+                            palayBatchId: palayBatch.id,
+                            ...(filters.processingStatus && { status: filters.processingStatus })
+                        }
                     });
                 }
 
@@ -206,8 +219,24 @@ export async function getEnhancedInventory(
             })
         );
 
+        // Filter items based on processing status if applicable
+        const filteredInventoryItems = filters.processingStatus
+            ? inventoryItems.filter(item => 
+                item.processingBatch.dryingBatch?.status === filters.processingStatus ||
+                item.processingBatch.millingBatch?.status === filters.processingStatus
+            )
+            : inventoryItems;
+
+        // Calculate total before pagination
+        const total = filteredInventoryItems.length;
+
+        // Apply pagination
+        const paginatedItems = filters.limit !== undefined && filters.offset !== undefined
+            ? filteredInventoryItems.slice(filters.offset, filters.offset + filters.limit)
+            : filteredInventoryItems;
+
         return {
-            items: inventoryItems,
+            items: paginatedItems,
             total
         };
     } catch (error) {

@@ -42,8 +42,9 @@ export interface PaginatedResponse<T> {
 
 export interface InventoryFilters {
     toLocationType?: string;
-    status?: string;
+    transactionStatus?: string;
     palayStatus?: string | string[];
+    processingStatus?: string;
     item?: string;
     millerType?: 'In House' | 'Private';
     userId?: string;

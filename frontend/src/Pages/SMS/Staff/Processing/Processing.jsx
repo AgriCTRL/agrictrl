@@ -83,6 +83,10 @@ const Processing = () => {
   const [filters, setFilters] = useState({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
   });
+
+  const [first, setFirst] = useState(0);
+  const [rows, setRows] = useState(10);
+  const [totalRecords, setTotalRecords] = useState(0);
   const [viewMode, setViewMode] = useState("drying");
   const [selectedFilter, setSelectedFilter] = useState("request");
   const [selectedItem, setSelectedItem] = useState(null);
@@ -113,7 +117,7 @@ const Processing = () => {
     fetchData();
     fetchActiveWarehouses();
     fetchStatsData();
-  }, [viewMode, selectedFilter]);
+  }, [viewMode, selectedFilter, first, rows, globalFilterValue]);
 
   useEffect(() => {
     const newFilters = {
@@ -135,27 +139,58 @@ const Processing = () => {
       // Determine processing type and location based on viewMode
       const processType = viewMode === "drying" ? "dryer" : "miller";
       const locationType = viewMode === "drying" ? "Dryer" : "Miller";
-      const status = selectedFilter === "request" ? "Pending" : "Received";
-      const millerType = "In House";
+      let transactionStatus = "";
+      let processingStatus = "";
+      let palayStatus = [];
+  
+      switch (selectedFilter) {
+        case "request":
+          transactionStatus = "Pending";
+          break;
+        case "process":
+          transactionStatus = "Received";
+          processingStatus = "In Progress";
+          palayStatus = viewMode === "drying" ? ["In Drying"] : ["In Milling"];
+          break;
+        case "return":
+          transactionStatus = "Received";
+          processingStatus = "Done";
+          break;
+      }
 
-      // Fetch all required data in parallel
-      const [facilitiesRes, inventoryRes, warehousesRes] = await Promise.all([
+      // First fetch totals for each category
+      const palayStatusParams = new URLSearchParams({
+        toLocationType: locationType,
+        status: transactionStatus,
+        millerType: "In House",
+      });
+
+      if (processingStatus) {
+        palayStatusParams.append("processingStatus", processingStatus);
+      }
+
+      if (palayStatus.length > 0) {
+        palayStatus.forEach(status => palayStatusParams.append("palayStatus", status));
+      }
+
+      const [palayRes, facilitiesRes, warehousesRes] = await Promise.all([
+        fetch(`${apiUrl}/inventory?${palayStatusParams}`),
         fetch(`${apiUrl}/${processType}s`),
-        fetch(
-          `${apiUrl}/inventory?toLocationType=${locationType}&status=${status}&batchType=drying&batchType=drying&millerType=${millerType}`
-        ),
-        fetch(`${apiUrl}/warehouses`),
+        fetch(`${apiUrl}/warehouses`)
       ]);
 
-      if (!facilitiesRes.ok || !inventoryRes.ok || !warehousesRes.ok) {
+      if (!palayRes.ok || !facilitiesRes.ok || !warehousesRes.ok) {
         throw new Error("Failed to fetch data");
       }
 
-      const [facilities, inventory, warehouses] = await Promise.all([
+      const [palayData, facilities, warehouses] = await Promise.all([
+        palayRes.json(),
         facilitiesRes.json(),
-        inventoryRes.json(),
-        warehousesRes.json(),
+        warehousesRes.json()
       ]);
+
+      // Update total records for pagination
+      setTotalRecords(palayData.total);
 
       // Update facility states based on viewMode
       if (viewMode === "drying") {
@@ -164,79 +199,88 @@ const Processing = () => {
         setMillerData(facilities);
       }
 
-      // Combine and structure the data based on the backend associations
-      const transformedData = inventory.map((item) => {
-        // Safely access nested properties
-        const processingBatch = item.processingBatch || {};
-        const millingBatch = processingBatch.millingBatch || {};
-        const dryingBatch = processingBatch.dryingBatch || {};
+      // Then fetch paginated data with all filters
+      const paginatedParams = new URLSearchParams({
+        toLocationType: locationType,
+        status: transactionStatus,
+        offset: first.toString(),
+        limit: rows.toString(),
+        millerType: "In House",
+      });
 
-        const palayBatch = item.palayBatch || {};
-        const transaction = item.transaction || {};
-        const qualitySpec = palayBatch.qualitySpec || {};
+      if (processingStatus) {
+        paginatedParams.append("processingStatus", processingStatus);
+      }
 
-        // Find facility and warehouse
-        const fromWarehouse = warehouses.find(
-          (w) => w.id === transaction.fromLocationId
-        );
-        const toFacility = facilities.find(
-          (f) => f.id === transaction.toLocationId
-        );
+      if (palayStatus.length > 0) {
+        palayStatus.forEach(status => paginatedParams.append("palayStatus", status));
+      }
+
+      if (globalFilterValue) {
+        paginatedParams.append("searchTerm", globalFilterValue);
+      }
+
+      const paginatedRes = await fetch(`${apiUrl}/inventory?${paginatedParams}`);
+      
+      if (!paginatedRes.ok) {
+        throw new Error("Failed to fetch paginated data");
+      }
+
+      const paginatedData = await paginatedRes.json();
+
+      // Transform the paginated data
+      const transformedData = paginatedData.items.map((item) => {
+        const { transaction, palayBatch, processingBatch } = item;
+        const millingBatch = processingBatch?.millingBatch || {};
+        const dryingBatch = processingBatch?.dryingBatch || {};
+        const qualitySpec = palayBatch?.qualitySpec || {};
+
+        const fromWarehouse = warehouses.find(w => w.id === transaction?.fromLocationId);
+        const toFacility = facilities.find(f => f.id === transaction?.toLocationId);
 
         return {
-          palayBatchId: palayBatch.id || null,
-          transactionId: transaction.id || null,
+          palayBatchId: palayBatch?.id || null,
+          transactionId: transaction?.id || null,
           millingBatchId: millingBatch?.id || null,
           dryingBatchId: dryingBatch?.id || null,
-          palayQuantityBags: palayBatch.quantityBags || null,
+          palayQuantityBags: palayBatch?.quantityBags || null,
           driedQuantityBags: dryingBatch?.driedQuantityBags || null,
-          quantityBags:
-            millingBatch.milledQuantityBags ||
-            dryingBatch.driedQuantityBags ||
-            palayBatch.quantityBags ||
-            0,
-          grossWeight:
-            millingBatch.milledGrossWeight ||
-            dryingBatch.driedGrossWeight ||
-            palayBatch.grossWeight ||
-            0,
-          netWeight:
-            millingBatch.milledNetWeight ||
-            dryingBatch.driedNetWeight ||
-            palayBatch.netWeight ||
-            0,
-          from:
-            transaction.fromLocationType === "Procurement"
-              ? "Procurement"
-              : fromWarehouse?.facilityName || "Unknown Warehouse",
+          quantityBags: millingBatch?.milledQuantityBags || 
+                       dryingBatch?.driedQuantityBags || 
+                       palayBatch?.quantityBags || 0,
+          grossWeight: millingBatch?.milledGrossWeight || 
+                      dryingBatch?.driedGrossWeight || 
+                      palayBatch?.grossWeight || 0,
+          netWeight: millingBatch?.milledNetWeight || 
+                    dryingBatch?.driedNetWeight || 
+                    palayBatch?.netWeight || 0,
+          from: transaction?.fromLocationType === "Procurement" 
+                ? "Procurement" 
+                : fromWarehouse?.facilityName || "Unknown Warehouse",
           location: toFacility?.[`${processType}Name`] || "Unknown Facility",
-          toLocationId: transaction.toLocationId || null,
+          toLocationId: transaction?.toLocationId || null,
           millerType: toFacility?.type || null,
-          dryingMethod: dryingBatch.dryingMethod || "",
-          requestDate: transaction.sendDateTime
-            ? new Date(transaction.sendDateTime).toLocaleDateString()
-            : "",
-          startDate:
-            millingBatch.startDateTime || dryingBatch.startDateTime
-              ? new Date(
-                  millingBatch.startDateTime || dryingBatch.startDateTime
-                ).toLocaleDateString()
-              : "",
-          endDate:
-            millingBatch.endDateTime || dryingBatch.endDateTime
-              ? new Date(
-                  millingBatch.endDateTime || dryingBatch.endDateTime
-                ).toLocaleDateString()
-              : "",
-          moistureContent: qualitySpec.moistureContent || "",
-          transportedBy: transaction.transporterName || "",
-          palayStatus: palayBatch.status || null,
-          transactionStatus: transaction.status || null,
-          processingStatus: millingBatch.status || dryingBatch.status || null,
+          dryingMethod: dryingBatch?.dryingMethod || "",
+          requestDate: transaction?.sendDateTime 
+                      ? new Date(transaction.sendDateTime).toLocaleDateString() 
+                      : "",
+          startDate: (processingBatch?.dryingBatch?.startDateTime || processingBatch?.millingBatch?.startDateTime)
+                    ? new Date(processingBatch.dryingBatch?.startDateTime || processingBatch.millingBatch?.startDateTime).toLocaleDateString()
+                    : "",
+          endDate: (processingBatch?.dryingBatch?.endDateTime || processingBatch?.millingBatch?.endDateTime)
+                  ? new Date(processingBatch.dryingBatch?.endDateTime || processingBatch.millingBatch?.endDateTime).toLocaleDateString()
+                  : "",
+          moistureContent: qualitySpec?.moistureContent || "",
+          transportedBy: transaction?.transporterName || "",
+          palayStatus: palayBatch?.status || null,
+          transactionStatus: transaction?.status || null,
+          processingStatus: processingBatch?.dryingBatch?.status || 
+                          processingBatch?.millingBatch?.status || null,
         };
       });
 
       setCombinedData(transformedData);
+
     } catch (error) {
       console.error("Error fetching data:", error);
       toast.current.show({
@@ -285,6 +329,7 @@ const Processing = () => {
 
   const handleActionClick = (rowData) => {
     setSelectedItem(rowData);
+    console.log(rowData);
 
     switch (rowData.transactionStatus?.toLowerCase()) {
       case "pending":
@@ -308,6 +353,7 @@ const Processing = () => {
   };
 
   const handleItemClick = (item) => {
+    console.log(combinedData);
     setSelectedItem(item);
     setShowDetailsDialog(true);
   };
@@ -426,6 +472,11 @@ const Processing = () => {
     );
   };
 
+  const onPage = (event) => {
+    setFirst(event.first);
+    setRows(event.rows);
+  };
+
   const renderDetailsDialog = () => {
     if (!selectedItem) return null;
 
@@ -537,46 +588,6 @@ const Processing = () => {
       </Dialog>
     );
   };
-
-  const filteredData = combinedData.filter((item) => {
-    if (viewMode === "drying") {
-      switch (selectedFilter) {
-        case "request":
-          return item.transactionStatus === "Pending";
-        case "process":
-          return (
-            item.transactionStatus === "Received" &&
-            item.palayStatus === "In Drying" &&
-            item.processingStatus === "In Progress"
-          );
-        case "return":
-          return (
-            item.transactionStatus === "Received" &&
-            item.processingStatus === "Done"
-          );
-        default:
-          return true;
-      }
-    } else {
-      switch (selectedFilter) {
-        case "request":
-          return item.transactionStatus === "Pending";
-        case "process":
-          return (
-            item.transactionStatus === "Received" &&
-            item.palayStatus === "In Milling" &&
-            item.processingStatus === "In Progress"
-          );
-        case "return":
-          return (
-            item.transactionStatus === "Received" &&
-            item.processingStatus === "Done"
-          );
-        default:
-          return true;
-      }
-    }
-  });
 
   const FilterButton = ({ label, icon, filter }) => (
     <Button
@@ -724,14 +735,17 @@ const Processing = () => {
               style={{ height: "calc(100vh - 510px)" }}
             >
               <DataView
-                value={filteredData}
+                value={combinedData}
                 itemTemplate={itemTemplate}
                 paginator
-                rows={10}
+                rows={rows}
+                first={first}
+                totalRecords={totalRecords}
+                onPage={onPage}
                 emptyMessage="No data found."
                 className="overflow-y-auto pb-16"
                 paginatorClassName="absolute bottom-0 left-0 right-0 bg-white border-t"
-                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
+                lazy
               />
             </div>
           </div>
@@ -762,6 +776,7 @@ const Processing = () => {
           fetchData();
         }}
         apiUrl={apiUrl}
+        refreshData={refreshData}
       />
 
       <ReturnDialog
