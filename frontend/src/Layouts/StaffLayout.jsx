@@ -31,6 +31,7 @@ function StaffLayout({ children, activePage, user, leftSidebar, isRightSidebarOp
             navItems = [
                 { text: 'Home', link: '/staff' },
                 { text: 'Warehouse', link: '/staff/warehouse' },
+                { text: 'Piles', link: '/staff/piles' },
             ];
             break;
         case 'Processing Officer':

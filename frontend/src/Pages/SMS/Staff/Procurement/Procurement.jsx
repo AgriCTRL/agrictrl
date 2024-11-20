@@ -281,7 +281,7 @@ function BuyPalay() {
                 onPage={(e) => setFirst(e.first)}
                 totalRecords={palayCount}
                 className="overflow-y-auto pb-16"
-                paginatorClassName="absolute bottom-0 left-0 right-0 bg-white border-t"
+                paginatorClassName="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-300"
                 paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
               />
             </div>

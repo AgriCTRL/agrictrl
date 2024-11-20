@@ -32,6 +32,7 @@ import StaffProcurement from "./SMS/Staff/Procurement/Procurement";
 import StaffDistribution from "./SMS/Staff/Distribution/Distribution";
 import StaffProcessing from "./SMS/Staff/Processing/Processing";
 import StaffWarehouse from "./SMS/Staff/Warehouse/Warehouse";
+import StaffPile from "./SMS/Staff/Piles/Piles";
 import StaffProfile from "./SMS/Staff/Profile";
 
 import RecipientHome from "./SMS/Recipient/Home";
@@ -213,6 +214,14 @@ function StaffRoutes() {
                     allowedJobTitles={['Warehouse Manager']}
                 >
                     <StaffWarehouse />
+                </ProtectedRoute>
+            } />
+            <Route path="piles" element={
+                <ProtectedRoute 
+                    allowedUserTypes={['NFA Branch Staff']} 
+                    allowedJobTitles={['Warehouse Manager']}
+                >
+                    <StaffPile />
                 </ProtectedRoute>
             } />
             <Route path="profile" element={<StaffProfile />} />
