@@ -21,6 +21,8 @@ function Warehouse() {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const toast = useRef(null);
 
+  const CAPACITY_WARNING_THRESHOLD = 5;
+
   const [globalFilterValue, setGlobalFilterValue] = useState("");
   const [filters, setFilters] = useState({
     global: { value: null, matchMode: "contains" },
@@ -193,6 +195,13 @@ function Warehouse() {
     pdfPortraitExport("Warehouse Data Export", columns, data);
   };
 
+  // Row class function to determine background color
+  const getRowClassName = (data) => {
+    const remainingCapacity = data.totalCapacity - data.currentStock;
+    const remainingPercentage = (remainingCapacity / data.totalCapacity) * 100;
+    return remainingPercentage <= CAPACITY_WARNING_THRESHOLD ? 'bg-red-100' : '';
+  };
+
   return (
     <div className="flex flex-col h-full gap-4">
       <Toast ref={toast} />
@@ -211,24 +220,7 @@ function Warehouse() {
           />
         </IconField>
         <div className="flex justify-end w-1/2">
-          {/* <Button 
-                        type="button"
-                        className="flex flex-center items-center gap-4 text-primary bg-white hover:bg-white/35 border border-lightest-grey ring-0"
-                    >
-                        <Filter size={20} />
-                        <p className="font-semibold">Filters</p>
-                    </Button> */}
-
           <div className="flex gap-4">
-            {/* <Button 
-                            type="button"
-                            className="flex flex-center items-center gap-4 bg-primary hover:bg-primaryHover border ring-0"
-                            onClick={exportPdf}
-                        >
-                            <Download size={20} />
-                            <p className="font-semibold">Export</p>
-                        </Button> */}
-
             <Button
               type="button"
               className="flex flex-center items-center gap-4 bg-primary hover:bg-primaryHover border-0 ring-0"
@@ -256,6 +248,7 @@ function Warehouse() {
             paginator
             paginatorClassName="border-t-2 border-gray-300"
             rows={30}
+            rowClassName={getRowClassName}
           >
             <Column
               field="id"

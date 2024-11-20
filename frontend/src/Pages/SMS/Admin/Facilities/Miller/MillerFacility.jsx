@@ -19,6 +19,8 @@ function MillerFacility() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const toast = useRef(null);
 
+    const CAPACITY_WARNING_THRESHOLD = 5;
+
     const [millerData, setMillerData] = useState([]);
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [filters, setFilters] = useState({
@@ -119,6 +121,14 @@ function MillerFacility() {
         });
     };
 
+    // Add this function to determine row class
+    const getRowClassName = (data) => {
+        const remainingCapacity = data.capacity - (data.processing || 0);
+        const remainingPercentage = (remainingCapacity / data.capacity) * 100;
+        return remainingPercentage <= CAPACITY_WARNING_THRESHOLD ? 'bg-red-100' : '';
+    };
+
+
     return (
         <div className="flex flex-col h-full gap-4">
             <Toast ref={toast} />
@@ -181,6 +191,7 @@ function MillerFacility() {
                         emptyMessage={<EmptyRecord label="No millers found" />}
                         paginator
                         paginatorClassName="border-t-2 border-gray-300"
+                        rowClassName={getRowClassName}
                         rows={30}
                     >
                         <Column field="id" header="ID" className="text-center" headerClassName="text-center"/>
