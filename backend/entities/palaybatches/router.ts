@@ -126,6 +126,7 @@ export function getRouter(): Router {
           correctedBy: string;
           classifiedBy: string;
           status: string;
+          pileId: string;
         }
       >,
       res
@@ -173,6 +174,7 @@ export function getRouter(): Router {
         correctedBy,
         classifiedBy,
         status,
+        pileId,
       } = req.body;
 
       if (!palaySupplierId) {
@@ -235,6 +237,7 @@ export function getRouter(): Router {
           correctedBy,
           classifiedBy,
           status,
+          pileId,
         });
         res.json(palayBatch);
       } else {
@@ -278,6 +281,7 @@ export function getRouter(): Router {
           correctedBy,
           classifiedBy,
           status,
+          pileId,
         });
         res.json(palayBatch);
       }
@@ -315,6 +319,7 @@ async function updateHandler(
       correctedBy?: string;
       classifiedBy?: string;
       status?: string;
+      pileId?: string;
     }
   >,
   res: Response
@@ -341,6 +346,7 @@ async function updateHandler(
     correctedBy,
     classifiedBy,
     status,
+    pileId,
   } = req.body;
 
   const palayBatch = await updatePalayBatch({
@@ -365,6 +371,7 @@ async function updateHandler(
     correctedBy,
     classifiedBy,
     status,
+    pileId,
   });
 
   res.json(palayBatch);

@@ -12,6 +12,7 @@ import { getQualitySpec, QualitySpec } from "../qualityspecs/db";
 import { getPalaySupplier, PalaySupplier } from "../palaysuppliers/db";
 import { getFarm, Farm } from "../farms/db";
 import { Transaction } from "../transactions/db";
+import { Pile } from "../piles/db";
 
 @Entity()
 export class PalayBatch extends BaseEntity {
@@ -96,6 +97,12 @@ export class PalayBatch extends BaseEntity {
   @Column()
   status: string;
 
+  @Column({ nullable: true })
+  pileId: string;
+
+  @ManyToOne(() => Pile)
+  pile: Pile;
+
   @OneToMany(() => Transaction, (transaction) => transaction.palayBatch)
   transactions: Transaction[];
 
@@ -143,6 +150,7 @@ export type PalayBatchCreate = Pick<
   | "correctedBy"
   | "classifiedBy"
   | "status"
+  | "pileId"
 > & {
   qualitySpecId: QualitySpec["id"];
   palaySupplierId: PalaySupplier["id"];
@@ -251,6 +259,7 @@ export async function createPalayBatch(
   palayBatch.correctedBy = palayBatchCreate.correctedBy;
   palayBatch.classifiedBy = palayBatchCreate.classifiedBy;
   palayBatch.status = palayBatchCreate.status;
+  palayBatch.pileId = palayBatchCreate.pileId;
 
   return await palayBatch.save();
 }
@@ -279,6 +288,7 @@ export async function updatePalayBatch(
     correctedBy: palayBatchUpdate.correctedBy,
     classifiedBy: palayBatchUpdate.classifiedBy,
     status: palayBatchUpdate.status,
+    pileId: palayBatchUpdate.pileId,
   });
 
   const palayBatch = await getPalayBatch(palayBatchUpdate.id);
