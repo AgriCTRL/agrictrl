@@ -5,6 +5,7 @@ import { PalayBatch } from '../palaybatches/db';
 import { DryingBatch } from '../dryingbatches/db';
 import { MillingBatch } from '../millingbatches/db';
 import { Miller } from '../millers/db';
+import { Warehouse } from '../warehouses/db';
 import { InventoryFilters, ProcessingBatch, RiceDetails, PaginatedResponse } from './types';
 import { EnhancedInventoryItem, InventoryItem } from './types';
 import { RiceBatchMillingBatch } from '../riceBatchMillingBatches/db';
@@ -23,12 +24,20 @@ export async function getInventory(
                 .where('transaction.toLocationType = :locationType', 
                     { locationType: filters.toLocationType });
 
+            // Handle Miller type filtering
             if (filters.toLocationType === 'Miller' && filters.millerType) {
                 transactionQuery = transactionQuery
                     .leftJoin(Miller, 'miller', 'miller.id = transaction.toLocationId')
                     .andWhere('miller.type = :millerType', { millerType: filters.millerType })
                     .andWhere(filters.userId ? 'miller.userId = :userId' : '1=1', 
                         { userId: filters.userId });
+            }
+
+            // Add warehouse user filtering
+            if (filters.toLocationType === 'Warehouse' && filters.userId) {
+                transactionQuery = transactionQuery
+                    .leftJoin(Warehouse, 'warehouse', 'warehouse.id = transaction.toLocationId')
+                    .andWhere('warehouse.userId = :userId', { userId: filters.userId });
             }
         }
 

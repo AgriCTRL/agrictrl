@@ -22,6 +22,12 @@ export class PalayBatch extends BaseEntity {
   dateBought: Date;
 
   @Column()
+  wsr: number;
+
+  @Column()
+  wsi: number;
+
+  @Column()
   age: number;
 
   @Column()
@@ -114,6 +120,8 @@ export class PalayBatch extends BaseEntity {
 
 export type PalayBatchCreate = Pick<
   PalayBatch,
+  | "wsr"
+  | "wsi"
   | "dateBought"
   | "age"
   | "buyingStationName"
@@ -189,6 +197,8 @@ export async function createPalayBatch(
   let palayBatch = new PalayBatch();
 
   palayBatch.dateBought = getCurrentPST();
+  palayBatch.wsr = palayBatchCreate.wsr;
+  palayBatch.wsi = palayBatchCreate.wsi;
   palayBatch.age = palayBatchCreate.age;
   palayBatch.buyingStationName = palayBatchCreate.buyingStationName;
   palayBatch.buyingStationLoc = palayBatchCreate.buyingStationLoc;
@@ -250,6 +260,8 @@ export async function updatePalayBatch(
 ): Promise<PalayBatch> {
   await PalayBatch.update(palayBatchUpdate.id, {
     dateBought: palayBatchUpdate.dateBought,
+    wsr: palayBatchUpdate.wsr,
+    wsi: palayBatchUpdate.wsi,
     age: palayBatchUpdate.age,
     buyingStationName: palayBatchUpdate.buyingStationName,
     buyingStationLoc: palayBatchUpdate.buyingStationLoc,

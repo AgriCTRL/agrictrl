@@ -99,10 +99,10 @@ function Warehouse() {
 
       const [palayRes, riceRes] = await Promise.all([
         fetch(
-          `${apiUrl}/inventory?toLocationType=Warehouse&status=${status}&item=Palay`
+          `${apiUrl}/inventory?toLocationType=Warehouse&status=${status}&item=Palay&userId=${user.id}`
         ),
         fetch(
-          `${apiUrl}/inventory?toLocationType=Warehouse&status=${status}&item=Rice`
+          `${apiUrl}/inventory?toLocationType=Warehouse&status=${status}&item=Rice&userId=${user.id}`
         ),
       ]);
 
@@ -115,7 +115,7 @@ function Warehouse() {
       setRiceTotal(riceData.total);
 
       // Fetch the actual data for the current filter
-      let inventoryUrl = `${apiUrl}/inventory?toLocationType=Warehouse&status=${status}&offset=${offset}&limit=${limit}`;
+      let inventoryUrl = `${apiUrl}/inventory?toLocationType=Warehouse&status=${status}&offset=${offset}&limit=${limit}&userId=${user.id}`;
 
       // Add filter parameters based on viewMode and selectedFilter
       if (viewMode === "requests") {

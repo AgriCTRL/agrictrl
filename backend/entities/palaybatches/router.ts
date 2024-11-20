@@ -85,6 +85,8 @@ export function getRouter(): Router {
         any,
         {
           dateBought: Date;
+          wsr: number;
+          wsi: number;
           age: number;
           buyingStationName: string;
           buyingStationLoc: string;
@@ -130,6 +132,8 @@ export function getRouter(): Router {
     ) => {
       const {
         dateBought,
+        wsr,
+        wsi,
         age,
         buyingStationName,
         buyingStationLoc,
@@ -209,6 +213,8 @@ export function getRouter(): Router {
   
         const palayBatch = await createPalayBatch({
           dateBought,
+          wsr,
+          wsi,
           age,
           buyingStationName,
           buyingStationLoc,
@@ -250,6 +256,8 @@ export function getRouter(): Router {
   
         const palayBatch = await createPalayBatch({
           dateBought,
+          wsr,
+          wsi,
           age,
           buyingStationName,
           buyingStationLoc,
@@ -288,6 +296,8 @@ async function updateHandler(
     {
       id: string;
       dateBought?: Date;
+      wsr?: number;
+      wsi?: number;
       age?: number;
       buyingStationName?: string;
       buyingStationLoc?: string;
@@ -312,6 +322,8 @@ async function updateHandler(
   const {
     id,
     dateBought,
+    wsr,
+    wsi,
     age,
     buyingStationName,
     buyingStationLoc,
@@ -334,6 +346,8 @@ async function updateHandler(
   const palayBatch = await updatePalayBatch({
     id,
     dateBought,
+    wsr,
+    wsi,
     age,
     buyingStationName,
     buyingStationLoc,

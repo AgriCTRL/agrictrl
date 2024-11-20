@@ -19,6 +19,16 @@ export function getRouter(): express.Router {
                 offset: req.query.offset ? parseInt(req.query.offset as string) : undefined
             };
 
+            // Validate required parameters
+            if (!filters.toLocationType) {
+                return res.status(400).json({ error: 'Missing required parameter: toLocationType' });
+            }
+
+            // If destination is warehouse, require userId
+            if (filters.toLocationType === 'Warehouse' && !filters.userId) {
+                return res.status(400).json({ error: 'Missing required parameter: userId for warehouse filtering' });
+            }
+
             // Handle palayStatus array or single value
             if (req.query.palayStatus) {
                 filters.palayStatus = Array.isArray(req.query.palayStatus)
