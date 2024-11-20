@@ -196,7 +196,7 @@ function WarehouseUpdate({
                 value={userId}
                 options={warehouseManagers}
                 onChange={(e) => setUserId(e.value)}
-                placeholder="Select Warehouse Manager"
+                placeholder="Select Manager"
                 className="w-full rounded-md border border-gray-300 ring-0"
               />
             </div>

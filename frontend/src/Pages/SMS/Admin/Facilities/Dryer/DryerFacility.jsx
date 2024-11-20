@@ -209,6 +209,12 @@ function DryerFacility() {
               headerClassName="text-center"
             />
             <Column
+              field="type"
+              header="Type"
+              className="text-center"
+              headerClassName="text-center"
+            />
+            <Column
               field="location"
               header="Location"
               className="text-center"

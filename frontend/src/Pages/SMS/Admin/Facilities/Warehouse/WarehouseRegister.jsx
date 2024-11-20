@@ -188,7 +188,7 @@ function WarehouseRegister({
                 value={userId}
                 options={warehouseManagers}
                 onChange={(e) => setUserId(e.value)}
-                placeholder="Select Warehouse Manager"
+                placeholder="Select Manager"
                 className="w-full rounded-md border border-gray-300 ring-0"
               />
             </div>
@@ -247,11 +247,10 @@ function WarehouseRegister({
               <InputText
                 id="contactNumber"
                 value={contactNumber}
-                type="number"
                 onChange={(e) => setContactNumber(e.target.value)}
                 className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
-                maxLength={15}
-                keyfilter="alphanum"
+                maxLength={11}
+                keyfilter="int"
               />
             </div>
 
