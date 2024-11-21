@@ -19,7 +19,8 @@ import { getRouter as getRouterHouseOfficeAddress } from '../entities/houseoffic
 import { getRouter as getRouterRiceMillingBatches } from '../entities/riceBatchMillingBatches/router';
 import { getRouter as getRouterInventory } from '../entities/inventory/router';
 import { getRouter as getRouterAnalytics } from '../entities/analytics/router';
-import { getRouter as getPileRouter } from '../entities/piles/router'
+import { getRouter as getPileRouter } from '../entities/piles/router';
+import { getRouter as getPileTransactions } from '../entities/pileTransactions/router';
 
 
 // TODO make this function's return type explicit https://github.com/demergent-labs/azle/issues/1860
@@ -49,6 +50,7 @@ export function initServer() {
     app.use('/inventory', getRouterInventory());
     app.use('/analytics', getRouterAnalytics());
     app.use('/piles', getPileRouter());
+    app.use('/piletransactions', getPileTransactions());
 
 
     app.get('/init-called', (_req, res) => {

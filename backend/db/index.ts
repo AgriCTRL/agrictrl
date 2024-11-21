@@ -18,6 +18,7 @@ import { Farm } from "../entities/farms/db";
 import { HouseOfficeAddress } from "../entities/houseofficeaddresses/db";
 import { RiceBatchMillingBatch } from "../entities/riceBatchMillingBatches/db";
 import { Pile } from "../entities/piles/db";
+import { PileTransaction } from "../entities/pileTransactions/db";
 
 // TODO figure out migrations
 export async function initDb(
@@ -44,6 +45,7 @@ export async function initDb(
       HouseOfficeAddress,
       RiceBatchMillingBatch,
       Pile,
+      PileTransaction,
     ],
     driver: await initSqlJs({}),
     database: bytes,
