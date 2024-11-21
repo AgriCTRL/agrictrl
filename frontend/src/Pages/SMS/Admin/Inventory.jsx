@@ -95,10 +95,10 @@ function Inventory() {
                 </div>
                 <div className="flex-grow">
                     <div className="text-xl font-semibold mb-1">
-                        Palay Batch #{item.id}
+                        Palay Batch #{item.wsr}
                     </div>
                     <div className="text-gray-600 mb-2">
-                        {formatDate(item.dateBought)}
+                        {formatDate(item.dateBought)} || age: {item.age}
                     </div>
                     <div className="text-sm text-gray-500">{item.quantityBags} bags</div>
                 </div>
@@ -189,7 +189,7 @@ function Inventory() {
                 <Dialog
                 visible={showDetails}
                 onHide={() => setShowDetails(false)}
-                header={`Batch #${selectedPalay?.id} Details`}
+                header={`Batch #${selectedPalay?.wsr} Details`}
                 className="w-full max-w-4xl"
             >
                 {selectedPalay && (

@@ -29,6 +29,7 @@ import DeclineOrder from "./DeclineOrder";
 import SendOrder from "./SendOrder";
 import DeclineDetails from "./DeclineDetails";
 import OrderDetails from "./OrderDetails";
+import Loader from "@/Components/Loader";
 
 function Distribution() {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -99,6 +100,8 @@ function Distribution() {
 
   const fetchRecipients = async () => {
     try {
+      setIsLoading(true);
+
       const res = await fetch(`${apiUrl}/users?userType=Rice%20Recipient`);
       const data = await res.json();
       if (!res.ok) {
@@ -111,11 +114,15 @@ function Distribution() {
       setRecipients(recipientMap);
     } catch (error) {
       console.error(error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const fetchOrders = async () => {
     try {
+      setIsLoading(true);
+
       const res = await fetch(`${apiUrl}/riceorders`);
       const data = await res.json();
       if (!res.ok) {
@@ -129,21 +136,35 @@ function Distribution() {
       console.log(data);
     } catch (error) {
       console.error(error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const fetchData = async () => {
-    const palayCountRes = await fetch(`${apiUrl}/palaybatches/count`);
-    setPalayCount(await palayCountRes.json());
-    const millingCountRes = await fetch(`${apiUrl}/millingbatches/count`);
-    const millingCount = await millingCountRes.json();
-    const dryingCountRes = await fetch(`${apiUrl}/dryingbatches/count`);
-    const dryingCount = await dryingCountRes.json();
-    setProcessedCount(millingCount + dryingCount);
-    const distributeCountRes = await fetch(
-      `${apiUrl}/riceorders/received/count`
-    );
-    setDistributedCount(await distributeCountRes.json());
+    try{
+      const palayCountRes = await fetch(`${apiUrl}/palaybatches/count`);
+      setPalayCount(await palayCountRes.json());
+      const millingCountRes = await fetch(`${apiUrl}/millingbatches/count`);
+      const millingCount = await millingCountRes.json();
+      const dryingCountRes = await fetch(`${apiUrl}/dryingbatches/count`);
+      const dryingCount = await dryingCountRes.json();
+      setProcessedCount(millingCount + dryingCount);
+      const distributeCountRes = await fetch(
+        `${apiUrl}/riceorders/received/count`
+      );
+      setDistributedCount(await distributeCountRes.json());
+    } catch {
+      console.error("Error fetching data:", error);
+      toast.current.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Failed to fetch data",
+        life: 3000,
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const onUpdate = () => {
@@ -156,6 +177,8 @@ function Distribution() {
 
   const fetchRiceBatchData = async () => {
     try {
+      setIsLoading(true);
+
       const res = await fetch(`${apiUrl}/ricebatches`);
       if (!res.ok) {
         throw new Error("Failed to fetch rice batch data");
@@ -184,6 +207,8 @@ function Distribution() {
         detail: "Failed to fetch rice batch data",
         life: 3000,
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -537,6 +562,11 @@ function Distribution() {
       isRightSidebarOpen={false}
       rightSidebar={rightSidebar()}
     >
+      {isLoading && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50">
+          <Loader />
+        </div>
+      )}
       <Toast ref={toast} />
       <div className="flex flex-col h-full gap-4">
         <div className="flex flex-col justify-center gap-4 items-center p-8 rounded-lg bg-gradient-to-r from-primary to-secondary">

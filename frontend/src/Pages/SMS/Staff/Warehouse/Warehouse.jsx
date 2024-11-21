@@ -26,6 +26,7 @@ import ReceivePalay from "./ReceivePalay";
 import SendTo from "./SendTo";
 import ManageRice from "./ManageRice";
 import ItemDetails from "./ItemDetails";
+import Loader from "@/Components/Loader";
 
 function Warehouse() {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -55,7 +56,7 @@ function Warehouse() {
 
   const [combinedData, setCombinedData] = useState([]);
   const [totalRecords, setTotalRecords] = useState(0);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [first, setFirst] = useState(0);
   const [rows, setRows] = useState(10);
 
@@ -93,7 +94,7 @@ function Warehouse() {
   };
 
   const fetchInventory = async (offset, limit) => {
-    setLoading(true);
+    setIsLoading(true);
     try {
       const status = viewMode === "requests" ? "Pending" : "Received";
 
@@ -283,7 +284,7 @@ function Warehouse() {
         life: 3000,
       });
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -608,6 +609,11 @@ function Warehouse() {
       isLeftSidebarOpen={false}
       rightSidebar={rightSidebar()}
     >
+      {isLoading && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50">
+          <Loader />
+        </div>
+      )}
       <Toast ref={toast} />
       <div className="flex flex-col h-full gap-4">
         <div className="flex flex-col justify-center gap-4 items-center p-8 rounded-lg bg-gradient-to-r from-primary to-secondary">

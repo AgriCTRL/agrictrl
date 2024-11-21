@@ -14,6 +14,7 @@ import { useAuth } from "../../../Authentication/Login/AuthContext";
 import StaffLayout from "@/Layouts/StaffLayout";
 import PileRegister from "./PileRegister";
 import PileUpdate from "./PileUpdate";
+import Loader from "@/Components/Loader";
 
 function Piles() {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -29,6 +30,7 @@ function Piles() {
   const [selectedPile, setSelectedPile] = useState(null);
   const [displayPileRegister, setDisplayPileRegister] = useState(false);
   const [displayPileUpdate, setDisplayPileUpdate] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     fetchPileData();
@@ -47,6 +49,8 @@ function Piles() {
 
   const fetchPileData = async (warehouseId) => {
     try {
+      setIsLoading(true);
+
       const id = warehouseId || warehouseData?.id;
 
       if (!id) {
@@ -68,11 +72,15 @@ function Piles() {
         detail: "Failed to fetch pile data",
         life: 3000,
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const fetchWarehouseData = async () => {
     try {
+      setIsLoading(true);
+
       const res = await fetch(`${apiUrl}/warehouses`);
       if (!res.ok) {
         throw new Error("Failed to fetch warehouse data");
@@ -97,6 +105,8 @@ function Piles() {
         detail: "Failed to fetch warehouse data",
         life: 3000,
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -170,6 +180,11 @@ function Piles() {
 
   return (
     <StaffLayout activePage="Piles" user={user}>
+      {isLoading && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50">
+          <Loader />
+        </div>
+      )}
       <Toast ref={toast} />
       <div className="flex flex-col h-full gap-4">
         <div className="flex flex-col justify-center gap-4 items-center p-8 rounded-lg bg-gradient-to-r from-primary to-secondary">

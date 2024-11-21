@@ -36,7 +36,9 @@ export function getRouter(): Router {
     "/search",
     async (
       req: Request<any, any, any, { 
-        id?: string; 
+        wsr?: string;
+        status?: string;
+        farmerName?: string;
         limit?: string; 
         offset?: string;
         // Add other search params as needed 
@@ -46,7 +48,9 @@ export function getRouter(): Router {
       const limit = Number(req.query.limit ?? 10);
       const offset = Number(req.query.offset ?? 0);
       const searchParams = {
-        id: req.query.id,
+        wsr: req.query.wsr,
+        status: req.query.status,
+        farmerName: req.query.farmerName,
         // Add other search params
       };
   

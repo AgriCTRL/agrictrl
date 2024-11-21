@@ -27,6 +27,7 @@ import { useAuth } from "../../../Authentication/Login/AuthContext";
 import AcceptDialog from "./AcceptDialog";
 import ProcessDialog from "./ProcessDialog";
 import ReturnDialog from "./ReturnDialog";
+import Loader from "@/Components/Loader";
 
 const initialDryingData = {
   palayBatchId: "",
@@ -91,6 +92,7 @@ const Processing = () => {
   const [selectedFilter, setSelectedFilter] = useState("request");
   const [selectedItem, setSelectedItem] = useState(null);
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [palayCount, setPalayCount] = useState(0);
   const [processedCount, setProcessedCount] = useState(0);
@@ -136,6 +138,8 @@ const Processing = () => {
 
   const fetchData = async () => {
     try {
+      setIsLoading(true);
+
       // Determine processing type and location based on viewMode
       const processType = viewMode === "drying" ? "dryer" : "miller";
       const locationType = viewMode === "drying" ? "Dryer" : "Miller";
@@ -289,11 +293,14 @@ const Processing = () => {
         detail: "Failed to fetch data",
         life: 3000,
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const fetchActiveWarehouses = async () => {
     try {
+      setIsLoading(true);
       const response = await fetch(`${apiUrl}/warehouses?status=Active`);
 
       if (!response.ok) {
@@ -310,21 +317,38 @@ const Processing = () => {
         detail: "Failed to fetch warehouses",
         life: 3000,
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const fetchStatsData = async () => {
-    const palayCountRes = await fetch(`${apiUrl}/palaybatches/count`);
-    setPalayCount(await palayCountRes.json());
-    const millingCountRes = await fetch(`${apiUrl}/millingbatches/count`);
-    const millingCount = await millingCountRes.json();
-    const dryingCountRes = await fetch(`${apiUrl}/dryingbatches/count`);
-    const dryingCount = await dryingCountRes.json();
-    setProcessedCount(millingCount + dryingCount);
-    const distributeCountRes = await fetch(
-      `${apiUrl}/riceorders/received/count`
-    );
-    setDistributedCount(await distributeCountRes.json());
+    try{
+      setIsLoading(true);
+      
+      const palayCountRes = await fetch(`${apiUrl}/palaybatches/count`);
+      setPalayCount(await palayCountRes.json());
+      const millingCountRes = await fetch(`${apiUrl}/millingbatches/count`);
+      const millingCount = await millingCountRes.json();
+      const dryingCountRes = await fetch(`${apiUrl}/dryingbatches/count`);
+      const dryingCount = await dryingCountRes.json();
+      setProcessedCount(millingCount + dryingCount);
+      const distributeCountRes = await fetch(
+        `${apiUrl}/riceorders/received/count`
+      );
+      setDistributedCount(await distributeCountRes.json());
+    } catch {
+      console.error("Error fetching stats data:", error);
+      toast.current.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Failed to fetch stats data",
+        life: 3000,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+    
   };
 
   const handleActionClick = (rowData) => {
@@ -650,6 +674,11 @@ const Processing = () => {
       isLeftSidebarOpen={false}
       rightSidebar={rightSidebar()}
     >
+      {isLoading && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50">
+          <Loader />
+        </div>
+      )}
       <Toast ref={toast} />
       <div className="flex flex-col h-full gap-4">
         <div className="flex flex-col justify-center gap-4 items-center p-8 rounded-lg bg-gradient-to-r from-primary to-secondary">

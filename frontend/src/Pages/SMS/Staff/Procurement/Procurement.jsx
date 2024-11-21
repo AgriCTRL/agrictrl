@@ -23,6 +23,7 @@ import PalayRegister from "./PalayRegister";
 import PalayDetails from "./PalayDetails";
 import { useAuth } from "../../../Authentication/Login/AuthContext";
 import StaffLayout from "@/Layouts/StaffLayout";
+import Loader from "@/Components/Loader";
 
 function BuyPalay() {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -38,6 +39,7 @@ function BuyPalay() {
   const [first, setFirst] = useState(0);
 
   const [globalFilterValue, setGlobalFilterValue] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [selectedPalay, setSelectedPalay] = useState(null);
   const [filters, setFilters] = useState({
@@ -46,6 +48,7 @@ function BuyPalay() {
 
   const [showRegisterPalay, setShowRegisterPalay] = useState(false);
   const [inventoryData, setInventoryData] = useState([]);
+  const [currentWSR, setCurrentWSR] = useState("00000000");
 
   useEffect(() => {
     fetchPalayData();
@@ -69,6 +72,8 @@ function BuyPalay() {
 
   const fetchPalayData = async (page = 0, searchValue = "") => {
     try {
+      setIsLoading(true);
+
       const limit = 10;
       const offset = page * limit;
 
@@ -83,9 +88,19 @@ function BuyPalay() {
         throw new Error("Failed to fetch palay data");
       }
 
-      const { data, total } = await response.json();
+      const { data, total, latestWSR } = await response.json();
       setInventoryData(data);
       setPalayCount(total);
+
+      // Find the highest WSR number from the fetched data
+      if (latestWSR) {
+        // Increment the WSR number
+        const nextWSR = String(latestWSR + 1).padStart(8, "0");
+        setCurrentWSR(nextWSR);
+      } else {
+        // Fallback to default if no latestWSR is provided
+        setCurrentWSR("00000001");
+      }
     } catch (error) {
       console.error("Error:", error);
       toast.current.show({
@@ -94,21 +109,42 @@ function BuyPalay() {
         detail: "Failed to fetch palay data",
         life: 3000,
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const fetchData = async () => {
-    const palayCountRes = await fetch(`${apiUrl}/palaybatches/count`);
-    setPalayCount(await palayCountRes.json());
-    const millingCountRes = await fetch(`${apiUrl}/millingbatches/count`);
-    const millingCount = await millingCountRes.json();
-    const dryingCountRes = await fetch(`${apiUrl}/dryingbatches/count`);
-    const dryingCount = await dryingCountRes.json();
-    setProcessedCount(millingCount + dryingCount);
-    const distributeCountRes = await fetch(
-      `${apiUrl}/riceorders/received/count`
-    );
-    setDistributedCount(await distributeCountRes.json());
+    try {
+      // Set loading to true before fetch
+      setIsLoading(true);
+
+      const palayCountRes = await fetch(`${apiUrl}/palaybatches/count`);
+      setPalayCount(await palayCountRes.json());
+      
+      const millingCountRes = await fetch(`${apiUrl}/millingbatches/count`);
+      const millingCount = await millingCountRes.json();
+      
+      const dryingCountRes = await fetch(`${apiUrl}/dryingbatches/count`);
+      const dryingCount = await dryingCountRes.json();
+      setProcessedCount(millingCount + dryingCount);
+      
+      const distributeCountRes = await fetch(
+        `${apiUrl}/riceorders/received/count`
+      );
+      setDistributedCount(await distributeCountRes.json());
+    } catch (error) {
+      console.error("Error fetching counts:", error);
+      toast.current.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Failed to fetch data counts",
+        life: 3000,
+      });
+    } finally {
+      // Set loading to false after fetch completes
+      setIsLoading(false);
+    }
   };
 
   const getSeverity = (status) => {
@@ -143,7 +179,7 @@ function BuyPalay() {
   };
 
   const handleItemClick = (item) => {
-    console.log(inventoryData)
+    console.log(inventoryData);
     setSelectedPalay(item);
     setShowDetails(true);
   };
@@ -197,10 +233,10 @@ function BuyPalay() {
         </div>
         <div className="flex-grow">
           <div className="text-xl font-semibold mb-1">
-            Palay Batch #{item.id}
+            Palay Batch #{item.wsr}
           </div>
           <div className="text-gray-600 mb-2">
-            {new Date(item.dateBought).toLocaleDateString()}
+            {new Date(item.dateBought).toLocaleDateString()} || age: {item.age}
           </div>
           <div className="text-sm text-gray-500">{item.quantityBags} bags</div>
         </div>
@@ -222,6 +258,11 @@ function BuyPalay() {
       isRightSidebarOpen={false}
       rightSidebar={rightSidebar()}
     >
+      {isLoading && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50">
+          <Loader />
+        </div>
+      )}
       <Toast ref={toast} />
       <div className="flex flex-col h-full gap-4">
         <div className="flex flex-col justify-center gap-4 items-center p-8 rounded-lg bg-gradient-to-r from-primary to-secondary">
@@ -293,6 +334,7 @@ function BuyPalay() {
         visible={showRegisterPalay}
         onHide={() => setShowRegisterPalay(false)}
         onPalayRegistered={handlePalayRegistered}
+        currentWSR={currentWSR}
       />
 
       <PalayDetails

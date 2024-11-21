@@ -168,10 +168,14 @@ function getCurrentPST(): Date {
 export async function getPalayBatches(
   limit: number,
   offset: number
-): Promise<{ data: PalayBatch[]; total: number }> {
+): Promise<{ data: PalayBatch[]; total: number; latestWSR: number | null }> {
   const [data, total] = await PalayBatch.findAndCount({
     take: limit,
     skip: offset,
+    order: {
+      wsr: "DESC",
+      id: "DESC",
+    },
     relations: {
       qualitySpec: true,
       palaySupplier: true,
@@ -179,7 +183,11 @@ export async function getPalayBatches(
     },
   });
 
-  return { data, total };
+  const latestWSRResult = await PalayBatch.createQueryBuilder("palayBatch")
+    .select("MAX(palayBatch.wsr)", "latestWSR")
+    .getRawOne();
+
+  return { data, total, latestWSR: latestWSRResult?.latestWSR || null };
 }
 
 export async function getPalayBatch(id: string): Promise<PalayBatch | null> {
@@ -321,9 +329,9 @@ export async function getTotalPalayQuantityBags(): Promise<number> {
 
 export async function searchPalayBatches(
   searchParams: {
-    id?: string;
-    // buyingStationName?: string;
-    // status?: string;
+    wsr?: string;
+    status?: string;
+    farmerName?: string;
   },
   limit: number,
   offset: number
@@ -331,17 +339,30 @@ export async function searchPalayBatches(
   const queryBuilder = PalayBatch.createQueryBuilder("palayBatch")
     .leftJoinAndSelect("palayBatch.qualitySpec", "qualitySpec")
     .leftJoinAndSelect("palayBatch.palaySupplier", "palaySupplier")
-    .leftJoinAndSelect("palayBatch.farm", "farm");
+    .leftJoinAndSelect("palayBatch.farm", "farm")
+    .orderBy("palayBatch.wsr", "DESC")
+    .addOrderBy("palayBatch.id", "DESC");
 
-  if (searchParams.id) {
-    queryBuilder.andWhere("palayBatch.id LIKE :id", {
-      id: `%${searchParams.id}%`,
+  // Search by WSR number
+  if (searchParams.wsr) {
+    queryBuilder.andWhere("palayBatch.wsr::text LIKE :wsr", {
+      wsr: `%${searchParams.wsr}%`,
     });
   }
-  // Add other search conditions as needed
-  // if (searchParams.buyingStationName) {
-  //   queryBuilder.andWhere("palayBatch.buyingStationName LIKE :name", { name: `%${searchParams.buyingStationName}%` });
-  // }
+
+  // Search by status
+  if (searchParams.status) {
+    queryBuilder.andWhere("LOWER(palayBatch.status) LIKE LOWER(:status)", {
+      status: `%${searchParams.status}%`,
+    });
+  }
+
+  // Search by farmer name (using farm relationship)
+  if (searchParams.farmerName) {
+    queryBuilder.andWhere("LOWER(farm.name) LIKE LOWER(:farmerName)", {
+      farmerName: `%${searchParams.farmerName}%`,
+    });
+  }
 
   const total = await queryBuilder.getCount();
 

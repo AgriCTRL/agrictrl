@@ -12,7 +12,7 @@ function PalayDetails({ visible, onHide, palay }) {
     <Dialog
       visible={visible}
       onHide={onHide}
-      header={`Batch #${palay?.id} Details`}
+      header={`Batch #${palay?.wsr} Details`}
       className="w-full max-w-4xl"
     >
       <div className="grid grid-cols-3 gap-4">
