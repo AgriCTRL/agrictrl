@@ -27,7 +27,7 @@ const LogisticsInfoForm = ({
             value={palayData.buyingStationName}
             onChange={handlePalayInputChange}
             placeholder="Enter buying station name"
-            className="ring-0 w-full placeholder:text-gray-400"
+            className="ring-0 w-full placeholder:text-gray-700"
             maxLength={50}
           />
           {errors.buyingStationName && (
@@ -96,14 +96,14 @@ const LogisticsInfoForm = ({
                 {errors.transporterDesc && <p className="text-red-500 text-xs mt-1">{errors.transporterDesc}</p>}
             </div> */}
 
-      <div className="w-full">
+      <div className="w-full gap-4">
         <label
           htmlFor="sendToWarehouse"
           className="block text-sm font-medium text-gray-700 mb-1"
         >
           Send to
         </label>
-        <div className="flex flex-row w-full space-x-2">
+        <div className="flex flex-row w-full gap-4">
           <div className="flex flex-col w-full">
             <Dropdown
               id="toLocationType"

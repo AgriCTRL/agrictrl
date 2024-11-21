@@ -5,23 +5,21 @@ import { Button } from "primereact/button";
 import { Toast } from "primereact/toast";
 
 import { Wheat } from "lucide-react";
-import { useAuth } from "../../../Authentication/Login/AuthContext";
 
 function PileRegister({ visible, onHide, warehouses, onPileRegistered }) {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const toast = useRef(null);
-  const { user } = useAuth();
 
   const [warehouseId, setWarehouseId] = useState("");
   const [pileNumber, setPileNumber] = useState("");
   const [maxCapacity, setMaxCapacity] = useState("");
   const [description, setDescription] = useState("");
-  const [status, setStatus] = useState("1");
+  const [status, setStatus] = useState("Active");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const statusOptions = [
-    { label: "Inactive", value: "0" },
-    { label: "Active", value: "1" },
+    { label: "Inactive", value: "Inactive" },
+    { label: "Active", value: "Active" },
   ];
 
   useEffect(() => {
@@ -87,7 +85,7 @@ function PileRegister({ visible, onHide, warehouses, onPileRegistered }) {
     setPileNumber("");
     setMaxCapacity("");
     setDescription("");
-    setStatus("0");
+    setStatus("Active");
   };
 
   if (!visible) {

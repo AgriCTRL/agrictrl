@@ -137,9 +137,9 @@ function Piles() {
 
   const getSeverity = (status) => {
     switch (status) {
-      case "0":
+      case "Inactive":
         return "warning";
-      case "1":
+      case "Active":
         return "success";
       default:
         return "secondary";
@@ -148,7 +148,7 @@ function Piles() {
 
   const statusBodyTemplate = (rowData) => (
     <Tag
-      value={rowData.status === "0" ? "Inactive" : "Active"}
+      value={rowData.status}
       severity={getSeverity(rowData.status)}
       style={{ minWidth: "80px", textAlign: "center" }}
       className="text-sm px-2 rounded-md"
@@ -217,7 +217,7 @@ function Piles() {
         </div>
 
         <div
-          className="relative flex flex-col"
+          className="relative flex flex-col bg-white rounded-lg"
           style={{ height: "calc(100vh - 390px)" }}
         >
           <DataTable
@@ -229,7 +229,7 @@ function Piles() {
             globalFilterFields={["warehouseId", "pileNumber", "status"]}
             emptyMessage="No piles found"
             paginator
-            paginatorClassName="border-t border-gray-300"
+            paginatorClassName="border-t border-gray-300 mb-4"
             rows={30}
           >
             <Column

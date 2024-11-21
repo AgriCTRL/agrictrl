@@ -32,10 +32,10 @@ const initialPalayData = {
   palaySupplierBarangay: "",
   palaySupplierStreet: "",
   // Palay Info
-  wsr: "",
-  wsi: "",
+  wsr: "00000001",
+  wsi: "0",
   dateBought: "",
-  age: "",
+  age: 0,
   buyingStationName: "",
   buyingStationLoc: "",
   quantityBags: "",
@@ -108,8 +108,8 @@ function PalayRegister({ visible, onHide, onPalayRegistered, currentWSR }) {
     // Palay Info
     dateBought: "",
     wsr: '',
-    wsi: '',
-    age: "0",
+    wsi: '0',
+    age: 0,
     buyingStationName: "",
     buyingStationLoc: "",
     quantityBags: "",
@@ -223,7 +223,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered, currentWSR }) {
       setActiveStep(0);
       setPalayData(prev => ({
         ...prev,
-        wsr: currentWSR,
+        wsr: currentWSR ? currentWSR.toString().padStart(8, '0') : "00000001"
       }));
     }
   }, [visible]);
@@ -820,6 +820,12 @@ function PalayRegister({ visible, onHide, onPalayRegistered, currentWSR }) {
       }
     } else if (step === 2) {
       // Logistics Validation
+      if (!palayData.buyingStationName) {
+        newErrors.buyingStationName = "Buying Station Name is required";
+      }
+      if (!palayData.buyingStationLoc) {
+        newErrors.buyingStationLoc = "Buying Station Location is required";
+      }
       if (!transactionData.transporterName) {
         newErrors.transporterName = "Transporter is required";
       }

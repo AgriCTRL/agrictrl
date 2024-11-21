@@ -5,7 +5,6 @@ import { Button } from "primereact/button";
 import { Toast } from "primereact/toast";
 
 import { Wheat } from "lucide-react";
-import { useAuth } from "../../../Authentication/Login/AuthContext";
 
 function PileUpdate({
   visible,
@@ -16,7 +15,6 @@ function PileUpdate({
 }) {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const toast = useRef(null);
-  const { user } = useAuth();
 
   const [warehouseId, setWarehouseId] = useState("");
   const [pileNumber, setPileNumber] = useState("");
@@ -26,8 +24,8 @@ function PileUpdate({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const statusOptions = [
-    { label: "Inactive", value: "0" },
-    { label: "Active", value: "1" },
+    { label: "Inactive", value: "Inactive" },
+    { label: "Active", value: "Active" },
   ];
 
   useEffect(() => {

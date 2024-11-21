@@ -73,7 +73,6 @@ export async function getPiles(
     take: limit,
     skip: offset,
     relations: {
-      warehouse: true,
       palayBatches: true,
     },
   });
@@ -87,7 +86,6 @@ export async function getPile(id: string): Promise<Pile | null> {
       id,
     },
     relations: {
-      warehouse: true,
       palayBatches: true,
     },
   });
@@ -105,7 +103,6 @@ export async function getPilesByWarehouse(
     take: limit,
     skip: offset,
     relations: {
-      warehouse: true,
       palayBatches: true,
     },
   });
