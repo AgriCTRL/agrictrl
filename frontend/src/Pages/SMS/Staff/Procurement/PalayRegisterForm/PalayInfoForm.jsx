@@ -574,9 +574,8 @@ const PalayInfoForm = ({
               value={palayData.farmRegion}
               options={regionOptions}
               onChange={handlePalayInputChange}
-              name="farmRegion"
               placeholder="Region"
-              className={`w-full ${errors.farmRegion ? "p-invalid" : ""}`}
+              className="w-full ring-0" 
               disabled={sameAsHomeAddress}
             />
             {errors.farmRegion && (

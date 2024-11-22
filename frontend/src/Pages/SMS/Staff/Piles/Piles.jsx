@@ -230,7 +230,7 @@ function Piles() {
             emptyMessage="No piles found"
             paginator
             paginatorClassName="border-t border-gray-300 mb-4"
-            rows={30}
+            rows={10}
           >
             <Column
               field="pileNumber"

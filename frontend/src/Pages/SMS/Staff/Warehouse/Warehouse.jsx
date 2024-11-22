@@ -2,6 +2,9 @@ import React, { useEffect, useState, useRef } from "react";
 import StaffLayout from "@/Layouts/StaffLayout";
 
 import { DataView } from "primereact/dataview";
+import { DataTable } from "primereact/datatable";
+import { Column } from "primereact/column";
+import { Dialog } from "primereact/dialog";
 import { Tag } from "primereact/tag";
 import { FilterMatchMode } from "primereact/api";
 import { Button } from "primereact/button";
@@ -26,6 +29,7 @@ import ReceivePalay from "./ReceivePalay";
 import SendTo from "./SendTo";
 import ManageRice from "./ManageRice";
 import ItemDetails from "./ItemDetails";
+import PalayBatches from "./PalayBatches";
 import Loader from "@/Components/Loader";
 
 function Warehouse() {
@@ -67,6 +71,18 @@ function Warehouse() {
 
   const [selectedBatchDetails, setSelectedBatchDetails] = useState(null);
 
+  //piles
+  const [pileData, setPileData] = useState([]);
+  const [selectedPile, setSelectedPile] = useState(null);
+  const [userWarehouse, setUserWarehouse] = useState(null);
+  const [showPalayBatchesDialog, setShowPalayBatchesDialog] = useState(false);
+  const [palayBatches, setPalayBatches] = useState([]);
+
+  const [palayBatchesPagination, setPalayBatchesPagination] = useState({
+    limit: 12,
+    offset: 0,
+  });
+
   useEffect(() => {
     const newFilters = {
       global: { value: globalFilterValue, matchMode: FilterMatchMode.CONTAINS },
@@ -79,7 +95,11 @@ function Warehouse() {
   };
 
   useEffect(() => {
-    fetchInventory(first, rows);
+    if (viewMode === "requests") {
+      fetchInventory(first, rows);
+    } else {
+      fetchPileData(userWarehouse?.id);
+    }
     fetchDryerData();
     fetchMillerData();
     fetchWarehouseData();
@@ -334,6 +354,17 @@ function Warehouse() {
       }
       const data = await res.json();
       setWarehouseData(data);
+
+      // Set user's warehouse
+      const userWarehouses = data.filter(
+        (warehouse) => warehouse.userId === user.id
+      );
+      if (userWarehouses.length > 0) {
+        setUserWarehouse(userWarehouses[0]);
+        if (viewMode === "inWarehouse") {
+          fetchPileData(userWarehouses[0].id);
+        }
+      }
     } catch (error) {
       console.log(error.message);
       toast.current.show({
@@ -342,6 +373,48 @@ function Warehouse() {
         detail: "Failed to fetch warehouse data",
         life: 3000,
       });
+    }
+  };
+
+  const fetchPileData = async (warehouseId, paginationParams) => {
+    try {
+      setIsLoading(true);
+      const id = warehouseId || userWarehouse?.id;
+
+      if (!id) {
+        setPileData([]);
+        return;
+      }
+
+      const { limit, offset } = paginationParams || palayBatchesPagination;
+      const res = await fetch(
+        `${apiUrl}/piles/warehouse/${id}?pbLimit=${limit}&pbOffset=${offset}`
+      );
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch pile data");
+      }
+
+      const responseData = await res.json();
+
+      if (viewMode === "inWarehouse") {
+        const piles = Array.isArray(responseData.data) ? responseData.data : [];
+        setCombinedData(piles);
+        setTotalRecords(responseData.total || 0);
+      }
+
+      setPileData(Array.isArray(responseData.data) ? responseData.data : []);
+      setPalayBatches(responseData.data[0]?.palayBatches || []);
+    } catch (error) {
+      setPileData([]);
+      toast.current.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Failed to fetch pile data",
+        life: 3000,
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -553,6 +626,36 @@ function Warehouse() {
   };
 
   const itemTemplate = (item) => {
+    if (viewMode === "inWarehouse") {
+      return (
+        <div
+          className="col-12"
+          onClick={() => {
+            setSelectedPile(item);
+            setPalayBatches(item.palayBatches || []);
+            setShowPalayBatchesDialog(true);
+          }}
+        >
+          <div className="flex flex-row items-center p-4 gap-4 cursor-pointer bg-gray-100 hover:bg-gray-200 rounded-lg mb-4">
+            <div className="flex-none">
+              <Wheat size={40} className="text-gray-400" />
+            </div>
+            <div className="flex-1">
+              <div className="font-medium text-xl mb-1">
+                Pile #{item.pileNumber}
+              </div>
+              <div className="text-gray-600 mb-1">
+                Current Quantity: {item.currentQuantity} / {item.maxCapacity}{" "}
+                bags
+              </div>
+              <div className="flex items-center">
+                <span className="py-1 text-sm">{item.status}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
     return (
       <div className="col-12" onClick={() => handleItemClick(item)}>
         <div className="flex flex-row items-center p-4 gap-4 cursor-pointer bg-gray-100 hover:bg-gray-200 rounded-lg mb-4">
@@ -599,6 +702,11 @@ function Warehouse() {
     setRows(newRows);
 
     fetchInventory(newFirst, newRows);
+  };
+
+  const handlePalayBatchesPagination = (newPagination) => {
+    setPalayBatchesPagination(newPagination);
+    fetchPileData(null, newPagination);
   };
 
   return (
@@ -711,6 +819,16 @@ function Warehouse() {
           </div>
         </div>
       </div>
+
+      <PalayBatches
+        visible={showPalayBatchesDialog}
+        onHide={() => setShowPalayBatchesDialog(false)}
+        palayBatches={palayBatches}
+        selectedPile={selectedPile}
+        onPaginationChange={handlePalayBatchesPagination}
+        totalRecords={selectedPile?.pbTotal || 0}
+        loading={isLoading}
+      />
 
       <ItemDetails
         visible={showDetailsDialog}

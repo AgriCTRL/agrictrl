@@ -56,6 +56,8 @@ export class Pile extends BaseEntity {
 
     this.id = `${prefix}${nextNumber.toString().padStart(4, "0")}`;
   }
+
+  pbTotal?: number;
 }
 
 export type PileCreate = Pick<
@@ -67,34 +69,69 @@ export type PileUpdate = Pick<Pile, "id"> & Partial<PileCreate>;
 
 export async function getPiles(
   limit: number,
-  offset: number
+  offset: number,
+  pbLimit?: number,
+  pbOffset?: number
 ): Promise<{ data: Pile[]; total: number }> {
   const [data, total] = await Pile.findAndCount({
     take: limit,
     skip: offset,
     relations: {
-      palayBatches: true,
+      palayBatches: {
+        qualitySpec: true
+      }
     },
+  });
+
+  // Process each pile to include pbTotal and handle pagination
+  data.forEach(pile => {
+    // Store total count before pagination
+    pile.pbTotal = pile.palayBatches?.length || 0;
+
+    // Apply pagination to palayBatches if parameters are provided
+    if (pbLimit !== undefined && pbOffset !== undefined && pile.palayBatches) {
+      pile.palayBatches = pile.palayBatches.slice(pbOffset, pbOffset + pbLimit);
+    }
   });
 
   return { data, total };
 }
 
-export async function getPile(id: string): Promise<Pile | null> {
-  return await Pile.findOne({
+export async function getPile(
+  id: string,
+  pbLimit?: number,
+  pbOffset?: number
+): Promise<Pile | null> {
+  const pile = await Pile.findOne({
     where: {
       id,
     },
     relations: {
-      palayBatches: true,
+      palayBatches: {
+        qualitySpec: true
+      }
     },
   });
+
+  if (pile) {
+    // Store total count before pagination
+    pile.pbTotal = pile.palayBatches?.length || 0;
+
+    // Apply pagination if parameters are provided
+    if (pbLimit !== undefined && pbOffset !== undefined) {
+      pile.palayBatches = pile.palayBatches.slice(pbOffset, pbOffset + pbLimit);
+    }
+  }
+
+  return pile;
 }
 
 export async function getPilesByWarehouse(
   warehouseId: string,
   limit: number,
-  offset: number
+  offset: number,
+  pbLimit?: number,
+  pbOffset?: number
 ): Promise<{ data: Pile[]; total: number }> {
   const [data, total] = await Pile.findAndCount({
     where: {
@@ -103,8 +140,21 @@ export async function getPilesByWarehouse(
     take: limit,
     skip: offset,
     relations: {
-      palayBatches: true,
+      palayBatches: {
+        qualitySpec: true
+      }
     },
+  });
+
+  // Process each pile to include pbTotal and handle pagination
+  data.forEach(pile => {
+    // Store total count before pagination
+    pile.pbTotal = pile.palayBatches?.length || 0;
+
+    // Apply pagination to palayBatches if parameters are provided
+    if (pbLimit !== undefined && pbOffset !== undefined && pile.palayBatches) {
+      pile.palayBatches = pile.palayBatches.slice(pbOffset, pbOffset + pbLimit);
+    }
   });
 
   return { data, total };

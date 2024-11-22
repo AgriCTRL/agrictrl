@@ -93,14 +93,14 @@ function BuyPalay() {
       setPalayCount(total);
 
       // Find the highest WSR number from the fetched data
-      if (latestWSR) {
-        // Increment the WSR number
-        const nextWSR = String(latestWSR + 1).padStart(8, "0");
-        setCurrentWSR(nextWSR);
-      } else {
-        // Fallback to default if no latestWSR is provided
-        setCurrentWSR("00000001");
-      }
+      // if (latestWSR) {
+      //   // Increment the WSR number
+      //   const nextWSR = String(latestWSR + 1).padStart(8, "0");
+      //   setCurrentWSR(nextWSR);
+      // } else {
+      //   // Fallback to default if no latestWSR is provided
+      //   setCurrentWSR("00000001");
+      // }
     } catch (error) {
       console.error("Error:", error);
       toast.current.show({

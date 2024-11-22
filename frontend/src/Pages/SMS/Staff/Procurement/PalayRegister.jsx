@@ -32,7 +32,7 @@ const initialPalayData = {
   palaySupplierBarangay: "",
   palaySupplierStreet: "",
   // Palay Info
-  wsr: "00000001",
+  wsr: "",
   wsi: "0",
   dateBought: "",
   age: 0,
@@ -107,8 +107,8 @@ function PalayRegister({ visible, onHide, onPalayRegistered, currentWSR }) {
     palaySupplierStreet: "",
     // Palay Info
     dateBought: "",
-    wsr: '',
-    wsi: '0',
+    wsr: "",
+    wsi: "0",
     age: 0,
     buyingStationName: "",
     buyingStationLoc: "",
@@ -217,14 +217,13 @@ function PalayRegister({ visible, onHide, onPalayRegistered, currentWSR }) {
       }));
   }, [palayData.qualityType, palayData.quantityBags, warehouseData, dryerData]);
 
-
   useEffect(() => {
     if (visible) {
       setActiveStep(0);
-      setPalayData(prev => ({
-        ...prev,
-        wsr: currentWSR ? currentWSR.toString().padStart(8, '0') : "00000001"
-      }));
+      // setPalayData(prev => ({
+      //   ...prev,
+      //   wsr: currentWSR ? currentWSR.toString().padStart(8, '0') : "00000001"
+      // }));
     }
   }, [visible]);
 
@@ -644,22 +643,25 @@ function PalayRegister({ visible, onHide, onPalayRegistered, currentWSR }) {
         <Wheat className="text-black" />
         <h3 className="text-md font-semibold text-black">Buy Palay</h3>
       </div>
-      <div className="flex items-center">
-        <label
-          htmlFor="wsr"
-          className="block text-xl font-semibold text-black"
-        >
-          WSR:
-        </label>
-        <InputText
-          id="wsr"
-          name="wsr"
-          value={palayData.wsr}
-          onChange={handlePalayInputChange}
-          className="w-32 ring-0 border-none text-xl font-semibold text-black"
-          keyfilter="int"
-          maxLength={8}
-        />
+      <div className="flex flex-col items-center gap-2">
+        <div className="flex items-center gap-2">
+          <label
+            htmlFor="wsr"
+            className="block text-xl font-semibold text-black"
+          >
+            WSR:
+          </label>
+          <InputText
+            id="wsr"
+            name="wsr"
+            value={palayData.wsr}
+            onChange={handlePalayInputChange}
+            className="w-40 ring-0 border-primary text-xl h-8 font-semibold text-black"
+            keyfilter="int"
+            maxLength={8}
+          />
+        </div>
+        {errors.wsr && (<p className="text-red-500 text-xs">{errors.wsr}</p>)}
       </div>
     </div>
   );
@@ -668,6 +670,11 @@ function PalayRegister({ visible, onHide, onPalayRegistered, currentWSR }) {
     let newErrors = {};
     if (step === 0) {
       // Farmer Info Validation
+      if (!palayData.wsr) {
+        newErrors.wsr = "WSR is required";
+      } else if (!/^\d{8}$/.test(palayData.wsr)) {
+        newErrors.wsr = "WSR must be 8 digits long";
+      }
       if (!palayData.category.trim()) {
         newErrors.category = "Category is required";
       }
@@ -688,11 +695,9 @@ function PalayRegister({ visible, onHide, onPalayRegistered, currentWSR }) {
           newErrors.numOfFarmer = "Number of farmers cannot be 0";
         }
       }
-      if (!palayData.email) {
-        newErrors.email = "Email is required";
+      if (!palayData.email || palayData.email.trim().toLowerCase() === "none" || palayData.email.trim().toLowerCase() === "na") {
       } else {
-        const emailRegex =
-          /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        const emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         if (!emailRegex.test(palayData.email)) {
           newErrors.email = "Please enter a valid email address";
         }
@@ -722,6 +727,11 @@ function PalayRegister({ visible, onHide, onPalayRegistered, currentWSR }) {
       }
     } else if (step === 1) {
       // Palay Info Validation
+      if (!palayData.wsr) {
+        newErrors.wsr = "WSR is required";
+      } else if (!/^\d{8}$/.test(palayData.wsr)) {
+        newErrors.wsr = "WSR must be 8 digits long";
+      }
       if (!palayData.varietyCode) {
         newErrors.varietyCode = "Variety Code is required";
       }
@@ -820,6 +830,11 @@ function PalayRegister({ visible, onHide, onPalayRegistered, currentWSR }) {
       }
     } else if (step === 2) {
       // Logistics Validation
+      if (!palayData.wsr) {
+        newErrors.wsr = "WSR is required";
+      } else if (!/^\d{8}$/.test(palayData.wsr)) {
+        newErrors.wsr = "WSR must be 8 digits long";
+      }
       if (!palayData.buyingStationName) {
         newErrors.buyingStationName = "Buying Station Name is required";
       }
