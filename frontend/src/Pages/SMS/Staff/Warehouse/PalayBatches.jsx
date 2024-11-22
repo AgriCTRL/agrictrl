@@ -92,7 +92,7 @@ const PalayBatches = ({
     }, {});
 
     return Object.values(grouped).flat();
-  }, [palayBatches, runningBags, runningGross]);
+  }, [palayBatches, runningBags, runningGross, runningNet]);
 
   const dateTemplate = (rowData) => {
     if (rowData.displayDate) {
@@ -186,7 +186,7 @@ const PalayBatches = ({
         <Column
           field="netWeight"
           className="text-center"
-          body={(rowData) => formatNumber(rowData.grossWeight)}
+          body={(rowData) => formatNumber(rowData.netWeight)}
         />
         <Column
           field="wsr"

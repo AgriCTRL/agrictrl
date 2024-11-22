@@ -88,8 +88,6 @@ const ReceivePalay = ({ visible, onHide, selectedItem, onAcceptSuccess, user, re
                 notes: `Received from transaction ${selectedItem.transactionId}`
             }
 
-            console.log(pileTransactionBody);
-
             // Create Pile Transaction
             const pileTransactionResponse = await fetch(`${apiUrl}/piletransactions`, {
                 method: 'POST',

@@ -107,7 +107,11 @@ function Warehouse() {
   }, [viewMode, first, rows, selectedFilter]);
 
   const refreshData = () => {
-    fetchInventory(first, rows);
+    setFirst(0);
+    setRows(10);
+
+    fetchInventory(0, 10);
+    fetchPileData(userWarehouse?.id);
     fetchDryerData();
     fetchMillerData();
     fetchWarehouseData();
@@ -503,6 +507,7 @@ function Warehouse() {
           onClick={(e) => {
             e.stopPropagation();
             setSelectedItem(item);
+            setSelectedPile(item);
             setShowSendToDialog(true);
           }}
         />
@@ -651,6 +656,17 @@ function Warehouse() {
               <div className="flex items-center">
                 <span className="py-1 text-sm">{item.status}</span>
               </div>
+            </div>
+            <div className="flex-none flex flex-col items-center gap-2">
+              <Button
+                label="Send to"
+                className="p-button-text p-button-sm text-primary ring-0"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedPile(item);
+                  setShowSendToDialog(true);
+                }}
+              />
             </div>
           </div>
         </div>
@@ -840,15 +856,14 @@ function Warehouse() {
       <SendTo
         visible={showSendToDialog}
         onHide={() => setShowSendToDialog(false)}
-        selectedItem={selectedItem}
         onSendSuccess={() => {
-          fetchInventory(first, rows);
+          refreshData();
         }}
         user={user}
         dryerData={dryerData}
         millerData={millerData}
-        refreshData={refreshData}
         warehouseData={warehouseData}
+        selectedPile={selectedPile}
       />
 
       <ReceiveRice

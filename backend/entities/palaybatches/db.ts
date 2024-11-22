@@ -98,10 +98,10 @@ export class PalayBatch extends BaseEntity {
   status: string;
 
   @Column({ nullable: true })
-  pileId: string;
+  pileId: string | null;
 
-  @ManyToOne(() => Pile)
-  pile: Pile;
+  @ManyToOne(() => Pile, { nullable: true })
+  pile: Pile | null;
 
   @OneToMany(() => Transaction, (transaction) => transaction.palayBatch)
   transactions: Transaction[];
@@ -296,7 +296,7 @@ export async function updatePalayBatch(
     correctedBy: palayBatchUpdate.correctedBy,
     classifiedBy: palayBatchUpdate.classifiedBy,
     status: palayBatchUpdate.status,
-    pileId: palayBatchUpdate.pileId,
+    pileId: palayBatchUpdate.pileId || null,
   });
 
   const palayBatch = await getPalayBatch(palayBatchUpdate.id);

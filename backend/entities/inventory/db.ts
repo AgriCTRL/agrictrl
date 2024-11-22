@@ -6,6 +6,7 @@ import { DryingBatch } from '../dryingbatches/db';
 import { MillingBatch } from '../millingbatches/db';
 import { Miller } from '../millers/db';
 import { Warehouse } from '../warehouses/db';
+import { Pile } from '../piles/db';
 import { InventoryFilters, ProcessingBatch, RiceDetails, PaginatedResponse } from './types';
 import { EnhancedInventoryItem, InventoryItem } from './types';
 import { RiceBatchMillingBatch } from '../riceBatchMillingBatches/db';
@@ -250,6 +251,130 @@ export async function getEnhancedInventory(
         };
     } catch (error) {
         console.error('Error in getEnhancedInventory:', error);
+        throw error;
+    }
+}
+
+export async function getInventoryByPileId(
+    pileId: string,
+    filters: InventoryFilters
+): Promise<PaginatedResponse<InventoryItem>> {
+    try {
+        // First, get all palayBatches in the specified pile
+        const palayBatchesInPile = await PalayBatch.createQueryBuilder('palayBatch')
+            .where('palayBatch.pileId = :pileId', { pileId })
+            .getMany();
+
+        if (!palayBatchesInPile.length) {
+            return {
+                items: [],
+                total: 0
+            };
+        }
+
+        // Get the IDs of all palayBatches in the pile
+        const palayBatchIds = palayBatchesInPile.map(pb => pb.id);
+
+        // Build the transaction query
+        let transactionQuery = Transaction.createQueryBuilder('transaction')
+            .where('transaction.itemId IN (:...palayBatchIds)', { palayBatchIds });
+
+        // Apply standard inventory filters
+        if (filters.toLocationType) {
+            transactionQuery = transactionQuery
+                .andWhere('transaction.toLocationType = :locationType', 
+                    { locationType: filters.toLocationType });
+        }
+
+        if (filters.transactionStatus) {
+            transactionQuery = transactionQuery
+                .andWhere('transaction.status = :status', 
+                    { status: filters.transactionStatus });
+        }
+
+        if (filters.item) {
+            transactionQuery = transactionQuery
+                .andWhere('transaction.item = :item', 
+                    { item: filters.item });
+        }
+
+        const transactions = await transactionQuery.getMany();
+
+        const inventoryItems = await Promise.all(
+            transactions.map(async (transaction) => {
+                let palayBatchQuery = PalayBatch.createQueryBuilder('palayBatch')
+                    .where('palayBatch.id = :id', { id: transaction.itemId })
+                    .leftJoinAndSelect('palayBatch.qualitySpec', 'qualitySpec')
+                    .leftJoinAndSelect('palayBatch.palaySupplier', 'palaySupplier')
+                    .leftJoinAndSelect('palayBatch.farm', 'farm')
+                    .leftJoinAndSelect('palayBatch.pile', 'pile');
+
+                if (filters.palayStatus) {
+                    const statuses = Array.isArray(filters.palayStatus) 
+                        ? filters.palayStatus 
+                        : [filters.palayStatus];
+                    palayBatchQuery = palayBatchQuery
+                        .andWhere('palayBatch.status IN (:...statuses)', 
+                            { statuses });
+                }
+
+                const palayBatch = await palayBatchQuery.getOne();
+
+                const processingBatch: ProcessingBatch = {};
+
+                if (!filters.processingTypes || filters.processingTypes.includes('drying')) {
+                    const dryingBatch = await DryingBatch.findOne({ 
+                        where: { 
+                            palayBatchId: transaction.itemId,
+                            ...(filters.processingStatus && { status: filters.processingStatus })
+                        }
+                    });
+                    processingBatch.dryingBatch = dryingBatch;
+                }
+
+                if (!filters.processingTypes || filters.processingTypes.includes('milling')) {
+                    const millingBatch = await MillingBatch.findOne({ 
+                        where: { 
+                            palayBatchId: transaction.itemId,
+                            ...(filters.processingStatus && { status: filters.processingStatus })
+                        }
+                    });
+                    processingBatch.millingBatch = millingBatch;
+                }
+
+                return {
+                    transaction,
+                    palayBatch: palayBatch || null,
+                    processingBatch,
+                };
+            })
+        );
+
+        // Filter items based on processing status if applicable
+        const filteredInventoryItems = filters.processingStatus
+            ? inventoryItems.filter(item => 
+                item.processingBatch.dryingBatch?.status === filters.processingStatus ||
+                item.processingBatch.millingBatch?.status === filters.processingStatus
+            )
+            : inventoryItems;
+
+        // Filter out items with null palayBatch
+        const validInventoryItems = filteredInventoryItems.filter(item => item.palayBatch !== null);
+        
+        // Calculate total before pagination
+        const total = validInventoryItems.length;
+
+        // Apply pagination
+        const paginatedItems = filters.limit !== undefined && filters.offset !== undefined
+            ? validInventoryItems.slice(filters.offset, filters.offset + filters.limit)
+            : validInventoryItems;
+
+        return {
+            items: paginatedItems,
+            total
+        };
+    } catch (error) {
+        console.error('Error in getInventoryByPileId:', error);
         throw error;
     }
 }
