@@ -4,12 +4,11 @@ import { useRegistration } from '../RegistrationContext';
 import { Password } from 'primereact/password';
 import { Divider } from 'primereact/divider';
 
-const Finishing = ({ setConfirmPasswordValid, credsInfo }) => {
-  const { registrationData, updateRegistrationData } = useRegistration();
-  const { email, password, confirmPassword } = registrationData.finishingDetails;
+const Finishing = ({ setConfirmPasswordValid, finishingDetails, updateRegistrationData }) => {
+  const { email, password, confirmPassword } = finishingDetails;
 
   const handleInputChange = (field, value) => {
-    credsInfo[field] = value;
+    finishingDetails[field] = value;
     updateRegistrationData('finishingDetails', { [field]: value });
     if (field === 'password' || field === 'confirmPassword') {
       setConfirmPasswordValid(registrationData.finishingDetails.password === value);
@@ -44,11 +43,11 @@ const Finishing = ({ setConfirmPasswordValid, credsInfo }) => {
             onChange={(e) => handleInputChange('email', e.target.value)}  
             placeholder="Enter your email" 
             className="w-full focus:ring-0 focus:border-primary hover:border-primary"
-            invalid={!credsInfo.email}
+            invalid={!finishingDetails.email && nextBtnIsClicked}
             keyfilter={'email'}
             maxLength={50}
           />
-          {!credsInfo.email &&
+          {(!finishingDetails.email && nextBtnIsClicked) &&
             <small className='p-error'>Please input your email.</small>
           }
         </div>
@@ -67,9 +66,9 @@ const Finishing = ({ setConfirmPasswordValid, credsInfo }) => {
             toggleMask
             maxLength={50}
             minLength={8}
-            invalid={!credsInfo.password}
+            invalid={!finishingDetails.password && nextBtnIsClicked}
           />
-          {!credsInfo.password &&
+          {(!finishingDetails.password && nextBtnIsClicked) &&
             <small className='p-error'>Please input your password.</small>
           }
         </div>
@@ -84,10 +83,10 @@ const Finishing = ({ setConfirmPasswordValid, credsInfo }) => {
             className="w-full"
             inputClassName='ring-0 focus:border-primary hover:border-primary'
             feedback={false} 
-            invalid={!credsInfo.confirmPassword}
+            invalid={!finishingDetails.confirmPassword && nextBtnIsClicked}
             toggleMask
           />
-          {!credsInfo.confirmPassword &&
+          {(!finishingDetails.confirmPassword && nextBtnIsClicked) &&
             <small className='p-error'>Please input your password.</small>
           }
         </div>

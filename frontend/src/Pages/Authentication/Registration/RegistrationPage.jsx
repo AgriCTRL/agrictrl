@@ -1,68 +1,49 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Button } from "primereact/button";
 import { useNavigate } from "react-router-dom";
-import { Stepper, Step, StepLabel, StepConnector } from "@mui/material";
-import {
-  CircleUserRound,
-  Contact,
-  SlidersVertical,
-  CircleCheckBig,
-  ArrowLeft,
-  ArrowRight,
-} from "lucide-react";
+
+import { Divider } from "primereact/divider";
 import { Toast } from "primereact/toast";
+import { Stepper, Step, StepLabel, StepConnector } from "@mui/material";
+
 import { storage } from './firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
-
-import PersonalInformation from "./RegistrationComponents/PersonalInformation";
-import AccountDetails from "./RegistrationComponents/AccountDetails";
-import OfficeAddress from "./RegistrationComponents/OfficeAddress";
-import Finishing from "./RegistrationComponents/Finishing";
-import { RegistrationProvider, useRegistration } from "./RegistrationContext";
-import { Divider } from "primereact/divider";
 import CryptoJS from 'crypto-js';
 
+import PersonalInformation from "./Components/PersonalInformation";
+import AccountDetails from "./Components/AccountDetails";
+import OfficeAddress from "./Components/OfficeAddress";
+import Finishing from "./Components/Finishing";
+import CustomStepLabel from "./Components/CustomStepLabel";
 
-// Step configuration
-const steps = [
-  { number: 0, label: "Personal Information", icon: <CircleUserRound /> },
-  { number: 1, label: "Account Details", icon: <Contact /> },
-  { number: 2, label: "Office Address", icon: <SlidersVertical /> },
-  { number: 3, label: "Finishing", icon: <CircleCheckBig /> },
-];
-
-const CustomStepLabel = ({ icon, isActive }) => {
-  return (
-    <div
-      className={`flex items-center justify-center
-                  p-4 rounded-full transition-all
-                  ${
-                    isActive
-                      ? "bg-white text-secondary scale-110"
-                      : "bg-transparent text-white border-2 border-white"
-                  }`}
-    >
-      {React.cloneElement(icon, {
-        size: 20,
-        className: "transition-all",
-      })}
-    </div>
-  );
-};
+import { 
+	RegistrationProvider, 
+	useRegistration 
+} from "./RegistrationContext";
+import StepNavigator from "./Components/StepNavigator";
 
 const RegistrationPageContent = () => {
+	const { 
+		registrationData,
+		updateRegistrationData,
+		steps
+	} = useRegistration();
 	const apiUrl = import.meta.env.VITE_API_BASE_URL;
 	const secretKey = import.meta.env.VITE_HASH_KEY;
 	const [activeStep, setActiveStep] = useState(0);
 	const [prevStep, setPrevStep] = useState(null);
 	const [nextStep, setNextStep] = useState(null);
 	const [completedSteps] = useState([])
-	const navigate = useNavigate();
-	const { registrationData } = useRegistration();
+	const navigate = useNavigate();	
 	const toast = useRef(null);
 	const [confirmPasswordValid, setConfirmPasswordValid] = useState(false);
 	const [isValidating, setIsValidating] = useState(false);
+	const [nextBtnClicked, setNextBtnClicked] = useState({
+		personalInfo: false,
+		accountDetails: false,
+		officeAddress: false,
+		finishing: false,
+	});
 	const [selectedFile, setSelectedFile ] = useState(null);
 
 	useEffect(() => {
@@ -71,36 +52,7 @@ const RegistrationPageContent = () => {
 	
 		setNextStep(nextStepIndex !== -1 ? steps[nextStepIndex].label : "");
 		setPrevStep(prevStepIndex !== -1 ? steps[prevStepIndex].label : "");
-		}, [activeStep]);
-
-	const [personalInfo] = useState({
-		firstName: '',
-		lastName: '',
-		gender: '',
-		birthDate: null,
-		contactNumber: null,
-	});
-
-	const [contactInfo] = useState({
-		userType: '',
-		organizationName: '',
-		jobTitlePosition: '',
-		validIdName: null,
-	});
-
-	const [addressInfo] = useState({
-		region: null,
-		province: null,
-		cityTown: null,
-		barangay: null,
-		street: null,
-	});
-
-	const [credsInfo] = useState({
-		email: null,
-		password: null,
-		confirmPassword: null,
-	});
+	}, [activeStep]);
 
 	const handleFileUpload = async () => {
 		if (!selectedFile) return null;
@@ -120,66 +72,66 @@ const RegistrationPageContent = () => {
 	};
 
 	const validatePasswordFields = () => {
-		const { password, confirmPassword } = credsInfo;
+		const { password, confirmPassword } = registrationData.finishingDetails;
 		let isValid = true;
 	
 		// Password requirements validation
 		const passwordRegex = {
-		  lowercase: /[a-z]/,
-		  uppercase: /[A-Z]/,
-		  number: /\d/,
-		  minLength: 8
+			lowercase: /[a-z]/,
+			uppercase: /[A-Z]/,
+			number: /\d/,
+			minLength: 8
 		};
 	
 		if (password.length < passwordRegex.minLength) {
-		  toast.current.show({
-			severity: 'error',
-			summary: 'Error',
-			detail: 'Password must be at least 8 characters long',
-			life: 5000
-		  });
-		  isValid = false;
+			toast.current.show({
+				severity: 'error',
+				summary: 'Error',
+				detail: 'Password must be at least 8 characters long',
+				life: 5000
+			});
+			isValid = false;
 		}
 	
 		if (!passwordRegex.lowercase.test(password)) {
-		  toast.current.show({
-			severity: 'error',
-			summary: 'Error',
-			detail: 'Password must contain at least one lowercase letter',
-			life: 5000
-		  });
-		  isValid = false;
+			toast.current.show({
+				severity: 'error',
+				summary: 'Error',
+				detail: 'Password must contain at least one lowercase letter',
+				life: 5000
+			});
+			isValid = false;
 		}
 	
 		if (!passwordRegex.uppercase.test(password)) {
-		  toast.current.show({
-			severity: 'error',
-			summary: 'Error',
-			detail: 'Password must contain at least one uppercase letter',
-			life: 5000
-		  });
-		  isValid = false;
+			toast.current.show({
+				severity: 'error',
+				summary: 'Error',
+				detail: 'Password must contain at least one uppercase letter',
+				life: 5000
+			});
+			isValid = false;
 		}
 	
 		if (!passwordRegex.number.test(password)) {
-		  toast.current.show({
-			severity: 'error',
-			summary: 'Error',
-			detail: 'Password must contain at least one number',
-			life: 5000
-		  });
-		  isValid = false;
+			toast.current.show({
+				severity: 'error',
+				summary: 'Error',
+				detail: 'Password must contain at least one number',
+				life: 5000
+			});
+			isValid = false;
 		}
 	
 		// Check if passwords match
 		if (password !== confirmPassword) {
-		  toast.current.show({
-			severity: 'error',
-			summary: 'Error',
-			detail: 'Passwords do not match',
-			life: 5000
-		  });
-		  isValid = false;
+			toast.current.show({
+				severity: 'error',
+				summary: 'Error',
+				detail: 'Passwords do not match',
+				life: 5000
+			});
+			isValid = false;
 		}
 	
 		return isValid;
@@ -204,10 +156,10 @@ const RegistrationPageContent = () => {
 			}
 
 			const registrationPayload = {
-			...registrationData.personalInfo,
-			...updatedAccountDetails,
-			...registrationData.officeAddress,
-			...registrationData.finishingDetails,
+				...registrationData.personalInfo,
+				...updatedAccountDetails,
+				...registrationData.officeAddress,
+				...registrationData.finishingDetails,
 			};
 
 			const encryptedPayload = CryptoJS.AES.encrypt(JSON.stringify(registrationPayload), secretKey).toString();
@@ -252,6 +204,29 @@ const RegistrationPageContent = () => {
 
 	const handleNext = () => {
 		setIsValidating(true);
+
+		if (activeStep === 0) {
+			setNextBtnClicked(prevState => ({
+				...prevState,
+				personalInfo: true
+			}))
+		} else if (activeStep === 1) {
+			setNextBtnClicked(prevState => ({
+				...prevState,
+				accountDetails: true
+			}))
+		} else if (activeStep === 2) {
+			setNextBtnClicked(prevState => ({
+				...prevState,
+				officeAddress: true
+			}))
+		} else if (activeStep === 3) {
+			setNextBtnClicked(prevState => ({
+				...prevState,
+				finishingDetails: true
+			}))
+		}
+
 		const isValidated = validateInputs();
 		if (isValidated) {
 			setActiveStep((prev) => Math.min(prev + 1, steps.length - 1));
@@ -265,42 +240,60 @@ const RegistrationPageContent = () => {
 
 	const validateInputs = () => {
 		if (activeStep === 0) {
-			if (!personalInfo.firstName || !personalInfo.lastName || !personalInfo.gender || !personalInfo.birthDate || !personalInfo.contactNumber) {
-			return false;
+			if (!registrationData.personalInfo.firstName || !registrationData.personalInfo.lastName || !registrationData.personalInfo.gender || !registrationData.personalInfo.birthDate || !registrationData.personalInfo.contactNumber) {
+				return false;
 			}
 		} 
 		if (activeStep === 1) {
-			if (!contactInfo.userType || !contactInfo.organizationName || !contactInfo.jobTitlePosition || !contactInfo.validIdName) {
-			return false;
+			if (!registrationData.accountDetails.userType || !registrationData.accountDetails.organizationName || !registrationData.accountDetails.jobTitlePosition || !registrationData.accountDetails.validIdName) {
+				return false;
 			}
 		}
 		if (activeStep === 2) {
-			if (!addressInfo.region || !addressInfo.province || !addressInfo.cityTown || !addressInfo.barangay || !addressInfo.street) {
-			return false;
+			if (!registrationData.officeAddress.region || !registrationData.officeAddress.province || !registrationData.officeAddress.cityTown || !registrationData.officeAddress.barangay || !registrationData.officeAddress.street) {
+				return false;
 			}
 		}
 		if (activeStep === 3) {
-		if (!credsInfo.email || !credsInfo.password || !credsInfo.confirmPassword) {
-		return false;
+		if (!registrationData.finishingDetails.email || !registrationData.finishingDetails.password || !registrationData.finishingDetails.confirmPassword) {
+			return false;
 		}
 	}
 
 	completedSteps.push(activeStep)
-	return true;
+		return true;
 	}
 
 	const renderStep = () => {
 		switch (activeStep) {
 			case 0:
-			return <PersonalInformation personalInfo={personalInfo} />;
+				return <PersonalInformation
+							personalInfo={registrationData.personalInfo} 
+							updateRegistrationData={updateRegistrationData} 
+							nextBtnIsClicked={nextBtnClicked.personalInfo}
+						/>;
 			case 1:
-			return <AccountDetails setSelectedFile={setSelectedFile} contactInfo={contactInfo} />;
+				return <AccountDetails
+							setSelectedFile={setSelectedFile} 
+							accountDetails={registrationData.accountDetails} 
+							updateRegistrationData={updateRegistrationData}
+							nextBtnIsClicked={nextBtnClicked.accountDetails}
+						/>;
 			case 2:
-			return <OfficeAddress addressInfo={addressInfo} />;
+				return <OfficeAddress
+							officeAddress={registrationData.officeAddress} 
+							updateRegistrationData={updateRegistrationData}
+							nextBtnIsClicked={nextBtnClicked.officeAddress}
+						/>;
 			case 3:
-			return <Finishing setConfirmPasswordValid={setConfirmPasswordValid} credsInfo={credsInfo} />;
+				return <Finishing
+							setConfirmPasswordValid={setConfirmPasswordValid} 
+							finishingDetails={registrationData.finishingDetails} 
+							updateRegistrationData={updateRegistrationData}
+							nextBtnIsClicked={nextBtnClicked.finishingDetails}
+						/>;
 			default:
-			return null;
+				return null;
 		}
 	};
 
@@ -323,10 +316,10 @@ const RegistrationPageContent = () => {
 				</h2>
 
 				<Stepper
-				orientation="vertical"
-				activeStep={activeStep}
-				connector
-				className="z-30"
+					orientation="vertical"
+					activeStep={activeStep}
+					connector
+					className="z-30"
 				>
 				{steps.map(({ label, icon }, index) => (
 					<Step key={label}>
@@ -359,7 +352,7 @@ const RegistrationPageContent = () => {
 				</Stepper>
 
 				<div className="flex items-center justify-center cursor-pointer z-30">
-							<img src="favicon.ico" alt="AgriCTRL+ Logo" className="h-12 mr-4" onClick={() => navigate('/') } />
+					<img src="favicon.ico" alt="AgriCTRL+ Logo" className="h-12 mr-4" onClick={() => navigate('/') } />
 				<span className="text-2xl font-medium">AgriCTRL+</span>
 				</div>
 			</div>
@@ -370,39 +363,25 @@ const RegistrationPageContent = () => {
 			<div className="flex flex-col gap-4 sm:gap-6">
 				{renderStep()}
 				<Divider className='m-0'/>
-
-				<div className="flex gap-4 justify-between">
-				<Button
-					className="transition ring-0 border-lightest-grey hover:border-primary w-1/2 flex-col items-start"
-					onClick={handleBack}
-					disabled={activeStep === 0}
-					outlined
-				>
-					<small className="text-black">Previous step</small>
-					<p className="font-semibold text-primary">{prevStep}</p>
-				</Button>
-				<Button
-					className="transition ring-0 border-lightest-grey hover:border-primary w-1/2 flex-col items-end"
-					onClick={
-					activeStep === steps.length - 1 ? handleRegister : handleNext
-					}
-					outlined
-				>
-					<small className="text-black">{activeStep === steps.length - 1 ? "Done!" : "Next step"}</small>
-					<p className="font-semibold text-primary">{activeStep === steps.length - 1 ? "Submit" : nextStep}</p>
-				</Button>
-				</div>
+				<StepNavigator 
+					handleBack={handleBack} 
+					handleNext={handleNext} 
+					handleRegister={handleRegister} 
+					activeStep={activeStep}
+					prevStep={prevStep}
+					nextStep={nextStep}
+				/>
 			</div>
 
 			<div className="text-center">
 				<span className="text-gray-600">
-				Already have an account?{" "}
+					Already have an account?{" "}
 				</span>
 				<a
-				onClick={LoginButton}
-				className="font-medium text-primary hover:underline cursor-pointer"
+					onClick={LoginButton}
+					className="font-medium text-primary hover:underline cursor-pointer"
 				>
-				Login here
+					Login here
 				</a>
 			</div>
 			</div>
@@ -410,7 +389,7 @@ const RegistrationPageContent = () => {
 	);
 };
 
-	const RegistrationPage = (props) => (
+const RegistrationPage = (props) => (
 	<RegistrationProvider>
 		<RegistrationPageContent {...props} />
 	</RegistrationProvider>

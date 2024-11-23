@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
-import { useRegistration } from '../RegistrationContext';
 
-const OfficeAddress = ({ addressInfo }) => {
-  const { registrationData, updateRegistrationData } = useRegistration();
-  const { region, province, cityTown, barangay, street } = registrationData.officeAddress;
+const OfficeAddress = ({ 
+  officeAddress, 
+  updateRegistrationData,
+  nextBtnIsClicked
+}) => {
+  const { region, province, cityTown, barangay, street } = officeAddress;
   const [regionOptions, setRegionOptions] = useState([]);
   const [provinceOptions, setProvinceOptions] = useState([]);
   const [cityTownOptions, setCityTownOptions] = useState([]);
@@ -119,7 +121,7 @@ const OfficeAddress = ({ addressInfo }) => {
   };
 
   const handleInputChange = (field, value) => {
-    addressInfo[field] = value;
+    officeAddress[field] = value;
     if (field === 'region') {
       const selectedRegion = regionOptions.find(r => r.value === value);
       updateRegistrationData('officeAddress', { 
@@ -189,9 +191,9 @@ const OfficeAddress = ({ addressInfo }) => {
             onChange={(e) => handleInputChange('region', e.value)}
             placeholder="Select a region" 
             className="ring-0 w-full placeholder:text-gray-400"
-            invalid={!addressInfo.region}
+            invalid={!officeAddress.region && nextBtnIsClicked}
           />
-          {!addressInfo.region &&
+          {(!officeAddress.region && nextBtnIsClicked) &&
             <small className='p-error'>Region is required.</small>
           }
         </div>
@@ -207,9 +209,9 @@ const OfficeAddress = ({ addressInfo }) => {
                 onChange={(e) => handleInputChange('province', e.value)}
                 placeholder="Select a province"
                 className="ring-0 w-full"
-                invalid={!addressInfo.province}
+                invalid={!officeAddress.province && nextBtnIsClicked}
               />
-              {region && !province && provinceOptions.length > 0 &&
+              {((region && !province && provinceOptions.length > 0) && nextBtnIsClicked) &&
                 <small className='p-error'>Province is required.</small>
               }
             </div>
@@ -224,9 +226,9 @@ const OfficeAddress = ({ addressInfo }) => {
               onChange={(e) => handleInputChange('cityTown', e.value)}
               placeholder="Select a city" 
               className="ring-0 w-full placeholder:text-gray-400"
-              invalid={!addressInfo.cityTown}
+              invalid={!officeAddress.cityTown && nextBtnIsClicked}
             />
-            {province && !cityTown && cityTownOptions.length > 0 &&
+            {((province && !cityTown && cityTownOptions.length > 0) && nextBtnIsClicked) &&
               <small className='p-error'>City is required.</small>
             }
           </div>
@@ -242,9 +244,9 @@ const OfficeAddress = ({ addressInfo }) => {
               onChange={(e) => handleInputChange('barangay', e.value)} 
               placeholder="Select a barangay" 
               className="ring-0 w-full placeholder:text-gray-400"
-              invalid={!addressInfo.barangay}
+              invalid={!officeAddress.barangay && nextBtnIsClicked}
             />
-            {cityTown && !barangay && barangayOptions.length > 0 &&
+            {((cityTown && !barangay && barangayOptions.length > 0) && nextBtnIsClicked) &&
               <small className='p-error'>Barangay is required.</small>
             }
           </div>
@@ -257,10 +259,10 @@ const OfficeAddress = ({ addressInfo }) => {
               onChange={(e) => handleInputChange('street', e.target.value)} 
               className="w-full focus:ring-0" 
               placeholder="#123 Sample Street"
-              invalid={!addressInfo.street}
+              invalid={!officeAddress.street && nextBtnIsClicked}
               maxLength={100}
             />
-            {!addressInfo.street &&
+            {(!officeAddress.street && nextBtnIsClicked) &&
               <small className='p-error'>Street is required.</small>
             }
           </div>

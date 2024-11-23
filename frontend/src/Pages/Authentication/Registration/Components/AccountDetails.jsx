@@ -2,12 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { FileUpload } from 'primereact/fileupload';
-import { useRegistration } from '../RegistrationContext';
-import { Divider } from 'primereact/divider';
 
-const AccountDetails = ({ setSelectedFile, contactInfo }) => {
-  const { registrationData, updateRegistrationData } = useRegistration();
-  const { userType, organizationName, jobTitlePosition, branchRegion, branchOffice, validId, validIdName } = registrationData.accountDetails;
+const AccountDetails = ({ 
+  setSelectedFile, 
+  accountDetails, 
+  updateRegistrationData, 
+  nextBtnIsClicked 
+}) => {
+  const { userType, organizationName, jobTitlePosition, branchRegion, branchOffice, validId, validIdName } = accountDetails;
 
   const userTypeOptions = [
     { label: 'NFA Branch Staff', value: 'NFA Branch Staff' },
@@ -95,10 +97,10 @@ const AccountDetails = ({ setSelectedFile, contactInfo }) => {
   };
 
   const handleInputChange = (field, value) => {
-    contactInfo[field] = value;
+    accountDetails[field] = value;
 
     const updatedData = {
-      ...registrationData.accountDetails,
+      ...accountDetails,
       [field]: value,
     };
 
@@ -139,9 +141,9 @@ const AccountDetails = ({ setSelectedFile, contactInfo }) => {
             onChange={(e) => handleInputChange('userType', e.value)}
             placeholder="Select User Type"
             className="ring-0 w-full placeholder:text-gray-400"
-            invalid={!contactInfo.userType}
+            invalid={!accountDetails.userType && nextBtnIsClicked}
           />
-          {!contactInfo.userType &&
+          {(!accountDetails.userType && nextBtnIsClicked) &&
             <small className='p-error'>Please input your user type.</small>
           }
         </div>
@@ -155,10 +157,10 @@ const AccountDetails = ({ setSelectedFile, contactInfo }) => {
               onChange={(e) => handleInputChange('organizationName', e.target.value)}
               placeholder="organization name"
               className="w-full focus:ring-0"
-              invalid={!contactInfo.organizationName}
+              invalid={!accountDetails.organizationName && nextBtnIsClicked}
               maxLength={50}
             />
-            {!contactInfo.organizationName &&
+            {(!accountDetails.organizationName && nextBtnIsClicked) &&
               <small className='p-error'>Please input your organization name.</small>
             }
           </div>
@@ -173,7 +175,7 @@ const AccountDetails = ({ setSelectedFile, contactInfo }) => {
                 onChange={(e) => handleInputChange('jobTitlePosition', e.value)}
                 placeholder="job title"
                 className="w-full focus:ring-0"
-                invalid={!contactInfo.jobTitlePosition}
+                invalid={!accountDetails.jobTitlePosition && nextBtnIsClicked}
               />
             ) : (
               <InputText
@@ -182,12 +184,12 @@ const AccountDetails = ({ setSelectedFile, contactInfo }) => {
                 onChange={(e) => handleInputChange('jobTitlePosition', e.target.value)}
                 placeholder="job title"
                 className="w-full focus:ring-0"
-                invalid={!contactInfo.jobTitlePosition}
+                invalid={!accountDetails.jobTitlePosition && nextBtnIsClicked}
                 keyfilter={/^[a-zA-Z\s0-9]/}
                 maxLength={50}
               />
             )}
-            {!contactInfo.jobTitlePosition &&
+            {(!accountDetails.jobTitlePosition && nextBtnIsClicked) &&
               <small className='p-error'>Please input your job title.</small>
             }
           </div>
@@ -233,9 +235,9 @@ const AccountDetails = ({ setSelectedFile, contactInfo }) => {
               className: 'bg-transparent text-primary flex flex-col items-center ring-0'
             }}
             onSelect={handleFileSelect}
-            invalid={!contactInfo.validIdName}
+            invalid={!accountDetails.validIdName && nextBtnIsClicked}
           />
-          {!contactInfo.validIdName && 
+          {(!accountDetails.validIdName && nextBtnIsClicked) && 
               <small className='p-error'>Please input a valid id.</small>
           }
         </div>

@@ -177,7 +177,7 @@ function Inventory() {
                                 first={first}
                                 onPage={(e) => setFirst(e.first)}
                                 totalRecords={totalRecords}
-                                className="overflow-y-auto pb-16 p-4"
+                                className="overflow-y-auto p-4 h-full"
                                 paginatorClassName="absolute bottom-0 left-0 right-0 bg-white border-t"
                                 paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
                             />
@@ -187,11 +187,11 @@ function Inventory() {
 
                 {/* Details Dialog */}
                 <Dialog
-                visible={showDetails}
-                onHide={() => setShowDetails(false)}
-                header={`Batch #${selectedPalay?.id} Details`}
-                className="w-full max-w-4xl"
-            >
+                    visible={showDetails}
+                    onHide={() => setShowDetails(false)}
+                    header={`Batch #${selectedPalay?.id} Details`}
+                    className="w-full max-w-4xl"
+                >
                 {selectedPalay && (
                     <div className="grid grid-cols-3 gap-4">
                         {/* Basic Information */}

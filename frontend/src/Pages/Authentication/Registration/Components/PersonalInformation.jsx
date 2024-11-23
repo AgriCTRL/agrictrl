@@ -4,12 +4,9 @@ import { InputMask } from 'primereact/inputmask';
         
 import { Dropdown } from 'primereact/dropdown';
 import { Calendar } from 'primereact/calendar';
-import { useRegistration } from '../RegistrationContext';
-import { Divider } from 'primereact/divider';
 
-const PersonalInformation = ({ personalInfo }) => {
-  const { registrationData, updateRegistrationData } = useRegistration();
-  const { firstName, lastName, gender, birthDate, contactNumber } = registrationData.personalInfo;
+const PersonalInformation = ({ personalInfo, updateRegistrationData, nextBtnIsClicked }) => {
+  const { firstName, lastName, gender, birthDate, contactNumber } = personalInfo;
 
   let today = new Date();
   let year = today.getFullYear();
@@ -61,11 +58,11 @@ const PersonalInformation = ({ personalInfo }) => {
               onChange={(e) => handleInputChange('firstName', e.target.value)} 
               className="w-full focus:ring-0 focus:border-primary hover:border-primary"
               placeholder="First name"
-              invalid={!personalInfo.firstName}
+              invalid={!personalInfo.firstName && nextBtnIsClicked}
               keyfilter={/^[a-zA-Z\s]/}
               maxLength={50}
             />
-            {(!personalInfo.firstName) &&
+            {(!personalInfo.firstName && nextBtnIsClicked) &&
               <small className='p-error'>Please input your first name.</small>
             }
           </div>
@@ -78,11 +75,11 @@ const PersonalInformation = ({ personalInfo }) => {
               onChange={(e) => handleInputChange('lastName', e.target.value)} 
               className="w-full focus:ring-0 focus:border-primary hover:border-primary" 
               placeholder="Last name"
-              invalid={!personalInfo.lastName} 
+              invalid={!personalInfo.lastName && nextBtnIsClicked} 
               keyfilter={/^[a-zA-Z\s]/}
               maxLength={50}
             />
-            {(!personalInfo.lastName) &&
+            {(!personalInfo.lastName && nextBtnIsClicked) &&
               <small className='p-error'>Please input your last name.</small>
             }
           </div>
@@ -98,9 +95,9 @@ const PersonalInformation = ({ personalInfo }) => {
               onChange={(e) => handleInputChange('gender', e.value)}
               placeholder="Select Gender"
               className="ring-0 w-full focus:border-primary hover:border-primary" 
-              invalid={!personalInfo.gender}
+              invalid={!personalInfo.gender && nextBtnIsClicked}
             />
-            {(!personalInfo.gender) &&
+            {(!personalInfo.gender && nextBtnIsClicked) &&
               <small className='p-error'>Please input your gender.</small>
             }
           </div>
@@ -114,10 +111,10 @@ const PersonalInformation = ({ personalInfo }) => {
               placeholder="MM/DD/YYYY" 
               className="ring-0 w-full focus:shadow-none custom-calendar focus:border-primary hover:border-primary" 
               showIcon
-              invalid={!personalInfo.birthDate}
+              invalid={!personalInfo.birthDate && nextBtnIsClicked}
               maxDate={maxDate}
             />
-            {(!personalInfo.birthDate) &&
+            {(!personalInfo.birthDate && nextBtnIsClicked) &&
               <small className='p-error'>Please input your birthdate.</small>
             }
           </div>
@@ -132,9 +129,9 @@ const PersonalInformation = ({ personalInfo }) => {
             value={contactNumber}
             onChange={handleContactNumberChange}
             className="w-full focus:ring-0 focus:border-primary hover:border-primary"
-            invalid={!personalInfo.contactNumber}
+            invalid={!personalInfo.contactNumber && nextBtnIsClicked}
           />
-          {(!personalInfo.contactNumber) &&
+          {(!personalInfo.contactNumber && nextBtnIsClicked) &&
               <small className='p-error'>Please input your contact number.</small>
           }
         </div>
