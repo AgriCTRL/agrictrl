@@ -95,10 +95,10 @@ function Inventory() {
                 </div>
                 <div className="flex-grow">
                     <div className="text-xl font-semibold mb-1">
-                        Palay Batch #{item.id}
+                        Palay Batch #{item.wsr}
                     </div>
                     <div className="text-gray-600 mb-2">
-                        {formatDate(item.dateBought)}
+                        {formatDate(item.dateBought)} || age: {item.age}
                     </div>
                     <div className="text-sm text-gray-500">{item.quantityBags} bags</div>
                 </div>
@@ -178,7 +178,7 @@ function Inventory() {
                                 onPage={(e) => setFirst(e.first)}
                                 totalRecords={totalRecords}
                                 className="overflow-y-auto pb-16 p-4"
-                                paginatorClassName="absolute bottom-0 left-0 right-0 bg-white border-t"
+                                paginatorClassName="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-300"
                                 paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
                             />
                         </div>
@@ -189,7 +189,7 @@ function Inventory() {
                 <Dialog
                 visible={showDetails}
                 onHide={() => setShowDetails(false)}
-                header={`Batch #${selectedPalay?.id} Details`}
+                header={`Batch #${selectedPalay?.wsr} Details`}
                 className="w-full max-w-4xl"
             >
                 {selectedPalay && (

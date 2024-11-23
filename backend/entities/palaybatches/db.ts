@@ -12,6 +12,7 @@ import { getQualitySpec, QualitySpec } from "../qualityspecs/db";
 import { getPalaySupplier, PalaySupplier } from "../palaysuppliers/db";
 import { getFarm, Farm } from "../farms/db";
 import { Transaction } from "../transactions/db";
+import { Pile } from "../piles/db";
 
 @Entity()
 export class PalayBatch extends BaseEntity {
@@ -22,6 +23,12 @@ export class PalayBatch extends BaseEntity {
   dateBought: Date;
 
   @Column()
+  wsr: number;
+
+  @Column()
+  wsi: number;
+
+  @Column()
   age: number;
 
   @Column()
@@ -29,6 +36,9 @@ export class PalayBatch extends BaseEntity {
 
   @Column()
   buyingStationLoc: string;
+
+  @Column({ nullable: true })
+  currentQuantityBags: number;
 
   @Column()
   quantityBags: number;
@@ -90,6 +100,12 @@ export class PalayBatch extends BaseEntity {
   @Column()
   status: string;
 
+  @Column({ nullable: true })
+  pileId: string | null;
+
+  @ManyToOne(() => Pile, { nullable: true })
+  pile: Pile | null;
+
   @OneToMany(() => Transaction, (transaction) => transaction.palayBatch)
   transactions: Transaction[];
 
@@ -114,10 +130,13 @@ export class PalayBatch extends BaseEntity {
 
 export type PalayBatchCreate = Pick<
   PalayBatch,
+  | "wsr"
+  | "wsi"
   | "dateBought"
   | "age"
   | "buyingStationName"
   | "buyingStationLoc"
+  | "currentQuantityBags"
   | "quantityBags"
   | "grossWeight"
   | "netWeight"
@@ -135,6 +154,7 @@ export type PalayBatchCreate = Pick<
   | "correctedBy"
   | "classifiedBy"
   | "status"
+  | "pileId"
 > & {
   qualitySpecId: QualitySpec["id"];
   palaySupplierId: PalaySupplier["id"];
@@ -152,10 +172,14 @@ function getCurrentPST(): Date {
 export async function getPalayBatches(
   limit: number,
   offset: number
-): Promise<{ data: PalayBatch[]; total: number }> {
+): Promise<{ data: PalayBatch[]; total: number; latestWSR: number | null }> {
   const [data, total] = await PalayBatch.findAndCount({
     take: limit,
     skip: offset,
+    order: {
+      wsr: "DESC",
+      id: "DESC",
+    },
     relations: {
       qualitySpec: true,
       palaySupplier: true,
@@ -163,7 +187,11 @@ export async function getPalayBatches(
     },
   });
 
-  return { data, total };
+  const latestWSRResult = await PalayBatch.createQueryBuilder("palayBatch")
+    .select("MAX(palayBatch.wsr)", "latestWSR")
+    .getRawOne();
+
+  return { data, total, latestWSR: latestWSRResult?.latestWSR || null };
 }
 
 export async function getPalayBatch(id: string): Promise<PalayBatch | null> {
@@ -189,9 +217,12 @@ export async function createPalayBatch(
   let palayBatch = new PalayBatch();
 
   palayBatch.dateBought = getCurrentPST();
+  palayBatch.wsr = palayBatchCreate.wsr;
+  palayBatch.wsi = palayBatchCreate.wsi;
   palayBatch.age = palayBatchCreate.age;
   palayBatch.buyingStationName = palayBatchCreate.buyingStationName;
   palayBatch.buyingStationLoc = palayBatchCreate.buyingStationLoc;
+  palayBatch.currentQuantityBags = palayBatchCreate.currentQuantityBags;
   palayBatch.quantityBags = palayBatchCreate.quantityBags;
   palayBatch.grossWeight = palayBatchCreate.grossWeight;
   palayBatch.netWeight = palayBatchCreate.netWeight;
@@ -241,6 +272,7 @@ export async function createPalayBatch(
   palayBatch.correctedBy = palayBatchCreate.correctedBy;
   palayBatch.classifiedBy = palayBatchCreate.classifiedBy;
   palayBatch.status = palayBatchCreate.status;
+  palayBatch.pileId = palayBatchCreate.pileId;
 
   return await palayBatch.save();
 }
@@ -250,9 +282,12 @@ export async function updatePalayBatch(
 ): Promise<PalayBatch> {
   await PalayBatch.update(palayBatchUpdate.id, {
     dateBought: palayBatchUpdate.dateBought,
+    wsr: palayBatchUpdate.wsr,
+    wsi: palayBatchUpdate.wsi,
     age: palayBatchUpdate.age,
     buyingStationName: palayBatchUpdate.buyingStationName,
     buyingStationLoc: palayBatchUpdate.buyingStationLoc,
+    currentQuantityBags: palayBatchUpdate.currentQuantityBags,
     quantityBags: palayBatchUpdate.quantityBags,
     grossWeight: palayBatchUpdate.grossWeight,
     netWeight: palayBatchUpdate.netWeight,
@@ -267,6 +302,7 @@ export async function updatePalayBatch(
     correctedBy: palayBatchUpdate.correctedBy,
     classifiedBy: palayBatchUpdate.classifiedBy,
     status: palayBatchUpdate.status,
+    pileId: palayBatchUpdate.pileId || null,
   });
 
   const palayBatch = await getPalayBatch(palayBatchUpdate.id);
@@ -299,9 +335,9 @@ export async function getTotalPalayQuantityBags(): Promise<number> {
 
 export async function searchPalayBatches(
   searchParams: {
-    id?: string;
-    // buyingStationName?: string;
-    // status?: string;
+    wsr?: string;
+    status?: string;
+    farmerName?: string;
   },
   limit: number,
   offset: number
@@ -309,17 +345,30 @@ export async function searchPalayBatches(
   const queryBuilder = PalayBatch.createQueryBuilder("palayBatch")
     .leftJoinAndSelect("palayBatch.qualitySpec", "qualitySpec")
     .leftJoinAndSelect("palayBatch.palaySupplier", "palaySupplier")
-    .leftJoinAndSelect("palayBatch.farm", "farm");
+    .leftJoinAndSelect("palayBatch.farm", "farm")
+    .orderBy("palayBatch.wsr", "DESC")
+    .addOrderBy("palayBatch.id", "DESC");
 
-  if (searchParams.id) {
-    queryBuilder.andWhere("palayBatch.id LIKE :id", {
-      id: `%${searchParams.id}%`,
+  // Search by WSR number
+  if (searchParams.wsr) {
+    queryBuilder.andWhere("palayBatch.wsr::text LIKE :wsr", {
+      wsr: `%${searchParams.wsr}%`,
     });
   }
-  // Add other search conditions as needed
-  // if (searchParams.buyingStationName) {
-  //   queryBuilder.andWhere("palayBatch.buyingStationName LIKE :name", { name: `%${searchParams.buyingStationName}%` });
-  // }
+
+  // Search by status
+  if (searchParams.status) {
+    queryBuilder.andWhere("LOWER(palayBatch.status) LIKE LOWER(:status)", {
+      status: `%${searchParams.status}%`,
+    });
+  }
+
+  // Search by farmer name (using farm relationship)
+  if (searchParams.farmerName) {
+    queryBuilder.andWhere("LOWER(farm.name) LIKE LOWER(:farmerName)", {
+      farmerName: `%${searchParams.farmerName}%`,
+    });
+  }
 
   const total = await queryBuilder.getCount();
 

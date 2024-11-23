@@ -1,161 +1,92 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
-import { InputText } from 'primereact/inputtext';
-import { InputNumber } from 'primereact/inputnumber';
 import { Toast } from 'primereact/toast';
+import { Dropdown } from 'primereact/dropdown';
+import { CheckCircle, AlertCircle } from "lucide-react";
 
-const AcceptRice = ({ visible, onHide, selectedItem = {}, onAcceptSuccess, user, refreshData }) => {
+const ReceiveRice = ({ visible, onHide, selectedItem = {}, onAcceptSuccess, user, userWarehouse }) => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const toast = useRef(null);
 
     const [isLoading, setIsLoading] = useState(false);
-    const [maxBatchCapacity, setMaxBatchCapacity] = useState(500);
-    const [riceBatches, setRiceBatches] = useState([]);
-    const [batchInputs, setBatchInputs] = useState([]);
-    const [totalBagsEntered, setTotalBagsEntered] = useState(0);
+    const [availablePiles, setAvailablePiles] = useState([]);
+    const [selectedPile, setSelectedPile] = useState(null);
 
     useEffect(() => {
         if (visible) {
-            fetchRiceBatches();
+            fetchAvailablePiles();
         }
     }, [visible]);
 
-    useEffect(() => {
-        const total = batchInputs.reduce((sum, batch) => sum + (batch.bagsToStore || 0), 0);
-        setTotalBagsEntered(total);
-    }, [batchInputs]);
-
-    const fetchRiceBatches = async () => {
+    const fetchAvailablePiles = async () => {
         try {
-            const response = await fetch(`${apiUrl}/ricebatches?currentCapacity_lt=${maxBatchCapacity}&isFull=false`);
-            if (!response.ok) throw new Error('Failed to fetch rice batches');
-            const data = await response.json();
-            setRiceBatches(data);
+            const response = await fetch(`${apiUrl}/piles/warehouse/${userWarehouse.id}`);
+            if (!response.ok) throw new Error('Failed to fetch piles');
+            const { data } = await response.json();
 
-            if (data.length === 0 || data.every(batch => batch.currentCapacity === maxBatchCapacity)) {
-                setBatchInputs([{ riceBatchName: '', price: '', bagsToStore: 0 }]);
-            } else {
-                setBatchInputs(data);
-            }
+            // Filter active piles that can store the complete batch
+            const compatiblePiles = data.filter(pile => 
+                pile.status === "Active" && 
+                pile.type === "Rice" &&
+                (pile.maxCapacity - pile.currentQuantity) >= (selectedItem?.quantityBags || 0)
+            );
+
+            setAvailablePiles(compatiblePiles);
+            setSelectedPile(null);
         } catch (error) {
             toast.current.show({
                 severity: 'error',
                 summary: 'Error',
-                detail: 'Failed to fetch rice batches',
+                detail: 'Failed to fetch piles',
                 life: 3000
             });
         }
     };
 
     const handleReceiveRice = async () => {
+        if (!selectedPile) {
+            toast.current.show({
+                severity: 'warn',
+                summary: 'Warning',
+                detail: 'Please select a pile',
+                life: 3000
+            });
+            return;
+        }
+
         setIsLoading(true);
         try {
-            if (totalBagsEntered === 0) {
-                toast.current.show({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'Please enter the number of bags to store',
-                    life: 3000
-                });
-                return;
-            }
+            // Create pile transaction for storing rice
+            await fetch(`${apiUrl}/piletransactions`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    palayBatchId: selectedItem.id,
+                    pileId: selectedPile.id,
+                    transactionType: 'IN',
+                    quantityBags: selectedItem.quantityBags,
+                    performedBy: user.id,
+                    notes: `Received from milling batch ${selectedItem?.millingBatchId}`
+                })
+            });
 
-            const requiredBags = selectedItem?.quantityBags || 0;
-            if (totalBagsEntered !== requiredBags) {
-                toast.current.show({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: `Total bags must equal ${requiredBags}`,
-                    life: 3000
-                });
-                return;
-            }
-
-            // Calculate weights per bag
-            const weightPerBag = {
-                gross: selectedItem?.grossWeight ? selectedItem.grossWeight / selectedItem.quantityBags : 0,
-                net: selectedItem?.netWeight ? selectedItem.netWeight / selectedItem.quantityBags : 0
-            };
-
-            // Process each batch
-            let remainingBags = totalBagsEntered;
-            for (const batch of batchInputs) {
-                if (remainingBags <= 0) break;
-
-                if (batch.id) {
-                    // Update existing batch
-                    const availableSpace = maxBatchCapacity - batch.currentCapacity;
-                    const bagsToAdd = Math.min(remainingBags, availableSpace);
-
-                    if (bagsToAdd > 0) {
-                        await fetch(`${apiUrl}/ricebatches/update?id=${batch.id}`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                id: batch.id,
-                                currentCapacity: batch.currentCapacity + bagsToAdd,
-                                maxCapacity: maxBatchCapacity,
-                                isFull: (batch.currentCapacity + bagsToAdd >= maxBatchCapacity)
-                            })
-                        });
-
-                        await fetch(`${apiUrl}/ricemillingbatches`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                riceBatchId: batch.id,
-                                millingBatchId: selectedItem?.millingBatchId,
-                                riceQuantityBags: bagsToAdd,
-                                riceGrossWeight: weightPerBag.gross * bagsToAdd,
-                                riceNetWeight: weightPerBag.net * bagsToAdd
-                            })
-                        });
-
-                        remainingBags -= bagsToAdd;
-                    }
-                } else {
-                    // Create new batch
-                    const bagsForThisBatch = Math.min(remainingBags, maxBatchCapacity);
-                    const createResponse = await fetch(`${apiUrl}/ricebatches`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            name: batch.riceBatchName,
-                            dateReceived: new Date().toISOString(),
-                            riceType: 'NFA Rice',
-                            warehouseId: selectedItem?.toLocationId,
-                            price: batch.price,
-                            currentCapacity: bagsForThisBatch,
-                            maxCapacity: maxBatchCapacity,
-                            isFull: bagsForThisBatch >= maxBatchCapacity
-                        })
-                    });
-
-                    const newBatch = await createResponse.json();
-                    await fetch(`${apiUrl}/ricemillingbatches`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            riceBatchId: newBatch.id,
-                            millingBatchId: selectedItem?.millingBatchId,
-                            riceQuantityBags: bagsForThisBatch,
-                            riceGrossWeight: weightPerBag.gross * bagsForThisBatch,
-                            riceNetWeight: weightPerBag.net * bagsForThisBatch
-                        })
-                    });
-
-                    remainingBags -= bagsForThisBatch;
-                }
-            }
+            // // Create rice-milling batch junction record
+            // await fetch(`${apiUrl}/ricemillingbatches`, {
+            //     method: 'POST',
+            //     headers: {
+            //         'Content-Type': 'application/json'
+            //     },
+            //     body: JSON.stringify({
+            //         pileId: selectedPile.id,
+            //         millingBatchId: selectedItem?.millingBatchId,
+            //         riceQuantityBags: selectedItem.quantityBags,
+            //         riceGrossWeight: selectedItem.grossWeight,
+            //         riceNetWeight: selectedItem.netWeight
+            //     })
+            // });
 
             const currentDate = new Date();
             currentDate.setHours(currentDate.getHours()+8);
@@ -179,19 +110,18 @@ const AcceptRice = ({ visible, onHide, selectedItem = {}, onAcceptSuccess, user,
             toast.current.show({
                 severity: 'success',
                 summary: 'Success',
-                detail: 'Rice batches processed successfully',
+                detail: 'Rice successfully stored in pile',
                 life: 3000
             });
 
             onAcceptSuccess();
             onHide();
-            refreshData();
         } catch (error) {
             console.error('Error in handleReceiveRice:', error);
             toast.current.show({
                 severity: 'error',
                 summary: 'Error',
-                detail: 'Failed to process rice batches',
+                detail: 'Failed to process rice storage',
                 life: 3000
             });
         } finally {
@@ -199,171 +129,81 @@ const AcceptRice = ({ visible, onHide, selectedItem = {}, onAcceptSuccess, user,
         }
     };
 
-    const handleInputChange = (batchIndex, field, value) => {
-        const updatedInputs = [...batchInputs];
-        const currentBatch = updatedInputs[batchIndex];
-        const totalQuantityBags = selectedItem?.quantityBags || 0;
-        const remainingTotalBags = totalQuantityBags - (totalBagsEntered - (currentBatch.bagsToStore || 0));
-
-        if (field === 'bagsToStore') {
-            // Ensure the new value doesn't exceed the remaining total bags
-            if (value > remainingTotalBags) {
-                value = remainingTotalBags;
-                toast.current.show({
-                    severity: 'warn',
-                    summary: 'Warning',
-                    detail: `Cannot exceed total quantity of ${totalQuantityBags} bags`,
-                    life: 3000
-                });
-            }
-
-            // Check batch capacity constraints
-            if (currentBatch.id) {
-                const availableSpace = maxBatchCapacity - currentBatch.currentCapacity;
-                if (value > availableSpace) {
-                    const remainingBags = value - availableSpace;
-                    updatedInputs[batchIndex].bagsToStore = availableSpace;
-
-                    // Create a new batch for remaining bags if needed
-                    if (remainingBags > 0) {
-                        let newBatchName = `Rice Batch ${updatedInputs.length + 1}`;
-                        while (updatedInputs.find(batch => batch.riceBatchName === newBatchName)) {
-                            newBatchName = `Rice Batch ${parseInt(newBatchName.split(' ')[2]) + 1}`;
-                        }
-
-                        updatedInputs.push({
-                            riceBatchName: newBatchName,
-                            price: currentBatch.price,
-                            bagsToStore: remainingBags
-                        });
-                    }
-                } else {
-                    updatedInputs[batchIndex].bagsToStore = value;
-                }
-            } else {
-                if (value > maxBatchCapacity) {
-                    const remainingBags = value - maxBatchCapacity;
-                    updatedInputs[batchIndex].bagsToStore = maxBatchCapacity;
-
-                    let newBatchName = `Rice Batch ${updatedInputs.length + 1}`;
-                    while (updatedInputs.find(batch => batch.riceBatchName === newBatchName)) {
-                        newBatchName = `Rice Batch ${parseInt(newBatchName.split(' ')[2]) + 1}`;
-                    }
-
-                    updatedInputs.push({
-                        riceBatchName: newBatchName,
-                        price: currentBatch.price,
-                        bagsToStore: remainingBags
-                    });
-                } else {
-                    updatedInputs[batchIndex].bagsToStore = value;
-                }
-            }
-        } else {
-            updatedInputs[batchIndex][field] = value;
-        }
-
-        setBatchInputs(updatedInputs);
+    const pileOptionTemplate = (pile) => {
+        if (!pile) return null;
+        const availableBags = pile.maxCapacity - pile.currentQuantity;
+        return (
+            <div className="flex justify-between gap-4">
+                <span>{`Pile ${pile.pileNumber}`}</span>
+                <span className="text-gray-500">{`(available: ${availableBags} bags)`}</span>
+            </div>
+        );
     };
 
-    const handleClose = () => {
-        setBatchInputs([{ riceBatchName: `Rice Batch 1`, price: '', bagsToStore: 0 }]);
-        setTotalBagsEntered(0);
-        onHide();
-    };
-
-    const dialogHeader = (
-        <div className="flex justify-between items-center gap-2">
-            <h1>Accept Rice Delivery</h1>
-            <div className="flex items-center gap-2">
-                <span className="font-medium">Bags of Rice to Store:</span>
-                <span className="px-2 py-1 bg-gray-100 rounded">
-                    {totalBagsEntered} / {selectedItem?.quantityBags || 0}
-                </span>
+    const NoAvailablePiles = () => (
+        <div className="flex flex-col items-center gap-4 p-6 text-center">
+            <AlertCircle size={32} className="text-yellow-500"/>
+            <div>
+                <h3 className="text-lg font-semibold mb-2">No Available Piles</h3>
+                <p className="text-gray-600">
+                    There are no rice piles with enough capacity to store {selectedItem?.quantityBags} bags. 
+                    Please create a new pile or clear space in existing piles.
+                </p>
             </div>
         </div>
     );
 
-    const dialogFooter = (
-        <div className="flex justify-end gap-2">
-            <Button label="Cancel" icon="pi pi-times" onClick={handleClose} className="p-button-text" disabled={isLoading}/>
-            <Button label="Accept Rice" icon="pi pi-check" onClick={handleReceiveRice} autoFocus disabled={isLoading} loading={isLoading}/>
-        </div>
-    );
-
     return (
-        <Dialog
-            visible={visible}
-            onHide={isLoading ? null : onHide}
-            header={dialogHeader}
-            modal
-            className="w-full max-w-2xl"
-            closeOnEscape
-            footer={dialogFooter}
+        <Dialog 
+            header="Receive Rice" 
+            visible={visible} 
+            onHide={isLoading ? null : onHide} 
+            className="w-full max-w-lg"
+            closeOnEscape={!isLoading}
+            footer={
+                <div className="flex justify-end gap-2">
+                    <Button 
+                        label="Cancel" 
+                        icon="pi pi-times" 
+                        onClick={onHide} 
+                        className="p-button-text" 
+                        disabled={isLoading}
+                    />
+                    <Button 
+                        label="Accept Rice" 
+                        icon="pi pi-check" 
+                        onClick={handleReceiveRice} 
+                        disabled={isLoading || !selectedPile} 
+                        loading={isLoading}
+                    />
+                </div>
+            }
         >
             <Toast ref={toast} />
+            
+            <div className="flex flex-col items-center gap-4">
+                <CheckCircle size={32} className="text-primary"/>
+                <p>Store {selectedItem?.quantityBags || 0} bags of Rice</p>
 
-            <div className="flex flex-col gap-4">
-                {batchInputs.map((batch, index) => (
-                    <div key={batch.id} className="flex flex-col gap-2 p-4 border rounded-lg">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Rice Batch Name</label>
-                                <InputText
-                                    value={batch.name}
-                                    disabled={!!batch.id}
-                                    onChange={(e) => handleInputChange(index, 'riceBatchName', e.target.value)}
-                                    className="w-full"
-                                    maxLength={50}
-                                />
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">Price</label>
-                                <InputText
-                                    value={batch.price}
-                                    disabled={!!batch.id}
-                                    onChange={(e) => handleInputChange(index, 'price', e.target.value)}
-                                    className="w-full"
-                                    keyfilter="money"
-                                />
-                            </div>
-                        </div>
-                        
-                        {batch.id && (
-                            <div className='w-full'>
-                                <label className="text-sm font-medium text-gray-700">Current Capacity</label>
-                                <InputText
-                                    value={`${batch.currentCapacity} / ${maxBatchCapacity}`}
-                                    disabled={!!batch.id}
-                                    className="w-full"
-                                    keyfilter="alphanum"
-                                    maxLength={50}
-                                />
-                            </div>
-                        )}
-                        
-                        <div>
-                            <label className="text-sm font-medium text-gray-700">Bags of rice to Store</label>
-                            <InputNumber
-                                value={batch.bagsToStore}
-                                onChange={(e) => handleInputChange(index, 'bagsToStore', e.value)}
-                                min={0}
-                                max={Math.min(
-                                    batch.id ? maxBatchCapacity - batch.currentCapacity : maxBatchCapacity,
-                                    (selectedItem?.quantityBags || 0) - (totalBagsEntered - (batch.bagsToStore || 0))
-                                )}
-                                disabled={
-                                    batch.bagsToStore >=
-                                    (batch.id ? maxBatchCapacity - batch.currentCapacity : maxBatchCapacity)
-                                }
-                                className="w-full"
-                            />
-                        </div>
+                {availablePiles.length > 0 ? (
+                    <div className="w-full">
+                        <label className="block mb-2">Select Pile</label>
+                        <Dropdown 
+                            value={selectedPile} 
+                            options={availablePiles}
+                            onChange={(e) => setSelectedPile(e.value)}
+                            optionLabel="pileNumber"
+                            placeholder="Select a Pile"
+                            className="w-full"
+                            itemTemplate={pileOptionTemplate}
+                        />
                     </div>
-                ))}
+                ) : (
+                    <NoAvailablePiles />
+                )}
             </div>
         </Dialog>
     );
 };
 
-export default AcceptRice;
+export default ReceiveRice;

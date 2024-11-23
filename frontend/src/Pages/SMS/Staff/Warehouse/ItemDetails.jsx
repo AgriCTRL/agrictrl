@@ -28,7 +28,7 @@ const ItemDetails = ({
           <p className="text-gray-600">Net Weight</p>
           <p>{selectedBatchDetails.netWeight} Kg</p>
         </div>
-        {selectedFilter === "palay" && (
+        {selectedBatchDetails.item === "Palay" && (
           <div>
             <p className="text-gray-600">Quality Type</p>
             <p>{selectedBatchDetails.qualityType}</p>

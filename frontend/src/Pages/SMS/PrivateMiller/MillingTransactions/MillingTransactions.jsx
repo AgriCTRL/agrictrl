@@ -240,7 +240,6 @@ const MillingTransactions = () => {
 
   const handleActionClick = (rowData) => {
     setSelectedItem(rowData);
-    console.log(rowData);
 
     switch (rowData.transactionStatus?.toLowerCase()) {
       case "pending":
