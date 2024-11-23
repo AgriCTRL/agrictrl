@@ -900,7 +900,10 @@ function Profile() {
                                     {userData?.personalInfo?.firstName} {userData?.personalInfo?.lastName}
                                 </h1>
                                 <p className='text-xl text-white'>
-                                    {userData.accountDetails.userType}
+                                    {userData.accountDetails.jobTitlePosition}
+                                </p>
+                                <p className='text-white'>
+                                    {userData.accountDetails.branchRegion} - {userData.accountDetails.branchOffice}
                                 </p>
                             </div>
                         </div>

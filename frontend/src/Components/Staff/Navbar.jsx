@@ -52,7 +52,7 @@ const Navbar = ({ navItems, user, activePage, userFullName, profileClick, naviga
                     />
                     <div className="flex flex-col items-start">
                         <small className='font-semibold text-black'>{(user.firstName && user.lastName) ? userFullName : 'username'}</small>                        
-                        <small className='text-light-grey'>{user.userType.toLowerCase()}</small>                        
+                        <small className='text-light-grey'>NFA - {user.branchOffice}</small>                        
                     </div>
                     <ChevronDown size={18} />
                 </Button>
@@ -69,7 +69,7 @@ const Navbar = ({ navItems, user, activePage, userFullName, profileClick, naviga
                             />
                             <div className="flex flex-col items-start">
                                 <p className='font-semibold text-black'>{(user.first_name && user.last_name) ? userFullName : 'username'}</p>                        
-                                <small className='text-light-grey'>{user.userType.toLowerCase()}</small>                        
+                                <small className='text-light-grey'>NFA - {user.branchOffice}</small>                     
                             </div>
                         </div>
                         <Divider className="m-0" />

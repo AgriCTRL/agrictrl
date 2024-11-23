@@ -525,6 +525,8 @@ function Warehouse() {
 
   const totalValue = personalStats.reduce((acc, stat) => acc + stat.value, 0);
 
+  const notifCount = getFilterCount();
+
   const rightSidebar = () => {
     return (
       <div className="p-4 bg-white rounded-lg flex flex-col gap-4">
@@ -628,6 +630,11 @@ function Warehouse() {
             </IconField>
           </span>
           <div className="flex justify-center space-x-4 w-full">
+            { notifCount > 0 && (
+              <div class="bg-red-600 text-white rounded-full px-2.5 mt-4 h-6">
+              {getFilterCount()}
+            </div>
+            )}
             <Button
               label="Requests"
               className={`ring-0 ${
