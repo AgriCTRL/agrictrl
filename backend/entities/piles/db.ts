@@ -36,6 +36,19 @@ export class Pile extends BaseEntity {
   @Column()
   status: string;
 
+  @Column()
+  type: string;
+
+  @Column()
+  age: number;
+
+  @Column({ nullable: true })
+  price: number;
+
+  @Column({ default: false })
+  forSale: boolean;
+
+
   @OneToMany(() => PalayBatch, (palayBatch) => palayBatch.pile)
   palayBatches: PalayBatch[];
 
@@ -62,7 +75,7 @@ export class Pile extends BaseEntity {
 
 export type PileCreate = Pick<
   Pile,
-  "warehouseId" | "pileNumber" | "maxCapacity" | "currentQuantity" | "description" | "status"
+  "warehouseId" | "pileNumber" | "maxCapacity" | "currentQuantity" | "description" | "status" | "type" | "age" | "price" | "forSale"
 >;
 
 export type PileUpdate = Pick<Pile, "id"> & Partial<PileCreate>;
@@ -169,6 +182,10 @@ export async function createPile(pileCreate: PileCreate): Promise<Pile> {
   pile.currentQuantity = pileCreate.currentQuantity;
   pile.description = pileCreate.description;
   pile.status = pileCreate.status;
+  pile.type = pileCreate.type;
+  pile.age = pileCreate.age;
+  pile.price = pileCreate.price;
+  pile.forSale = pileCreate.forSale;
 
   return await pile.save();
 }
@@ -180,6 +197,10 @@ export async function updatePile(pileUpdate: PileUpdate): Promise<Pile> {
     currentQuantity: pileUpdate.currentQuantity,
     description: pileUpdate.description,
     status: pileUpdate.status,
+    type: pileUpdate.type,
+    age: pileUpdate.age,
+    price: pileUpdate.price,
+    forSale: pileUpdate.forSale,
   });
 
   const pile = await getPile(pileUpdate.id);

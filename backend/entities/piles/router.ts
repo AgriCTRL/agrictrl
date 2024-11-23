@@ -95,10 +95,14 @@ export function getRouter(): Router {
                 currentQuantity: number;
                 description: string;
                 status: string;
+                type: string;
+                age: number;
+                price: number;
+                forSale: boolean;
             }>,
             res
         ) => {
-            const { warehouseId, pileNumber, maxCapacity, currentQuantity, description, status } = req.body;
+            const { warehouseId, pileNumber, maxCapacity, currentQuantity, description, status, type, age, price, forSale } = req.body;
 
             const pile = await createPile({
                 warehouseId,
@@ -106,7 +110,12 @@ export function getRouter(): Router {
                 maxCapacity,
                 currentQuantity,
                 description,
-                status
+                status,
+                type,
+                age,
+                price,
+                forSale,
+
             });
 
             res.json(pile);
@@ -126,10 +135,14 @@ async function updateHandler(
         currentQuantity?: number;
         description?: string;
         status?: string;
+        type?: string;
+        age?: number;
+        price?: number;
+        forSale?: boolean;
     }>,
     res: Response
 ): Promise<void> {
-    const { id, pileNumber, maxCapacity, currentQuantity, description, status } = req.body;
+    const { id, pileNumber, maxCapacity, currentQuantity, description, status, type, age, price, forSale } = req.body;
 
     const pile = await updatePile({
         id,
@@ -137,7 +150,11 @@ async function updateHandler(
         maxCapacity,
         currentQuantity,
         description,
-        status
+        status,
+        type,
+        age,
+        price,
+        forSale
     });
 
     res.json(pile);

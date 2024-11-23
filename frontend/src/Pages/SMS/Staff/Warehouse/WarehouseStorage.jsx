@@ -14,7 +14,7 @@ import { Search, Wheat, RotateCw } from "lucide-react";
 import { useAuth } from "../../../Authentication/Login/AuthContext";
 import SendTo from "./SendTo";
 import PalayBatches from "./PalayBatches";
-import ManageRice from "./ManageRice";
+import ManagePile from "./ManagePile";
 import Loader from "@/Components/Loader";
 
 function WarehouseStorage() {
@@ -38,12 +38,10 @@ function WarehouseStorage() {
 
   //Dialogs
   const [showSendToDialog, setShowSendToDialog] = useState(false);
-  const [showManageRiceDialog, setShowManageRiceDialog] = useState(false);
+  const [showManagePileDialog, setShowManagePileDialog] = useState(false);
   const [showPalayBatchesDialog, setShowPalayBatchesDialog] = useState(false);
 
   //selected
-  const [selectedItem, setSelectedItem] = useState(null);
-  const [selectedBatchDetails, setSelectedBatchDetails] = useState(null);
   const [selectedPile, setSelectedPile] = useState(null);
 
   //facilities data
@@ -219,12 +217,16 @@ function WarehouseStorage() {
           </div>
           <div className="flex-none flex flex-col items-center gap-2">
             <Button
-              label="Send to"
+              label={item.type === "Palay" ? "Send to" : "Manage"}
               className="p-button-text p-button-sm text-primary ring-0"
               onClick={(e) => {
                 e.stopPropagation();
                 setSelectedPile(item);
-                setShowSendToDialog(true);
+                if (item.type === "Palay") {
+                  setShowSendToDialog(true);
+                } else {
+                  setShowManagePileDialog(true);
+                }
               }}
             />
           </div>
@@ -334,10 +336,10 @@ function WarehouseStorage() {
         loading={isLoading}
       />
 
-      <ManageRice
-        visible={showManageRiceDialog}
-        onHide={() => setShowManageRiceDialog(false)}
-        selectedItem={selectedItem}
+      <ManagePile
+        visible={showManagePileDialog}
+        onHide={() => setShowManagePileDialog(false)}
+        selectedItem={selectedPile}
         onUpdateSuccess={() => {}}
         user={user}
         refreshData={refreshData}

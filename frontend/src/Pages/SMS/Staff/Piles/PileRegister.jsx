@@ -3,8 +3,7 @@ import { InputText } from "primereact/inputtext";
 import { Dropdown } from "primereact/dropdown";
 import { Button } from "primereact/button";
 import { Toast } from "primereact/toast";
-
-import { Wheat } from "lucide-react";
+import { Container  } from "lucide-react";
 
 function PileRegister({ visible, onHide, warehouses, onPileRegistered }) {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -15,6 +14,8 @@ function PileRegister({ visible, onHide, warehouses, onPileRegistered }) {
   const [maxCapacity, setMaxCapacity] = useState("");
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState("Active");
+  const [type, setType] = useState("");
+  const [age, setAge] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const statusOptions = [
@@ -23,8 +24,16 @@ function PileRegister({ visible, onHide, warehouses, onPileRegistered }) {
   ];
 
   useEffect(() => {
-    if (warehouses) {
+    if (warehouses?.facilityName) {
       setWarehouseId(warehouses.id);
+      const facilityName = warehouses.facilityName.toLowerCase();
+      if (facilityName.includes("palay")) {
+        setType("Palay");
+      } else if (facilityName.includes("rice")) {
+        setType("Rice");
+      } else {
+        setType("");
+      }
     }
   }, [warehouses]);
 
@@ -50,6 +59,8 @@ function PileRegister({ visible, onHide, warehouses, onPileRegistered }) {
       currentQuantity: 0,
       description,
       status,
+      type,
+      age
     };
 
     try {
@@ -86,6 +97,8 @@ function PileRegister({ visible, onHide, warehouses, onPileRegistered }) {
     setMaxCapacity("");
     setDescription("");
     setStatus("Active");
+    setType("");
+    setAge(0);
   };
 
   if (!visible) {
@@ -104,8 +117,8 @@ function PileRegister({ visible, onHide, warehouses, onPileRegistered }) {
         </button>
 
         <div className="flex items-center mb-4">
-          <Wheat className="w-6 h-6 mr-2 text-black" />
-          <span className="text-md font-semibold">Pile Details</span>
+          <Container  className="w-6 h-6 mr-2 text-black" />
+          <span className="text-md font-semibold">Create {type} Pile</span>
         </div>
 
         <form onSubmit={handleRegister}>
@@ -115,7 +128,7 @@ function PileRegister({ visible, onHide, warehouses, onPileRegistered }) {
                 Warehouse
               </label>
               <InputText
-                value={warehouses.facilityName}
+                value={warehouses?.facilityName || ""}
                 className="w-full rounded-md border border-gray-300 ring-0"
                 disabled
               />

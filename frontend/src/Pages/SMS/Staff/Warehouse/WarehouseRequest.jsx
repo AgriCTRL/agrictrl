@@ -61,6 +61,14 @@ function WarehouseRequest() {
     fetchWarehouseData();
   }, [first, rows]);
 
+  const refreshData = () => {
+    setFirst(0);
+    setRows(10);
+
+    fetchInventory(0, 10);
+    fetchWarehouseData();
+  };
+
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);
   };
@@ -208,6 +216,7 @@ function WarehouseRequest() {
   };
 
   const handleItemClick = (item) => {
+    console.log(item)
     setSelectedBatchDetails(item);
     setShowDetailsDialog(true);
   };
@@ -328,14 +337,6 @@ function WarehouseRequest() {
     fetchInventory(newFirst, newRows);
   };
 
-  const refreshData = () => {
-    setFirst(0);
-    setRows(10);
-
-    fetchInventory(0, 10);
-    fetchWarehouseData();
-  };
-
   return (
     <StaffLayout activePage="Request" user={user}>
       {isLoading && (
@@ -408,7 +409,6 @@ function WarehouseRequest() {
         onHide={() => setShowPalayAcceptDialog(false)}
         selectedItem={selectedItem}
         onAcceptSuccess={() => {
-          fetchInventory(first, rows);
           refreshData();
         }}
         user={user}
@@ -420,10 +420,10 @@ function WarehouseRequest() {
         onHide={() => setShowRiceAcceptDialog(false)}
         selectedItem={selectedItem}
         onAcceptSuccess={() => {
-          fetchInventory(first, rows);
+          refreshData();
         }}
         user={user}
-        refreshData={refreshData}
+        userWarehouse={userWarehouse}
       />
 
       <ItemDetails

@@ -238,6 +238,12 @@ function Piles() {
               className="text-center"
               headerClassName="text-center"
             />
+            {/* <Column
+              field="type"
+              header="Pile Type"
+              className="text-center"
+              headerClassName="text-center"
+            /> */}
             <Column
               field="maxCapacity"
               header="Max Capacity (bags)"
