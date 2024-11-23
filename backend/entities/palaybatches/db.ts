@@ -37,6 +37,9 @@ export class PalayBatch extends BaseEntity {
   @Column()
   buyingStationLoc: string;
 
+  @Column({ nullable: true })
+  currentQuantityBags: number;
+
   @Column()
   quantityBags: number;
 
@@ -133,6 +136,7 @@ export type PalayBatchCreate = Pick<
   | "age"
   | "buyingStationName"
   | "buyingStationLoc"
+  | "currentQuantityBags"
   | "quantityBags"
   | "grossWeight"
   | "netWeight"
@@ -218,6 +222,7 @@ export async function createPalayBatch(
   palayBatch.age = palayBatchCreate.age;
   palayBatch.buyingStationName = palayBatchCreate.buyingStationName;
   palayBatch.buyingStationLoc = palayBatchCreate.buyingStationLoc;
+  palayBatch.currentQuantityBags = palayBatchCreate.currentQuantityBags;
   palayBatch.quantityBags = palayBatchCreate.quantityBags;
   palayBatch.grossWeight = palayBatchCreate.grossWeight;
   palayBatch.netWeight = palayBatchCreate.netWeight;
@@ -282,6 +287,7 @@ export async function updatePalayBatch(
     age: palayBatchUpdate.age,
     buyingStationName: palayBatchUpdate.buyingStationName,
     buyingStationLoc: palayBatchUpdate.buyingStationLoc,
+    currentQuantityBags: palayBatchUpdate.currentQuantityBags,
     quantityBags: palayBatchUpdate.quantityBags,
     grossWeight: palayBatchUpdate.grossWeight,
     netWeight: palayBatchUpdate.netWeight,

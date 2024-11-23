@@ -277,15 +277,13 @@ export async function getInventoryByPileId(
 
         // Build the transaction query
         let transactionQuery = Transaction.createQueryBuilder('transaction')
-            .where('transaction.itemId IN (:...palayBatchIds)', { palayBatchIds });
+            .where('transaction.itemId IN (:...palayBatchIds)', { palayBatchIds })
+            // Always filter for Warehouse location unless explicitly overridden
+            .andWhere('transaction.toLocationType = :defaultLocationType', { 
+                defaultLocationType: filters.toLocationType || 'Warehouse' 
+            });
 
-        // Apply standard inventory filters
-        if (filters.toLocationType) {
-            transactionQuery = transactionQuery
-                .andWhere('transaction.toLocationType = :locationType', 
-                    { locationType: filters.toLocationType });
-        }
-
+        // Apply other standard inventory filters
         if (filters.transactionStatus) {
             transactionQuery = transactionQuery
                 .andWhere('transaction.status = :status', 

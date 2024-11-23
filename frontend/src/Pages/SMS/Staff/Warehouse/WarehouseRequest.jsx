@@ -117,6 +117,7 @@ function WarehouseRequest() {
 
         return {
           id: item.palayBatch.id,
+          wsr: item.palayBatch.wsr,
           quantityBags: (() => {
             switch (item.transaction.fromLocationType) {
               case "Procurement":
@@ -305,7 +306,7 @@ function WarehouseRequest() {
 
           <div className="flex-1">
             <div className="font-medium text-xl mb-1">
-              {item.item} Batch #{item.id}
+              {item.item} Batch #{item.wsr}
             </div>
             <div className="text-gray-600 mb-1">
               {item?.receivedOn &&

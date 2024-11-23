@@ -94,6 +94,7 @@ export function getRouter(): Router {
           age: number;
           buyingStationName: string;
           buyingStationLoc: string;
+          currentQuantityBags: number;
           quantityBags: number;
           grossWeight: number;
           netWeight: number;
@@ -142,6 +143,7 @@ export function getRouter(): Router {
         age,
         buyingStationName,
         buyingStationLoc,
+        currentQuantityBags,
         quantityBags,
         grossWeight,
         netWeight,
@@ -224,6 +226,7 @@ export function getRouter(): Router {
           age,
           buyingStationName,
           buyingStationLoc,
+          currentQuantityBags,
           quantityBags,
           grossWeight,
           netWeight,
@@ -268,6 +271,7 @@ export function getRouter(): Router {
           age,
           buyingStationName,
           buyingStationLoc,
+          currentQuantityBags,
           quantityBags,
           grossWeight,
           netWeight,
@@ -309,6 +313,7 @@ async function updateHandler(
       age?: number;
       buyingStationName?: string;
       buyingStationLoc?: string;
+      currentQuantityBags?: number;
       quantityBags?: number;
       grossWeight?: number;
       netWeight?: number;
@@ -336,6 +341,7 @@ async function updateHandler(
     age,
     buyingStationName,
     buyingStationLoc,
+    currentQuantityBags,
     quantityBags,
     grossWeight,
     netWeight,
@@ -361,6 +367,7 @@ async function updateHandler(
     age,
     buyingStationName,
     buyingStationLoc,
+    currentQuantityBags,
     quantityBags,
     grossWeight,
     netWeight,

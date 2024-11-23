@@ -140,7 +140,7 @@ const ManagePile = ({ visible, onHide, selectedItem, onUpdateSuccess, user, refr
 
                     <div className="grid grid-cols-2 gap-4">
                         <div className="flex flex-col gap-2">
-                            <label htmlFor="price" className="font-medium">Price per Bag</label>
+                            <label htmlFor="price" className="font-medium">Price per Kilo</label>
                             <InputNumber
                                 id="price"
                                 value={price}

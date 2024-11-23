@@ -244,6 +244,7 @@ const Processing = () => {
 
         return {
           palayBatchId: palayBatch?.id || null,
+          wsr: palayBatch?.wsr || null,
           transactionId: transaction?.id || null,
           millingBatchId: millingBatch?.id || null,
           dryingBatchId: dryingBatch?.id || null,
@@ -452,7 +453,7 @@ const Processing = () => {
           {/* Middle - Main Info */}
           <div className="flex-1">
             <div className="font-medium text-xl mb-1">
-              Palay Batch #{item.palayBatchId}
+              Palay Batch #{item.wsr}
             </div>
             {selectedFilter === "request" && (
               <>

@@ -1,19 +1,74 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
 import { InputTextarea } from 'primereact/inputtextarea';
+import { Toast } from "primereact/toast";
 
 const DeclineOrder = ({
     visible,
     onHide,
-    onConfirm,
-    isLoading,
     declineReason,
-    onReasonChange
+    onReasonChange,
+    selectedOrder,
+    onUpdate,
 }) => {
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    const toast = useRef();
+
+    const [isLoading, setIsLoading] = useState(false);
+
     const handleCancel = () => {
         onHide();
     };
+
+    const handleConfirmDecline = async () => {
+        if (!declineReason.trim()) {
+          toast.current.show({
+            severity: "warn",
+            summary: "Required field",
+            detail: "Please enter a reason for declining",
+            life: 3000,
+          });
+          return;
+        }
+    
+        setIsLoading(true);
+        const order = {
+          id: selectedOrder.id,
+          status: "Declined",
+          remarks: declineReason,
+        };
+        try {
+          const res = await fetch(`${apiUrl}/riceorders/update`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(order),
+          });
+          if (!res.ok) {
+            throw new Error("failed to update rice order status");
+          }
+          toast.current.show({
+            severity: "success",
+            summary: "Success",
+            detail: "Order declined successfully!",
+            life: 3000,
+          });
+          onUpdate();
+          onHide();
+        } catch (error) {
+          console.error(error.message);
+          toast.current.show({
+            severity: "error",
+            summary: "Error",
+            detail: "Failed to decline order. Please try again.",
+            life: 3000,
+          });
+        } finally {
+          setIsLoading(false);
+        }
+      };
 
     return (
         <Dialog
@@ -22,6 +77,7 @@ const DeclineOrder = ({
             className="w-1/3"
             onHide={isLoading ? null : handleCancel}
         >
+            <Toast ref={toast} />
             <div className="flex flex-col items-center gap-5">
                 <p>Are you sure you want to decline this request?</p>
                 <div className="w-full">
@@ -48,7 +104,7 @@ const DeclineOrder = ({
                     <Button 
                         label="Confirm Decline" 
                         icon="pi pi-check" 
-                        onClick={onConfirm} 
+                        onClick={handleConfirmDecline} 
                         className="w-1/2 bg-primary hover:border-none" 
                         disabled={isLoading} 
                         loading={isLoading}

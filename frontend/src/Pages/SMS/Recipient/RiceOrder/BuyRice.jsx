@@ -20,13 +20,12 @@ const initialFormData = {
 };
 
 function BuyRice({ visible, onHide, onRiceOrdered }) {
-    
     const { user } = useAuth();
     const toast = useRef(null);
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
     const [formData, setFormData] = useState(initialFormData);
-    const [riceBatchData, setRiceBatchData] = useState([]);
+    const [pilesData, setPilesData] = useState([]);
     const [totalAvailableQuantity, setTotalAvailableQuantity] = useState(0);
     const [averagePrice, setAveragePrice] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
@@ -34,32 +33,34 @@ function BuyRice({ visible, onHide, onRiceOrdered }) {
 
     useEffect(() => {
         if (visible) {
-            fetchRiceBatchData();
+            fetchPilesData();
             setFormData(initialFormData);
             setErrors({});
         }
     }, [visible]);
 
-
-    const fetchRiceBatchData = async () => {
+    const fetchPilesData = async () => {
         try {
-            const res = await fetch(`${apiUrl}/ricebatches`);
+            const res = await fetch(`${apiUrl}/piles`);
             if (!res.ok) {
-                throw new Error('Failed to fetch rice batch data');
+                throw new Error('Failed to fetch piles data');
             }
             const data = await res.json();
             
-            // Filter for ricebatches that are for sale
-            const forSaleRiceBatches = data.filter(batch => batch.forSale === true);
-            setRiceBatchData(forSaleRiceBatches);
+            // Filter for piles that are for sale
+            const forSalePiles = data.data.filter(pile => pile.forSale === true);
+            setPilesData(forSalePiles);
 
             // Calculate total available quantity
-            const totalQuantity = forSaleRiceBatches.reduce((sum, batch) => sum + batch.currentCapacity, 0);
+            const totalQuantity = forSalePiles.reduce((sum, pile) => sum + pile.currentQuantity, 0);
             setTotalAvailableQuantity(totalQuantity);
 
             // Calculate average price
-            const avgPrice = forSaleRiceBatches.reduce((sum, batch) => sum + batch.price, 0) / forSaleRiceBatches.length;
-            setAveragePrice(avgPrice || 0);
+            const validPrices = forSalePiles.filter(pile => pile.price !== null).map(pile => pile.price);
+            const avgPrice = validPrices.length > 0 
+                ? validPrices.reduce((sum, price) => sum + price, 0) / validPrices.length 
+                : 30; // Default price if no prices are set
+            setAveragePrice(avgPrice);
 
             // Update form data with new average price
             setFormData(prev => ({
@@ -71,7 +72,7 @@ function BuyRice({ visible, onHide, onRiceOrdered }) {
             toast.current.show({ 
                 severity: 'error', 
                 summary: 'Error', 
-                detail: 'Failed to fetch rice batch data', 
+                detail: 'Failed to fetch piles data', 
                 life: 3000 
             });
         }
@@ -266,7 +267,7 @@ function BuyRice({ visible, onHide, onRiceOrdered }) {
             toast.current.show({
                 severity: 'warn',
                 summary: 'Warning',
-                detail: 'Drop-off location is required',
+                detail: 'Description is required',
                 life: 5000
             });
         }
@@ -418,7 +419,9 @@ function BuyRice({ visible, onHide, onRiceOrdered }) {
                         {errors.dropOffLocation && <p className="text-red-500 text-xs mt-1">{errors.dropOffLocation}</p>}
                     </div>
                     <div className="w-full">
-                        <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">Order Description</label>
+                        <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+                            Order Description <span className="text-red-500">*</span>
+                        </label>
                         <InputTextarea
                             id="description"
                             name="description"

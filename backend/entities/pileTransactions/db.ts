@@ -101,29 +101,40 @@ export async function createPileTransaction(
     throw new Error(`Pile with id ${pileTransactionCreate.pileId} not found`);
   }
 
-  // Update Pile's current quantity based on transaction type
+  // Update quantities based on transaction type
   if (pileTransactionCreate.transactionType === 'IN') {
+    // Update Pile quantity
     pile.currentQuantity += pileTransactionCreate.quantityBags;
+    
+    // Update PalayBatch's pileId and ensure currentQuantityBags matches the transaction
+    palayBatch.pileId = pile.id;
+    palayBatch.currentQuantityBags = pileTransactionCreate.quantityBags;
   } else if (pileTransactionCreate.transactionType === 'OUT') {
+    // Validate sufficient quantity in pile
     if (pile.currentQuantity < pileTransactionCreate.quantityBags) {
       throw new Error('Cannot take out more bags than currently in the pile');
     }
+    
+    // Validate sufficient quantity in palay batch
+    if (palayBatch.currentQuantityBags < pileTransactionCreate.quantityBags) {
+      throw new Error('Cannot take out more bags than currently in the palay batch');
+    }
+
+    // Update Pile quantity
     pile.currentQuantity -= pileTransactionCreate.quantityBags;
+    
+    // Update PalayBatch quantity and pileId
+    palayBatch.currentQuantityBags -= pileTransactionCreate.quantityBags;
+    
+    // If all bags are taken out, set pileId to null
+    if (palayBatch.currentQuantityBags === 0) {
+      palayBatch.pileId = null;
+    }
   }
 
-  // Save the updated pile
+  // Save the updated pile and palayBatch
   await pile.save();
-
-  // Update palayBatch's currentlyAt and pileId if it's an IN transaction
-  if (pileTransactionCreate.transactionType === 'IN') {
-    palayBatch.currentlyAt = `Pile ${pile.pileNumber}`;
-    palayBatch.pileId = pile.id;
-    await palayBatch.save();
-  } else if (pileTransactionCreate.transactionType === 'OUT') {
-    palayBatch.currentlyAt = "removed";
-    palayBatch.pileId = null;
-    await palayBatch.save();
-  }
+  await palayBatch.save();
 
   // Set transaction details
   pileTransaction.palayBatchId = pileTransactionCreate.palayBatchId;
