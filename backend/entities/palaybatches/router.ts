@@ -36,7 +36,9 @@ export function getRouter(): Router {
     "/search",
     async (
       req: Request<any, any, any, { 
-        id?: string; 
+        wsr?: string;
+        status?: string;
+        farmerName?: string;
         limit?: string; 
         offset?: string;
         // Add other search params as needed 
@@ -46,7 +48,9 @@ export function getRouter(): Router {
       const limit = Number(req.query.limit ?? 10);
       const offset = Number(req.query.offset ?? 0);
       const searchParams = {
-        id: req.query.id,
+        wsr: req.query.wsr,
+        status: req.query.status,
+        farmerName: req.query.farmerName,
         // Add other search params
       };
   
@@ -85,9 +89,12 @@ export function getRouter(): Router {
         any,
         {
           dateBought: Date;
+          wsr: number;
+          wsi: number;
           age: number;
           buyingStationName: string;
           buyingStationLoc: string;
+          currentQuantityBags: number;
           quantityBags: number;
           grossWeight: number;
           netWeight: number;
@@ -124,15 +131,19 @@ export function getRouter(): Router {
           correctedBy: string;
           classifiedBy: string;
           status: string;
+          pileId: string;
         }
       >,
       res
     ) => {
       const {
         dateBought,
+        wsr,
+        wsi,
         age,
         buyingStationName,
         buyingStationLoc,
+        currentQuantityBags,
         quantityBags,
         grossWeight,
         netWeight,
@@ -169,6 +180,7 @@ export function getRouter(): Router {
         correctedBy,
         classifiedBy,
         status,
+        pileId,
       } = req.body;
 
       if (!palaySupplierId) {
@@ -209,9 +221,12 @@ export function getRouter(): Router {
   
         const palayBatch = await createPalayBatch({
           dateBought,
+          wsr,
+          wsi,
           age,
           buyingStationName,
           buyingStationLoc,
+          currentQuantityBags,
           quantityBags,
           grossWeight,
           netWeight,
@@ -229,6 +244,7 @@ export function getRouter(): Router {
           correctedBy,
           classifiedBy,
           status,
+          pileId,
         });
         res.json(palayBatch);
       } else {
@@ -250,9 +266,12 @@ export function getRouter(): Router {
   
         const palayBatch = await createPalayBatch({
           dateBought,
+          wsr,
+          wsi,
           age,
           buyingStationName,
           buyingStationLoc,
+          currentQuantityBags,
           quantityBags,
           grossWeight,
           netWeight,
@@ -270,6 +289,7 @@ export function getRouter(): Router {
           correctedBy,
           classifiedBy,
           status,
+          pileId,
         });
         res.json(palayBatch);
       }
@@ -288,9 +308,12 @@ async function updateHandler(
     {
       id: string;
       dateBought?: Date;
+      wsr?: number;
+      wsi?: number;
       age?: number;
       buyingStationName?: string;
       buyingStationLoc?: string;
+      currentQuantityBags?: number;
       quantityBags?: number;
       grossWeight?: number;
       netWeight?: number;
@@ -305,6 +328,7 @@ async function updateHandler(
       correctedBy?: string;
       classifiedBy?: string;
       status?: string;
+      pileId?: string;
     }
   >,
   res: Response
@@ -312,9 +336,12 @@ async function updateHandler(
   const {
     id,
     dateBought,
+    wsr,
+    wsi,
     age,
     buyingStationName,
     buyingStationLoc,
+    currentQuantityBags,
     quantityBags,
     grossWeight,
     netWeight,
@@ -329,14 +356,18 @@ async function updateHandler(
     correctedBy,
     classifiedBy,
     status,
+    pileId,
   } = req.body;
 
   const palayBatch = await updatePalayBatch({
     id,
     dateBought,
+    wsr,
+    wsi,
     age,
     buyingStationName,
     buyingStationLoc,
+    currentQuantityBags,
     quantityBags,
     grossWeight,
     netWeight,
@@ -351,6 +382,7 @@ async function updateHandler(
     correctedBy,
     classifiedBy,
     status,
+    pileId,
   });
 
   res.json(palayBatch);

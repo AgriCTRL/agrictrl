@@ -18,6 +18,7 @@ const FarmerInfoForm = ({ palayData, handlePalayInputChange, errors, onSupplierS
   let maxYear = year - 18;
   let maxDate = new Date();
   maxDate.setFullYear(maxYear);
+  const initialViewDate  = new Date(2000, 0, 1);
 
   useEffect(() => {
     fetchRegions();
@@ -314,6 +315,7 @@ const FarmerInfoForm = ({ palayData, handlePalayInputChange, errors, onSupplierS
                 showIcon
                 className="ring-0 w-full placeholder:text-gray-400 focus:shadow-none custom-calendar"
                 maxDate={maxDate}
+                viewDate={initialViewDate}
               />
               {errors.birthDate && <p className="text-red-500 text-xs mt-1">{errors.birthDate}</p>}
             </div>

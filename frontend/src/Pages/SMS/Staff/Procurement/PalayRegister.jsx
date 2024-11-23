@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Dialog } from "primereact/dialog";
 import { Button } from "primereact/button";
 import { Toast } from "primereact/toast";
+import { InputText } from "primereact/inputtext";
 
 import { WSR } from "../../../../Components/Pdf/pdfWarehouseStockReceipt";
 
@@ -31,8 +32,10 @@ const initialPalayData = {
   palaySupplierBarangay: "",
   palaySupplierStreet: "",
   // Palay Info
+  wsr: "",
+  wsi: "0",
   dateBought: "",
-  age: "",
+  age: 0,
   buyingStationName: "",
   buyingStationLoc: "",
   quantityBags: "",
@@ -78,7 +81,7 @@ const initialTransactionData = {
   palayBatch: "",
 };
 
-function PalayRegister({ visible, onHide, onPalayRegistered }) {
+function PalayRegister({ visible, onHide, onPalayRegistered, currentWSR }) {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const toast = useRef(null);
   const { user } = useAuth();
@@ -104,7 +107,9 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
     palaySupplierStreet: "",
     // Palay Info
     dateBought: "",
-    age: "0",
+    wsr: "",
+    wsi: "0",
+    age: 0,
     buyingStationName: "",
     buyingStationLoc: "",
     quantityBags: "",
@@ -161,31 +166,53 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
   ];
 
   const locationOptions = useMemo(() => {
-    const facilityData = palayData.qualityType === "Wet" ? dryerData : warehouseData;
-    
+    const facilityData =
+      palayData.qualityType === "Wet" ? dryerData : warehouseData;
+
     return facilityData
       .filter((facility) => {
         // Different capacity field names for warehouses vs dryers
-        const maxCapacity = palayData.qualityType === "Wet" ? facility.capacity : facility.totalCapacity;
-        const currentOccupancy = palayData.qualityType === "Wet" ? facility.processing : facility.currentStock;
-        
+        const maxCapacity =
+          palayData.qualityType === "Wet"
+            ? facility.capacity
+            : facility.totalCapacity;
+        const currentOccupancy =
+          palayData.qualityType === "Wet"
+            ? facility.processing
+            : facility.currentStock;
+
         const canAccommodate =
           facility.status === "active" &&
-          maxCapacity - currentOccupancy >= parseInt(palayData.quantityBags || 0);
-            
+          maxCapacity - currentOccupancy >=
+            parseInt(palayData.quantityBags || 0);
+
         if (palayData.qualityType === "Wet") {
           return canAccommodate; // For dryers, we just check capacity
         } else {
           // For warehouses, we also check if it's a palay warehouse
-          return canAccommodate && facility.facilityName.toLowerCase().includes("palay");
+          return (
+            canAccommodate &&
+            facility.facilityName.toLowerCase().includes("palay")
+          );
         }
       })
       .map((facility) => ({
-        label: `${palayData.qualityType === "Wet" ? facility.dryerName : facility.facilityName} (Available: ${
-          (palayData.qualityType === "Wet" ? facility.capacity : facility.totalCapacity) 
-          - (palayData.qualityType === "Wet" ? facility.processing : facility.currentStock)
+        label: `${
+          palayData.qualityType === "Wet"
+            ? facility.dryerName
+            : facility.facilityName
+        } (Available: ${
+          (palayData.qualityType === "Wet"
+            ? facility.capacity
+            : facility.totalCapacity) -
+          (palayData.qualityType === "Wet"
+            ? facility.processing
+            : facility.currentStock)
         } bags)`,
-        name: palayData.qualityType === "Wet" ? facility.dryerName : facility.facilityName,
+        name:
+          palayData.qualityType === "Wet"
+            ? facility.dryerName
+            : facility.facilityName,
         value: facility.id,
       }));
   }, [palayData.qualityType, palayData.quantityBags, warehouseData, dryerData]);
@@ -193,6 +220,10 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
   useEffect(() => {
     if (visible) {
       setActiveStep(0);
+      // setPalayData(prev => ({
+      //   ...prev,
+      //   wsr: currentWSR ? currentWSR.toString().padStart(8, '0') : "00000001"
+      // }));
     }
   }, [visible]);
 
@@ -294,7 +325,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
 
   const handleQualityTypeInputChange = (e) => {
     const { name, value } = e.target;
-  
+
     setPalayData((prevState) => ({
       ...prevState,
       [name]: value,
@@ -309,16 +340,16 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
       purity: value === "Wet" ? 97 : value === "Dry" ? 99 : prevState.purity,
       damaged: value === "Wet" ? 4 : value === "Dry" ? 1 : prevState.damaged,
     }));
-  
+
     // Reset location related fields when quality type changes
-    setTransactionData(prevState => ({
+    setTransactionData((prevState) => ({
       ...prevState,
       toLocationType: value === "Wet" ? "Dryer" : "Warehouse",
       toLocationId: "", // Reset selected location
     }));
-  
+
     // Reset currentlyAt in palayData
-    setPalayData(prevState => ({
+    setPalayData((prevState) => ({
       ...prevState,
       currentlyAt: "",
     }));
@@ -384,43 +415,43 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
   const handleSubmit = async () => {
     const isValid = validateForm(activeStep);
     if (!isValid) return;
-  
+
     setIsLoading(true);
     try {
       // Prepare the request body based on whether we have a selected supplier
-    const requestBody = {
-      ...palayData,
-      dateBought: palayData.dateBought
-        ? palayData.dateBought.toISOString().split("T")[0]
-        : null,
-      birthDate: palayData.birthDate
-        ? palayData.birthDate.toISOString().split("T")[0]
-        : null,
-      plantedDate: palayData.plantedDate
-        ? palayData.plantedDate.toISOString().split("T")[0]
-        : null,
-      harvestedDate: palayData.harvestedDate
-        ? palayData.harvestedDate.toISOString().split("T")[0]
-        : null,
-    };
+      const requestBody = {
+        ...palayData,
+        dateBought: palayData.dateBought
+          ? palayData.dateBought.toISOString().split("T")[0]
+          : null,
+        birthDate: palayData.birthDate
+          ? palayData.birthDate.toISOString().split("T")[0]
+          : null,
+        plantedDate: palayData.plantedDate
+          ? palayData.plantedDate.toISOString().split("T")[0]
+          : null,
+        harvestedDate: palayData.harvestedDate
+          ? palayData.harvestedDate.toISOString().split("T")[0]
+          : null,
+      };
 
-    // If we have a selected supplier, only send the ID
-    if (selectedSupplier) {
-      requestBody.palaySupplierId = selectedSupplier.id;
-      // Remove supplier-related fields that we don't need to send
-      delete requestBody.farmerName;
-      delete requestBody.palaySupplierRegion;
-      delete requestBody.palaySupplierProvince;
-      delete requestBody.palaySupplierCityTown;
-      delete requestBody.palaySupplierBarangay;
-      delete requestBody.palaySupplierStreet;
-      delete requestBody.category;
-      delete requestBody.numOfFarmer;
-      delete requestBody.contactNumber;
-      delete requestBody.email;
-      delete requestBody.birthDate;
-      delete requestBody.gender;
-    }
+      // If we have a selected supplier, only send the ID
+      if (selectedSupplier) {
+        requestBody.palaySupplierId = selectedSupplier.id;
+        // Remove supplier-related fields that we don't need to send
+        delete requestBody.farmerName;
+        delete requestBody.palaySupplierRegion;
+        delete requestBody.palaySupplierProvince;
+        delete requestBody.palaySupplierCityTown;
+        delete requestBody.palaySupplierBarangay;
+        delete requestBody.palaySupplierStreet;
+        delete requestBody.category;
+        delete requestBody.numOfFarmer;
+        delete requestBody.contactNumber;
+        delete requestBody.email;
+        delete requestBody.birthDate;
+        delete requestBody.gender;
+      }
       // Step 1: Create palay data first
       const palayResponse = await fetch(`${apiUrl}/palaybatches`, {
         method: "POST",
@@ -429,14 +460,14 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
         },
         body: JSON.stringify(requestBody),
       });
-  
+
       if (!palayResponse.ok) {
         throw new Error("Failed to submit palay data");
       }
-  
+
       const palayResult = await palayResponse.json();
       const palayId = palayResult.id;
-  
+
       // Step 2: Create the transaction with the palay ID
       const transactionResponse = await fetch(`${apiUrl}/transactions`, {
         method: "POST",
@@ -448,28 +479,28 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
           itemId: palayId,
         }),
       });
-  
+
       if (!transactionResponse.ok) {
         throw new Error("Failed to submit transaction data");
       }
-  
+
       const transactionResult = await transactionResponse.json();
       const transactionId = transactionResult.id;
-  
+
       // Step 3: Update facility stock based on quality type
       if (palayData.qualityType === "Wet") {
         // Update dryer processing count
         const targetDryer = dryerData.find(
           (dryer) => dryer.id === transactionData.toLocationId
         );
-  
+
         if (!targetDryer) {
           throw new Error("Target dryer not found");
         }
-  
-        const newProcessing = 
+
+        const newProcessing =
           Number(palayData.quantityBags) + Number(targetDryer.processing);
-  
+
         const dryerResponse = await fetch(`${apiUrl}/dryers/update`, {
           method: "POST",
           headers: {
@@ -480,7 +511,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
             processing: newProcessing,
           }),
         });
-  
+
         if (!dryerResponse.ok) {
           throw new Error("Failed to update dryer processing count");
         }
@@ -489,14 +520,14 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
         const targetWarehouse = warehouseData.find(
           (warehouse) => warehouse.id === transactionData.toLocationId
         );
-  
+
         if (!targetWarehouse) {
           throw new Error("Target warehouse not found");
         }
-  
+
         const newStock =
           Number(palayData.quantityBags) + Number(targetWarehouse.currentStock);
-  
+
         const warehouseResponse = await fetch(`${apiUrl}/warehouses/update`, {
           method: "POST",
           headers: {
@@ -507,12 +538,12 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
             currentStock: newStock,
           }),
         });
-  
+
         if (!warehouseResponse.ok) {
           throw new Error("Failed to update warehouse stock");
         }
       }
-  
+
       // Generate WSR and handle success
       const receiptData = {
         ...palayData,
@@ -522,21 +553,21 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
       };
       const pdf = WSR(receiptData);
       pdf.save(`WSR-${palayId}.pdf`);
-  
+
       // Reset states and show success message
       setPalayData(initialPalayData);
       setTransactionData(initialTransactionData);
-  
+
       toast.current.show({
         severity: "success",
         summary: "Success",
         detail: "Records successfully created",
         life: 3000,
       });
-  
+
       onPalayRegistered(palayResult);
       onHide();
-  
+
       refreshData();
     } catch (error) {
       console.error("Error:", error);
@@ -607,9 +638,31 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
   };
 
   const customDialogHeader = (
-    <div className="flex items-center space-x-2">
-      <Wheat className="text-black" />
-      <h3 className="text-md font-semibold text-black">Buy Palay</h3>
+    <div className="flex justify-between">
+      <div className="flex items-center space-x-2">
+        <Wheat className="text-black" />
+        <h3 className="text-md font-semibold text-black">Buy Palay</h3>
+      </div>
+      <div className="flex flex-col items-center gap-2">
+        <div className="flex items-center gap-2">
+          <label
+            htmlFor="wsr"
+            className="block text-xl font-semibold text-black"
+          >
+            WSR:
+          </label>
+          <InputText
+            id="wsr"
+            name="wsr"
+            value={palayData.wsr}
+            onChange={handlePalayInputChange}
+            className="w-40 ring-0 border-primary text-xl h-8 font-semibold text-black"
+            keyfilter="int"
+            maxLength={8}
+          />
+        </div>
+        {errors.wsr && (<p className="text-red-500 text-xs">{errors.wsr}</p>)}
+      </div>
     </div>
   );
 
@@ -617,6 +670,11 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
     let newErrors = {};
     if (step === 0) {
       // Farmer Info Validation
+      if (!palayData.wsr) {
+        newErrors.wsr = "WSR is required";
+      } else if (!/^\d{8}$/.test(palayData.wsr)) {
+        newErrors.wsr = "WSR must be 8 digits long";
+      }
       if (!palayData.category.trim()) {
         newErrors.category = "Category is required";
       }
@@ -637,11 +695,9 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
           newErrors.numOfFarmer = "Number of farmers cannot be 0";
         }
       }
-      if (!palayData.email) {
-        newErrors.email = "Email is required";
+      if (!palayData.email || palayData.email.trim().toLowerCase() === "none" || palayData.email.trim().toLowerCase() === "na") {
       } else {
-        const emailRegex =
-          /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        const emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         if (!emailRegex.test(palayData.email)) {
           newErrors.email = "Please enter a valid email address";
         }
@@ -671,6 +727,11 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
       }
     } else if (step === 1) {
       // Palay Info Validation
+      if (!palayData.wsr) {
+        newErrors.wsr = "WSR is required";
+      } else if (!/^\d{8}$/.test(palayData.wsr)) {
+        newErrors.wsr = "WSR must be 8 digits long";
+      }
       if (!palayData.varietyCode) {
         newErrors.varietyCode = "Variety Code is required";
       }
@@ -769,6 +830,17 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
       }
     } else if (step === 2) {
       // Logistics Validation
+      if (!palayData.wsr) {
+        newErrors.wsr = "WSR is required";
+      } else if (!/^\d{8}$/.test(palayData.wsr)) {
+        newErrors.wsr = "WSR must be 8 digits long";
+      }
+      if (!palayData.buyingStationName) {
+        newErrors.buyingStationName = "Buying Station Name is required";
+      }
+      if (!palayData.buyingStationLoc) {
+        newErrors.buyingStationLoc = "Buying Station Location is required";
+      }
       if (!transactionData.transporterName) {
         newErrors.transporterName = "Transporter is required";
       }
@@ -781,15 +853,15 @@ function PalayRegister({ visible, onHide, onPalayRegistered }) {
       if (!transactionData.toLocationId) {
         newErrors.toLocationId = "Destination is required";
       }
-        if (!palayData.weighedBy) {
-          newErrors.weighedBy = "Weigher is required";
-        }
-        if (!palayData.correctedBy) {
-          newErrors.correctedBy = "Checker is required";
-        }
-        if (!palayData.classifiedBy) {
-          newErrors.classifiedBy = "classifiedBy is required";
-        }
+      if (!palayData.weighedBy) {
+        newErrors.weighedBy = "Weigher is required";
+      }
+      if (!palayData.correctedBy) {
+        newErrors.correctedBy = "Checker is required";
+      }
+      if (!palayData.classifiedBy) {
+        newErrors.classifiedBy = "classifiedBy is required";
+      }
       if (!transactionData.remarks) {
         newErrors.remarks = "Remarks is required";
       }

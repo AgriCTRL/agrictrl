@@ -6,6 +6,9 @@ export class Warehouse extends BaseEntity {
     id: string;
 
     @Column()
+    userId: string;
+
+    @Column()
     facilityName: string;
 
     @Column()
@@ -48,7 +51,7 @@ export class Warehouse extends BaseEntity {
     }
 }
 
-export type WarehouseCreate = Pick<Warehouse, 'facilityName' | 'nfaBranch' | 'location' | 'totalCapacity' | 'currentStock' | 'contactNumber' | 'email' | 'status'>;
+export type WarehouseCreate = Pick<Warehouse, 'userId' | 'facilityName' | 'nfaBranch' | 'location' | 'totalCapacity' | 'currentStock' | 'contactNumber' | 'email' | 'status'>;
 export type WarehouseUpdate = Pick<Warehouse, 'id'> & Partial<WarehouseCreate>;
 
 export async function getWarehouses(limit: number, offset: number): Promise<Warehouse[]> {
@@ -73,6 +76,7 @@ export async function countWarehouses(): Promise<number> {
 export async function createWarehouse(warehouseCreate: WarehouseCreate): Promise<Warehouse> {
     let warehouse = new Warehouse();
 
+    warehouse.userId = warehouseCreate.userId;
     warehouse.facilityName = warehouseCreate.facilityName;
     warehouse.nfaBranch = warehouseCreate.nfaBranch;
     warehouse.location = warehouseCreate.location;
@@ -87,6 +91,7 @@ export async function createWarehouse(warehouseCreate: WarehouseCreate): Promise
 
 export async function updateWarehouse(warehouseUpdate: WarehouseUpdate): Promise<Warehouse> {
     await Warehouse.update(warehouseUpdate.id, {
+        userId: warehouseUpdate.userId,
         facilityName: warehouseUpdate.facilityName,
         nfaBranch: warehouseUpdate.nfaBranch,
         location: warehouseUpdate.location,

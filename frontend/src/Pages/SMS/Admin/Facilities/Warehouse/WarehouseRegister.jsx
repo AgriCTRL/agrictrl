@@ -7,7 +7,12 @@ import { Toast } from "primereact/toast";
 
 import { Wheat } from "lucide-react";
 
-function WarehouseRegister({ visible, onHide, onWarehouseRegistered }) {
+function WarehouseRegister({
+  visible,
+  onHide,
+  onWarehouseRegistered,
+  warehouseManagers,
+}) {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const toast = React.useRef(null);
 
@@ -20,6 +25,7 @@ function WarehouseRegister({ visible, onHide, onWarehouseRegistered }) {
   const [contactNumber, setContactNumber] = useState("");
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState("active");
+  const [userId, setUserId] = useState("");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -42,6 +48,7 @@ function WarehouseRegister({ visible, onHide, onWarehouseRegistered }) {
     setContactNumber("");
     setEmail("");
     setStatus("active");
+    setUserId("");
   };
 
   const handleRegister = async (e) => {
@@ -53,7 +60,8 @@ function WarehouseRegister({ visible, onHide, onWarehouseRegistered }) {
       !totalCapacity ||
       !location ||
       !contactNumber ||
-      !email
+      !email ||
+      !userId
     ) {
       toast.current.show({
         severity: "error",
@@ -75,7 +83,10 @@ function WarehouseRegister({ visible, onHide, onWarehouseRegistered }) {
       contactNumber,
       email,
       status,
+      userId,
     };
+
+    console.log(userId);
 
     try {
       const res = await fetch(`${apiUrl}/warehouses`, {
@@ -165,16 +176,33 @@ function WarehouseRegister({ visible, onHide, onWarehouseRegistered }) {
               />
             </div>
 
+            <div>
+              <label
+                htmlFor="warehouseManager"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Warehouse Manager
+              </label>
+              <Dropdown
+                id="warehouseManager"
+                value={userId}
+                options={warehouseManagers}
+                onChange={(e) => setUserId(e.value)}
+                placeholder="Select Manager"
+                className="w-full rounded-md border border-gray-300 ring-0"
+              />
+            </div>
+
             {/* <div>
-                            <label htmlFor="nfaBranch" className="block text-sm font-medium text-gray-700">NFA Branch</label>
-                            <InputText
-                                id="nfaBranch"
-                                value={nfaBranch}
-                                onChange={(e) => setNfaBranch(e.target.value)}
-                                className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
-                                maxLength={50}    
-                            />
-                        </div> */}
+                    <label htmlFor="nfaBranch" className="block text-sm font-medium text-gray-700">NFA Branch</label>
+                    <InputText
+                        id="nfaBranch"
+                        value={nfaBranch}
+                        onChange={(e) => setNfaBranch(e.target.value)}
+                        className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
+                        maxLength={50}    
+                    />
+                </div> */}
 
             <div>
               <label
@@ -219,11 +247,10 @@ function WarehouseRegister({ visible, onHide, onWarehouseRegistered }) {
               <InputText
                 id="contactNumber"
                 value={contactNumber}
-                type="number"
                 onChange={(e) => setContactNumber(e.target.value)}
                 className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
-                maxLength={15}
-                keyfilter="alphanum"
+                maxLength={11}
+                keyfilter="int"
               />
             </div>
 
@@ -244,7 +271,7 @@ function WarehouseRegister({ visible, onHide, onWarehouseRegistered }) {
               />
             </div>
 
-            <div className="col-span-2">
+            <div>
               <label
                 htmlFor="status"
                 className="block text-sm font-medium text-gray-700"

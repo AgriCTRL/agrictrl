@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Dialog } from "primereact/dialog";
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
@@ -28,21 +28,70 @@ const initialNewTransactionData = {
 const SendTo = ({
   visible,
   onHide,
-  selectedItem,
   onSendSuccess,
   user,
   dryerData,
   millerData,
-  refreshData,
   warehouseData,
+  selectedPile,
 }) => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const toast = useRef(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
-  const [newTransactionData, setNewTransactionData] = useState(
-    initialNewTransactionData
-  );
+  const [inventoryItems, setInventoryItems] = useState([]);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [newTransactionData, setNewTransactionData] = useState(initialNewTransactionData);
+    
+  useEffect(() => {
+    if (visible && selectedPile) {
+      fetchInventoryItems();
+    }
+  }, [visible, selectedPile]);
+
+  const fetchInventoryItems = async () => {
+    try {
+      const response = await fetch(
+        `${apiUrl}/inventory/by-pile/${selectedPile.id}`
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch inventory items");
+      }
+      const data = await response.json();
+      
+      // Check if data.items exists and is an array
+      if (!data.items || !Array.isArray(data.items)) {
+        throw new Error("Invalid data structure received");
+      }
+
+      // Transform the data for dropdown, accessing the nested structure
+      const formattedItems = data.items.map(item => {
+        const palayBatch = item.palayBatch;
+        const transaction = item.transaction;
+        
+        return {
+          label: `${palayBatch.id} - ${palayBatch.quantityBags} bags - ${palayBatch.status}`,
+          value: palayBatch.id,
+          id: palayBatch.id,
+          item: transaction.item,
+          quantityBags: palayBatch.quantityBags,
+          palayStatus: palayBatch.status,
+          transactionId: transaction.id,
+          toLocationId: transaction.toLocationId
+        };
+      });
+
+      setInventoryItems(formattedItems);
+    } catch (error) {
+      console.error("Error fetching inventory:", error);
+      toast.current.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Failed to fetch inventory items",
+        life: 3000,
+      });
+    }
+  };
 
   const getAvailableFacilities = () => {
     if (!selectedItem) return [];
@@ -84,6 +133,16 @@ const SendTo = ({
 
   const validateForm = () => {
     let newErrors = {};
+
+    if (!selectedItem) {
+      newErrors.selectedItem = "Please select a palay batch";
+      toast.current.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Please select a palay batch",
+        life: 3000,
+      });
+    }
 
     if (!newTransactionData.toLocationId) {
       newErrors.toLocationId = "Please select a facility";
@@ -136,13 +195,13 @@ const SendTo = ({
 
     setIsLoading(true);
     try {
-      // Create new transaction first
       const toLocationType =
         selectedItem.palayStatus === "To be Dry"
           ? "Dryer"
           : selectedItem.palayStatus === "To be Mill"
           ? "Miller"
           : "";
+
       const transactionResponse = await fetch(`${apiUrl}/transactions`, {
         method: "POST",
         headers: {
@@ -280,12 +339,30 @@ const SendTo = ({
         currentStock: currentStock,
       };
 
+      //create pile transaction
+      const pileTransactionBody = {
+        palayBatchId: selectedItem.id,
+        pileId: selectedPile.id,
+        transactionType: 'OUT',
+        quantityBags: selectedItem.quantityBags,
+        performedBy: user.id,
+        notes: `Received from transaction ${selectedItem.transactionId}`
+      };
+  
+      const pileTransactionResponse = await fetch(`${apiUrl}/piletransactions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(pileTransactionBody)
+      });
+  
+      if (!pileTransactionResponse.ok) {
+        throw new Error('Failed to create pile transaction');
+      }
+
       const pdf = WSI(data);
       pdf.save(`WSI-${selectedItem.id}.pdf`);
-
-      onSendSuccess();
-      onHide();
-      setNewTransactionData(initialNewTransactionData);
 
       toast.current.show({
         severity: "success",
@@ -293,7 +370,10 @@ const SendTo = ({
         detail: "Palay batch status updated successfully",
         life: 3000,
       });
-      refreshData();
+
+      onSendSuccess();
+      onHide();
+      setNewTransactionData(initialNewTransactionData);
     } catch (error) {
       console.error("Error:", error);
       toast.current.show({
@@ -318,124 +398,137 @@ const SendTo = ({
       >
         <div className="flex flex-col">
           <div className="mb-4">
-            <label className="block mb-2">Send To</label>
-            <InputText
-              value={
-                selectedItem?.palayStatus === "To be Dry" ? "Dryer" : "Miller"
-              }
-              disabled
-              className="w-full"
-              keyfilter={/^[a-zA-Z\s]/}
-              maxLength={50}
-            />
-          </div>
-
-          <div className="mb-4">
-            <label className="block mb-2">Facility</label>
+            <label className="block mb-2">Select Palay Batch</label>
             <Dropdown
-              value={newTransactionData.toLocationId}
-              options={getAvailableFacilities()}
+              value={selectedItem?.id}
+              options={inventoryItems}
               onChange={(e) => {
-                const selectedOption = getAvailableFacilities().find(
-                  (opt) => opt.value === e.value
-                );
-                if (selectedOption) {
-                  setNewTransactionData((prev) => ({
-                    ...prev,
-                    toLocationId: selectedOption.value,
-                    toLocationName: selectedOption.label,
-                  }));
-                  setErrors((prev) => ({ ...prev, toLocationId: "" }));
-                }
+                const selected = inventoryItems.find(item => item.value === e.value);
+                setSelectedItem(selected);
+                setErrors(prev => ({ ...prev, selectedItem: "" }));
               }}
-              placeholder="Select a facility"
-              className={`w-full ${errors.toLocationId ? "p-invalid" : ""}`}
+              placeholder="Select a palay batch"
+              className={`w-full ${errors.selectedItem ? "p-invalid" : ""}`}
             />
-            {errors.toLocationId && (
-              <p className="text-red-500 text-xs mt-1">{errors.toLocationId}</p>
+            {errors.selectedItem && (
+              <p className="text-red-500 text-xs mt-1">{errors.selectedItem}</p>
             )}
           </div>
 
-          <div className="w-full mb-4">
-            <label
-              htmlFor="transportedBy"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Transported by
-            </label>
-            <InputText
-              value={newTransactionData.transporterName}
-              onChange={(e) => {
-                setNewTransactionData((prev) => ({
-                  ...prev,
-                  transporterName: e.target.value,
-                }));
-                setErrors((prev) => ({ ...prev, transporterName: "" }));
-              }}
-              className={`w-full ring-0 ${
-                errors.transporterName ? "p-invalid" : ""
-              }`}
-              keyfilter={/^[a-zA-Z\s]/}
-              maxLength={50}
-            />
-            {errors.transporterName && (
-              <p className="text-red-500 text-xs mt-1">
-                {errors.transporterName}
-              </p>
-            )}
-          </div>
+          {selectedItem && (
+            <>
+              <div className="mb-4">
+                <label className="block mb-2">Send To</label>
+                <InputText
+                  value={
+                    selectedItem?.palayStatus === "To be Dry" ? "Dryer" : "Miller"
+                  }
+                  disabled
+                  className="w-full"
+                  keyfilter={/^[a-zA-Z\s]/}
+                  maxLength={50}
+                />
+              </div>
 
-          <div className="w-full mb-4">
-            <label
-              htmlFor="description"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Transport Description
-            </label>
-            <InputTextarea
-              value={newTransactionData.transporterDesc}
-              onChange={(e) => {
-                setNewTransactionData((prev) => ({
-                  ...prev,
-                  transporterDesc: e.target.value,
-                }));
-                setErrors((prev) => ({ ...prev, transporterDesc: "" }));
-              }}
-              className={`w-full ring-0 ${
-                errors.transporterDesc ? "p-invalid" : ""
-              }`}
-              maxLength={250}
-            />
-            {errors.transporterDesc && (
-              <p className="text-red-500 text-xs mt-1">
-                {errors.transporterDesc}
-              </p>
-            )}
-          </div>
+              <div className="mb-4">
+                <label className="block mb-2">Facility</label>
+                <Dropdown
+                  value={newTransactionData.toLocationId}
+                  options={getAvailableFacilities()}
+                  onChange={(e) => {
+                    const selectedOption = getAvailableFacilities().find(
+                      (opt) => opt.value === e.value
+                    );
+                    if (selectedOption) {
+                      setNewTransactionData((prev) => ({
+                        ...prev,
+                        toLocationId: selectedOption.value,
+                        toLocationName: selectedOption.label,
+                      }));
+                      setErrors((prev) => ({ ...prev, toLocationId: "" }));
+                    }
+                  }}
+                  placeholder="Select a facility"
+                  className={`w-full ${errors.toLocationId ? "p-invalid" : ""}`}
+                />
+                {errors.toLocationId && (
+                  <p className="text-red-500 text-xs mt-1">{errors.toLocationId}</p>
+                )}
+              </div>
 
-          <div className="w-full mb-4">
-            <label
-              htmlFor="remarks"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Remarks
-            </label>
-            <InputTextarea
-              value={newTransactionData.remarks}
-              onChange={(e) => {
-                setNewTransactionData((prev) => ({
-                  ...prev,
-                  remarks: e.target.value,
-                }));
-                setErrors((prev) => ({ ...prev, remarks: "" }));
-              }}
-              className={`w-full ring-0 ${errors.remarks ? "p-invalid" : ""}`}
-              maxLength={250}
-            />
-            {errors.remarks && (
-              <p className="text-red-500 text-xs mt-1">{errors.remarks}</p>
-            )}
-          </div>
+              <div className="w-full mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Transported by
+                </label>
+                <InputText
+                  value={newTransactionData.transporterName}
+                  onChange={(e) => {
+                    setNewTransactionData((prev) => ({
+                      ...prev,
+                      transporterName: e.target.value,
+                    }));
+                    setErrors((prev) => ({ ...prev, transporterName: "" }));
+                  }}
+                  className={`w-full ring-0 ${
+                    errors.transporterName ? "p-invalid" : ""
+                  }`}
+                  keyfilter={/^[a-zA-Z\s]/}
+                  maxLength={50}
+                />
+                {errors.transporterName && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.transporterName}
+                  </p>
+                )}
+              </div>
+
+              <div className="w-full mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Transport Description
+                </label>
+                <InputTextarea
+                  value={newTransactionData.transporterDesc}
+                  onChange={(e) => {
+                    setNewTransactionData((prev) => ({
+                      ...prev,
+                      transporterDesc: e.target.value,
+                    }));
+                    setErrors((prev) => ({ ...prev, transporterDesc: "" }));
+                  }}
+                  className={`w-full ring-0 ${
+                    errors.transporterDesc ? "p-invalid" : ""
+                  }`}
+                  maxLength={250}
+                />
+                {errors.transporterDesc && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.transporterDesc}
+                  </p>
+                )}
+              </div>
+
+              <div className="w-full mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Remarks
+                </label>
+                <InputTextarea
+                  value={newTransactionData.remarks}
+                  onChange={(e) => {
+                    setNewTransactionData((prev) => ({
+                      ...prev,
+                      remarks: e.target.value,
+                    }));
+                    setErrors((prev) => ({ ...prev, remarks: "" }));
+                  }}
+                  className={`w-full ring-0 ${errors.remarks ? "p-invalid" : ""}`}
+                  maxLength={250}
+                />
+                {errors.remarks && (
+                  <p className="text-red-500 text-xs mt-1">{errors.remarks}</p>
+                )}
+              </div>
+            </>
+          )}
 
           <div className="flex justify-between w-full gap-4 mt-4">
             <Button

@@ -41,12 +41,13 @@ export function getRouter(): Router {
     router.post(
         '/',
         async (
-            req: Request<any, any, { facilityName: string; nfaBranch: string, location: string, totalCapacity: number, currentStock: number, contactNumber: string, email: string, status: string }>,
+            req: Request<any, any, { userId: string; facilityName: string; nfaBranch: string, location: string, totalCapacity: number, currentStock: number, contactNumber: string, email: string, status: string }>,
             res
         ) => {
-            const { facilityName, nfaBranch, location, totalCapacity, currentStock, contactNumber, email, status } = req.body;
+            const { userId, facilityName, nfaBranch, location, totalCapacity, currentStock, contactNumber, email, status } = req.body;
 
             const warehouse = await createWarehouse({
+                userId,
                 facilityName,
                 nfaBranch,
                 location,
@@ -67,13 +68,14 @@ export function getRouter(): Router {
 }
 
 async function updateHandler(
-    req: Request<any, any, { id: string; facilityName?: string; nfaBranch?: string, location?: string, totalCapacity?: number, currentStock?: number, contactNumber?: string, email?: string, status?: string }>,
+    req: Request<any, any, { id: string; userId?: string; facilityName?: string; nfaBranch?: string, location?: string, totalCapacity?: number, currentStock?: number, contactNumber?: string, email?: string, status?: string }>,
     res: Response
 ): Promise<void> {
-    const { id, facilityName, nfaBranch, location, totalCapacity, currentStock, contactNumber, email, status } = req.body;
+    const { id, userId, facilityName, nfaBranch, location, totalCapacity, currentStock, contactNumber, email, status } = req.body;
 
     const warehouse = await updateWarehouse({
         id,
+        userId,
         facilityName,
         nfaBranch,
         location,

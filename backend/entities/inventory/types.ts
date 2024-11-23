@@ -48,6 +48,7 @@ export interface InventoryFilters {
     item?: string;
     millerType?: 'In House' | 'Private';
     userId?: string;
+    warehouseUserId?: string;
     limit?: number;
     offset?: number;
     processingTypes?: ProcessingType[];

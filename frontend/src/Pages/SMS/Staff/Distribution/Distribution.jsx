@@ -29,6 +29,7 @@ import DeclineOrder from "./DeclineOrder";
 import SendOrder from "./SendOrder";
 import DeclineDetails from "./DeclineDetails";
 import OrderDetails from "./OrderDetails";
+import Loader from "@/Components/Loader";
 
 function Distribution() {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -53,7 +54,7 @@ function Distribution() {
   const [showOrderDetails, setShowOrderDetails] = useState(false);
   const [recipients, setRecipients] = useState({});
 
-  const [riceBatchData, setRiceBatchData] = useState([]);
+  const [pilesData, setPilesData] = useState([]);
   const [totalAvailableQuantity, setTotalAvailableQuantity] = useState(0);
 
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -80,7 +81,7 @@ function Distribution() {
 
   useEffect(() => {
     fetchRecipients();
-    fetchRiceBatchData();
+    fetchPilesData();
     fetchData();
   }, [selectedFilter]);
 
@@ -99,6 +100,8 @@ function Distribution() {
 
   const fetchRecipients = async () => {
     try {
+      setIsLoading(true);
+
       const res = await fetch(`${apiUrl}/users?userType=Rice%20Recipient`);
       const data = await res.json();
       if (!res.ok) {
@@ -111,11 +114,15 @@ function Distribution() {
       setRecipients(recipientMap);
     } catch (error) {
       console.error(error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const fetchOrders = async () => {
     try {
+      setIsLoading(true);
+
       const res = await fetch(`${apiUrl}/riceorders`);
       const data = await res.json();
       if (!res.ok) {
@@ -126,24 +133,37 @@ function Distribution() {
         orderedBy: recipients[order.riceRecipientId] || "Unknown",
       }));
       setOrdersData(ordersWithRecipients);
-      console.log(data);
     } catch (error) {
       console.error(error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const fetchData = async () => {
-    const palayCountRes = await fetch(`${apiUrl}/palaybatches/count`);
-    setPalayCount(await palayCountRes.json());
-    const millingCountRes = await fetch(`${apiUrl}/millingbatches/count`);
-    const millingCount = await millingCountRes.json();
-    const dryingCountRes = await fetch(`${apiUrl}/dryingbatches/count`);
-    const dryingCount = await dryingCountRes.json();
-    setProcessedCount(millingCount + dryingCount);
-    const distributeCountRes = await fetch(
-      `${apiUrl}/riceorders/received/count`
-    );
-    setDistributedCount(await distributeCountRes.json());
+    try{
+      const palayCountRes = await fetch(`${apiUrl}/palaybatches/count`);
+      setPalayCount(await palayCountRes.json());
+      const millingCountRes = await fetch(`${apiUrl}/millingbatches/count`);
+      const millingCount = await millingCountRes.json();
+      const dryingCountRes = await fetch(`${apiUrl}/dryingbatches/count`);
+      const dryingCount = await dryingCountRes.json();
+      setProcessedCount(millingCount + dryingCount);
+      const distributeCountRes = await fetch(
+        `${apiUrl}/riceorders/received/count`
+      );
+      setDistributedCount(await distributeCountRes.json());
+    } catch {
+      console.error("Error fetching data:", error);
+      toast.current.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Failed to fetch data",
+        life: 3000,
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const onUpdate = () => {
@@ -151,28 +171,30 @@ function Distribution() {
     if (Object.keys(recipients).length > 0) {
       fetchOrders();
     }
-    fetchRiceBatchData();
+    fetchPilesData();
   };
 
-  const fetchRiceBatchData = async () => {
+  const fetchPilesData = async () => {
     try {
-      const res = await fetch(`${apiUrl}/ricebatches`);
-      if (!res.ok) {
-        throw new Error("Failed to fetch rice batch data");
-      }
-      const data = await res.json();
+      setIsLoading(true);
 
-      // Filter and sort rice batches that are for sale by creation date
-      const forSaleRiceBatches = data
-        .filter((batch) => batch.forSale === true)
+      const res = await fetch(`${apiUrl}/piles`);
+      if (!res.ok) {
+        throw new Error("Failed to fetch piles data");
+      }
+      const { data } = await res.json();
+
+      // Filter and sort piles that are for sale and of type "Rice"
+      const forSalePiles = data
+        .filter((pile) => pile.forSale === true && pile.type === "Rice")
         .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
 
-      // Store full rice batch data
-      setRiceBatchData(forSaleRiceBatches);
+      // Store full piles data
+      setPilesData(forSalePiles);
 
       // Calculate total available quantity
-      const totalQuantity = forSaleRiceBatches.reduce(
-        (sum, batch) => sum + batch.currentCapacity,
+      const totalQuantity = forSalePiles.reduce(
+        (sum, pile) => sum + pile.currentQuantity,
         0
       );
       setTotalAvailableQuantity(totalQuantity);
@@ -181,9 +203,11 @@ function Distribution() {
       toast.current.show({
         severity: "error",
         summary: "Error",
-        detail: "Failed to fetch rice batch data",
+        detail: "Failed to fetch piles data",
         life: 3000,
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -215,65 +239,6 @@ function Distribution() {
       className="text-sm px-3 py-1 rounded-lg"
     />
   );
-
-  const dateBodyTemplate = (rowData, field) => {
-    const date = new Date(rowData[field]).toISOString().split("T")[0];
-
-    return new Date(date).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    });
-  };
-
-  const handleConfirmDecline = async () => {
-    if (!declineReason.trim()) {
-      toast.current.show({
-        severity: "warn",
-        summary: "Required field",
-        detail: "Please enter a reason for declining",
-        life: 3000,
-      });
-      return;
-    }
-
-    setIsLoading(true);
-    const order = {
-      id: selectedOrder.id,
-      status: "Declined",
-      remarks: declineReason,
-    };
-    try {
-      const res = await fetch(`${apiUrl}/riceorders/update`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(order),
-      });
-      if (!res.ok) {
-        throw new Error("failed to update rice order status");
-      }
-      toast.current.show({
-        severity: "success",
-        summary: "Success",
-        detail: "Order declined successfully!",
-        life: 3000,
-      });
-      onUpdate();
-    } catch (error) {
-      console.error(error.message);
-      toast.current.show({
-        severity: "error",
-        summary: "Error",
-        detail: "Failed to decline order. Please try again.",
-        life: 3000,
-      });
-    } finally {
-      setShowDeclineDialog(false);
-      setIsLoading(false);
-    }
-  };
 
   const handleFilterChange = (filter) => {
     setSelectedFilter(filter);
@@ -322,7 +287,6 @@ function Distribution() {
           riceRecipientId: rowData.riceRecipientId,
         });
         setShowSendDialog(true);
-        console.log("row data: ", selectedOrder);
         break;
 
       case ACTION_TYPES.VIEW_DETAILS:
@@ -537,6 +501,11 @@ function Distribution() {
       isRightSidebarOpen={false}
       rightSidebar={rightSidebar()}
     >
+      {isLoading && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50">
+          <Loader />
+        </div>
+      )}
       <Toast ref={toast} />
       <div className="flex flex-col h-full gap-4">
         <div className="flex flex-col justify-center gap-4 items-center p-8 rounded-lg bg-gradient-to-r from-primary to-secondary">
@@ -620,7 +589,7 @@ function Distribution() {
                 rows={10}
                 emptyMessage="No orders found."
                 className="overflow-y-auto pb-16"
-                paginatorClassName="absolute bottom-0 left-0 right-0 bg-white border-t"
+                paginatorClassName="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-300"
                 paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
               />
             </div>
@@ -638,8 +607,6 @@ function Distribution() {
       <DeclineOrder
         visible={showDeclineDialog}
         onHide={() => setShowDeclineDialog(false)}
-        onConfirm={handleConfirmDecline}
-        isLoading={isLoading}
         declineReason={declineReason}
         onReasonChange={setDeclineReason}
         selectedOrder={selectedOrder}
@@ -649,7 +616,7 @@ function Distribution() {
       <SendOrder
         visible={showSendDialog}
         onHide={() => setShowSendDialog(false)}
-        riceBatchesData={riceBatchData} // Pass the full rice batch data
+        pilesData={pilesData}
         selectedOrder={selectedOrder}
         user={user}
         toast={toast}

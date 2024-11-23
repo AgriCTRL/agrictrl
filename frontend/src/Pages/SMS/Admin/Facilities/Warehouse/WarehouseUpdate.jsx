@@ -12,6 +12,7 @@ function WarehouseUpdate({
   onHide,
   selectedWarehouse,
   onUpdateWarehouse,
+  warehouseManagers,
 }) {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const toast = useRef(null);
@@ -24,6 +25,7 @@ function WarehouseUpdate({
   const [contactNumber, setContactNumber] = useState("");
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState(null);
+  const [userId, setUserId] = useState("");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -43,8 +45,8 @@ function WarehouseUpdate({
         /^(Rice|Palay)\s+(.*)$/
       );
       if (match) {
-        setFacilityType(match[1]); // "Rice" or "Palay"
-        setFacilityName(match[2]); // Remaining part after "Rice" or "Palay"
+        setFacilityType(match[1]);
+        setFacilityName(match[2]);
       } else {
         setFacilityType("");
         setFacilityName(selectedWarehouse.facilityName);
@@ -55,19 +57,21 @@ function WarehouseUpdate({
       setContactNumber(selectedWarehouse.contactNumber);
       setEmail(selectedWarehouse.email);
       setStatus(selectedWarehouse.status);
+      setUserId(selectedWarehouse.userId);
     }
   }, [selectedWarehouse]);
 
   const handleUpdate = async (e) => {
     e.preventDefault();
- 
+
     if (
       !facilityName ||
       !nfaBranch ||
       !totalCapacity ||
       !location ||
       !contactNumber ||
-      !email
+      !email ||
+      !userId
     ) {
       toast.current.show({
         severity: "error",
@@ -88,6 +92,7 @@ function WarehouseUpdate({
       contactNumber,
       email,
       status,
+      userId,
     };
 
     console.log(selectedWarehouse._id);
@@ -160,7 +165,6 @@ function WarehouseUpdate({
                 onChange={(e) => setFacilityType(e.value)}
                 placeholder="Select Facility Type"
                 className="w-full rounded-md border border-gray-300 ring-0"
-                disabled
               />
             </div>
 
@@ -177,6 +181,23 @@ function WarehouseUpdate({
                 onChange={(e) => setFacilityName(e.target.value)}
                 className="w-full p-3 rounded-md border border-gray-300 placeholder:text-gray-500 placeholder:font-medium ring-0"
                 maxLength={50}
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="warehouseManager"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Warehouse Manager
+              </label>
+              <Dropdown
+                id="warehouseManager"
+                value={userId}
+                options={warehouseManagers}
+                onChange={(e) => setUserId(e.value)}
+                placeholder="Select Manager"
+                className="w-full rounded-md border border-gray-300 ring-0"
               />
             </div>
 
@@ -258,7 +279,7 @@ function WarehouseUpdate({
               />
             </div>
 
-            <div className="col-span-2">
+            <div>
               <label
                 htmlFor="status"
                 className="block text-sm font-medium text-gray-700"

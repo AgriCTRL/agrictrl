@@ -1,6 +1,5 @@
 import express from 'express';
-import { getInventory } from './db';
-import { getEnhancedInventory } from './db';
+import { getInventory, getEnhancedInventory, getInventoryByPileId } from './db';
 import { InventoryFilters, ProcessingType } from './types';
 
 export function getRouter(): express.Router {
@@ -19,6 +18,16 @@ export function getRouter(): express.Router {
                 offset: req.query.offset ? parseInt(req.query.offset as string) : undefined
             };
 
+            // Validate required parameters
+            if (!filters.toLocationType) {
+                return res.status(400).json({ error: 'Missing required parameter: toLocationType' });
+            }
+
+            // If destination is warehouse, require userId
+            if (filters.toLocationType === 'Warehouse' && !filters.userId) {
+                return res.status(400).json({ error: 'Missing required parameter: userId for warehouse filtering' });
+            }
+
             // Handle palayStatus array or single value
             if (req.query.palayStatus) {
                 filters.palayStatus = Array.isArray(req.query.palayStatus)
@@ -34,10 +43,6 @@ export function getRouter(): express.Router {
                 ).filter((type): type is ProcessingType =>
                     type === 'drying' || type === 'milling'
                 );
-            }
-
-            if (!filters.toLocationType) {
-                return res.status(400).json({ error: 'Missing required parameter: toLocationType' });
             }
 
             const inventory = await getInventory(filters);
@@ -76,6 +81,53 @@ export function getRouter(): express.Router {
             res.json(inventory);
         } catch (error) {
             console.error('Error fetching enhanced inventory:', error);
+            res.status(500).json({
+                error: 'Internal server error',
+                details: String(error)
+            });
+        }
+    });
+
+    router.get('/by-pile/:pileId', async (req, res) => {
+        try {
+            const { pileId } = req.params;
+
+            if (!pileId) {
+                return res.status(400).json({ error: 'Missing required parameter: pileId' });
+            }
+
+            const filters: InventoryFilters = {
+                toLocationType: req.query.toLocationType as string,
+                transactionStatus: req.query.status as string,
+                processingStatus: req.query.processingStatus as string,
+                item: req.query.item as string,
+                millerType: req.query.millerType as 'In House' | 'Private' | undefined,
+                userId: req.query.userId as string,
+                limit: req.query.limit ? parseInt(req.query.limit as string) : undefined,
+                offset: req.query.offset ? parseInt(req.query.offset as string) : undefined
+            };
+
+            // Handle palayStatus array or single value
+            if (req.query.palayStatus) {
+                filters.palayStatus = Array.isArray(req.query.palayStatus)
+                    ? req.query.palayStatus as string[]
+                    : [req.query.palayStatus as string];
+            }
+
+            // Handle processing types
+            if (req.query.processingBatch) {
+                filters.processingTypes = (Array.isArray(req.query.processingBatch)
+                    ? req.query.processingBatch
+                    : [req.query.processingBatch]
+                ).filter((type): type is ProcessingType =>
+                    type === 'drying' || type === 'milling'
+                );
+            }
+
+            const inventory = await getInventoryByPileId(pileId, filters);
+            res.json(inventory);
+        } catch (error) {
+            console.error('Error fetching inventory by pile:', error);
             res.status(500).json({
                 error: 'Internal server error',
                 details: String(error)

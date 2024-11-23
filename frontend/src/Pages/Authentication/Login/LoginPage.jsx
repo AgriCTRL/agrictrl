@@ -289,6 +289,12 @@ const LoginPage = () => {
 		)
 	}
 
+  const handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      loginButton();
+    }
+  };
+
 	return (
 		<div className="h-fit md:h-screen w-screen flex flex-col-reverse md:flex-row md:gap-10 p-0 md:p-10">
 			<Toast 
@@ -377,6 +383,7 @@ const LoginPage = () => {
 								invalid={emailError}
 								keyfilter="email"
 								maxLength={50}
+                onKeyDown={handleKeyPress}
 							/>
 							{emailError && 
 								<small id="email-help" className='p-error'>
@@ -400,6 +407,7 @@ const LoginPage = () => {
 								toggleMask
 								feedback={false} 
 								footer={footer}
+                onKeyDown={handleKeyPress}
 							/>
 							{passwordError && 
 								<small id="password-help" className='p-error'>
