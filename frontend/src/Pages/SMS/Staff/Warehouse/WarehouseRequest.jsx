@@ -10,26 +10,15 @@ import { Toast } from "primereact/toast";
 import { IconField } from "primereact/iconfield";
 import { InputIcon } from "primereact/inputicon";
 
-import {
-  Search,
-  Wheat,
-  WheatOff,
-  RotateCw,
-  Loader2,
-  Undo2,
-  CheckCircle2,
-} from "lucide-react";
+import { Search, Wheat, WheatOff, RotateCw } from "lucide-react";
 
 import { useAuth } from "../../../Authentication/Login/AuthContext";
 import ReceiveRice from "./ReceiveRice";
 import ReceivePalay from "./ReceivePalay";
-import SendTo from "./SendTo";
-import ManageRice from "./ManageRice";
 import ItemDetails from "./ItemDetails";
-import PalayBatches from "./PalayBatches";
 import Loader from "@/Components/Loader";
 
-function Warehouse() {
+function WarehouseRequest() {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const toast = useRef(null);
   const { user } = useAuth();
@@ -39,42 +28,26 @@ function Warehouse() {
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
   });
 
-  const [viewMode, setViewMode] = useState("requests");
-  const [selectedItem, setSelectedItem] = useState(null);
-
-  const [palayCount, setPalayCount] = useState(0);
-  const [processedCount, setProcessedCount] = useState(0);
-  const [distributedCount, setDistributedCount] = useState(0);
-
-  const [showSendToDialog, setShowSendToDialog] = useState(false);
-  const [showRiceAcceptDialog, setShowRiceAcceptDialog] = useState(false);
-  const [showPalayAcceptDialog, setShowPalayAcceptDialog] = useState(false);
-  const [showManageRiceDialog, setShowManageRiceDialog] = useState(false);
-  const [showDetailsDialog, setShowDetailsDialog] = useState(false);
-
-  const [combinedData, setCombinedData] = useState([]);
-  const [totalRecords, setTotalRecords] = useState(0);
+  //page changes
   const [isLoading, setIsLoading] = useState(false);
   const [first, setFirst] = useState(0);
   const [rows, setRows] = useState(10);
 
-  const [millerData, setMillerData] = useState([]);
-  const [dryerData, setDryerData] = useState([]);
-  const [warehouseData, setWarehouseData] = useState([]);
+  //Dialogs
+  const [showRiceAcceptDialog, setShowRiceAcceptDialog] = useState(false);
+  const [showPalayAcceptDialog, setShowPalayAcceptDialog] = useState(false);
+  const [showDetailsDialog, setShowDetailsDialog] = useState(false);
 
+  //selected
+  const [selectedItem, setSelectedItem] = useState(null);
   const [selectedBatchDetails, setSelectedBatchDetails] = useState(null);
 
-  //piles
-  const [pileData, setPileData] = useState([]);
-  const [selectedPile, setSelectedPile] = useState(null);
+  //inventory
   const [userWarehouse, setUserWarehouse] = useState(null);
-  const [showPalayBatchesDialog, setShowPalayBatchesDialog] = useState(false);
-  const [palayBatches, setPalayBatches] = useState([]);
-
-  const [palayBatchesPagination, setPalayBatchesPagination] = useState({
-    limit: 12,
-    offset: 0,
-  });
+  const [combinedData, setCombinedData] = useState([]);
+  const [warehouseData, setWarehouseData] = useState([]);
+  const [totalRecords, setTotalRecords] = useState(0);
+  
 
   useEffect(() => {
     const newFilters = {
@@ -83,40 +56,20 @@ function Warehouse() {
     setFilters(newFilters);
   }, [globalFilterValue]);
 
+  useEffect(() => {
+    fetchInventory(first, rows);
+    fetchWarehouseData();
+  }, [first, rows]);
+
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);
-  };
-
-  useEffect(() => {
-    if (viewMode === "requests") {
-      fetchInventory(first, rows);
-    } else {
-      fetchPileData(userWarehouse?.id);
-    }
-    fetchDryerData();
-    fetchMillerData();
-    fetchWarehouseData();
-    fetchData();
-  }, [viewMode, first, rows]);
-
-  const refreshData = () => {
-    setFirst(0);
-    setRows(10);
-
-    fetchInventory(0, 10);
-    fetchPileData(userWarehouse?.id);
-    fetchDryerData();
-    fetchMillerData();
-    fetchWarehouseData();
   };
 
   const fetchInventory = async (offset, limit) => {
     setIsLoading(true);
     try {
-      const status = viewMode === "requests" ? "Pending" : "Received";
-
       // Fetch the actual data
-      let inventoryUrl = `${apiUrl}/inventory?toLocationType=Warehouse&status=${status}&offset=${offset}&limit=${limit}&userId=${user.id}`;
+      let inventoryUrl = `${apiUrl}/inventory?toLocationType=Warehouse&status=Pending&offset=${offset}&limit=${limit}&userId=${user.id}`;
 
       // Fetch all required data
       const [inventoryRes, dryersRes, millersRes] = await Promise.all([
@@ -227,44 +180,6 @@ function Warehouse() {
     }
   };
 
-  const fetchDryerData = async () => {
-    try {
-      const res = await fetch(`${apiUrl}/dryers`);
-      if (!res.ok) {
-        throw new Error("Failed to fetch dryer data");
-      }
-      const data = await res.json();
-      setDryerData(data);
-    } catch (error) {
-      console.log(error.message);
-      toast.current.show({
-        severity: "error",
-        summary: "Error",
-        detail: "Failed to fetch dryer data",
-        life: 3000,
-      });
-    }
-  };
-
-  const fetchMillerData = async () => {
-    try {
-      const res = await fetch(`${apiUrl}/millers`);
-      if (!res.ok) {
-        throw new Error("Failed to fetch miller data");
-      }
-      const data = await res.json();
-      setMillerData(data);
-    } catch (error) {
-      console.log(error.message);
-      toast.current.show({
-        severity: "error",
-        summary: "Error",
-        detail: "Failed to fetch miller data",
-        life: 3000,
-      });
-    }
-  };
-
   const fetchWarehouseData = async () => {
     try {
       const res = await fetch(`${apiUrl}/warehouses`);
@@ -280,9 +195,6 @@ function Warehouse() {
       );
       if (userWarehouses.length > 0) {
         setUserWarehouse(userWarehouses[0]);
-        if (viewMode === "inWarehouse") {
-          fetchPileData(userWarehouses[0].id);
-        }
       }
     } catch (error) {
       console.log(error.message);
@@ -295,86 +207,16 @@ function Warehouse() {
     }
   };
 
-  const fetchPileData = async (warehouseId, paginationParams) => {
-    try {
-      setIsLoading(true);
-      const id = warehouseId || userWarehouse?.id;
-
-      if (!id) {
-        setPileData([]);
-        return;
-      }
-
-      const { limit, offset } = paginationParams || palayBatchesPagination;
-      const res = await fetch(
-        `${apiUrl}/piles/warehouse/${id}?pbLimit=${limit}&pbOffset=${offset}`
-      );
-
-      if (!res.ok) {
-        throw new Error("Failed to fetch pile data");
-      }
-
-      const responseData = await res.json();
-
-      if (viewMode === "inWarehouse") {
-        const piles = Array.isArray(responseData.data) ? responseData.data : [];
-        setCombinedData(piles);
-        setTotalRecords(responseData.total || 0);
-      }
-
-      setPileData(Array.isArray(responseData.data) ? responseData.data : []);
-      setPalayBatches(responseData.data[0]?.palayBatches || []);
-    } catch (error) {
-      setPileData([]);
-      toast.current.show({
-        severity: "error",
-        summary: "Error",
-        detail: "Failed to fetch pile data",
-        life: 3000,
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const fetchData = async () => {
-    const palayCountRes = await fetch(`${apiUrl}/palaybatches/count`);
-    setPalayCount(await palayCountRes.json());
-    const millingCountRes = await fetch(`${apiUrl}/millingbatches/count`);
-    const millingCount = await millingCountRes.json();
-    const dryingCountRes = await fetch(`${apiUrl}/dryingbatches/count`);
-    const dryingCount = await dryingCountRes.json();
-    setProcessedCount(millingCount + dryingCount);
-    const distributeCountRes = await fetch(
-      `${apiUrl}/riceorders/received/count`
-    );
-    setDistributedCount(await distributeCountRes.json());
-  };
-
   const handleItemClick = (item) => {
     setSelectedBatchDetails(item);
     setShowDetailsDialog(true);
   };
 
-  const getSeverity = (status, viewMode) => {
-    if (viewMode === "requests") {
-      switch (status) {
-        case "Pending":
-          return "warning";
-        case "Received":
-          return "success";
-        default:
-          return "info";
-      }
-    }
+  const getSeverity = (status) => {
     switch (status) {
-      case "To be Dry":
-      case "To be Mill":
+      case "Pending":
         return "warning";
-      case "In Drying":
-      case "In Milling":
-        return "info";
-      case "Milled":
+      case "Received":
         return "success";
       default:
         return "info";
@@ -382,13 +224,12 @@ function Warehouse() {
   };
 
   const statusBodyTemplate = (rowData) => {
-    const status =
-      viewMode === "requests" ? rowData.transactionStatus : rowData.palayStatus;
-
+    const status = rowData.transactionStatus
+      
     return (
       <Tag
         value={status}
-        severity={getSeverity(status, viewMode)}
+        severity={getSeverity(status)}
         style={{ minWidth: "80px", textAlign: "center" }}
         className="text-sm px-2 rounded-md"
       />
@@ -396,33 +237,6 @@ function Warehouse() {
   };
 
   const actionBodyTemplate = (item) => {
-    if (viewMode === "inWarehouse") {
-      if (item.item === "Rice") {
-        return (
-          <Button
-            label="Manage"
-            className="p-button-text p-button-sm text-primary ring-0"
-            onClick={(e) => {
-              e.stopPropagation();
-              setSelectedItem(item);
-              setShowManageRiceDialog(true);
-            }}
-          />
-        );
-      }
-      return (
-        <Button
-          label="Send to"
-          className="p-button-text p-button-sm text-primary ring-0"
-          onClick={(e) => {
-            e.stopPropagation();
-            setSelectedItem(item);
-            setSelectedPile(item);
-            setShowSendToDialog(true);
-          }}
-        />
-      );
-    }
     return (
       <Button
         label="Accept"
@@ -468,86 +282,7 @@ function Warehouse() {
     return "Unknown Location";
   };
 
-  const personalStats = [
-    { icon: <Loader2 size={18} />, title: "Palay Bought", value: palayCount },
-    { icon: <Undo2 size={18} />, title: "Processed", value: processedCount },
-    {
-      icon: <CheckCircle2 size={18} />,
-      title: "Distributed",
-      value: distributedCount,
-    },
-  ];
-
-  const totalValue = personalStats.reduce((acc, stat) => acc + stat.value, 0);
-
-  const rightSidebar = () => {
-    return (
-      <div className="p-4 bg-white rounded-lg flex flex-col gap-4">
-        <div className="header flex flex-col gap-4">
-          <div className="flex flex-col items-center justify-center gap-2">
-            <p className="">Total</p>
-            <p className="text-2xl sm:text-4xl font-semibold text-primary">
-              {totalValue}
-            </p>
-          </div>
-          <div className="flex gap-2">
-            {personalStats.map((stat, index) => (
-              <div
-                key={index}
-                className="flex flex-col gap-2 flex-1 items-center justify-center"
-              >
-                <p className="text-sm">{stat.title}</p>
-                <p className="font-semibold text-primary">{stat.value}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  };
-
   const itemTemplate = (item) => {
-    if (viewMode === "inWarehouse") {
-      return (
-        <div
-          className="col-12"
-          onClick={() => {
-            setSelectedPile(item);
-            setPalayBatches(item.palayBatches || []);
-            setShowPalayBatchesDialog(true);
-          }}
-        >
-          <div className="flex flex-row items-center p-4 gap-4 cursor-pointer bg-gray-100 hover:bg-gray-200 rounded-lg mb-4">
-            <div className="flex-none">
-              <Wheat size={40} className="text-gray-400" />
-            </div>
-            <div className="flex-1">
-              <div className="font-medium text-xl mb-1">
-                Pile #{item.pileNumber}
-              </div>
-              <div className="text-gray-600 mb-1">
-                Current Quantity: {item.currentQuantity} / {item.maxCapacity}{" "}
-                bags
-              </div>
-              <div className="flex items-center">
-                <span className="py-1 text-sm">{item.status}</span>
-              </div>
-            </div>
-            <div className="flex-none flex flex-col items-center gap-2">
-              <Button
-                label="Send to"
-                className="p-button-text p-button-sm text-primary ring-0"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedPile(item);
-                  setShowSendToDialog(true);
-                }}
-              />
-            </div>
-          </div>
-        </div>
-      );
-    }
     return (
       <div className="col-12" onClick={() => handleItemClick(item)}>
         <div className="flex flex-row items-center p-4 gap-4 cursor-pointer bg-gray-100 hover:bg-gray-200 rounded-lg mb-4">
@@ -593,19 +328,16 @@ function Warehouse() {
     fetchInventory(newFirst, newRows);
   };
 
-  const handlePalayBatchesPagination = (newPagination) => {
-    setPalayBatchesPagination(newPagination);
-    fetchPileData(null, newPagination);
+  const refreshData = () => {
+    setFirst(0);
+    setRows(10);
+
+    fetchInventory(0, 10);
+    fetchWarehouseData();
   };
 
   return (
-    <StaffLayout
-      activePage="Warehouse"
-      user={user}
-      isRightSidebarOpen={false}
-      isLeftSidebarOpen={false}
-      rightSidebar={rightSidebar()}
-    >
+    <StaffLayout activePage="Request" user={user}>
       {isLoading && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50">
           <Loader />
@@ -615,11 +347,11 @@ function Warehouse() {
       <div className="flex flex-col h-full gap-4">
         <div className="flex flex-col justify-center gap-4 items-center p-8 rounded-lg bg-gradient-to-r from-primary to-secondary">
           <h1 className="text-2xl sm:text-4xl text-white font-semibold">
-            Stocks Storage
+            Request
           </h1>
           <span className="w-1/2">
             <IconField iconPosition="left">
-              <InputIcon className="">
+              <InputIcon>
                 <Search className="text-white" size={18} />
               </InputIcon>
               <InputText
@@ -630,33 +362,9 @@ function Warehouse() {
               />
             </IconField>
           </span>
-          <div className="flex justify-center space-x-4 w-full">
-            <Button
-              label="Requests"
-              className={`ring-0 ${
-                viewMode === "requests"
-                  ? "bg-white text-primary border-0"
-                  : "bg-transparent text-white border-white"
-              }`}
-              onClick={() => {
-                setViewMode("requests");
-              }}
-            />
-            <Button
-              label="In Warehouse"
-              className={`ring-0 ${
-                viewMode === "inWarehouse"
-                  ? "bg-white text-primary border-0"
-                  : "bg-transparent text-white border-white"
-              }`}
-              onClick={() => {
-                setViewMode("inWarehouse");
-              }}
-            />
-          </div>
         </div>
 
-        {/* Data View */}
+        {/* DataView for requests */}
         <div className="flex-grow flex flex-col overflow-hidden rounded-lg">
           <div className="overflow-hidden bg-white flex flex-col gap-4 p-5 rounded-lg">
             <div className="flex justify-between items-center">
@@ -674,7 +382,7 @@ function Warehouse() {
             {/* Container with relative positioning */}
             <div
               className="relative flex flex-col"
-              style={{ height: "calc(100vh - 510px)" }}
+              style={{ height: "calc(100vh - 410px)" }}
             >
               <DataView
                 value={combinedData}
@@ -695,33 +403,16 @@ function Warehouse() {
         </div>
       </div>
 
-      <PalayBatches
-        visible={showPalayBatchesDialog}
-        onHide={() => setShowPalayBatchesDialog(false)}
-        palayBatches={palayBatches}
-        selectedPile={selectedPile}
-        onPaginationChange={handlePalayBatchesPagination}
-        totalRecords={selectedPile?.pbTotal || 0}
-        loading={isLoading}
-      />
-
-      <ItemDetails
-        visible={showDetailsDialog}
-        onHide={() => setShowDetailsDialog(false)}
-        selectedBatchDetails={selectedBatchDetails}
-      />
-
-      <SendTo
-        visible={showSendToDialog}
-        onHide={() => setShowSendToDialog(false)}
-        onSendSuccess={() => {
+      <ReceivePalay
+        visible={showPalayAcceptDialog}
+        onHide={() => setShowPalayAcceptDialog(false)}
+        selectedItem={selectedItem}
+        onAcceptSuccess={() => {
+          fetchInventory(first, rows);
           refreshData();
         }}
         user={user}
-        dryerData={dryerData}
-        millerData={millerData}
-        warehouseData={warehouseData}
-        selectedPile={selectedPile}
+        userWarehouse={userWarehouse}
       />
 
       <ReceiveRice
@@ -735,30 +426,13 @@ function Warehouse() {
         refreshData={refreshData}
       />
 
-      <ReceivePalay
-        visible={showPalayAcceptDialog}
-        onHide={() => setShowPalayAcceptDialog(false)}
-        selectedItem={selectedItem}
-        onAcceptSuccess={() => {
-          fetchInventory(first, rows);
-          refreshData();
-        }}
-        user={user}
-        userWarehouse={userWarehouse}
-      />
-
-      <ManageRice
-        visible={showManageRiceDialog}
-        onHide={() => setShowManageRiceDialog(false)}
-        selectedItem={selectedItem}
-        onUpdateSuccess={() => {
-          fetchInventory(first, rows);
-        }}
-        user={user}
-        refreshData={refreshData}
+      <ItemDetails
+        visible={showDetailsDialog}
+        onHide={() => setShowDetailsDialog(false)}
+        selectedBatchDetails={selectedBatchDetails}
       />
     </StaffLayout>
   );
 }
 
-export default Warehouse;
+export default WarehouseRequest;

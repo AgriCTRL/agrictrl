@@ -5,7 +5,7 @@ import { Toast } from 'primereact/toast';
 import { Dropdown } from 'primereact/dropdown';
 import { CheckCircle } from "lucide-react";
 
-const ReceivePalay = ({ visible, onHide, selectedItem, onAcceptSuccess, user, refreshData }) => {
+const ReceivePalay = ({ visible, onHide, selectedItem, onAcceptSuccess, user, userWarehouse }) => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const toast = useRef(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -19,7 +19,7 @@ const ReceivePalay = ({ visible, onHide, selectedItem, onAcceptSuccess, user, re
 
             try {
                 // Fetch all piles
-                const pilesResponse = await fetch(`${apiUrl}/piles`);
+                const pilesResponse = await fetch(`${apiUrl}/piles/warehouse/${userWarehouse.id}`);
                 const pilesData = await pilesResponse.json();
 
                 // Filter piles that can accommodate the current batch
@@ -101,9 +101,6 @@ const ReceivePalay = ({ visible, onHide, selectedItem, onAcceptSuccess, user, re
                 throw new Error('Failed to create pile transaction');
             }
     
-            onAcceptSuccess();
-            onHide();
-            
             toast.current.show({
                 severity: 'success',
                 summary: 'Success',
@@ -111,7 +108,8 @@ const ReceivePalay = ({ visible, onHide, selectedItem, onAcceptSuccess, user, re
                 life: 3000
             });
 
-            refreshData();
+            onAcceptSuccess();
+            onHide();
         } catch (error) {
             console.error('Error processing transaction:', error);
             toast.current.show({
