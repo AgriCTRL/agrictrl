@@ -1,18 +1,19 @@
-import React, { useState } from 'react';
-import { Dialog } from 'primereact/dialog';
-import { Button } from 'primereact/button';
+import React, { useState } from "react";
+import { Dialog } from "primereact/dialog";
+import { Button } from "primereact/button";
 
-const AcceptDialog = ({ 
-  visible, 
-  onHide, 
-  selectedItem, 
-  toast, 
+import Loader from "@/Components/Loader";
+
+const AcceptDialog = ({
+  visible,
+  onHide,
+  selectedItem,
+  toast,
   apiUrl,
   user,
-  onSuccess 
+  onSuccess,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
-
 
   const handleAccept = async () => {
     if (!selectedItem) {
@@ -131,38 +132,45 @@ const AcceptDialog = ({
         life: 3000,
       });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   };
 
   return (
-    <Dialog
-      header="Receive Palay"
-      visible={visible}
-      onHide={isLoading ? null : onHide}
-      className="w-1/3"
-    >
-      <div className="flex flex-col items-center">
-        <p className="mb-10">
-          Are you sure you want to receive this request?
-        </p>
-        <div className="flex justify-between w-full gap-4">
-          <Button
-            label="Cancel"
-            className="w-1/2 bg-transparent text-primary border-primary"
-            onClick={onHide}
-            disabled={isLoading}
-          />
-          <Button
-            label="Confirm Receive"
-            className="w-1/2 bg-primary hover:border-none"
-            onClick={handleAccept}
-            disabled={isLoading}
-            loading={isLoading}
-          />
+    <>
+      {isLoading && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50">
+          <Loader />
         </div>
-      </div>
-    </Dialog>
+      )}
+      <Dialog
+        header="Receive Palay"
+        visible={visible}
+        onHide={isLoading ? null : onHide}
+        className="w-1/3"
+      >
+        <div className="flex flex-col items-center">
+          <p className="mb-10">
+            Are you sure you want to receive this request?
+          </p>
+          <div className="flex justify-between w-full gap-4">
+            <Button
+              label="Cancel"
+              className="w-1/2 bg-transparent text-primary border-primary"
+              onClick={onHide}
+              disabled={isLoading}
+            />
+            <Button
+              label="Confirm Receive"
+              className="w-1/2 bg-primary hover:border-none"
+              onClick={handleAccept}
+              disabled={isLoading}
+              loading={isLoading}
+            />
+          </div>
+        </div>
+      </Dialog>
+    </>
   );
 };
 

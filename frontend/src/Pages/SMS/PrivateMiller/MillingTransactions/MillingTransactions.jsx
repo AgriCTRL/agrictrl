@@ -10,6 +10,7 @@ import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
 import { Toast } from "primereact/toast";
 import { useAuth } from "../../../Authentication/Login/AuthContext";
+import Loader from "@/Components/Loader";
 
 import AcceptDialog from "./AcceptDialog";
 import ProcessDialog from "./ProcessDialog";
@@ -38,6 +39,7 @@ const MillingTransactions = () => {
   const [filters, setFilters] = useState({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
   });
+  const [isLoading, setIsLoading] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState("request");
   const [selectedItem, setSelectedItem] = useState(null);
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
@@ -79,6 +81,7 @@ const MillingTransactions = () => {
 
   const fetchData = async (offset = 0, limit = 10) => {
     try {
+      setIsLoading(true);
       const processType = "miller";
       const locationType = "Miller";
       const millerType = "Private";
@@ -214,11 +217,14 @@ const MillingTransactions = () => {
         detail: "Failed to fetch data",
         life: 3000,
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const fetchActiveWarehouses = async () => {
     try {
+      setIsLoading(true);
       const response = await fetch(`${apiUrl}/warehouses?status=Active`);
 
       if (!response.ok) {
@@ -235,6 +241,8 @@ const MillingTransactions = () => {
         detail: "Failed to fetch warehouses",
         life: 3000,
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -381,6 +389,11 @@ const MillingTransactions = () => {
 
   return (
     <PrivateMillerLayout activePage="Milling Transactions" user={user}>
+      {isLoading && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50">
+          <Loader />
+        </div>
+      )}
       <Toast ref={toast} />
       <div className="flex flex-col px-10 py-2 h-full bg-[#F1F5F9]">
         <div className="flex flex-col justify-center items-center p-10 h-1/4 rounded-lg bg-gradient-to-r from-primary to-secondary mb-2">

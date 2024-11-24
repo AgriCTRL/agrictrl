@@ -6,6 +6,8 @@ import { Toast } from "primereact/toast";
 
 import { Wheat } from "lucide-react";
 
+import Loader from "@/Components/Loader";
+
 function PileUpdate({
   visible,
   onHide,
@@ -62,7 +64,7 @@ function PileUpdate({
       status,
     };
 
-    console.log(updatedPile)
+    console.log(updatedPile);
 
     try {
       const res = await fetch(`${apiUrl}/piles/update`, {
@@ -97,92 +99,99 @@ function PileUpdate({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <Toast ref={toast} />
-      <div className="bg-white rounded-lg p-5 w-1/3 shadow-lg relative">
-        <button
-          onClick={onHide}
-          className="absolute top-5 right-5 text-gray-600 hover:text-gray-800"
-        >
-          ✕
-        </button>
-
-        <div className="flex items-center mb-4">
-          <Wheat className="w-6 h-6 mr-2 text-black" />
-          <span className="text-md font-semibold">Update Pile Details</span>
+    <>
+      {isLoading && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50">
+          <Loader />
         </div>
+      )}
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+        <Toast ref={toast} />
+        <div className="bg-white rounded-lg p-5 w-1/3 shadow-lg relative">
+          <button
+            onClick={onHide}
+            className="absolute top-5 right-5 text-gray-600 hover:text-gray-800"
+          >
+            ✕
+          </button>
 
-        <form onSubmit={handleUpdate}>
-          <div className="grid grid-cols-1 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Warehouse
-              </label>
-              <InputText
-                value={warehouses.facilityName}
-                className="w-full rounded-md border border-gray-300 ring-0"
-                disabled
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Pile Number
-              </label>
-              <InputText
-                value={pileNumber}
-                onChange={(e) => setPileNumber(e.target.value)}
-                className="w-full p-3 rounded-md border border-gray-300 ring-0"
-                maxLength={10}
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Max Capacity (bags)
-              </label>
-              <InputText
-                type="number"
-                value={maxCapacity}
-                onChange={(e) => setMaxCapacity(e.target.value)}
-                className="w-full p-3 rounded-md border border-gray-300 ring-0"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Description
-              </label>
-              <InputText
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className="w-full p-3 rounded-md border border-gray-300 ring-0"
-                maxLength={100}
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Status
-              </label>
-              <Dropdown
-                value={status}
-                options={statusOptions}
-                onChange={(e) => setStatus(e.value)}
-                className="w-full rounded-md border border-gray-300 ring-0"
-              />
-            </div>
-
-            <Button
-              label="Update Pile"
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full bg-primary text-white py-2 rounded-md ring-0"
-            />
+          <div className="flex items-center mb-4">
+            <Wheat className="w-6 h-6 mr-2 text-black" />
+            <span className="text-md font-semibold">Update Pile Details</span>
           </div>
-        </form>
+
+          <form onSubmit={handleUpdate}>
+            <div className="grid grid-cols-1 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Warehouse
+                </label>
+                <InputText
+                  value={warehouses.facilityName}
+                  className="w-full rounded-md border border-gray-300 ring-0"
+                  disabled
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Pile Number
+                </label>
+                <InputText
+                  value={pileNumber}
+                  onChange={(e) => setPileNumber(e.target.value)}
+                  className="w-full p-3 rounded-md border border-gray-300 ring-0"
+                  maxLength={10}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Max Capacity (bags)
+                </label>
+                <InputText
+                  type="number"
+                  value={maxCapacity}
+                  onChange={(e) => setMaxCapacity(e.target.value)}
+                  className="w-full p-3 rounded-md border border-gray-300 ring-0"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Description
+                </label>
+                <InputText
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="w-full p-3 rounded-md border border-gray-300 ring-0"
+                  maxLength={100}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Status
+                </label>
+                <Dropdown
+                  value={status}
+                  options={statusOptions}
+                  onChange={(e) => setStatus(e.value)}
+                  className="w-full rounded-md border border-gray-300 ring-0"
+                />
+              </div>
+
+              <Button
+                label="Update Pile"
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full bg-primary text-white py-2 rounded-md ring-0"
+              />
+            </div>
+          </form>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 

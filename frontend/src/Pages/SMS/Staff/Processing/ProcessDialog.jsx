@@ -5,6 +5,8 @@ import { InputText } from "primereact/inputtext";
 import { Dropdown } from "primereact/dropdown";
 import { Toast } from "primereact/toast";
 
+import Loader from "@/Components/Loader";
+
 const ProcessDialog = ({
   visible,
   viewMode,
@@ -124,7 +126,7 @@ const ProcessDialog = ({
       let endpoint;
 
       const currentDate = new Date();
-      currentDate.setHours(currentDate.getHours()+8);
+      currentDate.setHours(currentDate.getHours() + 8);
 
       if (viewMode === "drying") {
         updateData = {
@@ -308,229 +310,236 @@ const ProcessDialog = ({
   };
 
   return (
-    <Dialog
-      header={`Complete ${viewMode} Process`}
-      visible={visible}
-      onHide={isLoading ? null : onCancel}
-      className="w-1/3"
-    >
-      <Toast ref={toast} />
-      <div className="flex flex-col gap-4">
-        {viewMode === "drying" ? (
-          <>
-            <div className="w-full">
-              <label className="block mb-2">
-                Dried Quantity in Bags (50Kg per bag)
-              </label>
-              <InputText
-                type="number"
-                min={0}
-                max={selectedItem.quantityBags}
-                value={newDryingData.driedQuantityBags}
-                onChange={(e) =>
-                  handleInputChange("driedQuantityBags", e.target.value)
-                }
-                className="w-full ring-0"
-                keyfilter="num"
-              />
-              {errors.driedQuantityBags && (
-                <div className="text-red-500 text-sm mt-1">
-                  {errors.driedQuantityBags}
-                </div>
-              )}
-            </div>
-
-            <div className="w-full">
-              <label className="block mb-2">Dried Gross Weight (Kg)</label>
-              <InputText
-                type="number"
-                value={newDryingData.driedGrossWeight}
-                onChange={(e) =>
-                  setNewDryingData((prev) => ({
-                    ...prev,
-                    driedGrossWeight: e.target.value,
-                  }))
-                }
-                className="w-full ring-0"
-                keyfilter="num"
-              />
-              {errors.driedGrossWeight && (
-                <div className="text-red-500 text-sm mt-1">
-                  {errors.driedGrossWeight}
-                </div>
-              )}
-            </div>
-
-            <div className="w-full">
-              <label className="block mb-2">Dried Net Weight (Kg)</label>
-              <InputText
-                type="number"
-                value={newDryingData.driedNetWeight}
-                onChange={(e) =>
-                  setNewDryingData((prev) => ({
-                    ...prev,
-                    driedNetWeight: e.target.value,
-                  }))
-                }
-                className="w-full ring-0"
-                keyfilter="num"
-              />
-              {errors.driedNetWeight && (
-                <div className="text-red-500 text-sm mt-1">
-                  {errors.driedNetWeight}
-                </div>
-              )}
-            </div>
-
-            <div className="w-full">
-              <label className="block mb-2">Moisture Content (%)</label>
-              <InputText
-                type="number"
-                value={newDryingData.moistureContent}
-                onChange={(e) =>
-                  setNewDryingData((prev) => ({
-                    ...prev,
-                    moistureContent: e.target.value,
-                  }))
-                }
-                className="w-full ring-0"
-                keyfilter="num"
-              />
-              {errors.moistureContent && (
-                <div className="text-red-500 text-sm mt-1">
-                  {errors.moistureContent}
-                </div>
-              )}
-            </div>
-
-            <div className="w-full">
-              <label className="block mb-2">Drying Method</label>
-              <Dropdown
-                value={newDryingData.dryingMethod}
-                options={[
-                  { label: "Sun Dry", value: "Sun Dry" },
-                  { label: "Machine Dry", value: "Machine Dry" },
-                ]}
-                onChange={(e) =>
-                  setNewDryingData((prev) => ({
-                    ...prev,
-                    dryingMethod: e.value,
-                  }))
-                }
-                className="w-full"
-                placeholder="Select Drying Method"
-              />
-              {errors.dryingMethod && (
-                <div className="text-red-500 text-sm mt-1">
-                  {errors.dryingMethod}
-                </div>
-              )}
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="w-full">
-              <label className="block mb-2">
-                Milled Quantity in Bags (50Kg per Bag)
-              </label>
-              <InputText
-                type="number"
-                value={newMillingData.milledQuantityBags}
-                onChange={(e) =>
-                  handleInputChange("milledQuantityBags", e.target.value)
-                }
-                className="w-full ring-0"
-                keyfilter="num"
-              />
-              {errors.milledQuantityBags && (
-                <div className="text-red-500 text-sm mt-1">
-                  {errors.milledQuantityBags}
-                </div>
-              )}
-            </div>
-
-            <div className="w-full">
-              <label className="block mb-2">Milled Gross Weight (Kg)</label>
-              <InputText
-                type="number"
-                value={newMillingData.milledGrossWeight}
-                onChange={(e) =>
-                  setNewMillingData((prev) => ({
-                    ...prev,
-                    milledGrossWeight: e.target.value,
-                  }))
-                }
-                className="w-full ring-0"
-                keyfilter="num"
-              />
-              {errors.milledGrossWeight && (
-                <div className="text-red-500 text-sm mt-1">
-                  {errors.milledGrossWeight}
-                </div>
-              )}
-            </div>
-
-            <div className="w-full">
-              <label className="block mb-2">Milled Net Weight (Kg)</label>
-              <InputText
-                type="number"
-                value={newMillingData.milledNetWeight}
-                onChange={(e) =>
-                  setNewMillingData((prev) => ({
-                    ...prev,
-                    milledNetWeight: e.target.value,
-                  }))
-                }
-                className="w-full ring-0"
-                keyfilter="num"
-              />
-              {errors.milledNetWeight && (
-                <div className="text-red-500 text-sm mt-1">
-                  {errors.milledNetWeight}
-                </div>
-              )}
-            </div>
-
-            <div className="w-full">
-              <label className="block mb-2">Milling Efficiency (%)</label>
-              <InputText
-                type="number"
-                value={newMillingData.millingEfficiency}
-                onChange={(e) =>
-                  setNewMillingData((prev) => ({
-                    ...prev,
-                    millingEfficiency: e.target.value,
-                  }))
-                }
-                className="w-full ring-0"
-                keyfilter="num"
-              />
-              {errors.millingEfficiency && (
-                <div className="text-red-500 text-sm mt-1">
-                  {errors.millingEfficiency}
-                </div>
-              )}
-            </div>
-          </>
-        )}
-
-        <div className="flex justify-between gap-4 mt-4">
-          <Button
-            label="Cancel"
-            className="w-1/2 bg-transparent text-primary border-primary"
-            onClick={onCancel}
-            disabled={isLoading}
-          />
-          <Button
-            label="Complete Process"
-            className="w-1/2 bg-primary hover:border-none"
-            onClick={handleProcess}
-            disabled={isLoading}
-            loading={isLoading}
-          />
+    <>
+      {isLoading && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50">
+          <Loader />
         </div>
-      </div>
-    </Dialog>
+      )}
+      <Dialog
+        header={`Complete ${viewMode} Process`}
+        visible={visible}
+        onHide={isLoading ? null : onCancel}
+        className="w-1/3"
+      >
+        <Toast ref={toast} />
+        <div className="flex flex-col gap-4">
+          {viewMode === "drying" ? (
+            <>
+              <div className="w-full">
+                <label className="block mb-2">
+                  Dried Quantity in Bags (50Kg per bag)
+                </label>
+                <InputText
+                  type="number"
+                  min={0}
+                  max={selectedItem.quantityBags}
+                  value={newDryingData.driedQuantityBags}
+                  onChange={(e) =>
+                    handleInputChange("driedQuantityBags", e.target.value)
+                  }
+                  className="w-full ring-0"
+                  keyfilter="num"
+                />
+                {errors.driedQuantityBags && (
+                  <div className="text-red-500 text-sm mt-1">
+                    {errors.driedQuantityBags}
+                  </div>
+                )}
+              </div>
+
+              <div className="w-full">
+                <label className="block mb-2">Dried Gross Weight (Kg)</label>
+                <InputText
+                  type="number"
+                  value={newDryingData.driedGrossWeight}
+                  onChange={(e) =>
+                    setNewDryingData((prev) => ({
+                      ...prev,
+                      driedGrossWeight: e.target.value,
+                    }))
+                  }
+                  className="w-full ring-0"
+                  keyfilter="num"
+                />
+                {errors.driedGrossWeight && (
+                  <div className="text-red-500 text-sm mt-1">
+                    {errors.driedGrossWeight}
+                  </div>
+                )}
+              </div>
+
+              <div className="w-full">
+                <label className="block mb-2">Dried Net Weight (Kg)</label>
+                <InputText
+                  type="number"
+                  value={newDryingData.driedNetWeight}
+                  onChange={(e) =>
+                    setNewDryingData((prev) => ({
+                      ...prev,
+                      driedNetWeight: e.target.value,
+                    }))
+                  }
+                  className="w-full ring-0"
+                  keyfilter="num"
+                />
+                {errors.driedNetWeight && (
+                  <div className="text-red-500 text-sm mt-1">
+                    {errors.driedNetWeight}
+                  </div>
+                )}
+              </div>
+
+              <div className="w-full">
+                <label className="block mb-2">Moisture Content (%)</label>
+                <InputText
+                  type="number"
+                  value={newDryingData.moistureContent}
+                  onChange={(e) =>
+                    setNewDryingData((prev) => ({
+                      ...prev,
+                      moistureContent: e.target.value,
+                    }))
+                  }
+                  className="w-full ring-0"
+                  keyfilter="num"
+                />
+                {errors.moistureContent && (
+                  <div className="text-red-500 text-sm mt-1">
+                    {errors.moistureContent}
+                  </div>
+                )}
+              </div>
+
+              <div className="w-full">
+                <label className="block mb-2">Drying Method</label>
+                <Dropdown
+                  value={newDryingData.dryingMethod}
+                  options={[
+                    { label: "Sun Dry", value: "Sun Dry" },
+                    { label: "Machine Dry", value: "Machine Dry" },
+                  ]}
+                  onChange={(e) =>
+                    setNewDryingData((prev) => ({
+                      ...prev,
+                      dryingMethod: e.value,
+                    }))
+                  }
+                  className="w-full"
+                  placeholder="Select Drying Method"
+                />
+                {errors.dryingMethod && (
+                  <div className="text-red-500 text-sm mt-1">
+                    {errors.dryingMethod}
+                  </div>
+                )}
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="w-full">
+                <label className="block mb-2">
+                  Milled Quantity in Bags (50Kg per Bag)
+                </label>
+                <InputText
+                  type="number"
+                  value={newMillingData.milledQuantityBags}
+                  onChange={(e) =>
+                    handleInputChange("milledQuantityBags", e.target.value)
+                  }
+                  className="w-full ring-0"
+                  keyfilter="num"
+                />
+                {errors.milledQuantityBags && (
+                  <div className="text-red-500 text-sm mt-1">
+                    {errors.milledQuantityBags}
+                  </div>
+                )}
+              </div>
+
+              <div className="w-full">
+                <label className="block mb-2">Milled Gross Weight (Kg)</label>
+                <InputText
+                  type="number"
+                  value={newMillingData.milledGrossWeight}
+                  onChange={(e) =>
+                    setNewMillingData((prev) => ({
+                      ...prev,
+                      milledGrossWeight: e.target.value,
+                    }))
+                  }
+                  className="w-full ring-0"
+                  keyfilter="num"
+                />
+                {errors.milledGrossWeight && (
+                  <div className="text-red-500 text-sm mt-1">
+                    {errors.milledGrossWeight}
+                  </div>
+                )}
+              </div>
+
+              <div className="w-full">
+                <label className="block mb-2">Milled Net Weight (Kg)</label>
+                <InputText
+                  type="number"
+                  value={newMillingData.milledNetWeight}
+                  onChange={(e) =>
+                    setNewMillingData((prev) => ({
+                      ...prev,
+                      milledNetWeight: e.target.value,
+                    }))
+                  }
+                  className="w-full ring-0"
+                  keyfilter="num"
+                />
+                {errors.milledNetWeight && (
+                  <div className="text-red-500 text-sm mt-1">
+                    {errors.milledNetWeight}
+                  </div>
+                )}
+              </div>
+
+              <div className="w-full">
+                <label className="block mb-2">Milling Efficiency (%)</label>
+                <InputText
+                  type="number"
+                  value={newMillingData.millingEfficiency}
+                  onChange={(e) =>
+                    setNewMillingData((prev) => ({
+                      ...prev,
+                      millingEfficiency: e.target.value,
+                    }))
+                  }
+                  className="w-full ring-0"
+                  keyfilter="num"
+                />
+                {errors.millingEfficiency && (
+                  <div className="text-red-500 text-sm mt-1">
+                    {errors.millingEfficiency}
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+
+          <div className="flex justify-between gap-4 mt-4">
+            <Button
+              label="Cancel"
+              className="w-1/2 bg-transparent text-primary border-primary"
+              onClick={onCancel}
+              disabled={isLoading}
+            />
+            <Button
+              label="Complete Process"
+              className="w-1/2 bg-primary hover:border-none"
+              onClick={handleProcess}
+              disabled={isLoading}
+              loading={isLoading}
+            />
+          </div>
+        </div>
+      </Dialog>
+    </>
   );
 };
 
