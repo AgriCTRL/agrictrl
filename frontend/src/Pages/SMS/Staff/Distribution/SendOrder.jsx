@@ -5,6 +5,8 @@ import { InputText } from "primereact/inputtext";
 import { InputTextarea } from "primereact/inputtextarea";
 import { Toast } from "primereact/toast";
 
+import Loader from "@/Components/Loader";
+
 const KILOS_PER_BAG = 50; // Constants for conversion
 
 const SendOrder = ({
@@ -36,39 +38,40 @@ const SendOrder = ({
       for (const pile of pilesData) {
         if (remainingQuantity <= 0) break;
         if (pile.type !== "Rice" || pile.status !== "Active") continue;
-  
+
         // Sort palay batches by date (oldest first)
-        const sortedBatches = pile.palayBatches?.sort(
-          (a, b) => new Date(a.dateBought) - new Date(b.dateBought)
-        ) || [];
-  
+        const sortedBatches =
+          pile.palayBatches?.sort(
+            (a, b) => new Date(a.dateBought) - new Date(b.dateBought)
+          ) || [];
+
         let quantityFromPile = 0;
         const pileBatchAllocations = [];
-  
+
         for (const batch of sortedBatches) {
           if (remainingQuantity <= 0) break;
-          
+
           const quantityFromBatch = Math.min(
             batch.currentQuantityBags,
             remainingQuantity
           );
-  
+
           if (quantityFromBatch > 0) {
             pileBatchAllocations.push({
               palayBatchId: batch.id,
-              quantity: quantityFromBatch
+              quantity: quantityFromBatch,
             });
-            
+
             quantityFromPile += quantityFromBatch;
             remainingQuantity -= quantityFromBatch;
-            
+
             // Correct cost calculation: bags -> kg -> total cost
             const kilos = quantityFromBatch * KILOS_PER_BAG; // Convert bags to kilos
             const batchCost = kilos * (pile.price || 0); // Multiply kilos by price per kilo
             calculatedTotalCost += batchCost;
           }
         }
-  
+
         if (quantityFromPile > 0) {
           piles.push(pile);
           quantities.push(quantityFromPile);
@@ -358,6 +361,11 @@ const SendOrder = ({
 
   return (
     <>
+      {isLoading && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50">
+          <Loader />
+        </div>
+      )}
       <Toast ref={toast} />
       <Dialog
         header="Send Rice"

@@ -10,6 +10,21 @@ import {
 import { Warehouse } from "../warehouses/db";
 import { PalayBatch } from "../palaybatches/db";
 
+function getMonthsDifference(startDate: Date, endDate: Date): number {
+  const monthsDiff = (endDate.getFullYear() - startDate.getFullYear()) * 12 + 
+                    (endDate.getMonth() - startDate.getMonth());
+  return Math.max(0, monthsDiff);
+}
+
+async function updatePalayBatchAges(palayBatches: PalayBatch[]): Promise<void> {
+  const currentDate = new Date();
+  
+  for (const batch of palayBatches) {
+    const age = getMonthsDifference(batch.dateBought, currentDate);
+    await PalayBatch.update(batch.id, { age });
+  }
+}
+
 @Entity()
 export class Pile extends BaseEntity {
   @PrimaryColumn("varchar", { length: 10 })
@@ -96,16 +111,15 @@ export async function getPiles(
     },
   });
 
-  // Process each pile to include pbTotal and handle pagination
-  data.forEach(pile => {
-    // Store total count before pagination
+  // Update ages and process pagination
+  for (const pile of data) {
+    pile.age = await updatePileAge(pile.id);
     pile.pbTotal = pile.palayBatches?.length || 0;
 
-    // Apply pagination to palayBatches if parameters are provided
     if (pbLimit !== undefined && pbOffset !== undefined && pile.palayBatches) {
       pile.palayBatches = pile.palayBatches.slice(pbOffset, pbOffset + pbLimit);
     }
-  });
+  }
 
   return { data, total };
 }
@@ -127,6 +141,9 @@ export async function getPile(
   });
 
   if (pile) {
+    // Update ages before returning
+    pile.age = await updatePileAge(pile.id);
+    
     // Store total count before pagination
     pile.pbTotal = pile.palayBatches?.length || 0;
 
@@ -159,8 +176,11 @@ export async function getPilesByWarehouse(
     },
   });
 
-  // Process each pile to include pbTotal and handle pagination
-  data.forEach(pile => {
+  // Update ages and process pagination for each pile
+  for (const pile of data) {
+    // Update age before returning
+    pile.age = await updatePileAge(pile.id);
+    
     // Store total count before pagination
     pile.pbTotal = pile.palayBatches?.length || 0;
 
@@ -168,7 +188,7 @@ export async function getPilesByWarehouse(
     if (pbLimit !== undefined && pbOffset !== undefined && pile.palayBatches) {
       pile.palayBatches = pile.palayBatches.slice(pbOffset, pbOffset + pbLimit);
     }
-  });
+  }
 
   return { data, total };
 }
@@ -183,11 +203,21 @@ export async function createPile(pileCreate: PileCreate): Promise<Pile> {
   pile.description = pileCreate.description;
   pile.status = pileCreate.status;
   pile.type = pileCreate.type;
-  pile.age = pileCreate.age;
+  pile.age = 0; // Initialize age as 0 for new piles
   pile.price = pileCreate.price;
   pile.forSale = pileCreate.forSale;
 
   return await pile.save();
+}
+
+export async function updatePileAges(): Promise<void> {
+  const piles = await Pile.find({
+    relations: { palayBatches: true }
+  });
+  
+  for (const pile of piles) {
+    await updatePileAge(pile.id);
+  }
 }
 
 export async function updatePile(pileUpdate: PileUpdate): Promise<Pile> {
@@ -211,3 +241,32 @@ export async function updatePile(pileUpdate: PileUpdate): Promise<Pile> {
 
   return pile;
 }
+
+async function updatePileAge(pileId: string): Promise<number> {
+  const pile = await Pile.findOne({
+    where: { id: pileId },
+    relations: { palayBatches: true },
+  });
+
+  if (!pile || !pile.palayBatches || pile.palayBatches.length === 0) {
+    return 0;
+  }
+
+  // Find the oldest dateBought among all PalayBatches
+  const oldestDate = pile.palayBatches.reduce((oldest, batch) => {
+    return batch.dateBought < oldest ? batch.dateBought : oldest;
+  }, pile.palayBatches[0].dateBought);
+
+  // Calculate months difference between oldest batch and current date
+  const currentDate = new Date();
+  const age = getMonthsDifference(oldestDate, currentDate);
+
+  // Update pile age
+  await Pile.update(pileId, { age });
+
+  // Update ages of all PalayBatches in the pile
+  await updatePalayBatchAges(pile.palayBatches);
+
+  return age;
+}
+

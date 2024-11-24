@@ -6,6 +6,7 @@ import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { Toast } from 'primereact/toast';
 import { useAuth } from '../../Authentication/Login/AuthContext';
+import Loader from "@/Components/Loader";
 
 function ManageMiller() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -247,7 +248,7 @@ function ManageMiller() {
                     />
                 </div>
                 <div className="w-full">
-                    <label className="block mb-2 text-sm font-medium text-gray-700">Capacity</label>
+                    <label className="block mb-2 text-sm font-medium text-gray-700">Capacity (Bags)</label>
                     <InputText
                         value={millerData.capacity}
                         onChange={(e) => handleChange('capacity', e.target.value)}
@@ -297,9 +298,9 @@ function ManageMiller() {
     if (isLoading) {
         return (
             <PrivateMillerLayout activePage="Manage Miller" user={user}>
-                <div className="flex items-center justify-center h-full">
-                    <i className="pi pi-spin pi-spinner text-4xl"></i>
-                </div>
+               <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50">
+          <Loader />
+        </div>
             </PrivateMillerLayout>
         );
     }

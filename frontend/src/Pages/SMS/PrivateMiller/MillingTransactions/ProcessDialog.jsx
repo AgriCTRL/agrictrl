@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
+
+import Loader from "@/Components/Loader";
 
 const initialMillingData = {
   palayBatchId: "",
@@ -16,13 +18,13 @@ const initialMillingData = {
   status: "In Progress",
 };
 
-const ProcessDialog = ({ 
-  visible, 
-  onHide, 
-  selectedItem, 
+const ProcessDialog = ({
+  visible,
+  onHide,
+  selectedItem,
   apiUrl,
   toast,
-  onSuccess 
+  onSuccess,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -151,7 +153,8 @@ const ProcessDialog = ({
 
     setIsLoading(true);
     try {
-      const { millingBatchId, palayBatchId, toLocationId, millerType } = selectedItem;
+      const { millingBatchId, palayBatchId, toLocationId, millerType } =
+        selectedItem;
 
       // Calculate weights
       const milledQuantityBags = parseInt(newMillingData.milledQuantityBags);
@@ -226,113 +229,120 @@ const ProcessDialog = ({
   };
 
   return (
-    <Dialog
-      header="Complete Milling Process"
-      visible={visible}
-      onHide={isLoading ? null : onHide}
-      className="w-1/3"
-    >
-      <div className="flex flex-col gap-4">
-        <div className="w-full">
-          <label className="block mb-2">
-            Milled Quantity in Bags (50Kg per Bag)
-          </label>
-          <InputText
-            type="number"
-            value={newMillingData.milledQuantityBags}
-            onChange={(e) =>
-              handleInputChange("milledQuantityBags", e.target.value)
-            }
-            className="w-full ring-0"
-            keyfilter="num"
-          />
-          {errors.milledQuantityBags && (
-            <div className="text-red-500 text-sm mt-1">
-              {errors.milledQuantityBags}
-            </div>
-          )}
+    <>
+      {isLoading && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50">
+          <Loader />
         </div>
+      )}
+      <Dialog
+        header="Complete Milling Process"
+        visible={visible}
+        onHide={isLoading ? null : onHide}
+        className="w-1/3"
+      >
+        <div className="flex flex-col gap-4">
+          <div className="w-full">
+            <label className="block mb-2">
+              Milled Quantity in Bags (50Kg per Bag)
+            </label>
+            <InputText
+              type="number"
+              value={newMillingData.milledQuantityBags}
+              onChange={(e) =>
+                handleInputChange("milledQuantityBags", e.target.value)
+              }
+              className="w-full ring-0"
+              keyfilter="num"
+            />
+            {errors.milledQuantityBags && (
+              <div className="text-red-500 text-sm mt-1">
+                {errors.milledQuantityBags}
+              </div>
+            )}
+          </div>
 
-        <div className="w-full">
-          <label className="block mb-2">Milled Gross Weight (Kg)</label>
-          <InputText
-            type="number"
-            value={newMillingData.milledGrossWeight}
-            onChange={(e) =>
-              setNewMillingData((prev) => ({
-                ...prev,
-                milledGrossWeight: e.target.value,
-              }))
-            }
-            className="w-full ring-0"
-            keyfilter="num"
-          />
-          {errors.milledGrossWeight && (
-            <div className="text-red-500 text-sm mt-1">
-              {errors.milledGrossWeight}
-            </div>
-          )}
-        </div>
+          <div className="w-full">
+            <label className="block mb-2">Milled Gross Weight (Kg)</label>
+            <InputText
+              type="number"
+              value={newMillingData.milledGrossWeight}
+              onChange={(e) =>
+                setNewMillingData((prev) => ({
+                  ...prev,
+                  milledGrossWeight: e.target.value,
+                }))
+              }
+              className="w-full ring-0"
+              keyfilter="num"
+            />
+            {errors.milledGrossWeight && (
+              <div className="text-red-500 text-sm mt-1">
+                {errors.milledGrossWeight}
+              </div>
+            )}
+          </div>
 
-        <div className="w-full">
-          <label className="block mb-2">Milled Net Weight (Kg)</label>
-          <InputText
-            type="number"
-            value={newMillingData.milledNetWeight}
-            onChange={(e) =>
-              setNewMillingData((prev) => ({
-                ...prev,
-                milledNetWeight: e.target.value,
-              }))
-            }
-            className="w-full ring-0"
-            keyfilter="num"
-          />
-          {errors.milledNetWeight && (
-            <div className="text-red-500 text-sm mt-1">
-              {errors.milledNetWeight}
-            </div>
-          )}
-        </div>
+          <div className="w-full">
+            <label className="block mb-2">Milled Net Weight (Kg)</label>
+            <InputText
+              type="number"
+              value={newMillingData.milledNetWeight}
+              onChange={(e) =>
+                setNewMillingData((prev) => ({
+                  ...prev,
+                  milledNetWeight: e.target.value,
+                }))
+              }
+              className="w-full ring-0"
+              keyfilter="num"
+            />
+            {errors.milledNetWeight && (
+              <div className="text-red-500 text-sm mt-1">
+                {errors.milledNetWeight}
+              </div>
+            )}
+          </div>
 
-        <div className="w-full">
-          <label className="block mb-2">Milling Efficiency (%)</label>
-          <InputText
-            type="number"
-            value={newMillingData.millingEfficiency}
-            onChange={(e) =>
-              setNewMillingData((prev) => ({
-                ...prev,
-                millingEfficiency: e.target.value,
-              }))
-            }
-            className="w-full ring-0"
-            keyfilter="num"
-          />
-          {errors.millingEfficiency && (
-            <div className="text-red-500 text-sm mt-1">
-              {errors.millingEfficiency}
-            </div>
-          )}
-        </div>
+          <div className="w-full">
+            <label className="block mb-2">Milling Efficiency (%)</label>
+            <InputText
+              type="number"
+              value={newMillingData.millingEfficiency}
+              onChange={(e) =>
+                setNewMillingData((prev) => ({
+                  ...prev,
+                  millingEfficiency: e.target.value,
+                }))
+              }
+              className="w-full ring-0"
+              keyfilter="num"
+            />
+            {errors.millingEfficiency && (
+              <div className="text-red-500 text-sm mt-1">
+                {errors.millingEfficiency}
+              </div>
+            )}
+          </div>
 
-        <div className="flex justify-between gap-4 mt-4">
-          <Button
-            label="Cancel"
-            className="w-1/2 bg-transparent text-primary border-primary"
-            onClick={onHide}
-            disabled={isLoading}
-          />
-          <Button
-            label="Complete Process"
-            className="w-1/2 bg-primary hover:border-none"
-            onClick={handleProcess}
-            disabled={isLoading}
-            loading={isLoading}
-          />
+          <div className="flex justify-between gap-4 mt-4">
+            <Button
+              label="Cancel"
+              className="w-1/2 bg-transparent text-primary border-primary"
+              onClick={onHide}
+              disabled={isLoading}
+            />
+            <Button
+              label="Complete Process"
+              className="w-1/2 bg-primary hover:border-none"
+              onClick={handleProcess}
+              disabled={isLoading}
+              loading={isLoading}
+            />
+          </div>
         </div>
-      </div>
-    </Dialog>
+      </Dialog>
+    </>
   );
 };
 

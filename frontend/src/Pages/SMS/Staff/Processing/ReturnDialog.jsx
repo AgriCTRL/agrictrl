@@ -6,6 +6,8 @@ import { InputText } from "primereact/inputtext";
 import { InputTextarea } from "primereact/inputtextarea";
 import { Toast } from "primereact/toast";
 
+import Loader from "@/Components/Loader";
+
 const initialTransactionData = {
   item: "",
   itemId: "",
@@ -322,6 +324,11 @@ const ReturnDialog = ({
 
   return (
     <>
+      {isLoading && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50">
+          <Loader />
+        </div>
+      )}
       <Toast ref={toast} />
       <Dialog
         header={`Return ${viewMode === "drying" ? "Palay" : "Rice"}`}
@@ -410,9 +417,7 @@ const ReturnDialog = ({
               maxLength={250}
             />
             {errors.remarks && (
-              <div className="text-red-500 text-sm mt-1">
-                {errors.remarks}
-              </div>
+              <div className="text-red-500 text-sm mt-1">{errors.remarks}</div>
             )}
           </div>
 

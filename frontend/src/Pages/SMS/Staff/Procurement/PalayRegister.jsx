@@ -15,6 +15,7 @@ import { useAuth } from "../../../Authentication/Login/AuthContext";
 import { FarmerInfoForm } from "./PalayRegisterForm/FarmerInfoForm";
 import { PalayInfoForm } from "./PalayRegisterForm/PalayInfoForm";
 import { LogisticsInfoForm } from "./PalayRegisterForm/LogisticsInfoForm";
+import Loader from "@/Components/Loader";
 
 const initialPalayData = {
   // Farmer Info
@@ -661,7 +662,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered, currentWSR }) {
             maxLength={8}
           />
         </div>
-        {errors.wsr && (<p className="text-red-500 text-xs">{errors.wsr}</p>)}
+        {errors.wsr && <p className="text-red-500 text-xs">{errors.wsr}</p>}
       </div>
     </div>
   );
@@ -695,9 +696,14 @@ function PalayRegister({ visible, onHide, onPalayRegistered, currentWSR }) {
           newErrors.numOfFarmer = "Number of farmers cannot be 0";
         }
       }
-      if (!palayData.email || palayData.email.trim().toLowerCase() === "none" || palayData.email.trim().toLowerCase() === "na") {
+      if (
+        !palayData.email ||
+        palayData.email.trim().toLowerCase() === "none" ||
+        palayData.email.trim().toLowerCase() === "na"
+      ) {
       } else {
-        const emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        const emailRegex =
+          /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         if (!emailRegex.test(palayData.email)) {
           newErrors.email = "Please enter a valid email address";
         }
@@ -872,60 +878,67 @@ function PalayRegister({ visible, onHide, onPalayRegistered, currentWSR }) {
   };
 
   return (
-    <Dialog
-      visible={visible}
-      onHide={isLoading ? null : onHide}
-      header={customDialogHeader}
-      modal
-      style={{ minWidth: "60vw", maxWidth: "60vw" }}
-      footer={
-        <div className="flex justify-between">
-          <Button
-            label="Previous"
-            onClick={handlePrevious}
-            disabled={activeStep === 0 || isLoading}
-            className="bg-primary w-1/2"
-          />
-          <Button
-            label={activeStep === steps.length - 1 ? "Buy Palay" : "Next"}
-            onClick={
-              activeStep === steps.length - 1 ? handleSubmit : handleNext
-            }
-            disabled={isLoading}
-            className="bg-primary w-1/2"
-            loading={isLoading}
-          />
+    <>
+      {isLoading && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50">
+          <Loader />
         </div>
-      }
-    >
-      <div className="w-full px-4 pt-5 ">
-        <Toast ref={toast} />
-        <Stepper activeStep={activeStep} alternativeLabel>
-          {steps.map(({ label, icon }, index) => (
-            <Step key={label}>
-              <StepLabel
-                StepIconComponent={({ active }) => (
-                  <CustomStepIcon icon={icon} active={active} />
-                )}
-              >
-                <div
-                  className={`text-base text-primary -translate-y-4 ${
-                    index === activeStep ? "font-semibold" : ""
-                  }`}
+      )}
+      <Dialog
+        visible={visible}
+        onHide={isLoading ? null : onHide}
+        header={customDialogHeader}
+        modal
+        style={{ minWidth: "60vw", maxWidth: "60vw" }}
+        footer={
+          <div className="flex justify-between">
+            <Button
+              label="Previous"
+              onClick={handlePrevious}
+              disabled={activeStep === 0 || isLoading}
+              className="bg-primary w-1/2"
+            />
+            <Button
+              label={activeStep === steps.length - 1 ? "Buy Palay" : "Next"}
+              onClick={
+                activeStep === steps.length - 1 ? handleSubmit : handleNext
+              }
+              disabled={isLoading}
+              className="bg-primary w-1/2"
+              loading={isLoading}
+            />
+          </div>
+        }
+      >
+        <div className="w-full px-4 pt-5 ">
+          <Toast ref={toast} />
+          <Stepper activeStep={activeStep} alternativeLabel>
+            {steps.map(({ label, icon }, index) => (
+              <Step key={label}>
+                <StepLabel
+                  StepIconComponent={({ active }) => (
+                    <CustomStepIcon icon={icon} active={active} />
+                  )}
                 >
-                  {label}
-                </div>
-              </StepLabel>
-            </Step>
-          ))}
-        </Stepper>
-      </div>
-      <div className="">
-        {activeStep === 0 && renderFarmerInfo()}
-        {activeStep === 1 && renderPalayInfo()}
-        {activeStep === 2 && renderLogistics()}
-      </div>
-    </Dialog>
+                  <div
+                    className={`text-base text-primary -translate-y-4 ${
+                      index === activeStep ? "font-semibold" : ""
+                    }`}
+                  >
+                    {label}
+                  </div>
+                </StepLabel>
+              </Step>
+            ))}
+          </Stepper>
+        </div>
+        <div className="">
+          {activeStep === 0 && renderFarmerInfo()}
+          {activeStep === 1 && renderPalayInfo()}
+          {activeStep === 2 && renderLogistics()}
+        </div>
+      </Dialog>
+    </>
   );
 }
 
