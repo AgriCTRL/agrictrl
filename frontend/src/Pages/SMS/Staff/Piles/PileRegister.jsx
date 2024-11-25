@@ -17,7 +17,7 @@ function PileRegister({ visible, onHide, warehouses, onPileRegistered }) {
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState("Active");
   const [type, setType] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const statusOptions = [
     { label: "Inactive", value: "Inactive" },
@@ -51,7 +51,7 @@ function PileRegister({ visible, onHide, warehouses, onPileRegistered }) {
       return;
     }
 
-    setIsSubmitting(true);
+    setIsLoading(true);
 
     const newPile = {
       warehouseId,
@@ -88,7 +88,7 @@ function PileRegister({ visible, onHide, warehouses, onPileRegistered }) {
         life: 3000,
       });
     } finally {
-      setIsSubmitting(false);
+      setIsLoading(false);
     }
   };
 
@@ -190,7 +190,8 @@ function PileRegister({ visible, onHide, warehouses, onPileRegistered }) {
               <Button
                 label="Add Pile"
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isLoading}
+                loading={isLoading}
                 className="w-full bg-primary text-white py-2 rounded-md ring-0"
               />
             </div>

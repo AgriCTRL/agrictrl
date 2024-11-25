@@ -189,40 +189,42 @@ const SendOrder = ({
 
       const promises = [];
 
-      // Create transaction body with total cost
-      const transactionBody = {
-        item: "Rice",
-        pileId: selectedPiles[0].id,
-        senderId: user.id,
-        sendDateTime: new Date().toISOString(),
-        fromLocationType: "Warehouse",
-        fromLocationId: selectedPiles[0].warehouseId,
-        transporterName: sendOrderData.transportedBy,
-        transporterDesc: sendOrderData.transporterDescription,
-        receiverId: selectedOrder.riceRecipientId,
-        receiveDateTime: "0",
-        toLocationType: "Distribution",
-        toLocationId: selectedOrder.riceRecipientId,
-        status: "Pending",
-        remarks: `Sending from ${selectedPiles.length} piles: ${
-          sendOrderData.remarks || ""
-        }`,
-        totalCost: totalCost,
-      };
-
-      promises.push(
-        fetch(`${apiUrl}/transactions`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(transactionBody),
-        })
-      );
-
-      // Create pile transactions for each allocation
+      // Create transactions for each palay batch allocation
       selectedPiles.forEach((pile, pileIndex) => {
         const pileAllocations = palayBatchAllocations[pileIndex];
 
         pileAllocations.forEach((allocation) => {
+          // Create main transaction for each batch
+          const transactionBody = {
+            item: "Rice",
+            itemId: allocation.palayBatchId,
+            senderId: user.id,
+            sendDateTime: new Date().toISOString(),
+            fromLocationType: "Warehouse",
+            fromLocationId: pile.warehouseId,
+            transporterName: sendOrderData.transportedBy,
+            transporterDesc: sendOrderData.transporterDescription,
+            receiverId: selectedOrder.riceRecipientId,
+            receiveDateTime: "0",
+            toLocationType: "Distribution",
+            toLocationId: selectedOrder.riceRecipientId,
+            status: "Pending",
+            remarks: `Batch ${allocation.palayBatchId} - Quantity: ${
+              allocation.quantity
+            } bags ${sendOrderData.remarks || ""}`,
+            // Calculate cost for this specific batch
+            totalCost: allocation.quantity * KILOS_PER_BAG * (pile.price || 0),
+          };
+
+          promises.push(
+            fetch(`${apiUrl}/transactions`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(transactionBody),
+            })
+          );
+
+          // Create corresponding pile transaction
           const pileTransactionBody = {
             palayBatchId: allocation.palayBatchId,
             pileId: pile.id,
