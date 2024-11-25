@@ -67,8 +67,8 @@ const AccountDetails = ({
             const response = await fetch(url);
             const data = await response.json();
             const options = data.map((item) => ({
-                label: item.name || item.regionName,
-                value: item.name || item.regionName,
+                label: item.regionName || item.name, 
+                value: item.regionName || item.name,
                 code: item.code,
             }));
             setter(options);

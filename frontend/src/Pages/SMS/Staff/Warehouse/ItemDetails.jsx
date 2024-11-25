@@ -5,7 +5,6 @@ const ItemDetails = ({
   visible, 
   onHide, 
   selectedBatchDetails, 
-  selectedFilter 
 }) => {
   if (!selectedBatchDetails) return null;
 

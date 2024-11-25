@@ -12,6 +12,8 @@ import { InputIcon } from "primereact/inputicon";
 import ConfirmReceive from "./ConfirmReceive";
 import { useAuth } from "../../../Authentication/Login/AuthContext";
 
+import Loader from "@/Components/Loader";
+
 function RiceReceive() {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const { user } = useAuth();
@@ -27,6 +29,7 @@ function RiceReceive() {
   const [selectedOrderData, setSelectedOrderData] = useState(null);
   const [inventoryData, setInventoryData] = useState([]);
   const [selectedFilter, setSelectedFilter] = useState("riceOrders");
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -41,6 +44,7 @@ function RiceReceive() {
 
   const fetchData = async () => {
     try {
+      setIsLoading(true);
       const res = await fetch(
         `${apiUrl}/riceorders?riceRecipientId=${user.id}&status=Accepted&status=In%20Transit&status=Received`
       );
@@ -51,6 +55,8 @@ function RiceReceive() {
       setInventoryData(data);
     } catch (error) {
       console.error(error.message);
+    } finally {
+      setIsLoading(false)
     }
   };
 
@@ -79,7 +85,7 @@ function RiceReceive() {
     });
     setShowConfirmReceive(true);
   };
-  
+
   const actionBodyTemplate = (rowData) => {
     if (rowData.status === "In Transit") {
       return (
@@ -246,6 +252,11 @@ function RiceReceive() {
       isRightSidebarOpen={false}
       rightSidebar={rightSidebar()}
     >
+      {isLoading && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50">
+          <Loader />
+        </div>
+      )}
       <div className="flex flex-col h-full gap-4 bg-[#F1F5F9]">
         <div className="flex flex-col justify-center gap-4 items-center p-8 rounded-lg bg-gradient-to-r from-primary to-secondary">
           <h1 className="text-2xl sm:text-4xl text-white font-semibold">

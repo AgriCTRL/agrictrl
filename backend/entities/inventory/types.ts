@@ -1,10 +1,10 @@
-import { Transaction } from "../transactions/db";
-import { PalayBatch } from "../palaybatches/db";
-import { DryingBatch } from "../dryingbatches/db";
-import { MillingBatch } from "../millingbatches/db";
-import { RiceBatch } from "../ricebatches/db";
-import { RiceOrder } from "../riceorders/db";
-import { RiceBatchMillingBatch } from "../riceBatchMillingBatches/db";
+import { Transaction } from '../transactions/db';
+import { PalayBatch } from '../palaybatches/db';
+import { DryingBatch } from '../dryingbatches/db';
+import { MillingBatch } from '../millingbatches/db';
+import { RiceBatchMillingBatch } from '../riceBatchMillingBatches/db';
+import { RiceBatch } from '../ricebatches/db';
+import { RiceOrder } from '../riceorders/db';
 
 export type ProcessingType = 'drying' | 'milling';
 
@@ -26,6 +26,11 @@ export interface InventoryItem {
     transaction: Transaction;
     palayBatch: PalayBatch | null;
     processingBatch: ProcessingBatch;
+
+    locationName?: string;
+    userName?: string;
+    organization?: string;
+    supplierName?: string;
 }
 
 export interface EnhancedInventoryItem {

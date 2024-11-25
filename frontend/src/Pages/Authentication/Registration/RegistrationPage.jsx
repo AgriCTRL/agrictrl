@@ -114,7 +114,7 @@ const RegistrationPageContent = () => {
         if (!validatePasswordFields()) {
             return;
         }
-
+        
         try {
             const fileData = await handleFileUpload();
             let updatedAccountDetails = { ...registrationData.accountDetails };

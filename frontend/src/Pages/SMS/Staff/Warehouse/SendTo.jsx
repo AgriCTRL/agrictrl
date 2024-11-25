@@ -7,6 +7,7 @@ import { InputTextarea } from "primereact/inputtextarea";
 import { Toast } from "primereact/toast";
 
 import { WSI } from "../../../../Components/Pdf/pdfWarehouseStockIssue";
+import Loader from "@/Components/Loader";
 
 const initialNewTransactionData = {
   item: "",
@@ -41,8 +42,10 @@ const SendTo = ({
   const [errors, setErrors] = useState({});
   const [inventoryItems, setInventoryItems] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
-  const [newTransactionData, setNewTransactionData] = useState(initialNewTransactionData);
-    
+  const [newTransactionData, setNewTransactionData] = useState(
+    initialNewTransactionData
+  );
+
   useEffect(() => {
     if (visible && selectedPile) {
       fetchInventoryItems();
@@ -58,17 +61,17 @@ const SendTo = ({
         throw new Error("Failed to fetch inventory items");
       }
       const data = await response.json();
-      
+
       // Check if data.items exists and is an array
       if (!data.items || !Array.isArray(data.items)) {
         throw new Error("Invalid data structure received");
       }
 
       // Transform the data for dropdown, accessing the nested structure
-      const formattedItems = data.items.map(item => {
+      const formattedItems = data.items.map((item) => {
         const palayBatch = item.palayBatch;
         const transaction = item.transaction;
-        
+
         return {
           label: `${palayBatch.id} - ${palayBatch.quantityBags} bags - ${palayBatch.status}`,
           value: palayBatch.id,
@@ -77,7 +80,7 @@ const SendTo = ({
           quantityBags: palayBatch.quantityBags,
           palayStatus: palayBatch.status,
           transactionId: transaction.id,
-          toLocationId: transaction.toLocationId
+          toLocationId: transaction.toLocationId,
         };
       });
 
@@ -322,7 +325,7 @@ const SendTo = ({
       }
 
       const currentDate = new Date();
-      currentDate.setHours(currentDate.getHours()+8);
+      currentDate.setHours(currentDate.getHours() + 8);
 
       const data = {
         palayBatchId: selectedItem.id,
@@ -343,22 +346,25 @@ const SendTo = ({
       const pileTransactionBody = {
         palayBatchId: selectedItem.id,
         pileId: selectedPile.id,
-        transactionType: 'OUT',
+        transactionType: "OUT",
         quantityBags: selectedItem.quantityBags,
         performedBy: user.id,
-        notes: `Received from transaction ${selectedItem.transactionId}`
+        notes: `Received from transaction ${selectedItem.transactionId}`,
       };
-  
-      const pileTransactionResponse = await fetch(`${apiUrl}/piletransactions`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(pileTransactionBody)
-      });
-  
+
+      const pileTransactionResponse = await fetch(
+        `${apiUrl}/piletransactions`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(pileTransactionBody),
+        }
+      );
+
       if (!pileTransactionResponse.ok) {
-        throw new Error('Failed to create pile transaction');
+        throw new Error("Failed to create pile transaction");
       }
 
       const pdf = WSI(data);
@@ -389,6 +395,11 @@ const SendTo = ({
 
   return (
     <>
+      {isLoading && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50">
+          <Loader />
+        </div>
+      )}
       <Toast ref={toast} />
       <Dialog
         header="Send To"
@@ -403,9 +414,11 @@ const SendTo = ({
               value={selectedItem?.id}
               options={inventoryItems}
               onChange={(e) => {
-                const selected = inventoryItems.find(item => item.value === e.value);
+                const selected = inventoryItems.find(
+                  (item) => item.value === e.value
+                );
                 setSelectedItem(selected);
-                setErrors(prev => ({ ...prev, selectedItem: "" }));
+                setErrors((prev) => ({ ...prev, selectedItem: "" }));
               }}
               placeholder="Select a palay batch"
               className={`w-full ${errors.selectedItem ? "p-invalid" : ""}`}
@@ -421,7 +434,9 @@ const SendTo = ({
                 <label className="block mb-2">Send To</label>
                 <InputText
                   value={
-                    selectedItem?.palayStatus === "To be Dry" ? "Dryer" : "Miller"
+                    selectedItem?.palayStatus === "To be Dry"
+                      ? "Dryer"
+                      : "Miller"
                   }
                   disabled
                   className="w-full"
@@ -452,7 +467,9 @@ const SendTo = ({
                   className={`w-full ${errors.toLocationId ? "p-invalid" : ""}`}
                 />
                 {errors.toLocationId && (
-                  <p className="text-red-500 text-xs mt-1">{errors.toLocationId}</p>
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.toLocationId}
+                  </p>
                 )}
               </div>
 
@@ -520,7 +537,9 @@ const SendTo = ({
                     }));
                     setErrors((prev) => ({ ...prev, remarks: "" }));
                   }}
-                  className={`w-full ring-0 ${errors.remarks ? "p-invalid" : ""}`}
+                  className={`w-full ring-0 ${
+                    errors.remarks ? "p-invalid" : ""
+                  }`}
                   maxLength={250}
                 />
                 {errors.remarks && (

@@ -1,6 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
 
-import { Search, Box, Factory, RotateCcw, RotateCw, Wheat, Loader2, CheckCircle2 } from "lucide-react";
+import {
+    Search,
+    Box,
+    Factory,
+    RotateCcw,
+    RotateCw,
+    Wheat,
+    Loader2,
+    CheckCircle2,
+} from "lucide-react";
 
 import { DataView } from "primereact/dataview";
 import { FilterMatchMode } from "primereact/api";
@@ -8,6 +17,8 @@ import { Tag } from "primereact/tag";
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
 import { Toast } from "primereact/toast";
+import { IconField } from "primereact/iconfield";
+import { InputIcon } from "primereact/inputicon";
 
 import PrivateMillerLayout from "@/Layouts/Miller/PrivateMillerLayout";
 import EmptyRecord from "@/Components/EmptyRecord";
@@ -15,8 +26,8 @@ import AcceptDialog from "./AcceptDialog";
 import ProcessDialog from "./ProcessDialog";
 import ReturnDialog from "./ReturnDialog";
 import DetailsDialog from "./DetailsDialog";
-import { IconField } from "primereact/iconfield";
-import { InputIcon } from "primereact/inputicon";
+import { useAuth } from "../../../Authentication/Login/AuthContext";
+import Loader from "@/Components/Loader";
 
 const initialMillingData = {
     palayBatchId: "",
@@ -40,6 +51,7 @@ const MillingTransactions = () => {
     const [filters, setFilters] = useState({
         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     });
+    const [isLoading, setIsLoading] = useState(false);
     const [selectedFilter, setSelectedFilter] = useState("request");
     const [selectedItem, setSelectedItem] = useState(null);
     const [showDetailsDialog, setShowDetailsDialog] = useState(false);
@@ -84,6 +96,7 @@ const MillingTransactions = () => {
 
     const fetchData = async (offset = 0, limit = 10) => {
         try {
+            setIsLoading(true);
             const processType = "miller";
             const locationType = "Miller";
             const millerType = "Private";
@@ -230,11 +243,14 @@ const MillingTransactions = () => {
                 detail: "Failed to fetch data",
                 life: 3000,
             });
+        } finally {
+            setIsLoading(false);
         }
     };
 
     const fetchActiveWarehouses = async () => {
         try {
+            setIsLoading(true);
             const response = await fetch(`${apiUrl}/warehouses?status=Active`);
 
             if (!response.ok) {
@@ -251,6 +267,8 @@ const MillingTransactions = () => {
                 detail: "Failed to fetch warehouses",
                 life: 3000,
             });
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -472,16 +490,12 @@ const MillingTransactions = () => {
                                 />
                                 <FilterButton
                                     label="In Milling"
-                                    icon={
-                                        <Factory size={18} />
-                                    }
+                                    icon={<Factory size={18} />}
                                     filter="process"
                                 />
                                 <FilterButton
                                     label="Return"
-                                    icon={
-                                        <RotateCcw size={18} />
-                                    }
+                                    icon={<RotateCcw size={18} />}
                                     filter="return"
                                 />
                             </div>

@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 import { Dropdown } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
 import { InputTextarea } from "primereact/inputtextarea";
+
+import Loader from "@/Components/Loader";
 
 const initialTransactionData = {
   item: "Rice",
@@ -22,9 +24,9 @@ const initialTransactionData = {
   remarks: "",
 };
 
-const ReturnDialog = ({ 
-  visible, 
-  onHide, 
+const ReturnDialog = ({
+  visible,
+  onHide,
   selectedItem,
   warehouses,
   millerData,
@@ -33,7 +35,9 @@ const ReturnDialog = ({
   toast,
   onSuccess,
 }) => {
-  const [newTransactionData, setNewTransactionData] = useState(initialTransactionData);
+  const [newTransactionData, setNewTransactionData] = useState(
+    initialTransactionData
+  );
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
@@ -257,115 +261,122 @@ const ReturnDialog = ({
   };
 
   return (
-    <Dialog
-      header="Return Rice"
-      visible={visible}
-      onHide={isLoading ? null : handleHide}
-      className="w-1/3"
-    >
-      <div className="flex flex-col w-full gap-4">
-        <div className="w-full">
-          <label className="block mb-2">Warehouse</label>
-          <Dropdown
-            value={newTransactionData.toLocationId}
-            options={filteredWarehouses}
-            onChange={(e) =>
-              setNewTransactionData((prev) => ({
-                ...prev,
-                toLocationId: e.value,
-                toLocationName: filteredWarehouses.find(
-                  (w) => w.value === e.value
-                )?.name,
-              }))
-            }
-            placeholder="Select a warehouse"
-            className="w-full ring-0"
-          />
-          {errors.toLocationId && (
-            <div className="text-red-500 text-sm mt-1">
-              {errors.toLocationId}
-            </div>
-          )}
+    <>
+      {isLoading && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50">
+          <Loader />
         </div>
+      )}
+      <Dialog
+        header="Return Rice"
+        visible={visible}
+        onHide={isLoading ? null : handleHide}
+        className="w-1/3"
+      >
+        <div className="flex flex-col w-full gap-4">
+          <div className="w-full">
+            <label className="block mb-2">Warehouse</label>
+            <Dropdown
+              value={newTransactionData.toLocationId}
+              options={filteredWarehouses}
+              onChange={(e) =>
+                setNewTransactionData((prev) => ({
+                  ...prev,
+                  toLocationId: e.value,
+                  toLocationName: filteredWarehouses.find(
+                    (w) => w.value === e.value
+                  )?.name,
+                }))
+              }
+              placeholder="Select a warehouse"
+              className="w-full ring-0"
+            />
+            {errors.toLocationId && (
+              <div className="text-red-500 text-sm mt-1">
+                {errors.toLocationId}
+              </div>
+            )}
+          </div>
 
-        <div className="w-full">
-          <label className="block mb-2">Transported By</label>
-          <InputText
-            value={newTransactionData.transporterName}
-            onChange={(e) =>
-              setNewTransactionData((prev) => ({
-                ...prev,
-                transporterName: e.target.value,
-              }))
-            }
-            className="w-full ring-0"
-            maxLength={50}
-            keyfilter="alphanum"
-          />
-          {errors.transporterName && (
-            <div className="text-red-500 text-sm mt-1">
-              {errors.transporterName}
-            </div>
-          )}
-        </div>
+          <div className="w-full">
+            <label className="block mb-2">Transported By</label>
+            <InputText
+              value={newTransactionData.transporterName}
+              onChange={(e) =>
+                setNewTransactionData((prev) => ({
+                  ...prev,
+                  transporterName: e.target.value,
+                }))
+              }
+              className="w-full ring-0"
+              maxLength={50}
+              keyfilter="alphanum"
+            />
+            {errors.transporterName && (
+              <div className="text-red-500 text-sm mt-1">
+                {errors.transporterName}
+              </div>
+            )}
+          </div>
 
-        <div className="w-full">
-          <label className="block mb-2">Transport Description</label>
-          <InputTextarea
-            value={newTransactionData.transporterDesc}
-            onChange={(e) =>
-              setNewTransactionData((prev) => ({
-                ...prev,
-                transporterDesc: e.target.value,
-              }))
-            }
-            className="w-full ring-0"
-            rows={3}
-            maxLength={250}
-          />
-          {errors.transporterDesc && (
-            <div className="text-red-500 text-sm mt-1">
-              {errors.transporterDesc}
-            </div>
-          )}
-        </div>
+          <div className="w-full">
+            <label className="block mb-2">Transport Description</label>
+            <InputTextarea
+              value={newTransactionData.transporterDesc}
+              onChange={(e) =>
+                setNewTransactionData((prev) => ({
+                  ...prev,
+                  transporterDesc: e.target.value,
+                }))
+              }
+              className="w-full ring-0"
+              rows={3}
+              maxLength={250}
+            />
+            {errors.transporterDesc && (
+              <div className="text-red-500 text-sm mt-1">
+                {errors.transporterDesc}
+              </div>
+            )}
+          </div>
 
-        <div className="w-full">
-          <label className="block mb-2">Remarks</label>
-          <InputTextarea
-            value={newTransactionData.remarks}
-            onChange={(e) =>
-              setNewTransactionData((prev) => ({
-                ...prev,
-                remarks: e.target.value,
-              }))
-            }
-            className="w-full ring-0"
-            rows={3}
-            maxLength={250}
-          />
-          {errors.remarks && (
-            <div className="text-red-500 text-sm mt-1">{errors.remarks}</div>
-          )}
-        </div>
+          <div className="w-full">
+            <label className="block mb-2">Remarks</label>
+            <InputTextarea
+              value={newTransactionData.remarks}
+              onChange={(e) =>
+                setNewTransactionData((prev) => ({
+                  ...prev,
+                  remarks: e.target.value,
+                }))
+              }
+              className="w-full ring-0"
+              rows={3}
+              maxLength={250}
+            />
+            {errors.remarks && (
+              <div className="text-red-500 text-sm mt-1">{errors.remarks}</div>
+            )}
+          </div>
 
-        <div className="flex justify-between gap-4 mt-4">
-          <Button
-            label="Cancel"
-            className="w-1/2 bg-transparent text-primary border-primary"
-            disabled={isLoading}
-            onClick={handleHide}
-          />
-          <Button
-            label="Confirm Return"
-            className="w-1/2 bg-primary hover:border-none"
-            onClick={handleReturn}
-            disabled={isLoading}
-            loading={isLoading}
-          />
+          <div className="flex justify-between gap-4 mt-4">
+            <Button
+              label="Cancel"
+              className="w-1/2 bg-transparent text-primary border-primary"
+              disabled={isLoading}
+              onClick={handleHide}
+            />
+            <Button
+              label="Confirm Return"
+              className="w-1/2 bg-primary hover:border-none"
+              onClick={handleReturn}
+              disabled={isLoading}
+              loading={isLoading}
+            />
+          </div>
         </div>
-      </div>
-    </Dialog>
+      </Dialog>
+    </>
   );
 };
 

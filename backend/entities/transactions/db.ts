@@ -10,6 +10,10 @@ import {
 
 import { PalayBatch } from '../palaybatches/db';
 import { RiceBatch } from '../ricebatches/db';
+import { Warehouse } from '../warehouses/db';
+import { Dryer } from '../dryers/db';
+import { Miller } from '../millers/db';
+import { User } from '../users/db';
 
 @Entity()
 export class Transaction extends BaseEntity {
@@ -86,6 +90,10 @@ export class Transaction extends BaseEntity {
 
         this.id = `${prefix}${nextNumber.toString().padStart(4, '0')}`;
     }
+
+    locationName?: string;
+    userName?: string;
+    organization?: string;
 }
 
 export type TransactionCreate = Pick<Transaction, 'item' | 'itemId' | 'riceBatchId' | 'senderId' | 'sendDateTime' | 'fromLocationType' | 'fromLocationId' | 'transporterName' | 'transporterDesc' | 'receiverId' | 'receiveDateTime' | 'toLocationType' | 'toLocationId' | 'status' | 'remarks'>;
@@ -104,7 +112,25 @@ function getCurrentPST(): Date {
 //     });
 // }
 
-export async function getTransactions(limit: number, offset: number, toLocationId?: string, toLocationType?: string, status?: string): Promise<Transaction[]> {
+export async function getTransaction(id: string): Promise<Transaction | null> {
+    const transaction = await Transaction.findOne({
+        where: { id }
+    });
+
+    if (transaction) {
+        await populateLocationDetails(transaction);
+    }
+
+    return transaction;
+}
+
+export async function getTransactions(
+    limit: number, 
+    offset: number, 
+    toLocationId?: string, 
+    toLocationType?: string, 
+    status?: string
+): Promise<Transaction[]> {
     let whereClause: any = {};
 
     if (toLocationId !== undefined) {
@@ -119,13 +145,17 @@ export async function getTransactions(limit: number, offset: number, toLocationI
         whereClause.status = status;
     }
 
-    return await Transaction.find({
+    const transactions = await Transaction.find({
         where: whereClause,
         take: limit,
         skip: offset
     });
-}
 
+    // Populate location details for each transaction
+    await Promise.all(transactions.map(transaction => populateLocationDetails(transaction)));
+
+    return transactions;
+}
 
 export async function getTransactionByToLocationId(toLocationId: string, toLocationType?: string): Promise<Transaction | null> {
     const whereClause: any = { toLocationId };
@@ -136,14 +166,6 @@ export async function getTransactionByToLocationId(toLocationId: string, toLocat
 
     return await Transaction.findOne({
         where: whereClause
-    });
-}
-
-export async function getTransaction(id: string): Promise<Transaction | null> {
-    return await Transaction.findOne({
-        where: {
-            id
-        }
     });
 }
 
@@ -173,7 +195,6 @@ export async function createTransaction(transactionCreate: TransactionCreate): P
     return await transaction.save();
 }
 
-
 export async function updateTransaction(transactionUpdate: TransactionUpdate): Promise<Transaction> {
     await Transaction.update(transactionUpdate.id, {
         item: transactionUpdate.item,
@@ -200,4 +221,49 @@ export async function updateTransaction(transactionUpdate: TransactionUpdate): P
     }
 
     return transaction;
+}
+
+async function populateLocationDetails(transaction: Transaction): Promise<void> {
+    switch (transaction.toLocationType.toLowerCase()) {
+        case 'warehouse': {
+            const warehouse = await Warehouse.findOne({
+                where: { id: transaction.toLocationId }
+            });
+            if (warehouse) {
+                transaction.locationName = warehouse.facilityName;
+            }
+            break;
+        }
+        case 'dryer': {
+            const dryer = await Dryer.findOne({
+                where: { id: transaction.toLocationId }
+            });
+            if (dryer) {
+                transaction.locationName = dryer.dryerName;
+            }
+            break;
+        }
+        case 'miller': {
+            const miller = await Miller.findOne({
+                where: { id: transaction.toLocationId }
+            });
+            if (miller) {
+                transaction.locationName = miller.millerName;
+            }
+            break;
+        }
+        case 'distribution': {
+            const user = await User.findOne({
+                where: { id: transaction.toLocationId }
+            });
+        
+            if (user) {
+                transaction.userName = `${user.firstName || ''} ${user.lastName || ''}`.trim();
+                transaction.organization = user.organizationName || '';
+            }
+        
+            break;
+        }
+        
+    }
 }
