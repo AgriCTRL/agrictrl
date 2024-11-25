@@ -29,6 +29,7 @@ function RiceReceive() {
   const [selectedOrderData, setSelectedOrderData] = useState(null);
   const [inventoryData, setInventoryData] = useState([]);
   const [selectedFilter, setSelectedFilter] = useState("riceOrders");
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -43,6 +44,7 @@ function RiceReceive() {
 
   const fetchData = async () => {
     try {
+      setIsLoading(true);
       const res = await fetch(
         `${apiUrl}/riceorders?riceRecipientId=${user.id}&status=Accepted&status=In%20Transit&status=Received`
       );
@@ -53,6 +55,8 @@ function RiceReceive() {
       setInventoryData(data);
     } catch (error) {
       console.error(error.message);
+    } finally {
+      setIsLoading(false)
     }
   };
 
