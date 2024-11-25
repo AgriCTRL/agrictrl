@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import PrivateMillerLayout from '../../../Layouts/PrivateMillerLayout';
+import PrivateMillerLayout from '../../../Layouts/Miller/PrivateMillerLayout';
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { Tag } from 'primereact/tag';
 import { FilterMatchMode } from 'primereact/api';

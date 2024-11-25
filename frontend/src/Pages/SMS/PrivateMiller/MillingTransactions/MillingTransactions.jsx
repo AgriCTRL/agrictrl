@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import PrivateMillerLayout from "../../../../Layouts/PrivateMillerLayout";
+import PrivateMillerLayout from "../../../../Layouts/Miller/PrivateMillerLayout";
 
 import { Search, Box, Factory, RotateCcw, RotateCw, Wheat } from "lucide-react";
 

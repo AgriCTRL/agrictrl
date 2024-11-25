@@ -1,16 +1,55 @@
 import React, { useEffect, useState } from 'react';
-import PrivateMillerLayout from '../../../Layouts/PrivateMillerLayout';
-import { useAuth } from '../../Authentication/Login/AuthContext';
-
-import { Carousel } from 'primereact/carousel';
-import { Fan } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 
+import { Carousel } from 'primereact/carousel';
+import { Avatar } from 'primereact/avatar';
+import { Divider } from 'primereact/divider';
+import { Button } from 'primereact/button';
+import { Badge } from 'primereact/badge';
+
+import { 
+    CheckCircle2, 
+    ChevronRight, 
+    Fan, 
+    Loader2, 
+    Undo2, 
+    User 
+} from "lucide-react";
+
+import { useAuth } from '../../Authentication/Login/AuthContext';
+import PrivateMillerLayout from '@/Layouts/Miller/PrivateMillerLayout';
+import EmptyRecord from '@/Components/EmptyRecord';
+import { Tag } from 'primereact/tag';
+
 function Home({ isRightSidebarOpen }) {
-    const { user } = useAuth();
+    // const { user } = useAuth();
+    const [user] = useState({ first_name: 'John', last_name: 'Doe', email: 'jy6kS@example.com', userType: 'miller' });
+    const [userFullName] = useState(`${user.first_name} ${user.last_name}`);
+
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const navigate = useNavigate();
-    const [millingBatches, setMillingBatches] = useState([]);
+    const [millingBatches, setMillingBatches] = useState([
+        {
+            id: 1,
+            startDateTime: "2024-11-01T10:30:00Z",
+            status: "In Progress"
+        },
+        {
+            id: 2,
+            startDateTime: "2024-11-10T14:00:00Z",
+            status: "Completed"
+        },
+        {
+            id: 3,
+            startDateTime: "2024-11-15T08:45:00Z",
+            status: "Pending"
+        },
+        {
+            id: 4,
+            startDateTime: "2024-11-18T13:20:00Z",
+            status: "In Progress"
+        }
+    ]);
 
     const viewAllTransactions = () => {
         navigate('/miller/transactions')
@@ -61,23 +100,83 @@ function Home({ isRightSidebarOpen }) {
     }
 
     const Orders = millingBatches.map(batch => ({
-        icon: Fan,
+        icon: <Fan size={18} />,
         title: `Order #${batch.id}`,
         date: formatDate(batch.startDateTime),
         value: batch.status
     }));
 
+    // LEFT SIDEBAR
+    const personalStats = [
+        { icon: <Loader2 size={18} />, title: "Palay Bought", value: 0 },
+        { icon: <Undo2 size={18} />, title: "Processed", value: 0 },
+        { icon: <CheckCircle2 size={18} />, title: "Distributed", value: 0 },
+    ];
+
+    const leftSidebar = () => {
+        return (
+            <div className={`flex flex-col items-center`}>
+                {/* Gradient background */}
+                <div className="relative w-full bg-gradient-to-r from-secondary to-primary h-16 rounded-t-lg flex items-center justify-center">
+                    {/* Avatar */}
+                    <Avatar 
+                        size="xlarge"
+                        image={user.avatar ?? null} 
+                        icon={<User size={24} />}
+                        shape="circle"
+                        className="cursor-pointer border-2 border-white text-primary bg-tag-grey absolute bottom-0 translate-y-1/2 shadow-lg"
+                    />
+                </div>
+                <div className="w-full rounded-b-md bg-white flex flex-col gap-2 pt-12 px-4 pb-4">
+                    {/* Name and Position */}
+                    <div className="flex flex-col items-center pb-2">
+                        <h1 className="text-lg font-medium text-black">{(user.first_name && user.last_name) ? userFullName : 'username'}</h1>
+                        <p className="text-sm text-gray-400">{user.userType.toLowerCase()}</p>
+                    </div>
+
+                    <Divider className='my-0'/>
+                    
+                    {/* Stat Items */}
+                    <div className="flex flex-col w-full">
+                        {personalStats.map((stat, index) => (
+                            <div className="flex items-center hover:bg-background rounded-md pr-5">
+                                <Button
+                                    text
+                                    className="cursor-default pr-0 ring-0 w-full bg-transparent text-black flex justify-between"
+                                >
+                                    <div className="flex gap-4 items-center">
+                                        {stat.icon}
+                                        <p>{stat.title}</p>
+                                    </div>
+                                </Button>
+                                <Badge value={stat.value} className="ml-auto bg-primary" />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
     return (
-        <PrivateMillerLayout activePage="Home" user={user}>
-            <div className={`flex flex-row p-2 bg-[#F1F5F9] h-full ${isRightSidebarOpen ? 'pr-[20%]' : ''}`}>
-                
+        <PrivateMillerLayout activePage="Home" user={user} leftSidebar={leftSidebar()} isLeftSidebarOpen={true} isRightSidebarOpen={false} rightSidebar={<></>}>
+            <div className={`flex flex-row bg-[#F1F5F9] h-full`}>
+
                 {/* Main Content */}
-                <div className="flex flex-col w-full px-10">
+                <div className={`flex flex-col w-full h-full gap-4`}>
                     <div className="flex flex-row justify-between items-center">
-                        <div className="flex flex-col items-center">
+                        <div className="flex flex-col text-black">
                             <h1 className="text-xl">Welcome Back,</h1>
-                            <h1 className="text-2xl font-bold">{user.firstName}!</h1>
+                            <h1 className="text-2xl sm:text-4xl font-semibold">{user.first_name ?? 'User'}!</h1>
                         </div>
+                        <Button
+                            text
+                            className="ring-0 transition-all gap-4 hover:gap-6 hover:bg-transparent text-primary flex justify-between"
+                            onClick={() => navigate('/miller/transactions')}
+                        >
+                            <p className='text-md font-medium'>View your transactions</p>
+                            <ChevronRight size={18} />
+                        </Button>
                     </div>
 
                     {/* Carousel for Image Section */}
@@ -112,44 +211,55 @@ function Home({ isRightSidebarOpen }) {
                         }}
                     />
 
-                    <div className="flex flex-row justify-between items-center">
-                        <h1 className="text-xl font-medium">Milling Orders</h1>
-                        <h1 className="text-md font-medium text-primary hover:cursor-pointer" onClick={viewAllTransactions}>View all {'>'} </h1>
-                    </div>
-
-                    {/* Carousel for Orders */}
-                    {Orders.length === 0 && (
-                        <div className="flex flex-row justify-center items-center mt-10">
-                            <h1 className="text-lg font-medium">No Milling Orders Found</h1>
+                    <div className="flex flex-col gap-4">
+                        <div className="flex flex-row justify-between items-center">
+                            <h1 className="text-xl font-medium">Milling Orders</h1>
+                            <Button
+                                text
+                                className="ring-0 transition-all gap-4 hover:gap-6 hover:bg-transparent text-primary flex justify-between"
+                                onClick={() => navigate('/miller/transactions')}
+                            >
+                                <p className='text-md font-medium'>View All</p>
+                                <ChevronRight size={18} />
+                            </Button>
                         </div>
-                    )}
-                    {Orders.length > 0 && (
-                        <Carousel 
-                        value={Orders} 
-                        numVisible={3} 
-                        numScroll={1}
-                        className="custom-carousel"
-                        itemTemplate={(stat) => (
-                            <div className="flex overflow-hidden space-6 p-4 h-full">
-                                <div className="flex flex-col h-full w-full p-2 rounded-md bg-white">
-                                    <stat.icon className="text-primary ml-4 mt-1"/>
-                                    <h1 className="font-semibold pl-4">{stat.title}</h1>
-                                    
-                                    <div className="flex flex-row space-x-2 pl-4 mb-2">
-                                        <h1 className="text-sm font-light">as of</h1>
-                                        <h1 className="text-sm font-light">{stat.date}</h1>
-                                    </div>
 
-                                    <div className="flex flex-row justify-center rounded-lg font-semibold space-x-1 p-1 mb-2 mx-14 bg-gray-300">
-                                        <h1>{stat.value}</h1>
+                        {/* Carousel for Orders */}
+                        {Orders.length === 0 && (
+                            // <div className="flex flex-row justify-center items-center mt-10">
+                            //     <h1 className="text-lg font-medium">No Milling Orders Found</h1>
+                            // </div>
+                            <EmptyRecord label="No Milling Orders Found" />
+                        )}
+                        {Orders.length > 0 && (
+                            <Carousel 
+                                value={Orders} 
+                                numVisible={3} 
+                                numScroll={1}
+                                className="custom-carousel miller-transactions-carousel relative"
+                                itemTemplate={(stat) => (
+                                    <div className="flex overflow-hidden h-full">
+                                        <div className="flex flex-col h-full w-full p-4 gap-2 rounded-md bg-white">
+                                            <div className="w-fit p-4 rounded-lg bg-background text-primary">
+                                                {stat?.icon}
+                                            </div>
+
+                                            <div className="flex flex-col text-black">
+                                                <h1 className="font-semibold">{stat?.title}</h1>
+                                                <h1 className="text-sm font-light">
+                                                    as of {stat?.date}
+                                                </h1>
+                                            </div>
+
+                                            <Tag value={stat?.value} className='bg-tag-grey text-black w-1/2'></Tag>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
-                            )}
-                            showIndicators={false}
-                            showNavigators={true}
-                        />
-                    )}
+                                )}
+                                showIndicators={false}
+                                showNavigators={true}
+                            />
+                        )}
+                    </div>
                 </div>
             </div>
         </PrivateMillerLayout>

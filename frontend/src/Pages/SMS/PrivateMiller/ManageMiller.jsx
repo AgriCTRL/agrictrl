@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import PrivateMillerLayout from '../../../Layouts/PrivateMillerLayout';
+import PrivateMillerLayout from '../../../Layouts/Miller/PrivateMillerLayout';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { Button } from 'primereact/button';
