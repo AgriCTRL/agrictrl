@@ -115,6 +115,10 @@ const RegistrationPageContent = () => {
             return;
         }
 
+        console.log("REGISTRATION DATA: ")
+        console.log(registrationData);
+        return;
+        
         try {
             const fileData = await handleFileUpload();
             let updatedAccountDetails = { ...registrationData.accountDetails };
