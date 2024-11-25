@@ -182,9 +182,9 @@ function App() {
                 <Route
                     path="/miller/*"
                     element={
-                        // <ProtectedRoute allowedUserTypes={["Private Miller"]}>
-                        // </ProtectedRoute>
+                        <ProtectedRoute allowedUserTypes={["Private Miller"]}>
                             <PrivateMillerRoutes />
+                        </ProtectedRoute>
                     }
                 />
                 <Route path="/404" element={<NoAppPage />} />

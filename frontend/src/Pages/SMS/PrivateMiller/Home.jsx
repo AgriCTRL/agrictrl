@@ -8,22 +8,25 @@ import { Button } from 'primereact/button';
 import { Badge } from 'primereact/badge';
 
 import { 
+    ArrowRightLeft,
     CheckCircle2, 
     ChevronRight, 
+    Factory, 
     Fan, 
     Loader2, 
     Undo2, 
-    User 
+    User, 
+    WheatOff
 } from "lucide-react";
 
 import { useAuth } from '../../Authentication/Login/AuthContext';
 import PrivateMillerLayout from '@/Layouts/Miller/PrivateMillerLayout';
 import EmptyRecord from '@/Components/EmptyRecord';
 import { Tag } from 'primereact/tag';
+import { Accordion, AccordionTab } from 'primereact/accordion';
 
 function Home({ isRightSidebarOpen }) {
-    // const { user } = useAuth();
-    const [user] = useState({ first_name: 'John', last_name: 'Doe', email: 'jy6kS@example.com', userType: 'miller' });
+    const { user } = useAuth();
     const [userFullName] = useState(`${user.first_name} ${user.last_name}`);
 
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -107,10 +110,10 @@ function Home({ isRightSidebarOpen }) {
     }));
 
     // LEFT SIDEBAR
-    const personalStats = [
-        { icon: <Loader2 size={18} />, title: "Palay Bought", value: 0 },
-        { icon: <Undo2 size={18} />, title: "Processed", value: 0 },
-        { icon: <CheckCircle2 size={18} />, title: "Distributed", value: 0 },
+    const millingStatsSummary = [
+        { icon: <Loader2 size={18} />, title: "Milling Requests", value: 0 },
+        { icon: <Factory size={18} />, title: "In Milling", value: 0 },
+        { icon: <CheckCircle2 size={18} />, title: "To Return", value: 0 },
     ];
 
     const leftSidebar = () => {
@@ -158,8 +161,78 @@ function Home({ isRightSidebarOpen }) {
         )
     }
 
+    // RIGHT SIDE
+    const [rightSidebarItems, setRightSidebarItems] = useState([]) 
+
+    const rightSidebar = () => {
+        return (
+            <div className="p-4 bg-white rounded-lg flex flex-col gap-4">
+                <div className="header flex flex-col gap-2">
+                    <h2 className="text-lg font-semibold text-black">What's on the field</h2>
+                    <Divider className='my-0'/>
+                </div>
+                <div className="flex flex-col gap-2">
+                    {rightSidebarItems.length > 0 ? (
+                        <Accordion 
+                            expandIcon="false"
+                            collapseIcon="false"
+                            className='right-sidebar-accordion'
+                        >
+                            {rightSidebarItems.map((item, index) => {
+                                return (
+                                    <AccordionTab
+                                        key={index}
+                                        header={
+                                            <span className="flex items-center gap-4 w-full">
+                                                <ArrowRightLeft size={18} />
+                                                <div className="flex flex-col gap-2">
+                                                    <span className="font-medium">{item.batchId}</span>
+                                                    <small className='font-light'>{item.date_updated}</small>
+                                                </div>
+                                                <Tag value={item.status.toUpperCase()} className="bg-light-grey font-semibold ml-auto" rounded></Tag>
+                                            </span>
+                                        }
+                                        className="bg-none"
+                                    >
+                                    </AccordionTab>
+                                );
+                            })}
+                        </Accordion>
+                    ) : (
+                        <div className="w-full flex flex-col justify-center items-center gap-4 p-4">
+                            <WheatOff size={32} className="text-primary" />
+                            <p className="text-black text-lg font-semibold">No data to show.</p>
+                            <p className="text-gray-600 text-center">
+                                It looks like there are no milling transactions recorded yet. Start managing your transactions to view them here.
+                            </p>
+                            
+                            {/* Button */}
+                            <Button
+                                outlined
+                                className="w-full max-w-md ring-0 text-primary border-primary hover:bg-primary hover:text-white flex justify-center"
+                                onClick={() => navigate('/miller/transactions')}
+                            >
+                                Go to Milling Transactions
+                            </Button>
+                        </div>
+                    )}
+                    {rightSidebarItems.length > 0 && (
+                        <Button
+                            text
+                            className="ring-0 transition-all gap-4 hover:gap-6 hover:bg-transparent text-primary flex justify-end"
+                            onClick={() => navigate('/miller/transactions')}
+                        >
+                            <p className='text-md font-medium'>View All</p>
+                            <ChevronRight size={18} />
+                        </Button>  
+                    )}
+                </div>
+            </div>
+        )
+    }
+
     return (
-        <PrivateMillerLayout activePage="Home" user={user} leftSidebar={leftSidebar()} isLeftSidebarOpen={true} isRightSidebarOpen={false} rightSidebar={<></>}>
+        <PrivateMillerLayout activePage="Home" user={user} leftSidebar={leftSidebar()} isLeftSidebarOpen={true} isRightSidebarOpen={true} rightSidebar={rightSidebar()}>
             <div className={`flex flex-row bg-[#F1F5F9] h-full`}>
 
                 {/* Main Content */}

@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import PrivateMillerLayout from '../../../Layouts/Miller/PrivateMillerLayout';
 
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
@@ -10,7 +9,12 @@ import { Divider } from 'primereact/divider';
 import { Toast } from 'primereact/toast';
 import CryptoJS from 'crypto-js';
 
+import PrivateMillerLayout from '@/Layouts/Miller/PrivateMillerLayout';
+import Loader from '@/Components/Loader';
 import { useAuth } from '../../Authentication/Login/AuthContext';
+import { Tag } from 'primereact/tag';
+import { User } from 'lucide-react';
+import { Avatar } from 'primereact/avatar';
 
 function Profile() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -22,15 +26,15 @@ function Profile() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [userData, setUserData] = useState({
         personalInfo: {
-            firstName: '',
-            lastName: '',
+            firstName: 'John',
+            lastName: 'Doe',
             gender: '',
             birthDate: null,
             contactNumber: '',
             validId: ''
         },
         accountDetails: {
-            userType: '',
+            userType: 'miller',
             organizationName: '',
             jobTitlePosition: '',
         },
@@ -47,6 +51,8 @@ function Profile() {
             confirmPassword: null
         }
     });
+    const [userFullName] = useState(`${userData.personalInfo.firstName} ${userData.personalInfo.lastName}`);
+
     const [isLoading, setIsLoading] = useState(true);
     const [errors, setErrors] = useState({});
 
@@ -770,43 +776,59 @@ function Profile() {
         <PrivateMillerLayout activePage="Profile" user={user}>
             <Toast ref={toast} />
             {isLoading ? (
-                <div className="flex items-center justify-center h-full">
-                    <div className="text-center">
-                        <i className="pi pi-spin pi-spinner text-4xl"></i>
-                        <p className="mt-2">Loading profile...</p>
-                    </div>
-                </div>
+                <Loader />
             ) : (
-                <div className='flex flex-row h-full w-full px-4 py-2 bg-[#F1F5F9] rounded-xl'>
-                    <div className='relative flex flex-col items-center justify-between h-full w-1/4 p-5 rounded-lg overflow-hidden'>
-                        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('/Registration-leftBG.png')" }}>
-                            <div className="absolute inset-0 bg-gradient-to-t from-secondary via-[#00c26170] to-transparent"></div>
+                <div className='flex flex-col h-full w-full bg-[#F1F5F9] rounded-xl'>
+                    <div className='flex flex-col w-full h-fit rounded-lg overflow-hidden'>
+                        <div className="relative inset-0 bg-cover bg-center p-8 w-full h-32 bg-gradient-to-r from-secondary to-primary">
+                            <div className="absolute inset-0 bg-gradient-to-r from-secondary to-primary w-full h-32"></div>
+                            <Avatar 
+                                // image={user.avatar ?? null} 
+                                icon={<User size={24} />}
+                                shape="circle"
+                                className="cursor-pointer border-2 border-white text-primary bg-tag-grey absolute bottom-0 translate-y-2/3 shadow-lg w-[8rem] h-[8rem]"
+                            />
                         </div>
 
-                        <div className="relative flex flex-col justify-center items-center gap-4 z-10">
-                            <img src="/profileAvatar.png" alt="Profile" className="w-32 h-32 rounded-full" />
-                            <div className="flex flex-col items-center">
-                                <h1 className='text-5xl text-white font-bold'>
-                                    {userData?.personalInfo?.firstName} {userData?.personalInfo?.lastName}
+                        <div className="ps-48 py-4 pe-4 w-full flex justify-between items-center">
+                            <div className="flex flex-col gap-2">
+                                <h1 className='text-2xl sm:text-4xl text-black font-semibold'>
+                                    {userFullName ?? "No Name"}
                                 </h1>
-                                <p className='text-xl text-white'>
-                                    {userData.accountDetails.userType}
-                                </p>
+                                <Tag value={userData.accountDetails.userType} className="bg-primary font-semibold w-fit px-4" rounded />
+                            </div>
+
+                            <div className='flex justify-end gap-2'>
+                                <Button
+                                    label={editing ? "Cancel" : "Edit"}
+                                    type="button"
+                                    onClick={handleToggleEdit}
+                                    className={`text-white border-0 ring-0 ${
+                                        editing 
+                                            ? 'bg-red-500 hover:bg-red-600' 
+                                            : 'bg-green-500 hover:bg-green-600'
+                                    }`}
+                                />
+                                {editing && (
+                                    <Button
+                                        label="Save Changes"
+                                        disabled={isSubmitting}
+                                        type="submit"
+                                        className='text-white bg-primary hover:bg-primaryHover'
+                                    />
+                                )}
+                                <Button
+                                    label="Logout" 
+                                    onClick={logoutButton} 
+                                    outlined
+                                    className='text-black flex justify-center h-fit'
+                                />
                             </div>
                         </div>
-
-                        <div className="flex justify-center items-center w-full z-10">
-                            <Button 
-                                onClick={logoutButton} 
-                                variant="secondary" 
-                                className='text-lg text-primary bg-white p-4 flex justify-center items-center w-full'
-                            >
-                                Logout
-                            </Button>
-                        </div>
+                        <Divider className='mt-0 bg-red-600'/>
                     </div>
 
-                    <div className='flex justify-between flex-col w-full p-4'>
+                    <div className='flex justify-between flex-col w-full'>
                         <div className="flex justify-between mb-4">
                             {tabs.map((tab) => (
                                 <button
@@ -823,30 +845,9 @@ function Profile() {
                             ))}
                         </div>
 
-                        <form onSubmit={handleSave} className="flex flex-col justify-between h-full">
+                        <form onSubmit={handleSave} className="flex flex-col justify-between h-full px-8">
                             <div className="mt-4">
                                 {tabs.find(tab => tab.id === activeTab).content()}
-                            </div>
-                            
-                            <div className='flex justify-end'>
-                                <Button
-                                    label={editing ? "Cancel" : "Edit"}
-                                    type="button"
-                                    onClick={handleToggleEdit}
-                                    className={`border h-12 w-24 text-white font-bold ${
-                                        editing 
-                                            ? 'bg-red-500 hover:bg-red-600' 
-                                            : 'bg-green-500 hover:bg-green-600'
-                                    }`}
-                                />
-                                {editing && (
-                                    <Button
-                                        label="Save Changes"
-                                        disabled={isSubmitting}
-                                        type="submit"
-                                        className='ml-4 p-button-success border h-12 px-4 text-white font-bold bg-green-500 hover:bg-green-600'
-                                    />
-                                )}
                             </div>
                         </form>
                     </div>

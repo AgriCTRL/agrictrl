@@ -26,10 +26,6 @@ const PrivateMillerLayout = ({
         { text: "History", link: "/miller/history" },
     ];
 
-    const toggleRightSidebar = () => {
-        isRightSidebarOpen = !isRightSidebarOpen;
-    };
-
     const profileClick = () => {
         navigate("/miller/profile");
     };
