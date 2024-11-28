@@ -173,9 +173,14 @@ function BuyPalay() {
     setShowRegisterPalay(true);
   };
 
-  const handlePalayRegistered = (newPalay) => {
+  const handlePalayRegistered = () => {
     fetchPalayData();
     setShowRegisterPalay(false);
+  };
+
+  const handlePalayUpdate = () => {
+    fetchPalayData();
+    setShowDetails(false);
   };
 
   const handleItemClick = (item) => {
@@ -341,6 +346,7 @@ function BuyPalay() {
         visible={showDetails}
         onHide={() => setShowDetails(false)}
         palay={selectedPalay}
+        onUpdate={handlePalayUpdate}
       />
     </StaffLayout>
   );

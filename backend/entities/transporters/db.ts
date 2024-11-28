@@ -45,11 +45,37 @@ export class Transporter extends BaseEntity {
 export type TransporterCreate = Pick<Transporter, 'transporterType' | 'transporterName' | 'plateNumber' | 'description' | 'status' | 'userId'>;
 export type TransporterUpdate = Pick<Transporter, 'id'> & Partial<TransporterCreate>;
 
-export async function getTransporters(limit: number, offset: number): Promise<Transporter[]> {
-    return await Transporter.find({
+export async function getTransporters(
+    limit: number, 
+    offset: number, 
+    options?: {
+        status?: string;
+        transporterType?: string;
+        userId?: string;
+    }
+): Promise<Transporter[]> {
+    const queryOptions: any = {
         take: limit,
         skip: offset
-    });
+    };
+
+    if (options) {
+        queryOptions.where = {};
+
+        if (options.status) {
+            queryOptions.where.status = options.status;
+        }
+
+        if (options.transporterType) {
+            queryOptions.where.transporterType = options.transporterType;
+        }
+
+        if (options.userId) {
+            queryOptions.where.userId = options.userId;
+        }
+    }
+
+    return await Transporter.find(queryOptions);
 }
 
 export async function getTransportersByUserId(userId: string): Promise<Transporter[]> {
@@ -72,8 +98,30 @@ export async function getTransporter(id: string): Promise<Transporter | null> {
     });
 }
 
-export async function countTransporters(): Promise<number> {
-    return await Transporter.count();
+export async function countTransporters(options?: {
+    status?: string;
+    transporterType?: string;
+    userId?: string;
+}): Promise<number> {
+    const queryOptions: any = {};
+
+    if (options) {
+        queryOptions.where = {};
+
+        if (options.status) {
+            queryOptions.where.status = options.status;
+        }
+
+        if (options.transporterType) {
+            queryOptions.where.transporterType = options.transporterType;
+        }
+
+        if (options.userId) {
+            queryOptions.where.userId = options.userId;
+        }
+    }
+
+    return await Transporter.count(queryOptions);
 }
 
 export async function createTransporter(transporterCreate: TransporterCreate): Promise<Transporter> {
@@ -107,3 +155,4 @@ export async function updateTransporter(transporterUpdate: TransporterUpdate): P
 
     return transporter;
 }
+

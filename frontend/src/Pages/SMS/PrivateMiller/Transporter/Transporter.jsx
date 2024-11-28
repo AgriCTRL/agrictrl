@@ -216,7 +216,7 @@ function Transporter() {
               />
               <Column
                 field="status"
-                header="Description"
+                header="Status"
                 body={statusBodyTemplate}
                 className="text-center"
                 headerClassName="text-center"

@@ -158,57 +158,71 @@ const Tracking = () => {
         const palayBatch = item.palayBatch;
         const transactions = item.transactions || [];
     
-        // 1. Always add Origin event first
+        // 1. Origin event
         events.push({
-            status: 'ORIGIN',
+            status: 'FARM ORIGIN',
             date: palayBatch.dateBought,
             location: `${palayBatch.farm?.region || 'Unknown Region'}, ${palayBatch.farm?.province || 'Unknown Province'}`,
             remarks: 'Farm Origin',
             sortOrder: 1
         });
     
-        // 2. Always add Procurement event second
+        // 2. Procurement event
         events.push({
-            status: 'PROCUREMENT',
+            status: 'BOUGHT AT',
             date: palayBatch.dateBought,
             location: `${palayBatch.buyingStationName || 'undefined'}`,
             remarks: 'Initial Procurement',
             sortOrder: 2
         });
     
-        // 3. Add all transactions with a higher sort order
+        // 3. Add all transactions with detailed status logic
         const transactionEvents = transactions.map((transaction, index) => {
             let status;
             let location;
             let userName;
             let organization;
             
-            // IMPORTANT: Always use sendDateTime for event date since receiveDateTime might be default value
             const eventDate = transaction.sendDateTime;
     
+            // Determine status based on transaction details and status
             switch (transaction.toLocationType) {
                 case 'Warehouse':
-                    status = transaction.item === 'Rice' ? 'TO WAREHOUSE (MILLED)' : 'TO WAREHOUSE';
+                    if (transaction.item === 'Rice') {
+                        status = transaction.status === 'Pending' 
+                            ? 'TRANSPORTING' 
+                            : 'STORED AT (MILLED)';
+                    } else {
+                        status = transaction.status === 'Pending' 
+                            ? 'TRANSPORTING' 
+                            : 'STORED AT (UNMILLED)';
+                    }
                     location = transaction.locationName;
                     break;
+                
                 case 'Dryer':
-                    status = 'TO DRYING';
+                    status = transaction.status === 'Pending' 
+                        ? 'TRANSPORTING' 
+                        : 'DRIED AT';
                     location = transaction.locationName;
                     break;
+                
                 case 'Miller':
-                    status = 'TO MILLING';
+                    status = transaction.status === 'Pending' 
+                        ? 'TRANSPORTING' 
+                        : 'MILLED AT';
                     location = transaction.locationName;
                     break;
+                
                 case 'Distribution':
                     if (transaction.itemId === item.palayBatch.id) {
-                        status = 'DISTRIBUTED';
+                        status = transaction.status === 'Pending' 
+                            ? 'TRANSPORTING' 
+                            : 'DISTRIBUTED';
                         location = transaction.userName;
                         organization = transaction.organization;
                     }
                     break;
-                default:
-                    status = `TO ${transaction.toLocationType.toUpperCase()}`;
-                    location = `${transaction.toLocationType} ${transaction.toLocationId}`;
             }
     
             if (status) {
@@ -226,7 +240,7 @@ const Tracking = () => {
     
         events.push(...transactionEvents);
     
-        // Sort by sortOrder first, then by date
+        // Sort events
         return events.sort((a, b) => {
             if (a.sortOrder !== b.sortOrder) {
                 return a.sortOrder - b.sortOrder;
@@ -261,19 +275,21 @@ const Tracking = () => {
     const getTimelineIcon = (status) => {
         const iconSize = 32;
         switch (status) {
-            case 'ORIGIN':
+            case 'FARM ORIGIN':
                 return <MapPin className="text-green-700" size={iconSize} />;
-            case 'PROCUREMENT':
+            case 'BOUGHT AT':
                 return <Wheat className="text-green-500" size={iconSize} />;
-            case 'TO WAREHOUSE':
-            case 'TO WAREHOUSE (MILLED)':
+            case 'STORED AT (UNMILLED)':
+            case 'STORED AT (MILLED)':
                 return <Warehouse className="text-blue-500" size={iconSize} />;
-            case 'TO DRYING':
-                return <ThermometerSun className="text-yellow-500" size={iconSize} />;
-            case 'TO MILLING':
-                return <Factory className="text-orange-500" size={iconSize} />;
+            case 'TRANSPORTING':
+                return <Truck className="text-yellow-500" size={iconSize} />;
+            case 'DRIED AT':
+                return <ThermometerSun className="text-orange-500" size={iconSize} />;
+            case 'MILLED AT':
+                return <Factory className="text-purple-500" size={iconSize} />;
             case 'DISTRIBUTED':
-                return <Truck  className="text-purple-500" size={iconSize} />;
+                return <Truck  className="text-green-500" size={iconSize} />;
             default:
                 return <AlertCircle className="text-red-500" size={iconSize} />;
         }

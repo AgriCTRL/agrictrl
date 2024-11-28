@@ -16,20 +16,38 @@ export function getRouter(): Router {
     router.get(
         '/',
         async (
-            req: Request<any, any, any, { limit?: string; offset?: string }>,
+            req: Request<any, any, any, { 
+                limit?: string; 
+                offset?: string; 
+                status?: string;
+                transporterType?: string;
+                userId?: string;
+            }>,
             res
         ) => {
             const limit = Number(req.query.limit ?? -1);
             const offset = Number(req.query.offset ?? 0);
+            
+            const options = {
+                status: req.query.status ? String(req.query.status) : undefined,
+                transporterType: req.query.transporterType ? String(req.query.transporterType) : undefined,
+                userId: req.query.userId ? String(req.query.userId) : undefined
+            };
 
-            const transporters = await getTransporters(limit, offset);
+            const transporters = await getTransporters(limit, offset, options);
 
             res.json(transporters);
         }
     );
 
-    router.get('/count', async (_req, res) => {
-        res.json(await countTransporters());
+    router.get('/count', async (req, res) => {
+        const options = {
+            status: req.query.status ? String(req.query.status) : undefined,
+            transporterType: req.query.transporterType ? String(req.query.transporterType) : undefined,
+            userId: req.query.userId ? String(req.query.userId) : undefined
+        };
+
+        res.json(await countTransporters(options));
     });
 
     router.get('/user/:userId', async (req, res) => {

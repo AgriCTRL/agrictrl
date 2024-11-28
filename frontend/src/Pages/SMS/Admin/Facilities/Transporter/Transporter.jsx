@@ -172,7 +172,7 @@ function Transporter() {
                         <Column field="transporterName" header="Transporter Name" className="text-center" headerClassName="text-center"/>
                         <Column field="plateNumber" header="Plate Number" className="text-center" headerClassName="text-center"/>
                         <Column field="description" header="Description" className="text-center" headerClassName="text-center"/>
-                        <Column field="status" header="Description" body={statusBodyTemplate} className="text-center" headerClassName="text-center"/>
+                        <Column field="status" header="Status" body={statusBodyTemplate} className="text-center" headerClassName="text-center"/>
                         <Column body={actionBodyTemplate} exportable={false} className="text-center" headerClassName="text-center"/>
                     </DataTable>
                 </div>

@@ -6,7 +6,8 @@
         "pretest": "npm run prebuild --workspaces --if-present",
         "start": "npm start --workspaces --if-present",
         "test": "npm test --workspaces --if-present",
-        "icp": "dfx start --background --clean && dfx deploy"
+        "icp": "dfx start --background --clean && dfx deploy",
+        "upgrade": "dfx deploy --upgrade-unchanged"
     },
     "type": "module",
     "workspaces": [

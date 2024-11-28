@@ -155,6 +155,11 @@ export async function getEnhancedInventory(
                 .where('palayBatch.status = :status', { status: filters.palayStatus });
         }
 
+        if (filters.palaybatchId) {
+            palayBatchQuery = palayBatchQuery
+                .andWhere('palayBatch.id = :palaybatchId', { palaybatchId: filters.palaybatchId });
+        }
+
         const palayBatches = await palayBatchQuery.getMany();
 
         const inventoryItems = await Promise.all(

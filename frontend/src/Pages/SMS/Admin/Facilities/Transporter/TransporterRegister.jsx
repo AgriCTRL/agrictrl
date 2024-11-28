@@ -4,18 +4,21 @@ import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import { Dropdown } from 'primereact/dropdown';
+import { useAuth } from '../../../../Authentication/Login/AuthContext';
 
 import { Truck } from 'lucide-react';
 
 function TransporterRegister({ visible, onHide, onTransporterRegistered }) {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const toast = React.useRef(null);
+    const { user } = useAuth();
 
-    const [transporterType, setTransporterType] = useState('In House');
+    const [transporterType, setTransporterType] = useState('Private');
     const [transporterName, setTransporterName] = useState('');
     const [plateNumber, setPlateNumber] = useState('');
     const [description, setDescription] = useState('');
     const [status, setStatus] = useState('active');
+    const [userId, setUserId] = useState(user.id);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const statusOptions = [
@@ -34,6 +37,7 @@ function TransporterRegister({ visible, onHide, onTransporterRegistered }) {
         setPlateNumber('');
         setDescription('');
         setStatus('');
+        setUserId(user.id);
     };
 
     const handleRegister = async (e) => {
@@ -56,7 +60,8 @@ function TransporterRegister({ visible, onHide, onTransporterRegistered }) {
             transporterName,
             plateNumber,
             description,
-            status
+            status,
+            userId,
         };
 
         try {

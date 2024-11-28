@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { InputText } from "primereact/inputtext";
 import { Dropdown } from "primereact/dropdown";
 
@@ -11,6 +11,44 @@ const LogisticsInfoForm = ({
   locationOptions,
   errors,
 }) => {
+  const apiUrl = import.meta.env.VITE_API_BASE_URL;
+  const [transporters, setTransporters] = useState([]);
+
+  useEffect(() => {
+    const fetchTransporters = async () => {
+      try {
+        const transporterRes = await fetch(`${apiUrl}/transporters?status=active&transporterType=In House`);
+        const transporterData = await transporterRes.json();
+        const transporterOptions = transporterData.map(transporter => ({
+          label: `${transporter.transporterName} | ${transporter.plateNumber} | ${transporter.description}`,
+          value: transporter.id,
+          name: transporter.transporterName
+        }));
+        setTransporters(transporterOptions);
+      } catch (error) {
+        console.error('Error fetching transporters:', error);
+      }
+    };
+  
+    fetchTransporters();
+  }, []);
+
+  const handleTransporterChange = (e) => {
+    const selectedTransporter = transporters.find(t => t.value === e.value);
+    handleTransactionInputChange({
+      target: {
+        name: 'transporterId',
+        value: e.value
+      }
+    });
+    handleTransactionInputChange({
+      target: {
+        name: 'transporterName',
+        value: selectedTransporter.name
+      }
+    });
+  };
+
   return (
     <div className="flex flex-col h-full w-full gap-4">
       <div className="flex w-full gap-4">
@@ -63,22 +101,22 @@ const LogisticsInfoForm = ({
 
       <div className="w-full">
         <label
-          htmlFor="transporterName"
+          htmlFor="transporterId"
           className="block text-sm font-medium text-gray-700 mb-1"
         >
           Transported by
         </label>
-        <InputText
-          id="transporterName"
-          name="transporterName"
-          value={transactionData.transporterName}
-          onChange={handleTransactionInputChange}
-          placeholder="Enter transport"
+        <Dropdown
+          id="transporterId"
+          name="transporterId"
+          value={transactionData.transporterId}
+          options={transporters}
+          onChange={handleTransporterChange}
+          placeholder="Select transporter"
           className="w-full focus:ring-0"
-          maxLength={50}
         />
-        {errors.transporterName && (
-          <p className="text-red-500 text-xs mt-1">{errors.transporterName}</p>
+        {errors.transporterId && (
+          <p className="text-red-500 text-xs mt-1">{errors.transporterId}</p>
         )}
       </div>
 
