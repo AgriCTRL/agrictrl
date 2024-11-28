@@ -48,6 +48,7 @@ import PrivateMillerMillingTransactions from "./SMS/PrivateMiller/MillingTransac
 import PrivateMillerManageMiller from "./SMS/PrivateMiller/ManageMiller";
 import PrivateMillerHistory from "./SMS/PrivateMiller/History";
 import PrivateMillerProfile from "./SMS/PrivateMiller/Profile";
+import PrivateTransporter from "./SMS/PrivateMiller/Transporter/Transporter.jsx";
 
 const ProtectedRoute = ({ children, allowedUserTypes, allowedJobTitles }) => {
     const { user } = useAuth();
@@ -268,6 +269,7 @@ function PrivateMillerRoutes() {
             <Route path="facility" element={<PrivateMillerManageMiller />} />
             <Route path="history" element={<PrivateMillerHistory />} />
             <Route path="profile" element={<PrivateMillerProfile />} />
+            <Route path="transporter" element={<PrivateTransporter />} />
         </Routes>
     );
 }
