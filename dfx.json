@@ -13,22 +13,11 @@
             "type": "assets"
         },
         "backend": {
-            "type": "custom",
+            "type": "azle",
             "main": "backend/backend.ts",
-            "candid": "backend/backend.did",
-            "build": "npx azle backend",
-            "wasm": ".azle/backend/backend.wasm",
-            "gzip": true,
-            "metadata": [
-                {
-                    "name": "candid:service",
-                    "path": "backend/backend.did"
-                },
-                {
-                    "name": "cdk:name",
-                    "content": "azle"
-                }
-            ]
+            "custom": {
+                "experimental": true
+            }
         },
         "internet_identity": {
             "candid": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity.did",

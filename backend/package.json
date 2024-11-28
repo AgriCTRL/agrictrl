@@ -4,7 +4,7 @@
     "private": true,
     "type": "module",
     "dependencies": {
-        "azle": "0.22.0",
+        "azle": "0.24.1",
         "backend": "file:",
         "cors": "^2.8.5",
         "express": "^4.18.2",
