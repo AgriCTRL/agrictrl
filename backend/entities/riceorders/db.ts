@@ -9,7 +9,7 @@ export class RiceOrder extends BaseEntity {
     riceRecipientId: string;
 
     @Column({ nullable: true})
-    riceBatchId: string;
+    pileId: string;
 
     @Column()
     orderDate: Date;
@@ -57,7 +57,7 @@ export class RiceOrder extends BaseEntity {
     }
 }
 
-export type RiceOrderCreate = Pick<RiceOrder, 'riceRecipientId' | 'riceBatchId' | 'orderDate' | 'dropOffLocation' | 'riceQuantityBags' | 'description' | 'totalCost' | 'preferredDeliveryDate' | 'status' | 'isAccepted' | 'remarks'>;
+export type RiceOrderCreate = Pick<RiceOrder, 'riceRecipientId' | 'pileId' | 'orderDate' | 'dropOffLocation' | 'riceQuantityBags' | 'description' | 'totalCost' | 'preferredDeliveryDate' | 'status' | 'isAccepted' | 'remarks'>;
 export type RiceOrderUpdate = Pick<RiceOrder, 'id'> & Partial<RiceOrderCreate>;
 
 function getCurrentPST(): Date {
@@ -108,7 +108,7 @@ export async function createRiceOrder(riceOrderCreate: RiceOrderCreate): Promise
     let riceOrder = new RiceOrder();
 
     riceOrder.riceRecipientId = riceOrderCreate.riceRecipientId;
-    riceOrder.riceBatchId = riceOrderCreate.riceBatchId;
+    riceOrder.pileId = riceOrderCreate.pileId;
     riceOrder.orderDate = getCurrentPST();
     riceOrder.dropOffLocation = riceOrderCreate.dropOffLocation;
     riceOrder.riceQuantityBags = riceOrderCreate.riceQuantityBags;
@@ -125,7 +125,7 @@ export async function createRiceOrder(riceOrderCreate: RiceOrderCreate): Promise
 export async function updateRiceOrder(riceOrderUpdate: RiceOrderUpdate): Promise<RiceOrder> {
     await RiceOrder.update(riceOrderUpdate.id, {
         riceRecipientId: riceOrderUpdate.riceRecipientId,
-        riceBatchId: riceOrderUpdate.riceBatchId,
+        pileId: riceOrderUpdate.pileId,
         orderDate: riceOrderUpdate.orderDate,
         dropOffLocation: riceOrderUpdate.dropOffLocation,
         riceQuantityBags: riceOrderUpdate.riceQuantityBags,

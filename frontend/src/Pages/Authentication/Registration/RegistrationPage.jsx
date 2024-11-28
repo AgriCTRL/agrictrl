@@ -54,14 +54,21 @@ const RegistrationPageContent = () => {
 
     const handleFileUpload = async () => {
         if (!selectedFile) return null;
-
+    
         const fileName = `${uuidv4()}_${selectedFile.name}`;
         const storageRef = ref(storage, `validIds/${fileName}`);
-
+    
         try {
-            const snapshot = await uploadBytes(storageRef, selectedFile);
+            const metadata = {
+                customMetadata: {
+                    'password': "pupladderize"
+                }
+            };
+    
+            // Upload the file with the password in metadata
+            const snapshot = await uploadBytes(storageRef, selectedFile, metadata);
             const downloadURL = await getDownloadURL(snapshot.ref);
-
+    
             return { downloadURL };
         } catch (error) {
             console.error("Error uploading file:", error);

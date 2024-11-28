@@ -56,14 +56,14 @@ export function getRouter(): Router {
     router.post(
         '/',
         async (
-            req: Request<any, any, { riceRecipientId: string; riceBatchId: string; orderDate: Date; dropOffLocation: string; riceQuantityBags: number; description: string; totalCost: number; preferredDeliveryDate: Date; status: string; isAccepted: boolean; remarks: string }>,
+            req: Request<any, any, { riceRecipientId: string; pileId: string; orderDate: Date; dropOffLocation: string; riceQuantityBags: number; description: string; totalCost: number; preferredDeliveryDate: Date; status: string; isAccepted: boolean; remarks: string }>,
             res
         ) => {
-            const { riceRecipientId, riceBatchId, orderDate, dropOffLocation, riceQuantityBags, description, totalCost, preferredDeliveryDate, status, isAccepted, remarks } = req.body;
+            const { riceRecipientId, pileId, orderDate, dropOffLocation, riceQuantityBags, description, totalCost, preferredDeliveryDate, status, isAccepted, remarks } = req.body;
 
             const riceOrder = await createRiceOrder({
                 riceRecipientId,
-                riceBatchId,
+                pileId,
                 orderDate,
                 dropOffLocation,
                 riceQuantityBags,
@@ -85,15 +85,15 @@ export function getRouter(): Router {
 }
 
 async function updateHandler(
-    req: Request<any, any, { id: string; riceRecipientId?: string; riceBatchId?: string; orderDate?: Date; dropOffLocation?: string; riceQuantityBags?: number; description?: string; totalCost?: number; preferredDeliveryDate?: Date; status?: string; isAccepted?: boolean; remarks?: string }>,
+    req: Request<any, any, { id: string; riceRecipientId?: string; pileId?: string; orderDate?: Date; dropOffLocation?: string; riceQuantityBags?: number; description?: string; totalCost?: number; preferredDeliveryDate?: Date; status?: string; isAccepted?: boolean; remarks?: string }>,
     res: Response
 ): Promise<void> {
-    const { id, riceRecipientId, riceBatchId, orderDate, dropOffLocation, riceQuantityBags, description, totalCost, preferredDeliveryDate, status, isAccepted, remarks } = req.body;
+    const { id, riceRecipientId, pileId, orderDate, dropOffLocation, riceQuantityBags, description, totalCost, preferredDeliveryDate, status, isAccepted, remarks } = req.body;
 
     const riceOrder = await updateRiceOrder({
         id,
         riceRecipientId,
-        riceBatchId,
+        pileId,
         orderDate,
         dropOffLocation,
         riceQuantityBags,

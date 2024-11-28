@@ -24,7 +24,7 @@ export class RiceBatchMillingBatch extends BaseEntity {
     riceBatch: RiceBatch;
 
     @Column()
-    riceBatchId: string;
+    pileId: string;
 
     @ManyToOne(() => MillingBatch, millingBatch => millingBatch.riceBatchMillingBatches, {
         onDelete: 'CASCADE'
@@ -55,7 +55,7 @@ export class RiceBatchMillingBatch extends BaseEntity {
 }
 
 export interface RiceBatchMillingBatchCreate {
-    riceBatchId: string;
+    pileId: string;
     millingBatchId: string;
     riceQuantityBags: number;
     riceGrossWeight: number;
@@ -64,7 +64,7 @@ export interface RiceBatchMillingBatchCreate {
 
 export interface RiceBatchMillingBatchUpdate {
     id: string;
-    riceBatchId?: string;
+    pileId?: string;
     millingBatchId?: string;
     riceQuantityBags?: number;
     riceGrossWeight?: number;
@@ -94,11 +94,11 @@ export async function getRiceBatchMillingBatch(
 }
 
 export async function getRiceBatchMillingBatchesByRiceBatch(
-    riceBatchId: string,
+    pileId: string,
     relations: boolean = true
 ): Promise<RiceBatchMillingBatch[]> {
     return await RiceBatchMillingBatch.find({
-        where: { riceBatchId },
+        where: { pileId },
         relations: relations ? ['riceBatch', 'millingBatch'] : []
     });
 }
@@ -117,7 +117,7 @@ export async function createRiceBatchMillingBatch(
     data: RiceBatchMillingBatchCreate
 ): Promise<RiceBatchMillingBatch> {
     const junction = new RiceBatchMillingBatch();
-    junction.riceBatchId = data.riceBatchId;
+    junction.pileId = data.pileId;
     junction.millingBatchId = data.millingBatchId;
     junction.riceQuantityBags = data.riceQuantityBags;
     junction.riceGrossWeight = data.riceGrossWeight;
@@ -131,7 +131,7 @@ export async function updateRiceBatchMillingBatch(
 ): Promise<RiceBatchMillingBatch> {
     const updateData: Partial<RiceBatchMillingBatch> = {};
     
-    if (data.riceBatchId !== undefined) updateData.riceBatchId = data.riceBatchId;
+    if (data.pileId !== undefined) updateData.pileId = data.pileId;
     if (data.millingBatchId !== undefined) updateData.millingBatchId = data.millingBatchId;
     if (data.riceQuantityBags !== undefined) updateData.riceQuantityBags = data.riceQuantityBags;
     if (data.riceGrossWeight !== undefined) updateData.riceGrossWeight = data.riceGrossWeight;

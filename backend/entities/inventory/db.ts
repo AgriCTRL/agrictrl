@@ -204,7 +204,7 @@ export async function getEnhancedInventory(
                         const riceBatches = await Promise.all(
                             junctions.map(junction =>
                                 RiceBatch.findOne({
-                                    where: { id: junction.riceBatchId }
+                                    where: { id: junction.pileId }
                                 })
                             )
                         );
@@ -214,7 +214,7 @@ export async function getEnhancedInventory(
                                 .filter((batch): batch is RiceBatch => batch !== null)
                                 .map(riceBatch =>
                                     RiceOrder.find({
-                                        where: { riceBatchId: riceBatch.id }
+                                        where: { pileId: riceBatch.id }
                                     })
                                 )
                         );

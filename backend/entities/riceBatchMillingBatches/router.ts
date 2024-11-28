@@ -39,13 +39,13 @@ export function getRouter(): Router {
         res.json(junction);
     });
 
-    router.get('/byRiceBatch/:riceBatchId', async (
-        req: Request<{ riceBatchId: string }, any, any, { relations?: string }>,
+    router.get('/byRiceBatch/:pileId', async (
+        req: Request<{ pileId: string }, any, any, { relations?: string }>,
         res
     ) => {
-        const { riceBatchId } = req.params;
+        const { pileId } = req.params;
         const relations = req.query.relations !== 'false';
-        const junctions = await getRiceBatchMillingBatchesByRiceBatch(String(riceBatchId), relations);
+        const junctions = await getRiceBatchMillingBatchesByRiceBatch(String(pileId), relations);
         res.json(junctions);
     });
 
