@@ -12,6 +12,8 @@ import { EnhancedInventoryItem, InventoryItem } from './types';
 import { RiceBatchMillingBatch } from '../riceBatchMillingBatches/db';
 import { RiceBatch } from '../ricebatches/db';
 import { RiceOrder } from '../riceorders/db';
+import { User } from '../users/db';
+import { Dryer } from '../dryers/db';
 
 export async function getInventory(
     filters: InventoryFilters
@@ -99,11 +101,14 @@ export async function getInventory(
                     processingBatch.millingBatch = millingBatch;
                 }
 
-                return {
+                const inventoryItem = {
                     transaction,
                     palayBatch: palayBatch || null,
                     processingBatch,
                 };
+
+                await populateInventoryDetails(inventoryItem);
+                return inventoryItem;
             })
         );
 
@@ -162,6 +167,11 @@ export async function getEnhancedInventory(
                         { status: filters.transactionStatus }
                     )
                     .getMany();
+
+                // Populate location details for each transaction
+                await Promise.all(transactions.map(transaction => 
+                    populateTransactionDetails(transaction)
+                ));
 
                 const processingBatch: ProcessingBatch = {};
 
@@ -340,11 +350,14 @@ export async function getInventoryByPileId(
                     processingBatch.millingBatch = millingBatch;
                 }
 
-                return {
+                const inventoryItem = {
                     transaction,
                     palayBatch: palayBatch || null,
                     processingBatch,
                 };
+
+                await populateInventoryDetails(inventoryItem);
+                return inventoryItem;
             })
         );
 
@@ -374,5 +387,84 @@ export async function getInventoryByPileId(
     } catch (error) {
         console.error('Error in getInventoryByPileId:', error);
         throw error;
+    }
+}
+
+async function populateInventoryDetails(inventoryItem: InventoryItem | EnhancedInventoryItem): Promise<void> {
+    // Populate location details from transaction if available
+    if ('transaction' in inventoryItem) {
+        const transaction = inventoryItem.transaction;
+        switch (transaction.toLocationType.toLowerCase()) {
+            case 'warehouse': {
+                const warehouse = await Warehouse.findOne({
+                    where: { id: transaction.toLocationId }
+                });
+                if (warehouse) {
+                    inventoryItem.locationName = warehouse.facilityName;
+                }
+                break;
+            }
+            case 'miller': {
+                const miller = await Miller.findOne({
+                    where: { id: transaction.toLocationId }
+                });
+                if (miller) {
+                    inventoryItem.locationName = miller.millerName;
+                }
+                break;
+            }
+            case 'distribution': {
+                const user = await User.findOne({
+                    where: { id: transaction.toLocationId }
+                });
+                if (user) {
+                    inventoryItem.userName = `${user.firstName || ''} ${user.lastName || ''}`.trim();
+                    inventoryItem.organization = user.organizationName || '';
+                }
+                break;
+            }
+        }
+    }
+}
+
+async function populateTransactionDetails(transaction: Transaction): Promise<void> {
+    switch (transaction.toLocationType.toLowerCase()) {
+        case 'warehouse': {
+            const warehouse = await Warehouse.findOne({
+                where: { id: transaction.toLocationId }
+            });
+            if (warehouse) {
+                transaction.locationName = warehouse.facilityName;
+            }
+            break;
+        }
+        case 'dryer': {
+            const dryer = await Dryer.findOne({
+                where: { id: transaction.toLocationId }
+            });
+            if (dryer) {
+                transaction.locationName = dryer.dryerName;
+            }
+            break;
+        }
+        case 'miller': {
+            const miller = await Miller.findOne({
+                where: { id: transaction.toLocationId }
+            });
+            if (miller) {
+                transaction.locationName = miller.millerName;
+            }
+            break;
+        }
+        case 'distribution': {
+            const user = await User.findOne({
+                where: { id: transaction.toLocationId }
+            });
+            if (user) {
+                transaction.userName = `${user.firstName || ''} ${user.lastName || ''}`.trim();
+                transaction.organization = user.organizationName || '';
+            }
+            break;
+        }
     }
 }
