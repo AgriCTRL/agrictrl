@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import { Server as NodeServer } from 'http';
 
 import { getRouter as getRouterUsers } from '../entities/users/router';
 import { getRouter as getRouterQualitySpecs } from '../entities/qualityspecs/router';
@@ -26,7 +27,7 @@ import { getRouter as getTransporters } from '../entities/transporters/router';
 
 // TODO make this function's return type explicit https://github.com/demergent-labs/azle/issues/1860
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-export function initServer() {
+export function initServer(): NodeServer {
     let app = express();
 
     app.use(cors());
