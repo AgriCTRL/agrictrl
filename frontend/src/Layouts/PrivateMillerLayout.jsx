@@ -11,8 +11,9 @@ function PrivateMillerLayout({ children, activePage, user }) {
         { text: 'Home', link: '/miller' },
         { text: 'Milling Transactions', link: '/miller/transactions' },
         { text: 'Manage Miller', link: '/miller/facility' },
-        { text: 'History', link: '/miller/history' },
         { text: 'Transporter', link: '/miller/transporter' },
+        { text: 'History', link: '/miller/history' },
+        
     ];
 
     const toggleRightSidebar = () => {

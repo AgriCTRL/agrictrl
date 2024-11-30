@@ -32,11 +32,11 @@ function TransporterRegister({ visible, onHide, onTransporterRegistered }) {
     ];
 
     const resetForm = () => {
-        setTransporterType('');
+        setTransporterType('Private');
         setTransporterName('');
         setPlateNumber('');
         setDescription('');
-        setStatus('');
+        setStatus('active');
         setUserId(user.id);
     };
 

@@ -9,7 +9,7 @@ import { Calendar } from "primereact/calendar";
 function PalayDetails({ visible, onHide, palay, onUpdate }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedPalay, setEditedPalay] = useState({});
-  const [canEdit, setCanEdit] = useState(true);
+  const [canEdit, setCanEdit] = useState(false);
   const [transactions, setTransactions] = useState([]);
 
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -29,15 +29,18 @@ function PalayDetails({ visible, onHide, palay, onUpdate }) {
         throw new Error("Failed to fetch transactions");
       }
       const data = await res.json();
-      setTransactions(data);
-
+      const transactions = data.items[0].transactions;
+      setTransactions(transactions);
+  
       // Check edit conditions
-      if (data.length > 0) {
-        const firstTransaction = data[0];
-        setCanEdit(
-          !(firstTransaction.status === "Received" || data.length > 1)
-        );
-      }
+      // Disable editing if:
+      // 1. There are 2 or more transactions
+      // 2. The first transaction has status "Received"
+      const isEditingAllowed = 
+        transactions.length === 1 && 
+        transactions[0].status !== "Received";
+  
+      setCanEdit(isEditingAllowed);
     } catch (error) {
       console.error("Error fetching transactions:", error);
     }
@@ -101,10 +104,10 @@ function PalayDetails({ visible, onHide, palay, onUpdate }) {
   const dialogHeader = (
     <div className="flex justify-between items-center">
       <span>Batch #{palay.wsr} Details</span>
-      {!isEditing && canEdit && (
+      {canEdit && (
         <Button
           icon="pi pi-pencil"
-          className="p-button-text p-button-secondary"
+          className="p-button-text p-button-secondary ml-5 text-primary ring-1 ring-primary mr-5"
           onClick={handleEdit}
           tooltip="Edit Batch Details"
         />
@@ -119,10 +122,15 @@ function PalayDetails({ visible, onHide, palay, onUpdate }) {
     </div>
   );
 
+  const handleHide = () => {
+    onHide();
+    setIsEditing(false);
+  }
+
   return (
     <Dialog
       visible={visible}
-      onHide={onHide}
+      onHide={handleHide}
       header={dialogHeader}
       className="w-full max-w-4xl"
       footer={
@@ -139,12 +147,6 @@ function PalayDetails({ visible, onHide, palay, onUpdate }) {
         ) : null
       }
     >
-      {!canEdit && (
-        <div className="p-2 bg-yellow-100 text-yellow-800 mb-4">
-          Editing is disabled for this batch due to existing transactions.
-        </div>
-      )}
-
       <div className="grid grid-cols-3 gap-4">
         {/* Basic Information */}
         <div className="col-span-3 border-b pb-2">
@@ -381,11 +383,11 @@ function PalayDetails({ visible, onHide, palay, onUpdate }) {
         )}
 
         {/* Source Information */}
-        <div className="col-span-3 border-b pb-2 mt-4">
+        {/* <div className="col-span-3 border-b pb-2 mt-4">
           <h3 className="font-semibold">Source Information</h3>
-        </div>
+        </div> */}
 
-        {renderField(
+        {/* {renderField(
           "Farmer Name",
           palay.palaySupplier.farmerName,
           <InputText
@@ -396,9 +398,9 @@ function PalayDetails({ visible, onHide, palay, onUpdate }) {
             disabled={!canEdit}
             className="w-full ring-0"
           />
-        )}
+        )} */}
 
-        {renderField(
+        {/* {renderField(
           "Contact Number",
           palay.palaySupplier.contactNumber,
           <InputText
@@ -409,9 +411,9 @@ function PalayDetails({ visible, onHide, palay, onUpdate }) {
             disabled={!canEdit}
             className="w-full ring-0"
           />
-        )}
+        )} */}
 
-        {renderField(
+        {/* {renderField(
           "Email",
           palay.palaySupplier.email,
           <InputText
@@ -422,9 +424,9 @@ function PalayDetails({ visible, onHide, palay, onUpdate }) {
             disabled={!canEdit}
             className="w-full ring-0"
           />
-        )}
+        )} */}
 
-        {/* Farm Information */}
+        {/* Farm Information
         <div className="col-span-3 border-b pb-2 mt-4">
           <h3 className="font-semibold">Farm Information</h3>
         </div>
@@ -450,7 +452,7 @@ function PalayDetails({ visible, onHide, palay, onUpdate }) {
               {palay.farm.province}, {palay.farm.region}
             </p>
           </div>
-        )}
+        )} */}
       </div>
     </Dialog>
   );

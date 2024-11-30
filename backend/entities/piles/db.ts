@@ -262,11 +262,14 @@ async function updatePileAge(pileId: string): Promise<number> {
   const age = getMonthsDifference(oldestDate, currentDate);
 
   // Update pile age
-  await Pile.update(pileId, { age });
+  pile.age = age;
+  await pile.save();
 
-  // Update ages of all PalayBatches in the pile
-  await updatePalayBatchAges(pile.palayBatches);
+  // Update ages for all PalayBatches in this pile
+  for (const batch of pile.palayBatches) {
+    batch.age = age;
+    await batch.save();
+  }
 
   return age;
 }
-

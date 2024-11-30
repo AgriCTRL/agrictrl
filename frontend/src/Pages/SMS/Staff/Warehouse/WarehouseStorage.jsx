@@ -191,6 +191,12 @@ function WarehouseStorage() {
   };
 
   const itemTemplate = (item) => {
+    const bgColorClass = 
+      (item.type === "Palay" && item.age >= 3) || 
+      (item.type === "Rice" && item.age >= 6) 
+        ? "bg-red-200 hover:bg-red-300" 
+        : "bg-gray-100 hover:bg-gray-200";
+  
     return (
       <div
         className="col-12"
@@ -200,7 +206,7 @@ function WarehouseStorage() {
           setShowPalayBatchesDialog(true);
         }}
       >
-        <div className="flex flex-row items-center p-4 gap-4 cursor-pointer bg-gray-100 hover:bg-gray-200 rounded-lg mb-4">
+        <div className={`flex flex-row items-center p-4 gap-4 cursor-pointer ${bgColorClass} rounded-lg mb-4`}>
           <div className="flex-none">
             <Wheat size={40} className="text-gray-400" />
           </div>
@@ -212,7 +218,7 @@ function WarehouseStorage() {
               Current Quantity: {item.currentQuantity} / {item.maxCapacity} bags
             </div>
             <div className="flex items-center">
-              <span className="py-1 text-sm">{item.status}</span>
+              <span className="py-1 text-sm">{item.status} | age: {item.age}</span>
             </div>
           </div>
           <div className="flex-none flex flex-col items-center gap-2">

@@ -13,7 +13,7 @@ function TransporterRegister({ visible, onHide, onTransporterRegistered }) {
     const toast = React.useRef(null);
     const { user } = useAuth();
 
-    const [transporterType, setTransporterType] = useState('Private');
+    const [transporterType, setTransporterType] = useState('In House');
     const [transporterName, setTransporterName] = useState('');
     const [plateNumber, setPlateNumber] = useState('');
     const [description, setDescription] = useState('');
@@ -32,11 +32,11 @@ function TransporterRegister({ visible, onHide, onTransporterRegistered }) {
     ];
 
     const resetForm = () => {
-        setTransporterType('');
+        setTransporterType('In House');
         setTransporterName('');
         setPlateNumber('');
         setDescription('');
-        setStatus('');
+        setStatus('active');
         setUserId(user.id);
     };
 
