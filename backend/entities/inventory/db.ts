@@ -155,6 +155,11 @@ export async function getEnhancedInventory(
                 .where('palayBatch.status = :status', { status: filters.palayStatus });
         }
 
+        if (filters.palaybatchId) {
+            palayBatchQuery = palayBatchQuery
+                .andWhere('palayBatch.id = :palaybatchId', { palaybatchId: filters.palaybatchId });
+        }
+
         const palayBatches = await palayBatchQuery.getMany();
 
         const inventoryItems = await Promise.all(
@@ -204,7 +209,7 @@ export async function getEnhancedInventory(
                         const riceBatches = await Promise.all(
                             junctions.map(junction =>
                                 RiceBatch.findOne({
-                                    where: { id: junction.riceBatchId }
+                                    where: { id: junction.pileId }
                                 })
                             )
                         );
@@ -214,7 +219,7 @@ export async function getEnhancedInventory(
                                 .filter((batch): batch is RiceBatch => batch !== null)
                                 .map(riceBatch =>
                                     RiceOrder.find({
-                                        where: { riceBatchId: riceBatch.id }
+                                        where: { pileId: riceBatch.id }
                                     })
                                 )
                         );

@@ -47,7 +47,6 @@ function WarehouseRequest() {
   const [combinedData, setCombinedData] = useState([]);
   const [warehouseData, setWarehouseData] = useState([]);
   const [totalRecords, setTotalRecords] = useState(0);
-  
 
   useEffect(() => {
     const newFilters = {
@@ -73,13 +72,12 @@ function WarehouseRequest() {
     setGlobalFilterValue(e.target.value);
   };
 
+  // In WarehouseRequest.js
   const fetchInventory = async (offset, limit) => {
     setIsLoading(true);
     try {
-      // Fetch the actual data
       let inventoryUrl = `${apiUrl}/inventory?toLocationType=Warehouse&status=Pending&offset=${offset}&limit=${limit}&userId=${user.id}`;
 
-      // Fetch all required data
       const [inventoryRes, dryersRes, millersRes] = await Promise.all([
         fetch(inventoryUrl),
         fetch(`${apiUrl}/dryers`),
@@ -116,6 +114,7 @@ function WarehouseRequest() {
         }
 
         return {
+          // Original transformations
           id: item.palayBatch.id,
           wsr: item.palayBatch.wsr,
           quantityBags: (() => {
@@ -172,6 +171,11 @@ function WarehouseRequest() {
                 return null;
             }
           })(),
+
+          // New fields to expose full data
+          fullPalayBatchData: item.palayBatch,
+          fullTransactionData: item.transaction,
+          fullProcessingBatchData: item.processingBatch,
         };
       });
 
@@ -217,7 +221,7 @@ function WarehouseRequest() {
   };
 
   const handleItemClick = (item) => {
-    console.log(item)
+    console.log(item);
     setSelectedBatchDetails(item);
     setShowDetailsDialog(true);
   };
@@ -234,8 +238,8 @@ function WarehouseRequest() {
   };
 
   const statusBodyTemplate = (rowData) => {
-    const status = rowData.transactionStatus
-      
+    const status = rowData.transactionStatus;
+
     return (
       <Tag
         value={status}

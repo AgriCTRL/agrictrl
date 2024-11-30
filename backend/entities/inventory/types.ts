@@ -46,6 +46,7 @@ export interface PaginatedResponse<T> {
 }
 
 export interface InventoryFilters {
+    palaybatchId?: string;
     toLocationType?: string;
     transactionStatus?: string;
     palayStatus?: string | string[];

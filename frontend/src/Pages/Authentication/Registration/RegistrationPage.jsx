@@ -54,17 +54,29 @@ const RegistrationPageContent = () => {
 
     const handleFileUpload = async () => {
         if (!selectedFile) return null;
-
+    
         const fileName = `${uuidv4()}_${selectedFile.name}`;
         const storageRef = ref(storage, `validIds/${fileName}`);
-
+    
         try {
-            const snapshot = await uploadBytes(storageRef, selectedFile);
+            const metadata = {
+                customMetadata: {
+                    'password': 'pupladderize'
+                }
+            };
+    
+            // Pass metadata object correctly
+            const snapshot = await uploadBytes(storageRef, selectedFile, {
+                customMetadata: metadata.customMetadata
+            });
+    
             const downloadURL = await getDownloadURL(snapshot.ref);
-
             return { downloadURL };
         } catch (error) {
-            console.error("Error uploading file:", error);
+            console.error("Detailed upload error:", error);
+            if (error.code === 'storage/unauthorized') {
+                console.error("Permission denied. Check your Firebase Storage rules and authentication.");
+            }
             return null;
         }
     };

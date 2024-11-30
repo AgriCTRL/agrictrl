@@ -139,7 +139,7 @@ const Processing = () => {
   const fetchData = async () => {
     try {
       setIsLoading(true);
-
+  
       // Determine processing type and location based on viewMode
       const processType = viewMode === "drying" ? "dryer" : "miller";
       const locationType = viewMode === "drying" ? "Dryer" : "Miller";
@@ -161,87 +161,70 @@ const Processing = () => {
           processingStatus = "Done";
           break;
       }
-
-      // First fetch totals for each category
-      const palayStatusParams = new URLSearchParams({
-        toLocationType: locationType,
-        status: transactionStatus,
-        millerType: "In House",
-      });
-
-      if (processingStatus) {
-        palayStatusParams.append("processingStatus", processingStatus);
-      }
-
-      if (palayStatus.length > 0) {
-        palayStatus.forEach(status => palayStatusParams.append("palayStatus", status));
-      }
-
-      const [palayRes, facilitiesRes, warehousesRes] = await Promise.all([
-        fetch(`${apiUrl}/inventory?${palayStatusParams}`),
-        fetch(`${apiUrl}/${processType}s`),
-        fetch(`${apiUrl}/warehouses`)
-      ]);
-
-      if (!palayRes.ok || !facilitiesRes.ok || !warehousesRes.ok) {
-        throw new Error("Failed to fetch data");
-      }
-
-      const [palayData, facilities, warehouses] = await Promise.all([
-        palayRes.json(),
-        facilitiesRes.json(),
-        warehousesRes.json()
-      ]);
-
-      // Update total records for pagination
-      setTotalRecords(palayData.total);
-
-      // Update facility states based on viewMode
-      if (viewMode === "drying") {
-        setDryerData(facilities);
-      } else {
-        setMillerData(facilities);
-      }
-
-      // Then fetch paginated data with all filters
-      const paginatedParams = new URLSearchParams({
+  
+      // Prepare query parameters
+      const queryParams = new URLSearchParams({
         toLocationType: locationType,
         status: transactionStatus,
         offset: first.toString(),
         limit: rows.toString(),
         millerType: "In House",
       });
-
+  
+      // Add processing status if applicable
       if (processingStatus) {
-        paginatedParams.append("processingStatus", processingStatus);
+        queryParams.append("processingStatus", processingStatus);
       }
-
+  
+      // Add palay status if applicable
       if (palayStatus.length > 0) {
-        palayStatus.forEach(status => paginatedParams.append("palayStatus", status));
+        palayStatus.forEach(status => queryParams.append("palayStatus", status));
       }
-
+  
+      // Add global filter if applicable
       if (globalFilterValue) {
-        paginatedParams.append("searchTerm", globalFilterValue);
+        queryParams.append("searchTerm", globalFilterValue);
       }
-
-      const paginatedRes = await fetch(`${apiUrl}/inventory?${paginatedParams}`);
-      
-      if (!paginatedRes.ok) {
-        throw new Error("Failed to fetch paginated data");
+  
+      // Fetch paginated inventory data and warehouses simultaneously
+      const [inventoryRes, warehousesRes] = await Promise.all([
+        fetch(`${apiUrl}/inventory?${queryParams}`),
+        fetch(`${apiUrl}/warehouses`)
+      ]);
+  
+      if (!inventoryRes.ok || !warehousesRes.ok) {
+        throw new Error("Failed to fetch data");
       }
-
-      const paginatedData = await paginatedRes.json();
-
+  
+      const [inventoryData, warehouses] = await Promise.all([
+        inventoryRes.json(),
+        warehousesRes.json()
+      ]);
+  
+      // Update total records for pagination
+      setTotalRecords(inventoryData.total);
+  
+      // Fetch facilities based on view mode
+      const facilitiesRes = await fetch(`${apiUrl}/${processType}s`);
+      const facilities = await facilitiesRes.json();
+  
+      // Update facility states based on viewMode
+      if (viewMode === "drying") {
+        setDryerData(facilities);
+      } else {
+        setMillerData(facilities);
+      }
+  
       // Transform the paginated data
-      const transformedData = paginatedData.items.map((item) => {
+      const transformedData = inventoryData.items.map((item) => {
         const { transaction, palayBatch, processingBatch } = item;
         const millingBatch = processingBatch?.millingBatch || {};
         const dryingBatch = processingBatch?.dryingBatch || {};
         const qualitySpec = palayBatch?.qualitySpec || {};
-
+  
         const fromWarehouse = warehouses.find(w => w.id === transaction?.fromLocationId);
         const toFacility = facilities.find(f => f.id === transaction?.toLocationId);
-
+  
         return {
           palayBatchId: palayBatch?.id || null,
           wsr: palayBatch?.wsr || null,
@@ -283,9 +266,9 @@ const Processing = () => {
                           processingBatch?.millingBatch?.status || null,
         };
       });
-
+  
       setCombinedData(transformedData);
-
+  
     } catch (error) {
       console.error("Error fetching data:", error);
       toast.current.show({

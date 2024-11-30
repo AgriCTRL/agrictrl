@@ -1,25 +1,26 @@
 import React, { useState } from 'react';
 
-import { Card } from 'primereact/card';
 import { SelectButton } from 'primereact/selectbutton';
 
 import {
     ThermometerSun,
     Warehouse,
     Factory,
+    Truck,
 } from "lucide-react";
 
 import AdminLayout from '../../../../Layouts/AdminLayout'
 import WarehouseComponent from './Warehouse/WarehouseFacility';
 import DryerComponent from './Dryer/DryerFacility';
 import MillerComponent from './Miller/MillerFacility';
-import { Button } from 'primereact/button';
+import TransporterComponent from './Transporter/Transporter'
 
 function Facilities() {
     const categories = [
         { label: 'Warehouses', value: 'warehouse', icon: <Warehouse size={20} /> },
         { label: 'Dryers', value: 'dryer', icon: <ThermometerSun size={20} /> },
         { label: 'Millers', value: 'miller', icon: <Factory size={20} /> },
+        { label: 'Transporter', value: 'transporter', icon: <Truck size={20} /> },
     ]
 
     const [selectedCard, setSelectedCard] = useState('warehouse');
@@ -32,6 +33,8 @@ function Facilities() {
                 return <DryerComponent />;
             case 'miller':
                 return <MillerComponent />;
+            case 'transporter':
+                return <TransporterComponent />;
             default:
                 return null;
         }
@@ -48,7 +51,7 @@ function Facilities() {
                     options={categories}
                     className="admin-select-button w-full bg-white 
                         grid grid-flow-col-1
-                        grid-cols-3
+                        grid-cols-4
                     p-2 rounded-lg items-center justify-between gap-4"
                     optionValue="value" 
                     itemTemplate={(item) => (

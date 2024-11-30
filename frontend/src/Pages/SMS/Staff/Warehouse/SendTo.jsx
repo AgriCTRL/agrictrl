@@ -24,6 +24,7 @@ const initialNewTransactionData = {
   toLocationName: "",
   status: "Pending",
   remarks: "",
+  transporterId: "",
 };
 
 const SendTo = ({
@@ -42,6 +43,7 @@ const SendTo = ({
   const [errors, setErrors] = useState({});
   const [inventoryItems, setInventoryItems] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [transporters, setTransporters] = useState([]);
   const [newTransactionData, setNewTransactionData] = useState(
     initialNewTransactionData
   );
@@ -51,6 +53,12 @@ const SendTo = ({
       fetchInventoryItems();
     }
   }, [visible, selectedPile]);
+
+  useEffect(() => {
+    if (newTransactionData.toLocationId) {
+      fetchTransporters();
+    }
+  }, [newTransactionData.toLocationId]);
 
   const fetchInventoryItems = async () => {
     try {
@@ -91,6 +99,50 @@ const SendTo = ({
         severity: "error",
         summary: "Error",
         detail: "Failed to fetch inventory items",
+        life: 3000,
+      });
+    }
+  };
+
+  const fetchTransporters = async () => {
+    try {
+      let transporterUrl = `${apiUrl}/transporters?status=active`;
+
+      // Determine transporter type based on facility
+      if (selectedItem?.palayStatus === "To be Mill") {
+        const selectedMiller = millerData.find(
+          (miller) => miller.id === newTransactionData.toLocationId
+        );
+
+        if (selectedMiller) {
+          const transporterType =
+            selectedMiller.type === "Private" ? "Private" : "In House";
+
+          transporterUrl += `&transporterType=${transporterType}`;
+
+          if (transporterType === "Private" && selectedMiller.userId) {
+            transporterUrl += `&userId=${selectedMiller.userId}`;
+          }
+        }
+      }
+
+      const transporterRes = await fetch(transporterUrl);
+      const transporterData = await transporterRes.json();
+
+      const transporterOptions = transporterData.map((transporter) => ({
+        label: `${transporter.transporterName} | ${transporter.plateNumber} | ${transporter.description}`,
+        value: transporter.id,
+        name: transporter.transporterName,
+        description: transporter.description,
+      }));
+
+      setTransporters(transporterOptions);
+    } catch (error) {
+      console.error("Error fetching transporters:", error);
+      toast.current.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Failed to fetch transporters",
         life: 3000,
       });
     }
@@ -157,12 +209,12 @@ const SendTo = ({
       });
     }
 
-    if (!newTransactionData.transporterName.trim()) {
-      newErrors.transporterName = "Transporter name is required";
+    if (!newTransactionData.transporterId) {
+      newErrors.transporterName = "Please select a transporter";
       toast.current.show({
         severity: "error",
         summary: "Error",
-        detail: "Transporter name is required",
+        detail: "Please select a transporter",
         life: 3000,
       });
     }
@@ -212,6 +264,7 @@ const SendTo = ({
         },
         body: JSON.stringify({
           ...newTransactionData,
+          transporterId: newTransactionData.transporterId,
           item: selectedItem.item,
           itemId: selectedItem.id,
           senderId: user.id,
@@ -477,20 +530,25 @@ const SendTo = ({
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Transported by
                 </label>
-                <InputText
-                  value={newTransactionData.transporterName}
+                <Dropdown
+                  value={newTransactionData.transporterId}
+                  options={transporters}
                   onChange={(e) => {
+                    const selectedTransporter = transporters.find(
+                      (transporter) => transporter.value === e.value
+                    );
                     setNewTransactionData((prev) => ({
                       ...prev,
-                      transporterName: e.target.value,
+                      transporterId: e.value,
+                      transporterName: selectedTransporter.name,
+                      transporterDesc: selectedTransporter.description,
                     }));
                     setErrors((prev) => ({ ...prev, transporterName: "" }));
                   }}
-                  className={`w-full ring-0 ${
+                  placeholder="Select a transporter"
+                  className={`w-full ${
                     errors.transporterName ? "p-invalid" : ""
                   }`}
-                  keyfilter={/^[a-zA-Z\s]/}
-                  maxLength={50}
                 />
                 {errors.transporterName && (
                   <p className="text-red-500 text-xs mt-1">
@@ -499,7 +557,7 @@ const SendTo = ({
                 )}
               </div>
 
-              <div className="w-full mb-4">
+              {/* <div className="w-full mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Transport Description
                 </label>
@@ -522,7 +580,7 @@ const SendTo = ({
                     {errors.transporterDesc}
                   </p>
                 )}
-              </div>
+              </div> */}
 
               <div className="w-full mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">

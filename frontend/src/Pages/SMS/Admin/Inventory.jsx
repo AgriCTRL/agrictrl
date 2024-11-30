@@ -223,6 +223,23 @@ function Inventory() {
                             <p>₱{selectedPalay.estimatedCapital}</p>
                         </div>
 
+                        {/* Quality Specifications */}
+                        <div className="col-span-3 border-b pb-2 mt-4">
+                            <h3 className="font-semibold">Quality Specifications</h3>
+                        </div>
+                        <div>
+                            <p className="text-gray-600">Moisture Content</p>
+                            <p>{selectedPalay.qualitySpec.moistureContent}%</p>
+                        </div>
+                        <div>
+                            <p className="text-gray-600">Purity</p>
+                            <p>{selectedPalay.qualitySpec.purity}%</p>
+                        </div>
+                        <div>
+                            <p className="text-gray-600">Damage</p>
+                            <p>{selectedPalay.qualitySpec.damaged}%</p>
+                        </div>
+
                         {/* Dates Information */}
                         <div className="col-span-3 border-b pb-2 mt-4">
                             <h3 className="font-semibold">Important Dates</h3>
@@ -240,22 +257,7 @@ function Inventory() {
                             <p>{formatDate(selectedPalay.harvestedDate)}</p>
                         </div>
 
-                        {/* Quality Specifications */}
-                        <div className="col-span-3 border-b pb-2 mt-4">
-                            <h3 className="font-semibold">Quality Specifications</h3>
-                        </div>
-                        <div>
-                            <p className="text-gray-600">Moisture Content</p>
-                            <p>{selectedPalay.qualitySpec.moistureContent}%</p>
-                        </div>
-                        <div>
-                            <p className="text-gray-600">Purity</p>
-                            <p>{selectedPalay.qualitySpec.purity}%</p>
-                        </div>
-                        <div>
-                            <p className="text-gray-600">Damage</p>
-                            <p>{selectedPalay.qualitySpec.damaged}%</p>
-                        </div>
+                        
 
                         {/* Buying Station Information */}
                         <div className="col-span-3 border-b pb-2 mt-4">

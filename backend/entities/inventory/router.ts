@@ -65,9 +65,11 @@ export function getRouter(): express.Router {
                     : []
             ).filter((type): type is ProcessingType => 
                 type === 'drying' || type === 'milling'
+                
             );
     
             const filters: InventoryFilters = {
+                palaybatchId: req.query.palaybatchId as string,
                 palayStatus: req.query.palayBatchStatus as string,
                 transactionStatus: req.query.transactionStatus as string,
                 processingStatus: req.query.processingStatus as string,

@@ -71,7 +71,7 @@ const initialTransactionData = {
   senderId: "",
   fromLocationType: "Procurement",
   fromLocationId: 0,
-  transporterName: "",
+  transporterName: "asd",
   transporterDesc: "asd",
   receiverId: 0,
   receiveDateTime: "0",
@@ -80,6 +80,7 @@ const initialTransactionData = {
   status: "Pending",
   remarks: "",
   palayBatch: "",
+  transporterId: ""
 };
 
 function PalayRegister({ visible, onHide, onPalayRegistered, currentWSR }) {
@@ -153,6 +154,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered, currentWSR }) {
     status: "Pending",
     remarks: "",
     palayBatch: "",
+    transporterId: ""
   });
 
   const [activeStep, setActiveStep] = useState(0);

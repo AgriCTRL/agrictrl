@@ -178,10 +178,15 @@ function BuyPalay() {
         setShowRegisterPalay(true);
     };
 
-    const handlePalayRegistered = (newPalay) => {
-        fetchPalayData();
-        setShowRegisterPalay(false);
-    };
+  const handlePalayRegistered = () => {
+    fetchPalayData();
+    setShowRegisterPalay(false);
+  };
+
+  const handlePalayUpdate = () => {
+    fetchPalayData();
+    setShowDetails(false);
+  };
 
     const handleItemClick = (item) => {
         console.log(inventoryData);
@@ -357,13 +362,14 @@ function BuyPalay() {
                 currentWSR={currentWSR}
             />
 
-            <PalayDetails
-                visible={showDetails}
-                onHide={() => setShowDetails(false)}
-                palay={selectedPalay}
-            />
-        </StaffLayout>
-    );
+      <PalayDetails
+        visible={showDetails}
+        onHide={() => setShowDetails(false)}
+        palay={selectedPalay}
+        onUpdate={handlePalayUpdate}
+      />
+    </StaffLayout>
+  );
 }
 
 export default BuyPalay;

@@ -72,8 +72,6 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
             status
         };
 
-        console.log(updatedMiller);
-
         try {
             const res = await fetch(`${apiUrl}/millers/update`, {
                 method: 'POST',
