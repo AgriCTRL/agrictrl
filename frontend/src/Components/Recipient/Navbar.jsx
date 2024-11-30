@@ -15,7 +15,7 @@ const Navbar = ({ navItems, user, activePage, userFullName, profileClick, naviga
     const op = useRef(null);
     
     return (
-        <header className="w-full py-4 px-6 bg-white">
+        <header className="w-full py-4 px-6 bg-white fixed z-50">
             <nav className="flex items-center justify-between">
                 <div className='flex items-center gap-8'>
                     <div className="flex items-center gap-4 justify-start" >

@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import RecipientLayout from '../../../Layouts/RecipientLayout';
 import { Carousel } from 'primereact/carousel';
-import { Fan, Loader2, Undo2, CheckCircle2, ArrowRightLeft, WheatOff, ChevronRight } from "lucide-react";
+import { Fan, Loader2, Undo2, CheckCircle2, ArrowRightLeft, WheatOff, ChevronRight, Wheat, Badge } from "lucide-react";
 import { useAuth } from '../../Authentication/Login/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Divider } from 'primereact/divider';
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import { Tag } from 'primereact/tag';
 import { Button } from 'primereact/button';
+import { Avatar } from 'primereact/avatar';
 
 
 function Home({ isRightSidebarOpen }) {
@@ -70,33 +71,9 @@ function Home({ isRightSidebarOpen }) {
         value: order.status
     }));
 
+
     // RIGHT SIDEBAR DETAILS
     const [rightSidebarItems, setRightSidebarItems] = useState([
-        {
-            batchId: '123',
-            date_updated: '2021-01-01',
-            status: 'Processing',
-        },
-        {
-            batchId: '456',
-            date_updated: '2021-01-01',
-            status: 'Processing',
-        },
-        {
-            batchId: '789',
-            date_updated: '2021-01-01',
-            status: 'Processing',
-        },
-        {
-            batchId: '456',
-            date_updated: '2021-01-01',
-            status: 'Processing',
-        },
-        {
-            batchId: '789',
-            date_updated: '2021-01-01',
-            status: 'Processing',
-        }
     ]) 
 
     const rightSidebar = () => {
@@ -162,7 +139,7 @@ function Home({ isRightSidebarOpen }) {
     }
 
     return (
-        <RecipientLayout activePage="Home" user={user} isRightSidebarOpen={false} rightSidebar={rightSidebar()}>
+        <RecipientLayout activePage="Home" user={user} isRightSidebarOpen={true} rightSidebar={rightSidebar()}>
             <div className={`flex flex-row bg-[#F1F5F9] h-full`}>
                 {/* Main Content */}
                 <div className={`flex flex-col w-full h-full gap-4`}>
