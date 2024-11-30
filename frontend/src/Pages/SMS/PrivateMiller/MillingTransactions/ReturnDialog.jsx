@@ -186,7 +186,7 @@ const ReturnDialog = ({
       // 4. Create new return transaction
       const newTransaction = {
         ...newTransactionData,
-        item: "Palay",
+        item: "Rice",
         itemId: selectedItem.palayBatchId,
         fromLocationType: "Miller",
         fromLocationId: selectedItem.toLocationId,

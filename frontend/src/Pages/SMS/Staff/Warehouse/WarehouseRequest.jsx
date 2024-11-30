@@ -72,7 +72,6 @@ function WarehouseRequest() {
     setGlobalFilterValue(e.target.value);
   };
 
-  // In WarehouseRequest.js
   const fetchInventory = async (offset, limit) => {
     setIsLoading(true);
     try {

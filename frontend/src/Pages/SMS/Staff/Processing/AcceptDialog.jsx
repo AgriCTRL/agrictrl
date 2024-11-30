@@ -143,9 +143,25 @@ const AcceptDialog = ({
           if (!updateMillingResponse.ok) {
             throw new Error("Failed to update existing milling batch");
           }
-          console.log(
-            "Updated existing milling batch with current startDateTime"
+          
+          const updateDryingResponse = await fetch(
+            `${apiUrl}/dryingbatches/update`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                id: existingMillingBatch.dryingBatchId,
+                status: "Completed",
+              }),
+            }
           );
+
+          if (!updateDryingResponse.ok) {
+            throw new Error("Failed to update existing milling batch");
+          }
+
         }
       }
 

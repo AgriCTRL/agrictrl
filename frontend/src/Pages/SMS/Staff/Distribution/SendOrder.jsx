@@ -3,6 +3,7 @@ import { Dialog } from "primereact/dialog";
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
 import { InputTextarea } from "primereact/inputtextarea";
+import { Dropdown } from "primereact/dropdown";
 import { Toast } from "primereact/toast";
 
 import Loader from "@/Components/Loader";
@@ -25,6 +26,14 @@ const SendOrder = ({
   const [pileQuantities, setPileQuantities] = useState([]);
   const [totalCost, setTotalCost] = useState(0);
   const [palayBatchAllocations, setPalayBatchAllocations] = useState([]);
+  const [transporters, setTransporters] = useState([]);
+  const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    if (visible && selectedOrder) {
+      fetchTransporters();
+    }
+  }, [visible, selectedOrder]);
 
   useEffect(() => {
     if (selectedOrder && pilesData.length > 0) {
@@ -106,12 +115,38 @@ const SendOrder = ({
     }
   }, [selectedOrder]);
 
+  const fetchTransporters = async () => {
+    try {
+      const transporterUrl = `${apiUrl}/transporters?status=active&transporterType=In House`;
+      const transporterRes = await fetch(transporterUrl);
+      const transporterData = await transporterRes.json();
+
+      const transporterOptions = transporterData.map((transporter) => ({
+        label: `${transporter.transporterName} | ${transporter.plateNumber} | ${transporter.description}`,
+        value: transporter.id,
+        name: transporter.transporterName,
+        description: transporter.description,
+      }));
+
+      setTransporters(transporterOptions);
+    } catch (error) {
+      console.error("Error fetching transporters:", error);
+      toast.current.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Failed to fetch transporters",
+        life: 3000,
+      });
+    }
+  };
+
   const [sendOrderData, setSendOrderData] = useState({
     warehouseId: null,
     riceQuantityBags: "",
     dropOffLocation: "",
     description: "",
-    transportedBy: "",
+    transporterId: null,
+    transporterName: "",
     transporterDescription: "",
     remarks: "",
     riceOrderId: null,
@@ -156,9 +191,23 @@ const SendOrder = ({
     ));
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e, field) => {
     const value = e.target?.value ?? e;
-    const name = e.target?.name;
+    const name = e.target?.name ?? field;
+
+    // Special handling for transporter dropdown
+    if (field === 'transporter') {
+      const selectedTransporter = transporters.find(t => t.value === value);
+      setSendOrderData((prevState) => ({
+        ...prevState,
+        transporterId: value,
+        transporterName: selectedTransporter.name,
+        transporterDescription: selectedTransporter.description,
+      }));
+      // Clear any transporter-related errors
+      setErrors(prev => ({...prev, transporter: ''}));
+      return;
+    }
 
     setSendOrderData((prevState) => ({
       ...prevState,
@@ -332,22 +381,20 @@ const SendOrder = ({
   };
 
   const validateForm = () => {
-    const errors = [];
+    const errors = {};
 
     if (!sendOrderData.pileId) {
-      errors.push("Please select a pile");
+      errors.pileId = "Please select a pile";
     }
 
-    if (!sendOrderData.transportedBy) {
-      errors.push("Please enter transporter name");
+    if (!sendOrderData.transporterId) {
+      errors.transporter = "Please select a transporter";
     }
 
-    if (!sendOrderData.transporterDescription) {
-      errors.push("Please enter transporter description");
-    }
-
-    if (errors.length > 0) {
-      errors.forEach((error) => {
+    if (Object.keys(errors).length > 0) {
+      setErrors(errors);
+      
+      Object.values(errors).forEach(error => {
         toast.current.show({
           severity: "warn",
           summary: "Required Field",
@@ -355,6 +402,7 @@ const SendOrder = ({
           life: 3000,
         });
       });
+      
       return false;
     }
 
@@ -443,31 +491,33 @@ const SendOrder = ({
             >
               Transported By <span className="text-red-500">*</span>
             </label>
-            <InputText
+            <Dropdown
               id="transportedBy"
-              name="transportedBy"
-              value={sendOrderData.transportedBy}
-              onChange={handleInputChange}
-              placeholder="Enter transporter name"
-              className="w-full focus:ring-0"
-              maxLength={50}
+              value={sendOrderData.transporterId}
+              options={transporters}
+              onChange={(e) => handleInputChange(e.value, 'transporter')}
+              placeholder="Select a transporter"
+              className={`w-full ${errors.transporter ? 'p-invalid' : ''}`}
             />
+            {errors.transporter && (
+              <p className="text-red-500 text-xs mt-1">{errors.transporter}</p>
+            )}
           </div>
 
+          {/* Transporter Description - now auto-populated */}
           <div className="w-full">
             <label
               htmlFor="transporterDescription"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Transporter Description <span className="text-red-500">*</span>
+              Transporter Description
             </label>
             <InputTextarea
               id="transporterDescription"
               name="transporterDescription"
               value={sendOrderData.transporterDescription}
-              onChange={handleInputChange}
-              placeholder="Enter transporter description"
-              className="w-full ring-0"
+              disabled
+              className="w-full ring-0 bg-gray-50"
               maxLength={250}
             />
           </div>

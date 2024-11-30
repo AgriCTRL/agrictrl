@@ -21,7 +21,7 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
     const [email, setEmail] = useState('');
     const [status, setStatus] = useState('active');
 
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const statusOptions = [
         { label: 'Active', value: 'active' },
@@ -60,7 +60,7 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
             return;
         }
 
-        setIsSubmitting(true);
+        setIsLoading(true);
         const updatedMiller = {
             ...selectedMiller,
             millerName,
@@ -96,7 +96,7 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
                 life: 3000 
             });
         } finally {
-            setIsSubmitting(false);
+            setIsLoading(false);
         }
     };
 
@@ -218,8 +218,9 @@ function MillerUpdate({ visible, onHide, selectedMiller, onUpdateMiller }) {
                         {/* Update Button */}
                         <Button
                             label="Update"
-                            disabled={isSubmitting}
+                            disabled={isLoading}
                             className="col-start-2 row-start-7 bg-primary text-white py-2 rounded-md ring-0"
+                            loading={isLoading}
                         />
                     </div>
                 </form>
