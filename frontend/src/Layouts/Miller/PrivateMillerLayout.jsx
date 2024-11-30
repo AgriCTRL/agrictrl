@@ -1,39 +1,33 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "@/Pages/Authentication/Login/AuthContext";
 
-import { Bell } from "lucide-react";
+import Navbar from "./Components/Navbar";
+import RightSidebar from "./Components/RightSidebar";
+import LeftSidebar from "./Components/LeftSidebar";
 
-import { Avatar } from "primereact/avatar";
-import { Divider } from "primereact/divider";
-
-import Navbar from "../Components/Recipient/Navbar";
-import { useAuth } from "../Pages/Authentication/Login/AuthContext";
-import RightSidebar from "../Components/Recipient/RightSidebar";
-
-function RecipientLayout({
+const PrivateMillerLayout = ({
     children,
     activePage,
     user,
-    isRightSidebarOpen,
+    leftSidebar,
+    isLeftSidebarOpen,
     rightSidebar,
-}) {
+    isRightSidebarOpen,
+}) => {
     const navigate = useNavigate();
     const { logout } = useAuth();
-    const [userFullName] = useState(`${user.firstName} ${user.lastName}`);
+    const [userFullName] = useState(`${user.first_name} ${user.last_name}`);
 
     const navItems = [
-        { text: "Home", link: "/recipient" },
-        { text: "Rice Order", link: "/recipient/order" },
-        { text: "Rice Receive", link: "/recipient/receive" },
-        // { text: 'History', link: '/recipient/history' }
+        { text: "Home", link: "/miller" },
+        { text: "Milling Transactions", link: "/miller/transactions" },
+        { text: "Manage Miller", link: "/miller/facility" },
+        { text: "History", link: "/miller/history" },
     ];
 
-    const toggleRightSidebar = () => {
-        isRightSidebarOpen = !isRightSidebarOpen;
-    };
-
     const profileClick = () => {
-        navigate("/recipient/profile");
+        navigate("/miller/profile");
     };
 
     const handleLogoutBtn = async () => {
@@ -60,12 +54,14 @@ function RecipientLayout({
 
             {/* Main content and right sidebar */}
             <div className="flex flex-1 p-4 sm:p-6 mt-[90px] gap-4 bg-background">
+                {/* Left sidebar */}
+                <LeftSidebar
+                    leftSidebar={leftSidebar}
+                    isLeftSidebarOpen={isLeftSidebarOpen}
+                />
+
                 {/* Main content */}
-                <main
-                    className={`flex-1 overflow-auto transition-all duration-300 ${
-                        isRightSidebarOpen ? "w-3/4" : "w-full"
-                    }`}
-                >
+                <main className="flex-1 overflow-auto transition-all duration-300">
                     {children}
                 </main>
 
@@ -77,6 +73,6 @@ function RecipientLayout({
             </div>
         </div>
     );
-}
+};
 
-export default RecipientLayout;
+export default PrivateMillerLayout;

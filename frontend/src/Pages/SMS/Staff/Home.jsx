@@ -278,7 +278,7 @@ function Home({ isRightSidebarOpen }) {
     }
 
     return (
-        <StaffLayout activePage="Home" user={user} leftSidebar={leftSidebar()} isRightSidebarOpen={false} isLeftSidebarOpen={true} rightSidebar={rightSidebar()}>
+        <StaffLayout activePage="Home" user={user} leftSidebar={leftSidebar()} isRightSidebarOpen={true} isLeftSidebarOpen={true} rightSidebar={rightSidebar()}>
             <div className={`flex flex-row bg-[#F1F5F9] h-full`}>
                 {/* Main Content */}
                 <div className={`flex flex-col w-full h-full gap-4`}>

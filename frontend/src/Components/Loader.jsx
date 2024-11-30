@@ -3,7 +3,7 @@ import React from 'react'
 
 const Loader = () => {
     return (
-        <div className="loader-container flex items-center justify-center h-screen w-full">
+        <div className="loader-container flex items-center justify-center min-h-72 h-full w-full">
             <span className="sun sunshine bg-primary/50">
             </span>
             <span className="sun flex items-center justify-center bg-tag-grey">

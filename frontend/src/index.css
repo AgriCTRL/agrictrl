@@ -160,7 +160,8 @@
             }
         }
 
-        &.staff-transactions-carousel {
+        &.staff-transactions-carousel,
+        &.miller-transactions-carousel {
             .p-carousel-content {
                 .p-carousel-container {
                     position: relative;

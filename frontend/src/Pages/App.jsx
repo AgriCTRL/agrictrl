@@ -4,11 +4,11 @@ import {
     Route,
     Routes,
     Navigate,
-    useLocation
+    useLocation,
 } from "react-router-dom";
-import { AuthProvider, useAuth } from './Authentication/Login/AuthContext';
+import { AuthProvider, useAuth } from "./Authentication/Login/AuthContext";
 
-import '../firebase/firebase';
+import "../firebase/firebase";
 
 import LandingPage from "./Landing/LandingPage";
 import TracknTrace from "./TNT/TracknTrace";
@@ -62,7 +62,11 @@ const ProtectedRoute = ({ children, allowedUserTypes, allowedJobTitles }) => {
         return <Navigate to="/" replace />;
     }
 
-    if (allowedJobTitles && user.userType === 'NFA Branch Staff' && !allowedJobTitles.includes(user.jobTitlePosition)) {
+    if (
+        allowedJobTitles &&
+        user.userType === "NFA Branch Staff" &&
+        !allowedJobTitles.includes(user.jobTitlePosition)
+    ) {
         return <Navigate to="/staff" replace />;
     }
 
@@ -71,43 +75,43 @@ const ProtectedRoute = ({ children, allowedUserTypes, allowedJobTitles }) => {
 
 const UnauthenticatedRoute = ({ children }) => {
     const { user } = useAuth();
-    
+
     if (user) {
         switch (user.userType) {
-            case 'Admin':
+            case "Admin":
                 return <Navigate to="/admin" replace />;
-            case 'NFA Branch Staff':
+            case "NFA Branch Staff":
                 return <Navigate to="/staff" replace />;
-            case 'Rice Recipient':
+            case "Rice Recipient":
                 return <Navigate to="/recipient" replace />;
-            case 'Private Miller':
+            case "Private Miller":
                 return <Navigate to="/miller" replace />;
             default:
                 return <Navigate to="/" replace />;
         }
     }
-    
+
     return children;
 };
 
 const AuthenticatedRedirect = () => {
     const { user } = useAuth();
-    
+
     if (user) {
         switch (user.userType) {
-            case 'Admin':
+            case "Admin":
                 return <Navigate to="/admin" replace />;
-            case 'NFA Branch Staff':
+            case "NFA Branch Staff":
                 return <Navigate to="/staff" replace />;
-            case 'Rice Recipient':
+            case "Rice Recipient":
                 return <Navigate to="/recipient" replace />;
-            case 'Private Miller':
+            case "Private Miller":
                 return <Navigate to="/miller" replace />;
             default:
                 return <Navigate to="/" replace />;
         }
     }
-    
+
     return <LandingPage />;
 };
 
@@ -116,50 +120,74 @@ function App() {
         <div className="flex h-screen transition-transform duration-300">
             <Routes>
                 <Route path="/" element={<AuthenticatedRedirect />} />
-                
+
                 {/* Unauthenticated routes */}
-                <Route path="/register" element={
-                    <UnauthenticatedRoute>
-                        <RegistrationPage />
-                    </UnauthenticatedRoute>
-                } />
-                <Route path="/login" element={
-                    <UnauthenticatedRoute>
-                        <LoginPage />
-                    </UnauthenticatedRoute>
-                } />
-                <Route path="/forgotpassword" element={
-                    <UnauthenticatedRoute>
-                        <ForgotPassword />
-                    </UnauthenticatedRoute>
-                } />
-                <Route path="/TnT" element={
-                    <UnauthenticatedRoute>
-                        <TracknTrace />
-                    </UnauthenticatedRoute>
-                } />
+                <Route
+                    path="/register"
+                    element={
+                        <UnauthenticatedRoute>
+                            <RegistrationPage />
+                        </UnauthenticatedRoute>
+                    }
+                />
+                <Route
+                    path="/login"
+                    element={
+                        <UnauthenticatedRoute>
+                            <LoginPage />
+                        </UnauthenticatedRoute>
+                    }
+                />
+                <Route
+                    path="/forgotpassword"
+                    element={
+                        <UnauthenticatedRoute>
+                            <ForgotPassword />
+                        </UnauthenticatedRoute>
+                    }
+                />
+                <Route
+                    path="/TnT"
+                    element={
+                        <UnauthenticatedRoute>
+                            <TracknTrace />
+                        </UnauthenticatedRoute>
+                    }
+                />
 
                 {/* Protected routes */}
-                <Route path="/admin/*" element={
-                    <ProtectedRoute allowedUserTypes={['Admin']}>
-                        <AdminRoutes />
-                    </ProtectedRoute> 
-                } />
-                <Route path="/staff/*" element={
-                    <ProtectedRoute allowedUserTypes={['NFA Branch Staff']}>
-                        <StaffRoutes />
-                    </ProtectedRoute>
-                    } />
-                <Route path="/recipient/*" element={
-                    <ProtectedRoute allowedUserTypes={['Rice Recipient']}>
-                        <RecipientRoutes />
-                    </ProtectedRoute>
-                } />
-                <Route path="/miller/*" element={
-                    <ProtectedRoute allowedUserTypes={['Private Miller']}>
-                        <PrivateMillerRoutes />
-                    </ProtectedRoute>
-                } />
+                <Route
+                    path="/admin/*"
+                    element={
+                        <ProtectedRoute allowedUserTypes={["Admin"]}>
+                            <AdminRoutes />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/staff/*"
+                    element={
+                        <ProtectedRoute allowedUserTypes={["NFA Branch Staff"]}>
+                            <StaffRoutes />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/recipient/*"
+                    element={
+                        <ProtectedRoute allowedUserTypes={["Rice Recipient"]}>
+                            <RecipientRoutes />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/miller/*"
+                    element={
+                        <ProtectedRoute allowedUserTypes={["Private Miller"]}>
+                            <PrivateMillerRoutes />
+                        </ProtectedRoute>
+                    }
+                />
                 <Route path="/404" element={<NoAppPage />} />
                 <Route path="*" element={<Navigate to="/404" replace />} />
             </Routes>
@@ -187,62 +215,83 @@ function StaffRoutes() {
     return (
         <Routes>
             <Route index element={<StaffHome />} />
-            <Route path="procurement" element={
-                <ProtectedRoute 
-                    allowedUserTypes={['NFA Branch Staff']} 
-                    allowedJobTitles={['Procurement Officer']}
-                >
-                    <StaffProcurement />
-                </ProtectedRoute>
-            } />
-            <Route path="distribution" element={
-                <ProtectedRoute 
-                    allowedUserTypes={['NFA Branch Staff']} 
-                    allowedJobTitles={['Distribution Officer']}
-                >
-                    <StaffDistribution />
-                </ProtectedRoute>
-            } />
-            <Route path="processing" element={
-                <ProtectedRoute 
-                    allowedUserTypes={['NFA Branch Staff']} 
-                    allowedJobTitles={['Processing Officer']}
-                >
-                    <StaffProcessing />
-                </ProtectedRoute>
-            } />
-            <Route path="warehouse" element={
-                <ProtectedRoute 
-                    allowedUserTypes={['NFA Branch Staff']} 
-                    allowedJobTitles={['Warehouse Manager']}
-                >
-                    <StaffWarehouse />
-                </ProtectedRoute>
-            } />
-            <Route path="request" element={
-                <ProtectedRoute 
-                    allowedUserTypes={['NFA Branch Staff']} 
-                    allowedJobTitles={['Warehouse Manager']}
-                >
-                    <StaffWarehouseRequest />
-                </ProtectedRoute>
-            } />
-            <Route path="storage" element={
-                <ProtectedRoute 
-                    allowedUserTypes={['NFA Branch Staff']} 
-                    allowedJobTitles={['Warehouse Manager']}
-                >
-                    <StaffWarehouseStorage />
-                </ProtectedRoute>
-            } />
-            <Route path="piles" element={
-                <ProtectedRoute 
-                    allowedUserTypes={['NFA Branch Staff']} 
-                    allowedJobTitles={['Warehouse Manager']}
-                >
-                    <StaffPile />
-                </ProtectedRoute>
-            } />
+            <Route
+                path="procurement"
+                element={
+                    <ProtectedRoute
+                        allowedUserTypes={["NFA Branch Staff"]}
+                        allowedJobTitles={["Procurement Officer"]}
+                    >
+                        <StaffProcurement />
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="distribution"
+                element={
+                    <ProtectedRoute
+                        allowedUserTypes={["NFA Branch Staff"]}
+                        allowedJobTitles={["Distribution Officer"]}
+                    >
+                        <StaffDistribution />
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="processing"
+                element={
+                    <ProtectedRoute
+                        allowedUserTypes={["NFA Branch Staff"]}
+                        allowedJobTitles={["Processing Officer"]}
+                    >
+                        <StaffProcessing />
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="warehouse"
+                element={
+                    <ProtectedRoute
+                        allowedUserTypes={["NFA Branch Staff"]}
+                        allowedJobTitles={["Warehouse Manager"]}
+                    >
+                        <StaffWarehouse />
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="request"
+                element={
+                    <ProtectedRoute
+                        allowedUserTypes={["NFA Branch Staff"]}
+                        allowedJobTitles={["Warehouse Manager"]}
+                    >
+                        <StaffWarehouseRequest />
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="storage"
+                element={
+                    <ProtectedRoute
+                        allowedUserTypes={["NFA Branch Staff"]}
+                        allowedJobTitles={["Warehouse Manager"]}
+                    >
+                        <StaffWarehouseStorage />
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="piles"
+                element={
+                    <ProtectedRoute
+                        allowedUserTypes={["NFA Branch Staff"]}
+                        allowedJobTitles={["Warehouse Manager"]}
+                    >
+                        <StaffPile />
+                    </ProtectedRoute>
+                }
+            />
             <Route path="profile" element={<StaffProfile />} />
             <Route path="*" element={<Navigate to="/staff" replace />} />
         </Routes>
@@ -265,7 +314,10 @@ function PrivateMillerRoutes() {
     return (
         <Routes>
             <Route index element={<PrivateMillerHome />} />
-            <Route path="transactions" element={<PrivateMillerMillingTransactions />} />
+            <Route
+                path="transactions"
+                element={<PrivateMillerMillingTransactions />}
+            />
             <Route path="facility" element={<PrivateMillerManageMiller />} />
             <Route path="history" element={<PrivateMillerHistory />} />
             <Route path="profile" element={<PrivateMillerProfile />} />
