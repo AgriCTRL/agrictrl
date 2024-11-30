@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 
-import PrivateMillerLayout from "../../../../Layouts/PrivateMillerLayout";
+import PrivateMillerLayout from "@/Layouts/Miller/PrivateMillerLayout";
 
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
@@ -139,7 +139,7 @@ function Transporter() {
 
   return (
     <PrivateMillerLayout activePage="Transporter" user={user}>
-      <div className="flex flex-col h-full gap-4 p-5">
+      <div className="flex flex-col h-full gap-4">
         <Toast ref={toast} />
 
         <div className="w-full flex items-center justify-between gap-4">

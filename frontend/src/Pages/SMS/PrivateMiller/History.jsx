@@ -102,7 +102,6 @@ function History() {
 
     useEffect(() => {
         fetchTransactions();
-        console.log(allTransactions);
     }, [user.id]);
 
     useEffect(() => {

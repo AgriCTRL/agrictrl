@@ -692,7 +692,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered, currentWSR }) {
           newErrors.gender = "Gender is required";
         }
       } else {
-        if (!palayData.numOfFarmer.trim()) {
+        if (!palayData.numOfFarmer) {
           newErrors.numOfFarmer = "Number of farmers is required";
         } else if (parseInt(palayData.numOfFarmer) === 0) {
           newErrors.numOfFarmer = "Number of farmers cannot be 0";

@@ -17,12 +17,13 @@ const PrivateMillerLayout = ({
 }) => {
     const navigate = useNavigate();
     const { logout } = useAuth();
-    const [userFullName] = useState(`${user.first_name} ${user.last_name}`);
+    const [userFullName] = useState(`${user.firstName} ${user.lastName}`);
 
     const navItems = [
         { text: "Home", link: "/miller" },
         { text: "Milling Transactions", link: "/miller/transactions" },
         { text: "Manage Miller", link: "/miller/facility" },
+        { text: 'Transporter', link: '/miller/transporter' },
         { text: "History", link: "/miller/history" },
     ];
 

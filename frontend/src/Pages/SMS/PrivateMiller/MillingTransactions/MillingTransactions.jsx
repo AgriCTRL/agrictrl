@@ -455,7 +455,7 @@ const MillingTransactions = () => {
         <PrivateMillerLayout
             activePage="Milling Transactions"
             user={user}
-            isRightSidebarOpen={true}
+            isRightSidebarOpen={false}
             rightSidebar={rightSidebar()}
         >
             <Toast ref={toast} />
@@ -515,7 +515,7 @@ const MillingTransactions = () => {
                         {/* Container with relative positioning */}
                         <div
                             className="relative flex flex-col"
-                            style={{ height: "510px" }}
+                            style={{ height: "550px" }}
                         >
                             <DataView
                                 value={combinedData}
