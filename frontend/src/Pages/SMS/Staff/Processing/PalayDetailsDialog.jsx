@@ -1,15 +1,12 @@
-import React from "react";
-import { Dialog } from "primereact/dialog";
-import { Tag } from "primereact/tag";
+import React from 'react';
+import { Dialog } from 'primereact/dialog';
 
-const ItemDetails = ({ visible, onHide, selectedBatchDetails }) => {
-  if (!selectedBatchDetails) return null;
-
-  const {
-    fullPalayBatchData: palayBatch,
-    fullTransactionData: transaction,
-    fullProcessingBatchData: processingBatch,
-  } = selectedBatchDetails;
+const PalayDetailsDialog = ({ 
+  visible, 
+  onHide, 
+  selectedItem, 
+}) => {
+  if (!selectedItem) return null;
 
   const formatDate = (isoString) => {
     if (!isoString || isoString === "0000-01-01T00:00:00.000Z") return "N/A";
@@ -21,22 +18,11 @@ const ItemDetails = ({ visible, onHide, selectedBatchDetails }) => {
     });
   };
 
-  const getSeverity = (status) => {
-    switch (status) {
-      case "Pending":
-        return "warning";
-      case "Received":
-        return "success";
-      default:
-        return "info";
-    }
-  };
-
   return (
     <Dialog
       visible={visible}
       onHide={onHide}
-      header={`Batch #${palayBatch.wsr} Details`}
+      header={`Batch #${selectedItem.wsr} Details`}
       className="w-full max-w-4xl"
     >
       <div className="grid grid-cols-3 gap-4">
@@ -46,31 +32,31 @@ const ItemDetails = ({ visible, onHide, selectedBatchDetails }) => {
         </div>
         {/* <div>
           <p className="text-gray-600">Batch WSR</p>
-          <p>{palayBatch.wsr}</p>
+          <p>{selectedItem.wsr}</p>
         </div> */}
         <div>
           <p className="text-gray-600">Quantity</p>
-          <p>{palayBatch.quantityBags} bags</p>
+          <p>{selectedItem.quantityBags} bags</p>
         </div>
         <div>
           <p className="text-gray-600">Gross Weight</p>
-          <p>{palayBatch.grossWeight} Kg</p>
+          <p>{selectedItem.grossWeight} Kg</p>
         </div>
         <div>
           <p className="text-gray-600">Net Weight</p>
-          <p>{palayBatch.netWeight} Kg</p>
+          <p>{selectedItem.netWeight} Kg</p>
         </div>
         <div>
           <p className="text-gray-600">Price per Kg</p>
-          <p>₱{palayBatch.price}</p>
+          <p>₱{selectedItem.fullPalayBatchData.price}</p>
         </div>
         <div>
           <p className="text-gray-600">Quality Type</p>
-          <p>{palayBatch.qualityType}</p>
+          <p>{selectedItem.fullPalayBatchData.qualityType}</p>
         </div>
         <div>
           <p className="text-gray-600">Estimated Capital</p>
-          <p>{palayBatch.estimatedCapital}</p>
+          <p>{selectedItem.fullPalayBatchData.estimatedCapital}</p>
         </div>
 
         {/* Quality Specifications */}
@@ -79,15 +65,15 @@ const ItemDetails = ({ visible, onHide, selectedBatchDetails }) => {
         </div>
         <div>
           <p className="text-gray-600">Moisture Content</p>
-          <p>{palayBatch.qualitySpec.moistureContent}%</p>
+          <p>{selectedItem.fullPalayBatchData.qualitySpec.moistureContent}%</p>
         </div>
         <div>
           <p className="text-gray-600">Purity</p>
-          <p>{palayBatch.qualitySpec.purity}%</p>
+          <p>{selectedItem.fullPalayBatchData.qualitySpec.purity}%</p>
         </div>
         <div>
           <p className="text-gray-600">Damage</p>
-          <p>{palayBatch.qualitySpec.damaged}%</p>
+          <p>{selectedItem.fullPalayBatchData.qualitySpec.damaged}%</p>
         </div>
 
         {/* Dates */}
@@ -96,15 +82,15 @@ const ItemDetails = ({ visible, onHide, selectedBatchDetails }) => {
         </div>
         <div>
           <p className="text-gray-600">Date Bought</p>
-          <p>{formatDate(palayBatch.dateBought)}</p>
+          <p>{formatDate(selectedItem.fullPalayBatchData.dateBought)}</p>
         </div>
         <div>
           <p className="text-gray-600">Planted Date</p>
-          <p>{formatDate(palayBatch.plantedDate)}</p>
+          <p>{formatDate(selectedItem.fullPalayBatchData.plantedDate)}</p>
         </div>
         <div>
           <p className="text-gray-600">Harvested Date</p>
-          <p>{formatDate(palayBatch.harvestedDate)}</p>
+          <p>{formatDate(selectedItem.fullPalayBatchData.harvestedDate)}</p>
         </div>
 
         {/* Buying Station Information */}
@@ -113,27 +99,27 @@ const ItemDetails = ({ visible, onHide, selectedBatchDetails }) => {
         </div>
         <div>
           <p className="text-gray-600">Station Name</p>
-          <p>{palayBatch.buyingStationName}</p>
+          <p>{selectedItem.buyingStationName}</p>
         </div>
         <div>
           <p className="text-gray-600">Station Location</p>
-          <p>{palayBatch.buyingStationLoc}</p>
+          <p>{selectedItem.buyingStationLoc}</p>
         </div>
         <div>
           <p className="text-gray-600">Current Location</p>
-          <p>{palayBatch.currentlyAt}</p>
+          <p>{selectedItem.currentlyAt}</p>
         </div>
         <div>
           <p className="text-gray-600">Weigher</p>
-          <p>{palayBatch.weighedBy}</p>
+          <p>{selectedItem.weighedBy}</p>
         </div>
         <div>
           <p className="text-gray-600">Checker</p>
-          <p>{palayBatch.correctedBy}</p>
+          <p>{selectedItem.correctedBy}</p>
         </div>
         <div>
           <p className="text-gray-600">Classifier</p>
-          <p>{palayBatch.classifiedBy}</p>
+          <p>{selectedItem.classifiedBy}</p>
         </div>
 
         {/* Transaction Details */}
@@ -142,15 +128,15 @@ const ItemDetails = ({ visible, onHide, selectedBatchDetails }) => {
         </div>
         <div>
           <p className="text-gray-600">Transporter</p>
-          <p>{transaction.transporterName}</p>
+          <p>{selectedItem.fullTransactionData.transporterName}</p>
         </div>
         <div>
           <p className="text-gray-600">Sent Date</p>
-          <p>{formatDate(transaction.sendDateTime)}</p>
+          <p>{formatDate(selectedItem.fullTransactionData.sendDateTime)}</p>
         </div>
         <div>
           <p className="text-gray-600">Received Date</p>
-          <p>{formatDate(transaction.receiveDateTime)}</p>
+          <p>{formatDate(selectedItem.fullTransactionData.receiveDateTime)}</p>
         </div>
 
         {/* Supplier Information */}
@@ -159,15 +145,15 @@ const ItemDetails = ({ visible, onHide, selectedBatchDetails }) => {
         </div>
         <div>
           <p className="text-gray-600">Farmer Name</p>
-          <p>{palayBatch.palaySupplier.farmerName}</p>
+          <p>{selectedItem.fullPalayBatchData.palaySupplier.farmerName}</p>
         </div>
         <div>
           <p className="text-gray-600">Contact Number</p>
-          <p>{palayBatch.palaySupplier.contactNumber}</p>
+          <p>{selectedItem.fullPalayBatchData.palaySupplier.contactNumber}</p>
         </div>
         <div>
           <p className="text-gray-600">Email</p>
-          <p>{palayBatch.palaySupplier.email}</p>
+          <p>{selectedItem.fullPalayBatchData.palaySupplier.email}</p>
         </div>
 
         {/* Farm Information */}
@@ -176,14 +162,14 @@ const ItemDetails = ({ visible, onHide, selectedBatchDetails }) => {
         </div>
         <div>
           <p className="text-gray-600">Farm Size</p>
-          <p>{palayBatch.farm.farmSize} hectares</p>
+          <p>{selectedItem.fullPalayBatchData.farm.farmSize} hectares</p>
         </div>
         <div className="col-span-2">
           <p className="text-gray-600">Farm Location</p>
           <p>
-            {palayBatch.farm.street}, {palayBatch.farm.barangay},
-            {palayBatch.farm.cityTown}, {palayBatch.farm.province},
-            {palayBatch.farm.region}
+            {selectedItem.fullPalayBatchData.farm.street}, {selectedItem.fullPalayBatchData.farm.barangay},
+            {selectedItem.fullPalayBatchData.farm.cityTown}, {selectedItem.fullPalayBatchData.farm.province},
+            {selectedItem.fullPalayBatchData.farm.region}
           </p>
         </div>
       </div>
@@ -191,4 +177,4 @@ const ItemDetails = ({ visible, onHide, selectedBatchDetails }) => {
   );
 };
 
-export default ItemDetails;
+export default PalayDetailsDialog;

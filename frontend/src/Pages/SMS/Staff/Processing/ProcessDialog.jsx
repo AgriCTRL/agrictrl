@@ -35,7 +35,7 @@ const ProcessDialog = ({
     const bagWeight = 50; // Assuming 50kg per bag
     return {
       grossWeight: quantity * bagWeight,
-      netWeight: quantity * bagWeight - quantity, // Assuming 1kg per bag is tare weight
+      netWeight: quantity * bagWeight - quantity,
     };
   };
 

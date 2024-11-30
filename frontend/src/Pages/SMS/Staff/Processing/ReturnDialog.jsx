@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Dialog } from "primereact/dialog";
 import { Button } from "primereact/button";
 import { Dropdown } from "primereact/dropdown";
@@ -14,6 +14,7 @@ const initialTransactionData = {
   senderId: "",
   fromLocationType: "",
   fromLocationId: 0,
+  transporterId: "",
   transporterName: "",
   transporterDesc: "",
   receiverId: "",
@@ -46,6 +47,7 @@ const ReturnDialog = ({
   const [newTransactionData, setNewTransactionData] = useState(
     initialTransactionData
   );
+  const [transporters, setTransporters] = useState([]);
 
   // Filter warehouses based on capacity and type
   const filteredWarehouses = warehouses
@@ -74,6 +76,42 @@ const ReturnDialog = ({
       name: warehouse.facilityName,
       value: warehouse.id,
     }));
+
+  useEffect(() => {
+    if (newTransactionData.toLocationId) {
+      fetchTransporters();
+    }
+  }, [newTransactionData.toLocationId]);
+
+  const fetchTransporters = async () => {
+    try {
+      const response = await fetch(
+        `${apiUrl}/transporters?status=active&transporterType=In House`
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch transporters");
+      }
+
+      const data = await response.json();
+      const transporterOptions = data.map((transporter) => ({
+        label: `${transporter.transporterName} | ${transporter.plateNumber} | ${transporter.description}`,
+        value: transporter.id,
+        name: transporter.transporterName,
+        description: transporter.description,
+      }));
+
+      setTransporters(transporterOptions);
+    } catch (error) {
+      console.error("Error fetching transporters:", error);
+      toast.current.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Failed to fetch transporters",
+        life: 3000,
+      });
+    }
+  };
 
   const handleReturn = async () => {
     if (!validateForm()) return;
@@ -288,6 +326,16 @@ const ReturnDialog = ({
       });
     }
 
+    if (!newTransactionData.transporterId) {
+      newErrors.transporterId = "Please select a transporter";
+      toast.current.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Please select a transporter",
+        life: 3000,
+      });
+    }
+
     if (!newTransactionData.transporterName.trim()) {
       newErrors.transporterName = "Transporter name is required";
       toast.current.show({
@@ -363,41 +411,27 @@ const ReturnDialog = ({
 
           <div className="w-full">
             <label className="block mb-2">Transported By</label>
-            <InputText
-              value={newTransactionData.transporterName}
-              onChange={(e) =>
+            <Dropdown
+              value={newTransactionData.transporterId}
+              options={transporters}
+              onChange={(e) => {
+                const selectedTransporter = transporters.find(
+                  (t) => t.value === e.value
+                );
                 setNewTransactionData((prev) => ({
                   ...prev,
-                  transporterName: e.target.value,
-                }))
-              }
+                  transporterId: e.value,
+                  transporterName: selectedTransporter.name,
+                  transporterDesc: selectedTransporter.description,
+                }));
+              }}
+              placeholder="Select a transporter"
               className="w-full ring-0"
-              maxLength={50}
+              disabled={!newTransactionData.toLocationId}
             />
-            {errors.transporterName && (
+            {errors.transporterId && (
               <div className="text-red-500 text-sm mt-1">
-                {errors.transporterName}
-              </div>
-            )}
-          </div>
-
-          <div className="w-full">
-            <label className="block mb-2">Transport Description</label>
-            <InputTextarea
-              value={newTransactionData.transporterDesc}
-              onChange={(e) =>
-                setNewTransactionData((prev) => ({
-                  ...prev,
-                  transporterDesc: e.target.value,
-                }))
-              }
-              className="w-full ring-0"
-              rows={3}
-              maxLength={250}
-            />
-            {errors.transporterDesc && (
-              <div className="text-red-500 text-sm mt-1">
-                {errors.transporterDesc}
+                {errors.transporterId}
               </div>
             )}
           </div>

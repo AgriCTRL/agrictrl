@@ -81,11 +81,11 @@ const SendTo = ({
         const transaction = item.transaction;
 
         return {
-          label: `${palayBatch.id} - ${palayBatch.quantityBags} bags - ${palayBatch.status}`,
+          label: `${palayBatch.id} - ${palayBatch.currentQuantityBags} bags - ${palayBatch.status}`,
           value: palayBatch.id,
           id: palayBatch.id,
           item: transaction.item,
-          quantityBags: palayBatch.quantityBags,
+          quantityBags: palayBatch.currentQuantityBags,
           palayStatus: palayBatch.status,
           transactionId: transaction.id,
           toLocationId: transaction.toLocationId,

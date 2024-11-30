@@ -189,7 +189,6 @@ function BuyPalay() {
   };
 
     const handleItemClick = (item) => {
-        console.log(inventoryData);
         setSelectedPalay(item);
         setShowDetails(true);
     };

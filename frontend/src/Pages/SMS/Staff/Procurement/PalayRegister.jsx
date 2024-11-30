@@ -692,7 +692,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered, currentWSR }) {
           newErrors.gender = "Gender is required";
         }
       } else {
-        if (!palayData.numOfFarmer.trim()) {
+        if (!palayData.numOfFarmer) {
           newErrors.numOfFarmer = "Number of farmers is required";
         } else if (parseInt(palayData.numOfFarmer) === 0) {
           newErrors.numOfFarmer = "Number of farmers cannot be 0";
@@ -794,8 +794,6 @@ function PalayRegister({ visible, onHide, onPalayRegistered, currentWSR }) {
         newErrors.farmSize = "Farm size is required";
       } else if (parseFloat(palayData.farmSize) === 0) {
         newErrors.farmSize = "Farm size cannot be 0";
-      } else if (parseFloat(palayData.farmSize) > 7) {
-        newErrors.farmSize = "Farm size must not be more than 7";
       }
       if (!palayData.plantedDate) {
         newErrors.plantedDate = "Date planted is required";

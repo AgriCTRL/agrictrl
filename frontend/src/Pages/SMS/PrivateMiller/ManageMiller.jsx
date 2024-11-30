@@ -331,7 +331,7 @@ function ManageMiller() {
     }
 
     return (
-        <PrivateMillerLayout activePage="Manage Miller" user={user} leftSidebar={<></>} isLeftSidebarOpen={true} isRightSidebarOpen={true} rightSidebar={<></>}>
+        <PrivateMillerLayout activePage="Manage Miller" user={user} leftSidebar={<></>} isLeftSidebarOpen={false} isRightSidebarOpen={false} rightSidebar={<></>}>
             <Toast ref={toast} />
             <div className="flex flex-col h-full w-full py-2 bg-white rounded-xl px-4">
                 <div className="flex flex-col justify-center items-center p-10 h-1/4 rounded-lg bg-gradient-to-r from-primary to-secondary">

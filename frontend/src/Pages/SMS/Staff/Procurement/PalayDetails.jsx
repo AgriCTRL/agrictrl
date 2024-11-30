@@ -7,6 +7,7 @@ import { InputNumber } from "primereact/inputnumber";
 import { Calendar } from "primereact/calendar";
 
 function PalayDetails({ visible, onHide, palay, onUpdate }) {
+  if (!palay) return null;
   const [isEditing, setIsEditing] = useState(false);
   const [editedPalay, setEditedPalay] = useState({});
   const [canEdit, setCanEdit] = useState(false);
@@ -17,6 +18,8 @@ function PalayDetails({ visible, onHide, palay, onUpdate }) {
   useEffect(() => {
     if (palay && visible) {
       fetchTransactions();
+      // Initialize editedPalay with a deep copy to handle nested objects
+      setEditedPalay(JSON.parse(JSON.stringify(palay)));
     }
   }, [palay, visible]);
 
@@ -31,15 +34,11 @@ function PalayDetails({ visible, onHide, palay, onUpdate }) {
       const data = await res.json();
       const transactions = data.items[0].transactions;
       setTransactions(transactions);
-  
+
       // Check edit conditions
-      // Disable editing if:
-      // 1. There are 2 or more transactions
-      // 2. The first transaction has status "Received"
-      const isEditingAllowed = 
-        transactions.length === 1 && 
-        transactions[0].status !== "Received";
-  
+      const isEditingAllowed =
+        transactions.length === 1 && transactions[0].status !== "Received";
+
       setCanEdit(isEditingAllowed);
     } catch (error) {
       console.error("Error fetching transactions:", error);
@@ -52,7 +51,6 @@ function PalayDetails({ visible, onHide, palay, onUpdate }) {
 
   const handleEdit = () => {
     if (canEdit) {
-      setEditedPalay({ ...palay });
       setIsEditing(true);
     }
   };
@@ -64,7 +62,10 @@ function PalayDetails({ visible, onHide, palay, onUpdate }) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(editedPalay, palay.id),
+        body: JSON.stringify({
+          ...editedPalay,
+          id: palay.id,
+        }),
       });
 
       if (!response.ok) {
@@ -80,6 +81,8 @@ function PalayDetails({ visible, onHide, palay, onUpdate }) {
 
   const handleCancel = () => {
     setIsEditing(false);
+    // Reset to original palay data
+    setEditedPalay(JSON.parse(JSON.stringify(palay)));
   };
 
   const updateField = (field, value) => {
@@ -90,16 +93,21 @@ function PalayDetails({ visible, onHide, palay, onUpdate }) {
   };
 
   const updateNestedField = (section, field, value) => {
-    setEditedPalay((prev) => ({
-      ...prev,
-      [section]: {
-        ...(prev[section] || {}),
-        [field]: value,
-      },
-    }));
+    setEditedPalay((prev) => {
+      // Create a deep clone of the previous state
+      const updated = JSON.parse(JSON.stringify(prev));
+  
+      // Ensure the section exists
+      if (!updated[section]) {
+        updated[section] = {};
+      }
+  
+      // Update the specific field
+      updated[section][field] = value;
+  
+      return updated;
+    });
   };
-
-  if (!palay) return null;
 
   const dialogHeader = (
     <div className="flex justify-between items-center">
@@ -125,7 +133,7 @@ function PalayDetails({ visible, onHide, palay, onUpdate }) {
   const handleHide = () => {
     onHide();
     setIsEditing(false);
-  }
+  };
 
   return (
     <Dialog
@@ -239,7 +247,7 @@ function PalayDetails({ visible, onHide, palay, onUpdate }) {
             value={new Date(editedPalay.dateBought)}
             onChange={(e) => updateField("dateBought", e.value)}
             dateFormat="mm/dd/yy"
-            disabled={!canEdit}
+            disabled
             className="w-full ring-0"
           />
         )}
@@ -316,23 +324,24 @@ function PalayDetails({ visible, onHide, palay, onUpdate }) {
         )}
 
         {/* Buying Station Information */}
+
         {renderField(
           "Station Name",
           `${palay.buyingStationName}`,
           <InputText
             value={editedPalay.buyingStationName}
-            onChange={(e) => updateField("buyingStationName", e.value)}
+            onChange={(e) => updateField("buyingStationName", e.target.value)}
             disabled={!canEdit}
             className="w-full ring-0"
           />
         )}
 
         {renderField(
-          "Station Location",
-          palay.buyingStationLoc,
+          "Station Name",
+          `${palay.buyingStationLoc}`,
           <InputText
             value={editedPalay.buyingStationLoc}
-            onValueChange={(e) => updateField("buyingStationLoc", e.value)}
+            onChange={(e) => updateField("buyingStationLoc", e.target.value)}
             disabled={!canEdit}
             className="w-full ring-0"
           />
@@ -340,10 +349,10 @@ function PalayDetails({ visible, onHide, palay, onUpdate }) {
 
         {renderField(
           "Current Location",
-          palay.currentlyAt,
+          `${palay.currentlyAt}`,
           <InputText
             value={editedPalay.currentlyAt}
-            onValueChange={(e) => updateField("currentlyAt", e.value)}
+            onChange={(e) => updateField("currentlyAt", e.target.value)}
             disabled
             className="w-full ring-0"
           />
@@ -351,10 +360,10 @@ function PalayDetails({ visible, onHide, palay, onUpdate }) {
 
         {renderField(
           "Weigher",
-          palay.weighedBy,
+          `${palay.weighedBy}`,
           <InputText
             value={editedPalay.weighedBy}
-            onValueChange={(e) => updateField("weighedBy", e.value)}
+            onChange={(e) => updateField("weighedBy", e.target.value)}
             disabled={!canEdit}
             className="w-full ring-0"
           />
@@ -365,7 +374,7 @@ function PalayDetails({ visible, onHide, palay, onUpdate }) {
           palay.correctedBy,
           <InputText
             value={editedPalay.correctedBy}
-            onValueChange={(e) => updateField("correctedBy", e.value)}
+            onChange={(e) => updateField("correctedBy", e.target.value)}
             disabled={!canEdit}
             className="w-full ring-0"
           />
@@ -376,83 +385,53 @@ function PalayDetails({ visible, onHide, palay, onUpdate }) {
           palay.classifiedBy,
           <InputText
             value={editedPalay.classifiedBy}
-            onValueChange={(e) => updateField("classifiedBy", e.value)}
+            onChange={(e) => updateField("classifiedBy", e.target.value)}
             disabled={!canEdit}
             className="w-full ring-0"
           />
         )}
-
-        {/* Source Information */}
-        {/* <div className="col-span-3 border-b pb-2 mt-4">
-          <h3 className="font-semibold">Source Information</h3>
-        </div> */}
-
-        {/* {renderField(
-          "Farmer Name",
-          palay.palaySupplier.farmerName,
-          <InputText
-            value={editedPalay.palaySupplier.farmerName}
-            onValueChange={(e) =>
-              updateNestedField("palaySupplier", "farmerName", e.value)
-            }
-            disabled={!canEdit}
-            className="w-full ring-0"
-          />
-        )} */}
-
-        {/* {renderField(
-          "Contact Number",
-          palay.palaySupplier.contactNumber,
-          <InputText
-            value={editedPalay.palaySupplier.contactNumber}
-            onValueChange={(e) =>
-              updateNestedField("palaySupplier", "contactNumber", e.value)
-            }
-            disabled={!canEdit}
-            className="w-full ring-0"
-          />
-        )} */}
-
-        {/* {renderField(
-          "Email",
-          palay.palaySupplier.email,
-          <InputText
-            value={editedPalay.palaySupplier.email}
-            onValueChange={(e) =>
-              updateNestedField("palaySupplier", "email", e.value)
-            }
-            disabled={!canEdit}
-            className="w-full ring-0"
-          />
-        )} */}
-
-        {/* Farm Information
-        <div className="col-span-3 border-b pb-2 mt-4">
-          <h3 className="font-semibold">Farm Information</h3>
-        </div>
-
-        {renderField(
-          "Farm Size",
-          palay.farm.farmSize,
-          <InputText
-            value={editedPalay.farm.farmSize}
-            onValueChange={(e) =>
-              updateNestedField("farm", "farmSize", e.value)
-            }
-            disabled={!canEdit}
-            className="w-full ring-0"
-          />
-        )}
-
         {!isEditing && (
-          <div className="col-span-2">
-            <p className="text-gray-600">Complete Address</p>
-            <p>
-              {palay.farm.street}, {palay.farm.barangay}, {palay.farm.cityTown},{" "}
-              {palay.farm.province}, {palay.farm.region}
-            </p>
-          </div>
-        )} */}
+          <>
+            {/* Source Information */}
+            <div className="col-span-3 border-b pb-2 mt-4">
+              <h3 className="font-semibold">Source Information</h3>
+            </div>
+
+            <div>
+              <p className="text-gray-600">Supplier Name</p>
+              <p>{palay.palaySupplier.farmerName}</p>
+            </div>
+
+            <div>
+              <p className="text-gray-600">Contact Number</p>
+              <p>{palay.palaySupplier.contactNumber}</p>
+            </div>
+
+            <div>
+              <p className="text-gray-600">Email</p>
+              <p>{palay.palaySupplier.email}</p>
+            </div>
+
+            {/* Farm Information */}
+            <div className="col-span-3 border-b pb-2 mt-4">
+              <h3 className="font-semibold">Farm Information</h3>
+            </div>
+
+            <div>
+              <p className="text-gray-600">Farm Size</p>
+              <p>{palay.farm.farmSize}</p>
+            </div>
+
+            <div className="col-span-2">
+              <p className="text-gray-600">Complete Address</p>
+              <p>
+                {palay.farm.street}, {palay.farm.barangay},{" "}
+                {palay.farm.cityTown}, {palay.farm.province},{" "}
+                {palay.farm.region}
+              </p>
+            </div>
+          </>
+        )}
       </div>
     </Dialog>
   );

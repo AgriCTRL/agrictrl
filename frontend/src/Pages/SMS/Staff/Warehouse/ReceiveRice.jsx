@@ -153,20 +153,6 @@ const ReceiveRice = ({
     );
   };
 
-  const NoAvailablePiles = () => (
-    <div className="flex flex-col items-center gap-4 p-6 text-center">
-      <AlertCircle size={32} className="text-yellow-500" />
-      <div>
-        <h3 className="text-lg font-semibold mb-2">No Available Piles</h3>
-        <p className="text-gray-600">
-          There are no rice piles with enough capacity to store{" "}
-          {selectedItem?.quantityBags} bags. Please create a new pile or clear
-          space in existing piles.
-        </p>
-      </div>
-    </div>
-  );
-
   return (
     <>
       {isLoading && (
@@ -174,53 +160,40 @@ const ReceiveRice = ({
           <Loader />
         </div>
       )}
+      <Toast ref={toast} />
       <Dialog
         header="Receive Rice"
         visible={visible}
         onHide={isLoading ? null : onHide}
-        className="w-full max-w-lg"
+        className="w-1/3"
         closeOnEscape={!isLoading}
-        footer={
-          <div className="flex justify-end gap-2">
-            <Button
-              label="Cancel"
-              icon="pi pi-times"
-              onClick={onHide}
-              className="p-button-text"
-              disabled={isLoading}
+      >
+        <div className="flex flex-col items-center gap-4">
+          <CheckCircle size={32} className="text-primary" />
+          <p> Receive {selectedItem ? selectedItem.quantityBags : "0"} bags of Rice </p>
+          
+          <div className="w-full">
+            <label className="block mb-2">Select Pile</label>
+            <Dropdown
+              value={selectedPile}
+              options={availablePiles}
+              onChange={(e) => setSelectedPile(e.value)}
+              optionLabel="pileNumber"
+              placeholder="Select a Pile"
+              className="w-full"
+              itemTemplate={pileOptionTemplate}
             />
+          </div>
+
+          <div className="flex justify-between w-full mt-5">
             <Button
-              label="Accept Rice"
-              icon="pi pi-check"
+              label="Confirm Receive"
+              className="w-full bg-primary hover:border-none"
               onClick={handleReceiveRice}
               disabled={isLoading || !selectedPile}
               loading={isLoading}
             />
           </div>
-        }
-      >
-        <Toast ref={toast} />
-
-        <div className="flex flex-col items-center gap-4">
-          <CheckCircle size={32} className="text-primary" />
-          <p>Store {selectedItem?.quantityBags || 0} bags of Rice</p>
-
-          {availablePiles.length > 0 ? (
-            <div className="w-full">
-              <label className="block mb-2">Select Pile</label>
-              <Dropdown
-                value={selectedPile}
-                options={availablePiles}
-                onChange={(e) => setSelectedPile(e.value)}
-                optionLabel="pileNumber"
-                placeholder="Select a Pile"
-                className="w-full"
-                itemTemplate={pileOptionTemplate}
-              />
-            </div>
-          ) : (
-            <NoAvailablePiles />
-          )}
         </div>
       </Dialog>
     </>

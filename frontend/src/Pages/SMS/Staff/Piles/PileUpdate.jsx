@@ -23,7 +23,7 @@ function PileUpdate({
   const [maxCapacity, setMaxCapacity] = useState("");
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const statusOptions = [
     { label: "Inactive", value: "Inactive" },
@@ -53,7 +53,7 @@ function PileUpdate({
       return;
     }
 
-    setIsSubmitting(true);
+    setIsLoading(true);
 
     const updatedPile = {
       id: selectedPile.id,
@@ -90,7 +90,7 @@ function PileUpdate({
         life: 3000,
       });
     } finally {
-      setIsSubmitting(false);
+      setIsLoading(false);
     }
   };
 
@@ -184,7 +184,8 @@ function PileUpdate({
               <Button
                 label="Update Pile"
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isLoading}
+                loading={isLoading}
                 className="w-full bg-primary text-white py-2 rounded-md ring-0"
               />
             </div>
