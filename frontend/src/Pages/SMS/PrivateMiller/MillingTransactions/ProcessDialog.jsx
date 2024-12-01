@@ -156,14 +156,23 @@ const ProcessDialog = ({
       const { millingBatchId, palayBatchId, toLocationId, millerType } =
         selectedItem;
 
-      // Calculate weights
-      const milledQuantityBags = parseInt(newMillingData.milledQuantityBags);
-      const milledGrossWeight = parseFloat(newMillingData.milledGrossWeight);
-      const milledNetWeight = parseFloat(newMillingData.milledNetWeight);
-      const millingEfficiency = calculateMillingEfficiency(
-        milledQuantityBags,
-        selectedItem.quantityBags
+      // Calculate 66% of the milled bags and proportional weights
+      const originalMilledQuantityBags = parseInt(
+        newMillingData.milledQuantityBags
       );
+      const reducedMilledQuantityBags = Math.floor(
+        originalMilledQuantityBags * 0.63
+      );
+
+      const originalGrossWeight = parseFloat(newMillingData.milledGrossWeight);
+      const reducedGrossWeight =
+        originalGrossWeight *
+        (reducedMilledQuantityBags / originalMilledQuantityBags);
+
+      const originalNetWeight = parseFloat(newMillingData.milledNetWeight);
+      const reducedNetWeight =
+        originalNetWeight *
+        (reducedMilledQuantityBags / originalMilledQuantityBags);
 
       const updateData = {
         id: millingBatchId,
@@ -171,10 +180,10 @@ const ProcessDialog = ({
         millerId: toLocationId,
         millerType,
         endDateTime: currentDate,
-        milledGrossWeight,
-        milledQuantityBags,
-        milledNetWeight,
-        millingEfficiency,
+        milledGrossWeight: reducedGrossWeight, // Record reduced gross weight
+        milledQuantityBags: reducedMilledQuantityBags, // Record reduced quantity
+        milledNetWeight: reducedNetWeight, // Record reduced net weight
+        millingEfficiency: newMillingData.millingEfficiency,
         status: "Done",
       };
 
@@ -323,6 +332,10 @@ const ProcessDialog = ({
                 {errors.millingEfficiency}
               </div>
             )}
+          </div>
+
+          <div className="text-sm text-yellow-600 mt-2">
+            Note: Only 63% of the milled bags will be recorded in the system.
           </div>
 
           <div className="flex justify-between gap-4 mt-4">

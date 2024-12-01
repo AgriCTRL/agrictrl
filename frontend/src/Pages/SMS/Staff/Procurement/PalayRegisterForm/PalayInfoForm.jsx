@@ -16,6 +16,13 @@ const PalayInfoForm = ({
   const [cityTownOptions, setCityTownOptions] = useState([]);
   const [barangayOptions, setBarangayOptions] = useState([]);
 
+  const varietyCodeOptions = [
+    { label: "PW S", value: "PW S", qualityType: "Wet" },
+    { label: "PW M", value: "PW M", qualityType: "Wet" },
+    { label: "PD S", value: "PD S", qualityType: "Dry" },
+    { label: "PD M", value: "PD M", qualityType: "Dry" },
+  ];
+
   useEffect(() => {
     fetchRegions();
   }, []);
@@ -257,6 +264,30 @@ const PalayInfoForm = ({
     return minDate > currentDate ? currentDate : minDate;
   };
 
+  const handleVarietyCodeChange = (e) => {
+    const selectedVariety = varietyCodeOptions.find(
+      (option) => option.value === e.value
+    );
+
+    // Update variety code
+    handlePalayInputChange({
+      target: {
+        name: "varietyCode",
+        value: e.value,
+      },
+    });
+
+    // Automatically update quality type
+    if (selectedVariety) {
+      handleQualityTypeInputChange({
+        target: {
+          name: "qualityType",
+          value: selectedVariety.qualityType,
+        },
+      });
+    }
+  };
+
   return (
     <div className="flex flex-col gap-4">
       {/* Purchase Details */}
@@ -268,14 +299,14 @@ const PalayInfoForm = ({
           >
             Variety Code
           </label>
-          <InputText
+          <Dropdown
             id="varietyCode"
             name="varietyCode"
             value={palayData.varietyCode}
-            onChange={handlePalayInputChange}
-            placeholder="Enter Variety Code"
+            options={varietyCodeOptions}
+            onChange={handleVarietyCodeChange}
+            placeholder="Select Variety Code"
             className="w-full ring-0"
-            maxLength={50}
           />
           {errors.varietyCode && (
             <p className="text-red-500 text-xs mt-1">{errors.varietyCode}</p>
@@ -313,11 +344,11 @@ const PalayInfoForm = ({
           <Calendar
             id="dateBought"
             name="dateBought"
-            value={palayData.dateBought}
+            value={palayData.dateBought || new Date()}
             onChange={handlePalayInputChange}
             showIcon
+            disabled
             className="rig-0 w-full placeholder:text-gray-400 focus:shadow-none custom-calendar"
-            minDate={getMinDateBought()}
           />
           {errors.dateBought && (
             <p className="text-red-500 text-xs mt-1">{errors.dateBought}</p>
@@ -575,7 +606,7 @@ const PalayInfoForm = ({
               options={regionOptions}
               onChange={handlePalayInputChange}
               placeholder="Region"
-              className="w-full ring-0" 
+              className="w-full ring-0"
               disabled={sameAsHomeAddress}
             />
             {errors.farmRegion && (

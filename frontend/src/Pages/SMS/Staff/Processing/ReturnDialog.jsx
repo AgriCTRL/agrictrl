@@ -6,6 +6,8 @@ import { InputText } from "primereact/inputtext";
 import { InputTextarea } from "primereact/inputtextarea";
 import { Toast } from "primereact/toast";
 
+import { Wheat } from "lucide-react";
+
 import Loader from "@/Components/Loader";
 
 const initialTransactionData = {
@@ -48,6 +50,7 @@ const ReturnDialog = ({
     initialTransactionData
   );
   const [transporters, setTransporters] = useState([]);
+  const [wsr, setWsr] = useState("");
 
   // Filter warehouses based on capacity and type
   const filteredWarehouses = warehouses
@@ -80,6 +83,7 @@ const ReturnDialog = ({
   useEffect(() => {
     if (newTransactionData.toLocationId) {
       fetchTransporters();
+      setWsr(viewMode === "drying" ? selectedItem?.wsr : "")
     }
   }, [newTransactionData.toLocationId]);
 
@@ -195,6 +199,7 @@ const ReturnDialog = ({
         body: JSON.stringify({
           id: selectedItem.palayBatchId,
           currentlyAt: newTransactionData.toLocationName,
+          wsr: wsr,
         }),
       });
 
@@ -268,7 +273,12 @@ const ReturnDialog = ({
           ? parseInt(newDryingData.driedQuantityBags)
           : parseInt(newMillingData.milledQuantityBags);
 
+      console.log("quantity to add: ", quantityToAdd)
+
       const newStock = quantityToAdd + parseInt(targetWarehouse.currentStock);
+
+      console.log("target warehouse stock: ", targetWarehouse.currentStock)
+      console.log("new stock: ", newStock)
 
       const warehouseResponse = await fetch(`${apiUrl}/warehouses/update`, {
         method: "POST",
@@ -315,6 +325,16 @@ const ReturnDialog = ({
 
   const validateForm = () => {
     let newErrors = {};
+
+    if (!wsr) {
+      newErrors.wsr = "Please enter WSR";
+      toast.current.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Please enter WSR",
+        life: 3000,
+      });
+    }
 
     if (!newTransactionData.toLocationId) {
       newErrors.toLocationId = "Please select a facility";
@@ -370,6 +390,39 @@ const ReturnDialog = ({
     return Object.keys(newErrors).length === 0;
   };
 
+  const customDialogHeader = (
+    <div className="flex justify-between">
+      <div className="flex items-center space-x-2">
+        <Wheat className="text-black" />
+        <h3 className="text-md font-semibold text-black">
+          Return {viewMode === "drying" ? "Palay" : "Rice"}
+        </h3>
+      </div>
+      <div className="flex flex-col items-center gap-2">
+        {selectedItem && (
+          <div className="flex items-center gap-2">
+            <label
+              htmlFor="wsr"
+              className="block text-xl font-semibold text-black"
+            >
+              WSR:
+            </label>
+            <InputText
+              id="wsr"
+              name="wsr"
+              value={wsr}
+              onChange={(e) => setWsr(e.target.value)}
+              className="w-40 ring-0 border-primary text-xl h-8 font-semibold text-black"
+              keyfilter="int"
+              maxLength={8}
+            />
+          </div>
+        )}
+        {errors.wsr && <p className="text-red-500 text-xs">{errors.wsr}</p>}
+      </div>
+    </div>
+  );
+
   return (
     <>
       {isLoading && (
@@ -379,7 +432,7 @@ const ReturnDialog = ({
       )}
       <Toast ref={toast} />
       <Dialog
-        header={`Return ${viewMode === "drying" ? "Palay" : "Rice"}`}
+        header={customDialogHeader}
         visible={visible}
         onHide={handleHide}
         className="w-1/3"
