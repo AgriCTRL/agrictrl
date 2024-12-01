@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import StaffLayout from '../../../Layouts/StaffLayout';
+import StaffLayout from '@/Layouts/Staff/StaffLayout';
 
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';

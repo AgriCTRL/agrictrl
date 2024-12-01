@@ -6,9 +6,9 @@ import { Bell } from "lucide-react";
 import { Avatar } from "primereact/avatar";
 import { Divider } from "primereact/divider";
 
-import Navbar from "../Components/Recipient/Navbar";
-import { useAuth } from "../Pages/Authentication/Login/AuthContext";
-import RightSidebar from "../Components/Recipient/RightSidebar";
+import Navbar from "./Components/Navbar";
+import { useAuth } from "../../Pages/Authentication/Login/AuthContext";
+import RightSidebar from "./Components/RightSidebar";
 
 function RecipientLayout({
     children,

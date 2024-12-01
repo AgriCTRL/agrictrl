@@ -9,7 +9,7 @@ import { InputIcon } from 'primereact/inputicon';
 import { FilterMatchMode } from 'primereact/api';
 import { Download, Wheat } from 'lucide-react';
 
-import AdminLayout from '@/Layouts/AdminLayout';
+import AdminLayout from '@/Layouts/Admin/AdminLayout';
 import pdfLandscapeExport from '../../../Components/Pdf/pdfLandscapeExport';
 import EmptyRecord from '../../../Components/EmptyRecord';
 

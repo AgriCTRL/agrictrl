@@ -8,9 +8,9 @@ import {
     Users,
     User
 } from "lucide-react";
-import { AdminSidebarComponent, SidebarItem } from "@/Components/AdminSidebarComponent";
-import AdminNavbarComponent from '@/Components/AdminNavbarComponent';
-import { useAuth } from '../Pages/Authentication/Login/AuthContext';
+import { Sidebar, SidebarItem } from "./Components/Sidebar";
+import Navbar from './Components/Navbar';
+import { useAuth } from '../../Pages/Authentication/Login/AuthContext';
 
 const sidebarItems = [
     { 
@@ -79,7 +79,7 @@ function AdminLayout({ children, activePage }) {
     return (
         <div className="flex h-screen w-screen bg-[#F1F5F9] pr-6">
             {/* Sidebar */}
-            <AdminSidebarComponent 
+            <Sidebar 
                 expanded={expanded}
                 items={{
                     user: name,
@@ -95,12 +95,12 @@ function AdminLayout({ children, activePage }) {
                         active={isItemActive(item.text)}
                     />
                 ))}
-            </AdminSidebarComponent>
+            </Sidebar>
 
             {/* Main content */}
             <div className="flex flex-col w-full h-screen overflow-hidden"> {/* Ensure full height */}
                 {/* Header */}
-                <AdminNavbarComponent
+                <Navbar
                     items={{
                         user: name,
                         avatar: '/profileAvatar.png',

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import StaffLayout from "@/Layouts/StaffLayout";
+import StaffLayout from "@/Layouts/Staff/StaffLayout";
 
 import { DataView } from "primereact/dataview";
 import { Dialog } from "primereact/dialog";

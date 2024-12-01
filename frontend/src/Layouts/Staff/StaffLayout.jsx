@@ -1,10 +1,10 @@
 import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../Pages/Authentication/Login/AuthContext";
+import { useAuth } from "../../Pages/Authentication/Login/AuthContext";
 
-import Navbar from "../Components/Staff/Navbar";
-import RightSidebar from "../Components/Staff/RightSidebar";
-import LeftSidebar from "../Components/Staff/LeftSidebar";
+import Navbar from "./Components/Navbar";
+import RightSidebar from "./Components/RightSidebar";
+import LeftSidebar from "./Components/LeftSidebar";
 
 import { CheckCircle2, Loader2, Undo2 } from "lucide-react";
 

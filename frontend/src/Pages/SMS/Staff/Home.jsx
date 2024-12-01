@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 
 import { useAuth } from '../../Authentication/Login/AuthContext';
-import StaffLayout from '@/Layouts/StaffLayout';
+import StaffLayout from '@/Layouts/Staff/StaffLayout';
 
 
 function Home({ isRightSidebarOpen }) {

@@ -14,10 +14,10 @@ import { Button } from 'primereact/button';
 import { Divider } from 'primereact/divider';
 import { OverlayPanel } from 'primereact/overlaypanel';
         
-import { useAuth } from '../Pages/Authentication/Login/AuthContext';
+import { useAuth } from '../../../Pages/Authentication/Login/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
-function AdminNavbarComponent({ items, expanded, onToggleExpanded }) {
+function Navbar({ items, expanded, onToggleExpanded }) {
     const navigate = useNavigate();
     const { logout } = useAuth();
     const op = useRef(null);
@@ -104,4 +104,4 @@ function AdminNavbarComponent({ items, expanded, onToggleExpanded }) {
     );
 }
 
-export default AdminNavbarComponent;
+export default Navbar;

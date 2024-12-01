@@ -22,7 +22,7 @@ import {
 import PalayRegister from "./PalayRegister";
 import PalayDetails from "./PalayDetails";
 import { useAuth } from "../../../Authentication/Login/AuthContext";
-import StaffLayout from "@/Layouts/StaffLayout";
+import StaffLayout from "@/Layouts/Staff/StaffLayout";
 import Loader from "@/Components/Loader";
 
 function BuyPalay() {

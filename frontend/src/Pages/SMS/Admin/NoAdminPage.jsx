@@ -1,6 +1,6 @@
 import React from 'react'
 import PageDoesNotExists from '../../../Components/PageDoesNotExists';
-import AdminLayout from '../../../Layouts/AdminLayout';
+import AdminLayout from '@/Layouts/Admin/AdminLayout';
 
 const NoAdminPage = () => {
     return (

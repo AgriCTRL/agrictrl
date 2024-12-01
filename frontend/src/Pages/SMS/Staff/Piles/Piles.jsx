@@ -11,7 +11,7 @@ import { InputIcon } from "primereact/inputicon";
 import { Search, Plus } from "lucide-react";
 
 import { useAuth } from "../../../Authentication/Login/AuthContext";
-import StaffLayout from "@/Layouts/StaffLayout";
+import StaffLayout from "@/Layouts/Staff/StaffLayout";
 import PileRegister from "./PileRegister";
 import PileUpdate from "./PileUpdate";
 import Loader from "@/Components/Loader";

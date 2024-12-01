@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ThermometerSun, Warehouse, Factory, Loader, UserCheck, UserX } from "lucide-react";
-import AdminLayout from '../../../../Layouts/AdminLayout';
+import AdminLayout from '@/Layouts/Admin/AdminLayout';
 import Pending from './Pending';
 import Active from './Active';
 import Inactive from './Inactive';

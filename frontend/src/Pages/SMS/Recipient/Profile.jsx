@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import RecipientLayout from '../../../Layouts/RecipientLayout';
+import RecipientLayout from '@/Layouts/Recipient/RecipientLayout';
 
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';

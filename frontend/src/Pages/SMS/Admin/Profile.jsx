@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import AdminLayout from '@/Layouts/AdminLayout';
+import AdminLayout from '@/Layouts/Admin/AdminLayout';
 
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';

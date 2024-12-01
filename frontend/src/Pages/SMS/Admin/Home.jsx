@@ -9,7 +9,7 @@ import {
     Wheat,
     Users,
 } from "lucide-react";
-import AdminLayout from '@/Layouts/AdminLayout';
+import AdminLayout from '@/Layouts/Admin/AdminLayout';
 import CardComponent from '@/Components/CardComponent';
 
 function Home() {

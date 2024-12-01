@@ -8,10 +8,10 @@ import { Avatar } from 'primereact/avatar';
 
 import { ChevronDown, ChevronFirst, ChevronLast, User } from 'lucide-react';
 import { LogOut } from 'lucide-react';
-import { useAuth } from '../Pages/Authentication/Login/AuthContext';
+import { useAuth } from '../../../Pages/Authentication/Login/AuthContext';
         
 const SidebarContext = createContext()
-function AdminSidebarComponent({ children, expanded, items }) {
+function Sidebar({ children, expanded, items }) {
     const navigate = useNavigate();
     const { logout } = useAuth();
 
@@ -107,4 +107,4 @@ function SidebarItem({ icon, text, active, link }) {
     );
 }
 
-export { SidebarItem, AdminSidebarComponent };
+export { SidebarItem, Sidebar };

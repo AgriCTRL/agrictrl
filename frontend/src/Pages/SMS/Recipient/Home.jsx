@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import RecipientLayout from '../../../Layouts/RecipientLayout';
+import RecipientLayout from '@/Layouts/Recipient/RecipientLayout';
 import { Carousel } from 'primereact/carousel';
 import { Fan, Loader2, Undo2, CheckCircle2, ArrowRightLeft, WheatOff, ChevronRight, Wheat, Badge } from "lucide-react";
 import { useAuth } from '../../Authentication/Login/AuthContext';

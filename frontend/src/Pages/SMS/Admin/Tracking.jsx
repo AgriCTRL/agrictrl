@@ -3,7 +3,7 @@ import { DataView } from 'primereact/dataview';
 import { InputText } from 'primereact/inputtext';
 import { VirtualScroller } from 'primereact/virtualscroller';
 import { Divider } from 'primereact/divider';
-import AdminLayout from '@/Layouts/AdminLayout';
+import AdminLayout from '@/Layouts/Admin/AdminLayout';
 import { AlertCircle, Search, Wheat, ThermometerSun, Factory, Warehouse,  MapPin, ChevronDown, ChevronUp, Truck } from 'lucide-react';
 import emptyIllustration from '../../../../public/illustrations/space.svg';
 import Loader from '../../../Components/Loader';
