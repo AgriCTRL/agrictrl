@@ -5,7 +5,6 @@ import { VirtualScroller } from 'primereact/virtualscroller';
 import { Divider } from 'primereact/divider';
 import AdminLayout from '@/Layouts/Admin/AdminLayout';
 import { AlertCircle, Search, Wheat, ThermometerSun, Factory, Warehouse,  MapPin, ChevronDown, ChevronUp, Truck } from 'lucide-react';
-import emptyIllustration from '../../../../public/illustrations/space.svg';
 import Loader from '../../../Components/Loader';
 
 const Tracking = () => {
@@ -326,7 +325,7 @@ const Tracking = () => {
 
     const emptyMessage = () => (
         <div className="flex flex-col items-center justify-center py-12 gap-4">
-            <img src={emptyIllustration} alt="empty" width="130" />
+            <img src="/illustrations/space.svg" alt="empty" width="130" />
             <p className="text-primary text-2xl font-semibold">No Data Found</p>
         </div>
     );
@@ -447,7 +446,7 @@ const Tracking = () => {
                             first={first}
                             totalRecords={totalRecords}
                             onPage={onPage}
-                            emptyMessage={emptyMessage}
+                            emptyMessage={emptyMessage()}
                             className="overflow-y-auto pb-16"
                             paginatorClassName="absolute bottom-0 left-0 right-0 bg-white border-t"
                             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"

@@ -6,7 +6,6 @@ import { Timeline } from 'primereact/timeline';
 import { Tag } from 'primereact/tag';
 import { InputText } from 'primereact/inputtext';
 import { AlertCircle, Search, Wheat, ThermometerSun, Factory, WheatOff, ArrowLeftToLine } from 'lucide-react';
-import emptyIllustration from '../../../public/illustrations/space.svg';
 
 const TracknTrace = () => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -265,7 +264,7 @@ const TracknTrace = () => {
 
       {filteredTransactions.length === 0 && (
         <div className='flex flex-col items-center justify-center mt-8'>
-          <img src={emptyIllustration} alt="empty" width="130" />
+          <img src="/illustrations/space.svg" alt="empty" width="130" />
           <p className='text-primary text-2xl font-semibold'>Start by searching Rice ID</p>
         </div>
       )}
