@@ -39,6 +39,7 @@ const RegistrationPageContent = () => {
         finishing: false,
     });
     const [selectedFile, setSelectedFile] = useState(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
         const nextStepIndex = steps.findIndex(
@@ -123,6 +124,9 @@ const RegistrationPageContent = () => {
     const handleRegister = async (e) => {
         e.preventDefault();
 
+        setIsSubmitting(true);
+        return;
+        
         if (!validatePasswordFields()) {
             return;
         }
@@ -185,6 +189,7 @@ const RegistrationPageContent = () => {
                 life: 3000,
             });
         }
+        setIsSubmitting(false);
     };
 
     const LoginButton = (e) => {
@@ -411,6 +416,7 @@ const RegistrationPageContent = () => {
                         activeStep={activeStep}
                         prevStep={prevStep}
                         nextStep={nextStep}
+                        isSubmitting={isSubmitting}
                     />
                 </div>
 
