@@ -6,6 +6,8 @@ import { Dropdown } from "primereact/dropdown";
 import { InputTextarea } from "primereact/inputtextarea";
 import { Toast } from "primereact/toast";
 
+import { Wheat } from "lucide-react";
+
 import { WSI } from "../../../../Components/Pdf/pdfWarehouseStockIssue";
 import Loader from "@/Components/Loader";
 
@@ -44,6 +46,7 @@ const SendTo = ({
   const [inventoryItems, setInventoryItems] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
   const [transporters, setTransporters] = useState([]);
+  const [wsi, setWsi] = useState("");
   const [newTransactionData, setNewTransactionData] = useState(
     initialNewTransactionData
   );
@@ -199,6 +202,16 @@ const SendTo = ({
       });
     }
 
+    if (!wsi) {
+      newErrors.wsi = "Please enter WSI";
+      toast.current.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Please enter WSI",
+        life: 3000,
+      });
+    }
+
     if (!newTransactionData.toLocationId) {
       newErrors.toLocationId = "Please select a facility";
       toast.current.show({
@@ -292,6 +305,7 @@ const SendTo = ({
         body: JSON.stringify({
           id: selectedItem.id,
           currentlyAt: newTransactionData.toLocationName,
+          wsi: wsi,
         }),
       });
 
@@ -446,6 +460,38 @@ const SendTo = ({
     }
   };
 
+  const customDialogHeader = (
+    <div className="flex justify-between">
+      <div className="flex items-center space-x-2">
+        <Wheat className="text-black" />
+        <h3 className="text-md font-semibold text-black">Buy Palay</h3>
+      </div>
+      {selectedItem && (
+        <div className="flex flex-col items-center gap-2">
+          <div className="flex items-center gap-2">
+            <label
+              htmlFor="wsr"
+              className="block text-xl font-semibold text-black"
+            >
+              WSI:
+            </label>
+            <InputText
+              id="wsi"
+              name="wsi"
+              value={wsi}
+              onChange={(e) => setWsi(e.target.value)}
+              className={`w-40 h-8 ${errors.toLocationId ? "p-invalid" : ""}`}
+              keyfilter="int"
+              maxLength={8}
+            />
+            
+          </div>
+          {errors.wsi && <p className="text-red-500 text-xs">{errors.wsi}</p>}
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <>
       {isLoading && (
@@ -455,7 +501,7 @@ const SendTo = ({
       )}
       <Toast ref={toast} />
       <Dialog
-        header="Send To"
+        header={customDialogHeader}
         visible={visible}
         onHide={isLoading ? null : onHide}
         className="w-1/3"

@@ -20,19 +20,19 @@ const ProcessDialog = ({
   apiUrl,
   refreshData,
 }) => {
-  const toast = useRef(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState({});
-
   if (!selectedItem) {
     return null;
   }
+
+  const toast = useRef(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState({});
 
   // Use the consolidated quantityBags
   const maxValue = selectedItem.quantityBags;
 
   const calculateWeights = (quantity) => {
-    const bagWeight = 50; // Assuming 50kg per bag
+    const bagWeight = 50;
     return {
       grossWeight: quantity * bagWeight,
       netWeight: quantity * bagWeight - quantity,
@@ -142,16 +142,48 @@ const ProcessDialog = ({
         };
         endpoint = "dryingbatches";
       } else {
+        // For milling, calculate 66% of the bags and corresponding weights
+        const originalMilledQuantityBags = parseInt(
+          newMillingData.milledQuantityBags
+        );
+        const reducedMilledQuantityBags = Math.floor(
+          originalMilledQuantityBags * 0.63
+        );
+
+        // Calculate proportional weights
+        const originalGrossWeight = parseFloat(
+          newMillingData.milledGrossWeight
+        );
+        const reducedGrossWeight =
+          originalGrossWeight *
+          (reducedMilledQuantityBags / originalMilledQuantityBags);
+
+        const originalNetWeight = parseFloat(newMillingData.milledNetWeight);
+        const reducedNetWeight =
+          originalNetWeight *
+          (reducedMilledQuantityBags / originalMilledQuantityBags);
+
+        // Calculate milling efficiency based on original bags
+        const millingEfficiency = parseFloat(newMillingData.millingEfficiency);
+
         updateData = {
           id: selectedItem.millingBatchId,
           palayBatchId: selectedItem.palayBatchId,
           millerId: selectedItem.toLocationId,
           millerType: selectedItem.millerType,
           endDateTime: currentDate.toISOString(),
-          milledGrossWeight: parseFloat(newMillingData.milledGrossWeight),
-          milledQuantityBags: parseInt(newMillingData.milledQuantityBags),
-          milledNetWeight: parseFloat(newMillingData.milledNetWeight),
-          millingEfficiency: parseFloat(newMillingData.millingEfficiency),
+
+          // Record only 66% of the original values
+          milledGrossWeight: reducedGrossWeight,
+          milledQuantityBags: reducedMilledQuantityBags,
+          milledNetWeight: reducedNetWeight,
+          millingEfficiency: millingEfficiency,
+
+          // Additional fields for tracking original values if needed
+          originalMilledQuantityBags: originalMilledQuantityBags,
+          originalGrossWeight: originalGrossWeight,
+          originalNetWeight: originalNetWeight,
+
           status: "Done",
         };
         endpoint = "millingbatches";
@@ -411,29 +443,21 @@ const ProcessDialog = ({
                 )}
               </div>
 
-              <div className="w-full">
-                <label className="block mb-2">Drying Method</label>
-                <Dropdown
-                  value={newDryingData.dryingMethod}
-                  options={[
-                    { label: "Sun Dry", value: "Sun Dry" },
-                    { label: "Machine Dry", value: "Machine Dry" },
-                  ]}
-                  onChange={(e) =>
-                    setNewDryingData((prev) => ({
-                      ...prev,
-                      dryingMethod: e.value,
-                    }))
-                  }
-                  className="w-full"
-                  placeholder="Select Drying Method"
-                />
-                {errors.dryingMethod && (
-                  <div className="text-red-500 text-sm mt-1">
-                    {errors.dryingMethod}
-                  </div>
-                )}
-              </div>
+              <Dropdown
+                value={newDryingData.dryingMethod}
+                options={[
+                  { label: "Sun Dry", value: "Sun Dryer" },
+                  { label: "Machine", value: "Machine" },
+                ]}
+                onChange={(e) =>
+                  setNewDryingData((prev) => ({
+                    ...prev,
+                    dryingMethod: e.value,
+                  }))
+                }
+                className="w-full ring-0"
+                placeholder="Select Drying Method"
+              />
             </>
           ) : (
             <>
@@ -519,6 +543,12 @@ const ProcessDialog = ({
                   </div>
                 )}
               </div>
+              {viewMode === "milling" && (
+                <div className="text-sm text-yellow-600 mt-2">
+                  Note: Only 63% of the milled bags will be recorded in the
+                  system.
+                </div>
+              )}
             </>
           )}
 

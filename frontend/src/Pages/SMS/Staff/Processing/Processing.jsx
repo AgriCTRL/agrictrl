@@ -235,6 +235,7 @@ const Processing = () => {
         return {
           palayBatchId: palayBatch?.id || null,
           wsr: palayBatch?.wsr || null,
+          wsi: palayBatch?.wsi || null,
           transactionId: transaction?.id || null,
           millingBatchId: millingBatch?.id || null,
           dryingBatchId: dryingBatch?.id || null,
@@ -297,7 +298,7 @@ const Processing = () => {
                   year: "numeric",
                 })
               : "",
-          moistureContent: qualitySpec?.moistureContent || "",
+          moistureContent: dryingBatch?.moistureContent || qualitySpec?.moistureContent || "",
           transportedBy: transaction?.transporterName || "",
           palayStatus: palayBatch?.status || null,
           transactionStatus: transaction?.status || null,
@@ -479,7 +480,7 @@ const Processing = () => {
           {/* Middle - Main Info */}
           <div className="flex-1">
             <div className="font-medium text-xl mb-1">
-              Palay Batch #{item.wsr}
+              Palay Batch # {viewMode === "drying" ? item.wsr : item.wsi}
             </div>
             {selectedFilter === "request" && (
               <>

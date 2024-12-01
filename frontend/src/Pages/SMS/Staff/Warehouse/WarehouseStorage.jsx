@@ -192,8 +192,8 @@ function WarehouseStorage() {
 
   const itemTemplate = (item) => {
     const bgColorClass = 
-      (item.type === "Palay" && item.age >= 3) || 
-      (item.type === "Rice" && item.age >= 6) 
+      (item.type === "Palay" && item.age >= 6) || 
+      (item.type === "Rice" && item.age >= 9) 
         ? "bg-red-200 hover:bg-red-300" 
         : "bg-gray-100 hover:bg-gray-200";
   

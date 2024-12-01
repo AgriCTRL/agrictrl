@@ -177,22 +177,26 @@ function Distribution() {
   const fetchPilesData = async () => {
     try {
       setIsLoading(true);
-
+  
       const res = await fetch(`${apiUrl}/piles`);
       if (!res.ok) {
         throw new Error("Failed to fetch piles data");
       }
       const { data } = await res.json();
-
+  
       // Filter and sort piles that are for sale and of type "Rice"
       const forSalePiles = data
         .filter((pile) => pile.forSale === true && pile.type === "Rice")
-        .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-
+        .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+        .map(pile => ({
+          ...pile,
+          currentQuantity: Math.floor(pile.currentQuantity * 0.5) // Limit to 50% of available bags
+        }));
+  
       // Store full piles data
       setPilesData(forSalePiles);
-
-      // Calculate total available quantity
+  
+      // Calculate total available quantity (now limited to 50%)
       const totalQuantity = forSalePiles.reduce(
         (sum, pile) => sum + pile.currentQuantity,
         0
