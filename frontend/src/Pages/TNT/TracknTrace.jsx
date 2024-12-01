@@ -6,7 +6,7 @@ import { Timeline } from 'primereact/timeline';
 import { Tag } from 'primereact/tag';
 import { InputText } from 'primereact/inputtext';
 import { AlertCircle, Search, Wheat, ThermometerSun, Factory, WheatOff, ArrowLeftToLine } from 'lucide-react';
-import emptyIllustration from '@/images/illustrations/space.svg';
+import emptyIllustration from '../../../public/illustrations/space.svg';
 
 const TracknTrace = () => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;

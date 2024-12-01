@@ -5,7 +5,7 @@ import { VirtualScroller } from 'primereact/virtualscroller';
 import { Divider } from 'primereact/divider';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { AlertCircle, Search, Wheat, ThermometerSun, Factory, Warehouse,  MapPin, ChevronDown, ChevronUp, Truck } from 'lucide-react';
-import emptyIllustration from '@/images/illustrations/space.svg';
+import emptyIllustration from '../../../../public/illustrations/space.svg';
 import Loader from '../../../Components/Loader';
 
 const Tracking = () => {
