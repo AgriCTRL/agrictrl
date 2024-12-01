@@ -8,7 +8,7 @@ import { Divider } from "primereact/divider";
 
 import Navbar from "./Components/Navbar";
 import { useAuth } from "../../Pages/Authentication/Login/AuthContext";
-import RightSidebar from "../../Components/Recipient/RightSidebar";
+import RightSidebar from "./Components/RightSidebar";
 
 function RecipientLayout({
     children,
