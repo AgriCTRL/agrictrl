@@ -123,15 +123,13 @@ const RegistrationPageContent = () => {
 
     const handleRegister = async (e) => {
         e.preventDefault();
-
-        setIsSubmitting(true);
-        return;
         
         if (!validatePasswordFields()) {
             return;
         }
         
         try {
+            setIsSubmitting(true);
             const fileData = await handleFileUpload();
             let updatedAccountDetails = { ...registrationData.accountDetails };
 
