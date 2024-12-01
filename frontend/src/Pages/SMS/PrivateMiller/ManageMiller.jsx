@@ -265,7 +265,7 @@ function ManageMiller() {
                 </div>
                 <div className="w-full">
                     <label className="block mb-2 text-sm font-medium text-gray-700">
-                        Capacity
+                        Capacity (Bags)
                     </label>
                     <InputText
                         value={millerData.capacity}

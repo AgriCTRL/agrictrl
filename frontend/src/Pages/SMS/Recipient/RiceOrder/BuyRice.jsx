@@ -51,14 +51,14 @@ function BuyRice({ visible, onHide, onRiceOrdered }) {
 
       // Filter for piles that are for sale
       const forSalePiles = data.data.filter((pile) => pile.forSale === true);
-      setPilesData(forSalePiles);
 
-      // Calculate total available quantity
+      // Calculate total available quantity and limit to 50%
       const totalQuantity = forSalePiles.reduce(
         (sum, pile) => sum + pile.currentQuantity,
         0
       );
-      setTotalAvailableQuantity(totalQuantity);
+      const limitedQuantity = Math.floor(totalQuantity * 0.5);
+      setTotalAvailableQuantity(limitedQuantity);
 
       // Calculate average price
       const validPrices = forSalePiles

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 import { Dropdown } from "primereact/dropdown";
@@ -13,6 +13,7 @@ const initialTransactionData = {
   senderId: "",
   fromLocationType: "Miller",
   fromLocationId: 0,
+  transporterId: "",
   transporterName: "",
   transporterDesc: "",
   receiverId: "",
@@ -40,6 +41,8 @@ const ReturnDialog = ({
   );
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [transporters, setTransporters] = useState([]);
+  const [wsr, setWsr] = useState("");
 
   const filteredWarehouses = warehouses
     .filter((warehouse) => {
@@ -60,51 +63,40 @@ const ReturnDialog = ({
       value: warehouse.id,
     }));
 
-  const validateForm = () => {
-    let newErrors = {};
+  useEffect(() => {
+    if (visible && newTransactionData.toLocationId) {
+      fetchTransporters();
+    }
+  }, [visible, newTransactionData.toLocationId]);
 
-    if (!newTransactionData.toLocationId) {
-      newErrors.toLocationId = "Please select a facility";
+  const fetchTransporters = async () => {
+    try {
+      const response = await fetch(
+        `${apiUrl}/transporters?status=active&transporterType=Private&userId=${user.id}`
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch transporters");
+      }
+
+      const data = await response.json();
+      const transporterOptions = data.map((transporter) => ({
+        label: `${transporter.transporterName} | ${transporter.plateNumber} | ${transporter.description}`,
+        value: transporter.id,
+        name: transporter.transporterName,
+        description: transporter.description,
+      }));
+
+      setTransporters(transporterOptions);
+    } catch (error) {
+      console.error("Error fetching transporters:", error);
       toast.current.show({
         severity: "error",
         summary: "Error",
-        detail: "Please select a facility",
+        detail: "Failed to fetch transporters",
         life: 3000,
       });
     }
-
-    if (!newTransactionData.transporterName.trim()) {
-      newErrors.transporterName = "Transporter name is required";
-      toast.current.show({
-        severity: "error",
-        summary: "Error",
-        detail: "Transporter name is required",
-        life: 3000,
-      });
-    }
-
-    if (!newTransactionData.transporterDesc.trim()) {
-      newErrors.transporterDesc = "Transport description is required";
-      toast.current.show({
-        severity: "error",
-        summary: "Error",
-        detail: "Transport description is required",
-        life: 3000,
-      });
-    }
-
-    if (!newTransactionData.remarks.trim()) {
-      newErrors.remarks = "Remarks are required";
-      toast.current.show({
-        severity: "error",
-        summary: "Error",
-        detail: "Remarks are required",
-        life: 3000,
-      });
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
 
   const handleReturn = async () => {
@@ -126,6 +118,7 @@ const ReturnDialog = ({
         (miller) => miller.id === selectedItem.toLocationId
       );
 
+      // 1. Update miller
       if (!selectedMiller) {
         throw new Error("Miller not found");
       }
@@ -145,6 +138,7 @@ const ReturnDialog = ({
         body: JSON.stringify({
           id: selectedItem.toLocationId,
           processing: newProcessing,
+          status: "inactive"
         }),
       });
 
@@ -176,6 +170,7 @@ const ReturnDialog = ({
         body: JSON.stringify({
           id: selectedItem.palayBatchId,
           currentlyAt: newTransactionData.toLocationName,
+          wsr: wsr,
         }),
       });
 
@@ -260,6 +255,84 @@ const ReturnDialog = ({
     onHide();
   };
 
+  const validateForm = () => {
+    let newErrors = {};
+
+    if (!wsr) {
+      newErrors.wsr = "Please enter WSR";
+      toast.current.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Please enter WSR",
+        life: 3000,
+      });
+    }
+
+    if (!newTransactionData.toLocationId) {
+      newErrors.toLocationId = "Please select a facility";
+      toast.current.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Please select a facility",
+        life: 3000,
+      });
+    }
+
+    if (!newTransactionData.transporterId) {
+      newErrors.transporterId = "Please select a transporter";
+      toast.current.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Please select a transporter",
+        life: 3000,
+      });
+    }
+
+    if (!newTransactionData.remarks.trim()) {
+      newErrors.remarks = "Remarks are required";
+      toast.current.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Remarks are required",
+        life: 3000,
+      });
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const customDialogHeader = (
+    <div className="flex justify-between">
+      <h3 className="text-md font-semibold text-black">
+        Return Rice
+      </h3>
+      <div className="flex flex-col items-center gap-2">
+        {selectedItem && (
+          <div className="flex items-center gap-2">
+            <label
+              htmlFor="wsr"
+              className="block text-xl font-semibold text-black"
+            >
+              WSR:
+            </label>
+  
+            <InputText
+              id="wsr"
+              name="wsr"
+              value={wsr}
+              onChange={(e) => setWsr(e.target.value)}
+              className="w-40 ring-0 border-primary text-xl h-8 font-semibold text-black"
+              keyfilter="int"
+              maxLength={8}
+            />
+          </div>
+        )}
+        {errors.wsr && <p className="text-red-500 text-xs">{errors.wsr}</p>}
+      </div>
+    </div>
+  );
+
   return (
     <>
       {isLoading && (
@@ -268,7 +341,7 @@ const ReturnDialog = ({
         </div>
       )}
       <Dialog
-        header="Return Rice"
+        header={customDialogHeader}
         visible={visible}
         onHide={isLoading ? null : handleHide}
         className="w-1/3"
@@ -279,15 +352,15 @@ const ReturnDialog = ({
             <Dropdown
               value={newTransactionData.toLocationId}
               options={filteredWarehouses}
-              onChange={(e) =>
+              onChange={(e) => {
                 setNewTransactionData((prev) => ({
                   ...prev,
                   toLocationId: e.value,
                   toLocationName: filteredWarehouses.find(
                     (w) => w.value === e.value
                   )?.name,
-                }))
-              }
+                }));
+              }}
               placeholder="Select a warehouse"
               className="w-full ring-0"
             />
@@ -300,42 +373,27 @@ const ReturnDialog = ({
 
           <div className="w-full">
             <label className="block mb-2">Transported By</label>
-            <InputText
-              value={newTransactionData.transporterName}
-              onChange={(e) =>
+            <Dropdown
+              value={newTransactionData.transporterId}
+              options={transporters}
+              onChange={(e) => {
+                const selectedTransporter = transporters.find(
+                  (t) => t.value === e.value
+                );
                 setNewTransactionData((prev) => ({
                   ...prev,
-                  transporterName: e.target.value,
-                }))
-              }
+                  transporterId: e.value,
+                  transporterName: selectedTransporter.name,
+                  transporterDesc: selectedTransporter.description,
+                }));
+              }}
+              placeholder="Select a transporter"
               className="w-full ring-0"
-              maxLength={50}
-              keyfilter="alphanum"
+              disabled={!newTransactionData.toLocationId}
             />
-            {errors.transporterName && (
+            {errors.transporterId && (
               <div className="text-red-500 text-sm mt-1">
-                {errors.transporterName}
-              </div>
-            )}
-          </div>
-
-          <div className="w-full">
-            <label className="block mb-2">Transport Description</label>
-            <InputTextarea
-              value={newTransactionData.transporterDesc}
-              onChange={(e) =>
-                setNewTransactionData((prev) => ({
-                  ...prev,
-                  transporterDesc: e.target.value,
-                }))
-              }
-              className="w-full ring-0"
-              rows={3}
-              maxLength={250}
-            />
-            {errors.transporterDesc && (
-              <div className="text-red-500 text-sm mt-1">
-                {errors.transporterDesc}
+                {errors.transporterId}
               </div>
             )}
           </div>

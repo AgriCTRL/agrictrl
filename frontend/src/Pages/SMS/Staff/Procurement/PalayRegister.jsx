@@ -35,7 +35,7 @@ const initialPalayData = {
   // Palay Info
   wsr: "",
   wsi: "0",
-  dateBought: "",
+  dateBought: new Date(),
   age: 0,
   buyingStationName: "",
   buyingStationLoc: "",
@@ -108,7 +108,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered, currentWSR }) {
     palaySupplierBarangay: "",
     palaySupplierStreet: "",
     // Palay Info
-    dateBought: "",
+    dateBought: new Date(),
     wsr: "",
     wsi: "0",
     age: 0,

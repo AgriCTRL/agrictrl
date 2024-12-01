@@ -300,7 +300,6 @@ const MillingTransactions = () => {
   };
 
   const handleItemClick = (item) => {
-    console.log(combinedData);
     setSelectedItemDetails(item);
     setShowDetailsDialog(true);
   };
@@ -391,7 +390,7 @@ const MillingTransactions = () => {
           {/* Middle - Main Info */}
           <div className="flex-1">
             <div className="font-medium text-xl mb-1">
-              Batch #{item.palayBatchId}
+              Batch #{item.fullPalayBatchData.wsi}
             </div>
             <div className="text-gray-600 mb-1">
               {item.requestDate || item.startDate || item.endDate}

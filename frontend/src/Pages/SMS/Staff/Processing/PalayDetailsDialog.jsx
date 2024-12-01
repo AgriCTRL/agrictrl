@@ -65,7 +65,7 @@ const PalayDetailsDialog = ({
         </div>
         <div>
           <p className="text-gray-600">Moisture Content</p>
-          <p>{selectedItem.fullPalayBatchData.qualitySpec.moistureContent}%</p>
+          <p>{selectedItem.moistureContent}%</p>
         </div>
         <div>
           <p className="text-gray-600">Purity</p>
