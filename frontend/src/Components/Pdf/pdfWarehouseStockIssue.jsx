@@ -27,7 +27,7 @@ export const WSI = (data) => {
   pdf.setFontSize(headerSize);
   pdf.setFont("helvetica", "bold");
   pdf.setTextColor(255, 255, 255);
-  const receiptNumber = `WSI-${data.palayBatchId}`;
+  const receiptNumber = `WSI-${data.wsi}`;
   pdf.text(receiptNumber, 1.2, 0.4);
 
   const currentDate = new Date().toLocaleDateString();

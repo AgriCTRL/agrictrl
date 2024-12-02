@@ -361,7 +361,7 @@ const ReturnDialog = ({
       toLocationType: "Warehouse",
       toLocationId: newTransactionData.toLocationId,
       sendDateTime: selectedItem.requestDate,
-      wsr: selectedItem.wsr,
+      wsr: wsr,
     };
 
     // Processed Data Mapping

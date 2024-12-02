@@ -556,7 +556,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered, currentWSR }) {
           transactionId,
         };
         const pdf = WSR(receiptData);
-        pdf.save(`WSR-${palayId}.pdf`);
+        pdf.save(`WSR-${palayData.wsr}.pdf`);
       }
 
       // Reset states and show success message

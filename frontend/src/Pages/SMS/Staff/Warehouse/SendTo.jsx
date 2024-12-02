@@ -407,6 +407,7 @@ const SendTo = ({
         toLocationId: newTransactionData.toLocationId,
         warehouseName: targetWarehouse.facilityName,
         currentStock: currentStock,
+        wsi: wsi
       };
 
       //create pile transaction
@@ -435,7 +436,7 @@ const SendTo = ({
       }
 
       const pdf = WSI(data);
-      pdf.save(`WSI-${selectedItem.id}.pdf`);
+      pdf.save(`WSI-${wsi}.pdf`);
 
       toast.current.show({
         severity: "success",

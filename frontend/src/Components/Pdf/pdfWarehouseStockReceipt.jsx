@@ -27,7 +27,7 @@ export const WSR = (data, additionalFields = {}) => {
     pdf.setFontSize(headerSize);
     pdf.setFont('helvetica', 'bold');
     pdf.setTextColor(255, 255, 255);
-    const receiptNumber = `WSR-${data.palayId}`;
+    const receiptNumber = `WSR-${data.wsr}`;
     pdf.text(receiptNumber, 1.2, 0.4);
     
     const currentDate = new Date().toLocaleDateString();
