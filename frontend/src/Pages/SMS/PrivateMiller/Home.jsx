@@ -332,7 +332,7 @@ function Home({ isRightSidebarOpen }) {
                     <div className="flex flex-col gap-4">
                         <div className="flex flex-row justify-between items-center">
                             <h1 className="text-xl font-medium">
-                                Milling Orders
+                                Quick Links
                             </h1>
                             <Button
                                 text

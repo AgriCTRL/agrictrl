@@ -444,6 +444,7 @@ const SendTo = ({
         life: 3000,
       });
 
+      setWsi("")
       onSendSuccess();
       onHide();
       setNewTransactionData(initialNewTransactionData);

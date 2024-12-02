@@ -281,6 +281,7 @@ const MillingTransactions = () => {
   };
 
   const handleActionClick = (rowData) => {
+    console.log(rowData);
     setSelectedItem(rowData);
 
     switch (rowData.transactionStatus?.toLowerCase()) {

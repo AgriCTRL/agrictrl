@@ -195,7 +195,7 @@ function Home({ isRightSidebarOpen }) {
 
                     <div className='flex flex-col gap-4'>
                         <div className="flex flex-row justify-between items-center">
-                            <h1 className="text-xl font-medium">Rice Orders</h1>
+                            <h1 className="text-xl font-medium">Quick Links</h1>
                             <Button
                                 text
                                 className="ring-0 transition-all gap-4 hover:gap-6 hover:bg-transparent text-primary flex justify-between hidden"
