@@ -9,11 +9,12 @@ import { Accordion, AccordionTab } from 'primereact/accordion';
 import { Tag } from 'primereact/tag';
 import { Button } from 'primereact/button';
 import { Avatar } from 'primereact/avatar';
-
+import QuickLinks from '../Components/QuickLinks';
 
 function Home({ isRightSidebarOpen }) {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const { user } = useAuth();
+
     const navigate = useNavigate();
     const [carouselItems] = useState([
         {
@@ -139,7 +140,7 @@ function Home({ isRightSidebarOpen }) {
     }
 
     return (
-        <RecipientLayout activePage="Home" user={user} isRightSidebarOpen={true} rightSidebar={rightSidebar()}>
+        <RecipientLayout activePage="Home" user={user} isRightSidebarOpen={true} rightSidebar={null}>
             <div className={`flex flex-row bg-[#F1F5F9] h-full`}>
                 {/* Main Content */}
                 <div className={`flex flex-col w-full h-full gap-4`}>
@@ -148,6 +149,16 @@ function Home({ isRightSidebarOpen }) {
                             <h1 className="text-xl">Welcome Back,</h1>
                             <h1 className="text-2xl sm:text-4xl font-semibold">{user.firstName ?? 'User'}!</h1>
                         </div>
+                        <Button
+                            text
+                            className="ring-0 transition-all gap-4 hover:gap-6 hover:bg-transparent text-primary flex justify-between"
+                            onClick={() => navigate('/recipient/order')}
+                        >
+                            <p className='text-md font-medium'>
+                                Manage rice orders
+                            </p>
+                            <ChevronRight size={18} />
+                        </Button>
                     </div>
 
                     {/* Carousel for Image Section */}
@@ -187,7 +198,7 @@ function Home({ isRightSidebarOpen }) {
                             <h1 className="text-xl font-medium">Rice Orders</h1>
                             <Button
                                 text
-                                className="ring-0 transition-all gap-4 hover:gap-6 hover:bg-transparent text-primary flex justify-between"
+                                className="ring-0 transition-all gap-4 hover:gap-6 hover:bg-transparent text-primary flex justify-between hidden"
                                 onClick={() => navigate('/recipient/orders')}
                             >
                                 <p className='text-md font-medium'>View All</p>
@@ -196,39 +207,13 @@ function Home({ isRightSidebarOpen }) {
                         </div>
 
                         {/* Carousel for Orders */}
-                        {Orders.length === 0 && (
-                            <div className="flex flex-col justify-center items-center p-6 w-full rounded-lg border border-lightest-grey">
-                                <WheatOff size={24} className="text-primary" />
-                                <h1 className="text-black">No Rice Orders Found</h1>
-                            </div>
-                        )}  
-                        {Orders.length > 0 && (
-                            <Carousel 
-                            value={Orders} 
-                            numVisible={3} 
-                            numScroll={1}
-                            className="custom-carousel"
-                            itemTemplate={(stat) => (
-                                <div className="flex overflow-hidden space-6 p-4 h-full">
-                                    <div className="flex flex-col h-full w-full p-2 rounded-md bg-white">
-                                        <stat.icon className="text-primary ml-4 mt-1"/>
-                                        <h1 className="font-semibold pl-4">{stat.title}</h1>
-                                        
-                                        <div className="flex flex-row space-x-2 pl-4 mb-2">
-                                            <h1 className="text-sm font-light">as of</h1>
-                                            <h1 className="text-sm font-light">{stat.date}</h1>
-                                        </div>
-
-                                        <div className="flex flex-row justify-center rounded-lg font-semibold space-x-1 p-1 mb-2 mx-14 bg-gray-300">
-                                            <h1>{stat.value}</h1>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-                            showIndicators={false}
-                            showNavigators={true}
-                            />
-                        )}
+                        <QuickLinks items={[
+                                { label: "Home", link: "/recipient" },
+                                { label: "Rice Order", link: "/recipient/order" },
+                                { label: "Rice Receive", link: "/recipient/receive" },
+                                // { label: 'History', link: '/recipient/history' }
+                            ]}  
+                        />
                     </div>
                 </div>
             </div>
