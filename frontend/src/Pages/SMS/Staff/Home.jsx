@@ -19,11 +19,14 @@ import {
     Wheat,
     WheatOff,
     ArrowRightLeft,
-    DivideCircle
+    DivideCircle,
+    ArrowRight
 } from "lucide-react";
 
 import { useAuth } from '../../Authentication/Login/AuthContext';
 import StaffLayout from '@/Layouts/Staff/StaffLayout';
+import QuickLinks from '../Components/QuickLinks';
+import TransacSummaryCarousel from '../Components/TransacSummaryCarousel';
 
 
 function Home({ isRightSidebarOpen }) {
@@ -48,6 +51,56 @@ function Home({ isRightSidebarOpen }) {
     
         return `${month}/${day}/${year}`;
     });
+    const [links, setLinks] = useState([]);
+
+    useEffect(() => {
+        const linksItem = {
+            "Procurement Officer": {
+                label: 'Procurement',
+                link: '/staff/procurement',
+                linkList: [
+                    { label: "Procurement", link: "/staff/procurement" },
+                ]
+            },
+            "Warehouse Manager": {
+                label: 'Warehouse',
+                link: '/staff/request',
+                linkList: [
+                    // { label: "Warehouse", link: "/staff/warehouse" },
+                    { label: "Request", link: "/staff/request" },
+                    { label: "Storage", link: "/staff/storage" },
+                    { label: "Piles", link: "/staff/piles" },
+                ]
+            },
+            "Processing Officer": {
+                label: 'Processing',
+                link: '/staff/processing',
+                linkList: [
+                    { label: "Processing", link: "/staff/processing" },
+                ]
+            },
+            "Distribution Officer": {
+                label: 'Distribution',
+                link: '/staff/distribution',
+                linkList: [
+                    { label: "Distribution", link: "/staff/distribution" },
+                ]
+            },
+        }
+
+        const defaultLink = {
+            label: 'Procurement',
+            link: '/staff/procurement',
+            linkList: [
+                { label: "Procurement", link: "/staff/procurement" },
+                { label: "Warehouse", link: "/staff/warehouse" },
+                { label: "Processing", link: "/staff/processing" },
+                { label: "Distribution", link: "/staff/distribution" },
+            ]
+        }
+
+        setLinks(linksItem[user.jobTitlePosition || defaultLink]);
+    }, [user]);
 
     const viewAllTransactions = () => {
         navigate('/staff/warehouse')
@@ -137,9 +190,9 @@ function Home({ isRightSidebarOpen }) {
     ];
 
     const personalStats = [
-        { icon: <Loader2 size={18} />, title: "Palay Bought", value: palayCount },
-        { icon: <Undo2 size={18} />, title: "Processed", value: processedCount },
-        { icon: <CheckCircle2 size={18} />, title: "Distributed", value: distributedCount },
+        // { icon: <Loader2 size={18} />, title: "Palay Bought", value: palayCount },
+        // { icon: <Undo2 size={18} />, title: "Processed", value: processedCount },
+        // { icon: <CheckCircle2 size={18} />, title: "Distributed", value: distributedCount },
     ];
 
     const leftSidebar = () => {
@@ -278,7 +331,7 @@ function Home({ isRightSidebarOpen }) {
     }
 
     return (
-        <StaffLayout activePage="Home" user={user} leftSidebar={leftSidebar()} isRightSidebarOpen={true} isLeftSidebarOpen={true} rightSidebar={rightSidebar()}>
+        <StaffLayout activePage="Home" user={user} leftSidebar={leftSidebar()} isRightSidebarOpen={true} isLeftSidebarOpen={true} rightSidebar={null}>
             <div className={`flex flex-row bg-[#F1F5F9] h-full`}>
                 {/* Main Content */}
                 <div className={`flex flex-col w-full h-full gap-4`}>
@@ -290,9 +343,11 @@ function Home({ isRightSidebarOpen }) {
                         <Button
                             text
                             className="ring-0 transition-all gap-4 hover:gap-6 hover:bg-transparent text-primary flex justify-between"
-                            onClick={() => navigate('/staff/procurement')}
+                            onClick={() => navigate(links?.link)}
                         >
-                            <p className='text-md font-medium'>Add new palay batch</p>
+                            <p className='text-md font-medium'>
+                                {`Manage ${links?.label?.toLowerCase()}`}
+                            </p>
                             <ChevronRight size={18} />
                         </Button>
                     </div>
@@ -331,10 +386,10 @@ function Home({ isRightSidebarOpen }) {
 
                     <div className='flex flex-col gap-4'>
                         <div className="flex flex-row justify-between items-center">
-                            <h1 className="text-xl font-medium">Transactions</h1>
+                            <h1 className="text-xl font-medium">Quick Links</h1>
                             <Button
                                 text
-                                className="ring-0 transition-all gap-4 hover:gap-6 hover:bg-transparent text-primary flex justify-between"
+                                className="ring-0 transition-all gap-4 hover:gap-6 hover:bg-transparent text-primary flex justify-between hidden"
                                 onClick={() => navigate('/staff/warehouse')}
                             >
                                 <p className='text-md font-medium'>View All</p>
@@ -342,33 +397,7 @@ function Home({ isRightSidebarOpen }) {
                             </Button>
                         </div>
 
-                        {/* Carousel for Statistics */}
-                        <Carousel 
-                            value={statistics} 
-                            numVisible={3} 
-                            numScroll={1}
-                            className="custom-carousel staff-transactions-carousel relative"
-                            itemTemplate={(stat) => (
-                                <div className="flex overflow-hidden h-full">
-                                    <div className="flex flex-col h-full w-full p-4 gap-2 rounded-md bg-white">
-                                        <div className="w-fit p-4 rounded-lg bg-background text-primary">
-                                            {stat.icon}
-                                        </div>
-
-                                        <div className="flex flex-col text-black">
-                                            <h1 className="font-semibold">{stat.title}</h1>
-                                            <h1 className="text-sm font-light">
-                                                as of {stat.date}
-                                            </h1>
-                                        </div>
-
-                                        <Tag value={stat.value} className='bg-tag-grey text-black w-1/2'></Tag>
-                                    </div>
-                                </div>
-                            )}
-                            showIndicators={false}
-                            showNavigators={true}
-                        />
+                        <QuickLinks items={links?.linkList} />
                     </div>
                 </div>
             </div>
