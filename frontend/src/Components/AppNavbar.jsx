@@ -113,7 +113,7 @@ const AppNavbar = () => {
                 <AppMobileNav />
 
                 <Button 
-                    className="font bg-gradient-to-r from-secondary to-primary px-6 sm:px-12 border-0"
+                    className="font bg-gradient-to-r from-secondary to-primary px-6 sm:px-12 border-0 hidden sm:block"
                     onClick={ loginButton1 } 
                     label="Login" 
                 />
