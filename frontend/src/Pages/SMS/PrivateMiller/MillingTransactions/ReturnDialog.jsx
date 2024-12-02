@@ -6,6 +6,7 @@ import { InputText } from "primereact/inputtext";
 import { InputTextarea } from "primereact/inputtextarea";
 
 import Loader from "@/Components/Loader";
+import { ProcessingReturnWSR } from "../../../../Components/Pdf/pdfProcessingWSR";
 
 const initialTransactionData = {
   item: "Rice",
@@ -43,6 +44,7 @@ const ReturnDialog = ({
   const [isLoading, setIsLoading] = useState(false);
   const [transporters, setTransporters] = useState([]);
   const [wsr, setWsr] = useState("");
+  const [viewMode, setViewMode] = useState("milling")
 
   const filteredWarehouses = warehouses
     .filter((warehouse) => {
@@ -138,7 +140,7 @@ const ReturnDialog = ({
         body: JSON.stringify({
           id: selectedItem.toLocationId,
           processing: newProcessing,
-          status: "inactive"
+          status: "inactive",
         }),
       });
 
@@ -234,6 +236,7 @@ const ReturnDialog = ({
         life: 3000,
       });
 
+      generatePDF();
       onSuccess();
       handleHide();
     } catch (error) {
@@ -304,9 +307,7 @@ const ReturnDialog = ({
 
   const customDialogHeader = (
     <div className="flex justify-between">
-      <h3 className="text-md font-semibold text-black">
-        Return Rice
-      </h3>
+      <h3 className="text-md font-semibold text-black">Return Rice</h3>
       <div className="flex flex-col items-center gap-2">
         {selectedItem && (
           <div className="flex items-center gap-2">
@@ -316,7 +317,7 @@ const ReturnDialog = ({
             >
               WSR:
             </label>
-  
+
             <InputText
               id="wsr"
               name="wsr"
@@ -332,6 +333,71 @@ const ReturnDialog = ({
       </div>
     </div>
   );
+
+  const preparePDFData = (selectedItem) => {
+    // Initial Data Mapping
+    const initialData = {
+      category:
+        selectedItem.fullPalayBatchData?.palaySupplier?.category || "N/A",
+      farmerName:
+        selectedItem.fullPalayBatchData?.palaySupplier?.farmerName || "N/A",
+      contactNumber:
+        selectedItem.fullPalayBatchData?.palaySupplier?.contactNumber || "N/A",
+      farmStreet: selectedItem.fullPalayBatchData?.farm?.street || "N/A",
+      farmBarangay: selectedItem.fullPalayBatchData?.farm?.barangay || "N/A",
+      farmCityTown: selectedItem.fullPalayBatchData?.farm?.cityTown || "N/A",
+      farmProvince: selectedItem.fullPalayBatchData?.farm?.province || "N/A",
+      farmRegion: selectedItem.fullPalayBatchData?.farm?.region || "N/A",
+      palayId: selectedItem.palayBatchId,
+      dateBought: selectedItem.fullPalayBatchData?.dateBought,
+      palayVariety: selectedItem.fullPalayBatchData?.varietyCode,
+      qualityType: selectedItem.fullPalayBatchData?.qualityType,
+      quantityBags: selectedItem.palayQuantityBags,
+      grossWeight: selectedItem.grossWeight,
+      netWeight: selectedItem.netWeight,
+      transactionId: selectedItem.transactionId,
+      fromLocationType: selectedItem.from,
+      fromLocationId: selectedItem.toLocationId,
+      toLocationType: "Warehouse",
+      toLocationId: newTransactionData.toLocationId,
+      sendDateTime: selectedItem.requestDate,
+      wsr: selectedItem.wsr,
+    };
+
+    // Processed Data Mapping
+    const processedData = {
+      batchId: selectedItem.millingBatchId,
+      facilityName: selectedItem.location,
+      startDateTime:
+        selectedItem.fullProcessingBatchData?.millingBatch?.startDateTime,
+      endDateTime:
+        selectedItem.fullProcessingBatchData?.millingBatch?.endDateTime,
+      processedQuantityBags: selectedItem.quantityBags,
+      millingEfficiency:
+        selectedItem.fullProcessingBatchData?.millingBatch?.millingEfficiency,
+      processedNetWeight: selectedItem.netWeight,
+    };
+
+    return { initialData, processedData };
+  };
+
+  const generatePDF = () => {
+    try {
+      const { initialData, processedData } = preparePDFData(
+        selectedItem,
+        viewMode
+      );
+      const pdf = ProcessingReturnWSR(initialData, processedData, viewMode);
+      pdf.save(`WSR-${wsr}.pdf`);
+    } catch (error) {
+      toast.current.show({
+        severity: "error",
+        summary: "PDF Generation Error",
+        detail: error.message,
+        life: 3000,
+      });
+    }
+  };
 
   return (
     <>

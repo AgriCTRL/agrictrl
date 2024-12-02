@@ -9,6 +9,7 @@ import { Toast } from "primereact/toast";
 import { Wheat } from "lucide-react";
 
 import Loader from "@/Components/Loader";
+import { ProcessingReturnWSR } from "../../../../Components/Pdf/pdfProcessingWSR";
 
 const initialTransactionData = {
   item: "",
@@ -300,6 +301,8 @@ const ReturnDialog = ({
         life: 3000,
       });
 
+      setWsr("")
+      generatePDF();
       handleHide();
       onSuccess();
     } catch (error) {
@@ -422,6 +425,72 @@ const ReturnDialog = ({
       </div>
     </div>
   );
+
+  const preparePDFData = (selectedItem, viewMode) => {
+    // Initial Data Mapping
+    const initialData = {
+      category: selectedItem.fullPalayBatchData?.palaySupplier?.category || 'N/A',
+      farmerName: selectedItem.fullPalayBatchData?.palaySupplier?.farmerName || 'N/A',
+      contactNumber: selectedItem.fullPalayBatchData?.palaySupplier?.contactNumber || 'N/A',
+      farmStreet: selectedItem.fullPalayBatchData?.farm?.street || 'N/A',
+      farmBarangay: selectedItem.fullPalayBatchData?.farm?.barangay || 'N/A',
+      farmCityTown: selectedItem.fullPalayBatchData?.farm?.cityTown || 'N/A',
+      farmProvince: selectedItem.fullPalayBatchData?.farm?.province || 'N/A',
+      farmRegion: selectedItem.fullPalayBatchData?.farm?.region || 'N/A',
+      palayId: selectedItem.palayBatchId,
+      dateBought: selectedItem.fullPalayBatchData?.dateBought,
+      palayVariety: selectedItem.fullPalayBatchData?.varietyCode,
+      qualityType: selectedItem.fullPalayBatchData?.qualityType,
+      quantityBags: selectedItem.palayQuantityBags,
+      grossWeight: selectedItem.grossWeight,
+      netWeight: selectedItem.netWeight,
+      transactionId: selectedItem.transactionId,
+      fromLocationType: selectedItem.from,
+      fromLocationId: selectedItem.toLocationId,
+      toLocationType: 'Warehouse',
+      toLocationId: newTransactionData.toLocationId,
+      sendDateTime: selectedItem.requestDate,
+      wsr: selectedItem.wsr
+    };
+  
+    // Processed Data Mapping
+    const processedData = viewMode === 'drying' 
+      ? {
+          batchId: selectedItem.dryingBatchId,
+          facilityName: selectedItem.location,
+          startDateTime: selectedItem.fullProcessingBatchData?.dryingBatch?.startDateTime,
+          endDateTime: selectedItem.fullProcessingBatchData?.dryingBatch?.endDateTime,
+          processedQuantityBags: selectedItem.quantityBags,
+          moistureContent: selectedItem.moistureContent,
+          processedNetWeight: selectedItem.netWeight
+        }
+      : {
+          batchId: selectedItem.millingBatchId,
+          facilityName: selectedItem.location,
+          startDateTime: selectedItem.fullProcessingBatchData?.millingBatch?.startDateTime,
+          endDateTime: selectedItem.fullProcessingBatchData?.millingBatch?.endDateTime,
+          processedQuantityBags: selectedItem.quantityBags,
+          millingEfficiency: selectedItem.fullProcessingBatchData?.millingBatch?.millingEfficiency,
+          processedNetWeight: selectedItem.netWeight
+        };
+  
+    return { initialData, processedData };
+  };
+
+  const generatePDF = () => {
+    try {
+      const { initialData, processedData } = preparePDFData(selectedItem, viewMode);
+      const pdf = ProcessingReturnWSR(initialData, processedData, viewMode);
+      pdf.save(`WSR-${wsr}.pdf`);
+    } catch (error) {
+      toast.current.show({
+        severity: "error",
+        summary: "PDF Generation Error",
+        detail: error.message,
+        life: 3000,
+      });
+    }
+  };
 
   return (
     <>

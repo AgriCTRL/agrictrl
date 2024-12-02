@@ -80,7 +80,7 @@ const initialTransactionData = {
   status: "Pending",
   remarks: "",
   palayBatch: "",
-  transporterId: ""
+  transporterId: "",
 };
 
 function PalayRegister({ visible, onHide, onPalayRegistered, currentWSR }) {
@@ -154,7 +154,7 @@ function PalayRegister({ visible, onHide, onPalayRegistered, currentWSR }) {
     status: "Pending",
     remarks: "",
     palayBatch: "",
-    transporterId: ""
+    transporterId: "",
   });
 
   const [activeStep, setActiveStep] = useState(0);
@@ -547,15 +547,17 @@ function PalayRegister({ visible, onHide, onPalayRegistered, currentWSR }) {
         }
       }
 
-      // Generate WSR and handle success
-      const receiptData = {
-        ...palayData,
-        ...transactionData,
-        palayId,
-        transactionId,
-      };
-      const pdf = WSR(receiptData);
-      pdf.save(`WSR-${palayId}.pdf`);
+      // Generate WSR and handle success only if not going to a Dryer
+      if (transactionData.toLocationType !== "Dryer") {
+        const receiptData = {
+          ...palayData,
+          ...transactionData,
+          palayId,
+          transactionId,
+        };
+        const pdf = WSR(receiptData);
+        pdf.save(`WSR-${palayId}.pdf`);
+      }
 
       // Reset states and show success message
       setPalayData(initialPalayData);
