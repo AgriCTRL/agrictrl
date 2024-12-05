@@ -13,6 +13,22 @@ const FarmerInfoForm = ({ palayData, handlePalayInputChange, errors, onSupplierS
   const [filteredSuppliers, setFilteredSuppliers] = useState([]);
   const [selectedSupplier, setSelectedSupplier] = useState(null);
 
+  // const [farmers, setFarmers] = useState([]);
+
+  // const fetchFarmers = async () => {
+  //   try {
+  //     const res = await fetch("/farmers");
+  //     const data = await res.json();
+  //     setFarmers(data);
+  //   } catch (error) {
+  //     console.error(error.message);
+  //   }
+  // }
+
+  // useEffect(() => {
+  //   fetchFarmers();
+  // }, []);
+
   let today = new Date();
   let year = today.getFullYear();
   let maxYear = year - 18;
