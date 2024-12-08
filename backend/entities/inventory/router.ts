@@ -19,7 +19,9 @@ export function getRouter(): express.Router {
                 millerType: req.query.millerType as 'In House' | 'Private' | undefined,
                 userId: req.query.userId as string,
                 limit: req.query.limit ? parseInt(req.query.limit as string) : undefined,
-                offset: req.query.offset ? parseInt(req.query.offset as string) : undefined
+                offset: req.query.offset ? parseInt(req.query.offset as string) : undefined,
+                wsr: req.query.wsr as string,
+                wsi: req.query.wsi as string
             };
 
             // Validate required parameters

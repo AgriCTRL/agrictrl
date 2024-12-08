@@ -59,4 +59,6 @@ export interface InventoryFilters {
     offset?: number;
     processingTypes?: ProcessingType[];
     millingBatchId?: string;
+    wsr?: string;
+    wsi?: string;
 }
