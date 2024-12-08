@@ -389,7 +389,7 @@ function Home({ isRightSidebarOpen }) {
                             <h1 className="text-xl font-medium">Quick Links</h1>
                             <Button
                                 text
-                                className="ring-0 transition-all gap-4 hover:gap-6 hover:bg-transparent text-primary flex justify-between hidden"
+                                className="ring-0 transition-all gap-4 hover:gap-6 hover:bg-transparent text-primary flex justify-between"
                                 onClick={() => navigate('/staff/warehouse')}
                             >
                                 <p className='text-md font-medium'>View All</p>

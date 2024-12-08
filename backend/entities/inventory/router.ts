@@ -8,7 +8,11 @@ export function getRouter(): express.Router {
     router.get('/', async (req, res) => {
         try {
             const filters: InventoryFilters = {
-                toLocationType: req.query.toLocationType as string,
+              toLocationType: Array.isArray(req.query.toLocationType) 
+              ? req.query.toLocationType as string[] 
+              : req.query.toLocationType 
+                  ? [req.query.toLocationType as string] 
+                  : undefined,
                 transactionStatus: req.query.status as string,
                 processingStatus: req.query.processingStatus as string,
                 item: req.query.item as string,

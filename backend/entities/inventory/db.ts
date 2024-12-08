@@ -23,12 +23,25 @@ export async function getInventory(
 
         // Base filters
         if (filters.toLocationType) {
+            const locationTypes = Array.isArray(filters.toLocationType)
+                ? filters.toLocationType
+                : [filters.toLocationType];
+
+            // Create a more complex WHERE condition to handle multiple location types
             transactionQuery = transactionQuery
-                .where('transaction.toLocationType = :locationType', 
-                    { locationType: filters.toLocationType });
+                .where(
+                    locationTypes.map((_, index) => 
+                        `transaction.toLocationType = :locationType${index}`
+                    ).join(' OR '),
+                    Object.fromEntries(
+                        locationTypes.map((locationType, index) => 
+                            [`locationType${index}`, locationType]
+                        )
+                    )
+                );
 
             // Handle Miller type filtering
-            if (filters.toLocationType === 'Miller' && filters.millerType) {
+            if (locationTypes.includes('Miller') && filters.millerType) {
                 transactionQuery = transactionQuery
                     .leftJoin(Miller, 'miller', 'miller.id = transaction.toLocationId')
                     .andWhere('miller.type = :millerType', { millerType: filters.millerType })
@@ -37,7 +50,7 @@ export async function getInventory(
             }
 
             // Add warehouse user filtering
-            if (filters.toLocationType === 'Warehouse' && filters.userId) {
+            if (locationTypes.includes('Warehouse') && filters.userId) {
                 transactionQuery = transactionQuery
                     .leftJoin(Warehouse, 'warehouse', 'warehouse.id = transaction.toLocationId')
                     .andWhere('warehouse.userId = :userId', { userId: filters.userId });
