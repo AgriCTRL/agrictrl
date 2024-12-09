@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { InfiniteMovingCardsHorizontal } from './ui/infinite-moving-cards-horizontal';
+import { InfiniteMovingCardsHorizontal } from '@/Components/InfiniteMovingCardsHorizontal.jsx';
 
 const testimonials = [
     {
@@ -34,7 +34,7 @@ const testimonials = [
 
 const CompanyNameSection = () => {
     return (
-        <div className="w-screen flex flex-col antialiased bg-[#2A2A2A] items-center justify-center relative overflow-hidden">
+        <div className="w-screen flex flex-col antialiased bg-[#1f1f1f] items-center justify-center relative overflow-hidden">
             <InfiniteMovingCardsHorizontal
                 items={testimonials}
                 direction="right"

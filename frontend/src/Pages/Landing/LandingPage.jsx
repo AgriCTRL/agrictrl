@@ -4,10 +4,12 @@ import { useNavigate } from 'react-router-dom';
 
 import HeroSection from './components/HeroSection';
 import FeatureSection from './components/FeatureSection';
-import OfferSection from './components/OfferSection';
-import WorkingProcessSection from './components/WorkingProcessSection';
+import OurMissionSection from './components/OurMissionSection';
 import CompanyNameSection from './components/CompanyNameSection';
+import TimelineSection from './components/TimelineSection';
 import TestimonialsSection from './components/TestimonialsSection';
+import AboutUs from './components/AboutUs';
+import Faqs from './components/Faqs';
 import { AuthClient } from "@dfinity/auth-client";
 
 const LandingPage = () => {
@@ -42,8 +44,10 @@ const LandingPage = () => {
             <div className="font-poppins w-screen">
                 <HeroSection />
                 <FeatureSection />
-                <OfferSection />
-                <WorkingProcessSection />
+                <AboutUs />
+                <OurMissionSection />
+                <Faqs />
+                <TimelineSection />
                 <CompanyNameSection />
                 <TestimonialsSection />
             </div>

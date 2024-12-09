@@ -1,4 +1,4 @@
-import { cn } from "../../../../lib/utils";
+import { cn } from "../lib/utils";
 import React, { useEffect, useState } from "react";
 
 export const InfiniteMovingCards = ({
@@ -60,25 +60,25 @@ export const InfiniteMovingCards = ({
         <div
             ref={containerRef}
             className={cn(
-                "scroller relative z-20 w-[15rem] px-2",
+                "scroller relative z-20 md:px-2",
                 className
             )}
         >
             <ul
                 ref={scrollerRef}
                 className={cn(
-                    "flex flex-col gap-6 w-full",
+                    "flex flex-col gap-2 md:gap-6 w-full",
                     start && "animate-scroll",
                     pauseOnHover && "hover:[animation-play-state:paused]"
                 )}
             >
                 {items.map((item, idx) => (
                     <li
-                        className="flex flex-col items-center gap-4 text-primary rounded-lg border border-tag-grey px-2 py-4 sm:px-8 sm:py-10 shadow-lg w-full"
+                        className="flex flex-col items-center gap-2 md:gap-4 text-primary rounded-lg border border-tag-grey px-2 py-4 sm:px-8 sm:py-10 w-full"
                         key={item.label}
                     >
                         {item.icon}
-                        <p>{item.label}</p>
+                        <p className="text-sm md:text-base">{item.label}</p>
                     </li>
                 ))}
             </ul>

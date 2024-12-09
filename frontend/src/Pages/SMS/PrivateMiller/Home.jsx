@@ -131,7 +131,7 @@ function Home({ isRightSidebarOpen }) {
                     {/* Avatar */}
                     <Avatar
                         size="xlarge"
-                        image={user.avatar ?? null}
+                        image={'/landingpage/nfa-logo.svg' ?? null}
                         icon={<User size={24} />}
                         shape="circle"
                         className="cursor-pointer border-2 border-white text-primary bg-tag-grey absolute bottom-0 translate-y-1/2 shadow-lg"
@@ -303,7 +303,7 @@ function Home({ isRightSidebarOpen }) {
                                         className="w-full h-full object-cover"
                                     />
                                 </div>
-                                <div className="absolute bg-gradient-to-r from-[#2A2A2A] to-transparent inset-0 flex flex-col gap-4 p-10">
+                                <div className="absolute bg-gradient-to-r from-[#1f1f1f] to-transparent inset-0 flex flex-col gap-4 p-10">
                                     <div className="text-green-400 flex items-center gap-4">
                                         <Fan />
                                         <p>What We Offer</p>
