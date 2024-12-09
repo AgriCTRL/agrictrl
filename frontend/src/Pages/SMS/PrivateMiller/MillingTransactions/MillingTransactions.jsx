@@ -93,7 +93,6 @@ const MillingTransactions = () => {
 
   const searchData = async (wsi) => {
     try {
-      setIsLoading(true);
       const processType = "miller";
       const locationType = "Miller";
       const millerType = "Private";
@@ -247,8 +246,6 @@ const MillingTransactions = () => {
         detail: "Failed to fetch data",
         life: 3000,
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 

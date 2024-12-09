@@ -73,7 +73,6 @@ function WarehouseRequest() {
   };
 
   const searchInventory = async (wsr) => {
-    setIsLoading(true);
     try {
       let inventoryUrl = `${apiUrl}/inventory?toLocationType=Warehouse&status=Pending&userId=${user.id}&wsr=${wsr}`;
 
@@ -187,8 +186,6 @@ function WarehouseRequest() {
         detail: "Failed to fetch warehouse inventory",
         life: 3000,
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 

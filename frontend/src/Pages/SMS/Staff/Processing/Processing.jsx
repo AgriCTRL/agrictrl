@@ -139,8 +139,6 @@ const Processing = () => {
 
   const searchData = async (searchValue) => {
     try {
-      setIsLoading(true);
-
       // Determine processing type and location based on viewMode
       const processType = viewMode === "drying" ? "dryer" : "miller";
       const locationType = viewMode === "drying" ? "Dryer" : "Miller";
@@ -325,8 +323,6 @@ const Processing = () => {
         detail: "Failed to fetch data",
         life: 3000,
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 

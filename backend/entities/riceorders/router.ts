@@ -16,17 +16,18 @@ export function getRouter(): Router {
     router.get(
         '/',
         async (
-            req: Request<any, any, any, { limit?: string; offset?: string; riceRecipientId?: number; status?: string | string[] }>,
+            req: Request<any, any, any, { limit?: string; offset?: string; id?: string, riceRecipientId?: number; status?: string | string[] }>,
             res
         ) => {
             const limit = Number(req.query.limit ?? -1);
             const offset = Number(req.query.offset ?? 0);
+            const id = req.query.id;
             const riceRecipientId = req.query.riceRecipientId;
             const status = Array.isArray(req.query.status) 
                 ? req.query.status 
                 : req.query.status ? [req.query.status] : undefined;
 
-            const riceOrders = await getRiceOrders(limit, offset, riceRecipientId, status);
+            const riceOrders = await getRiceOrders(limit, offset, id, riceRecipientId, status,);
 
             res.json(riceOrders);
         }
