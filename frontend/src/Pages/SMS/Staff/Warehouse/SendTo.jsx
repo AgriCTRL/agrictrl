@@ -263,6 +263,34 @@ const SendTo = ({
 
     setIsLoading(true);
     try {
+      // Update palay batch with new status
+      const palayResponse = await fetch(`${apiUrl}/palaybatches/update`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: selectedItem.id,
+          currentlyAt: newTransactionData.toLocationName,
+          wsi: wsi,
+        }),
+      });
+
+      if (!palayResponse.ok) {
+        if (palayResponse.status === 400) {
+          const errorData = await palayResponse.json();
+          
+          toast.current.show({
+            severity: "error",
+            summary: "Conflict",
+            detail: errorData.message,
+            life: 3000,
+          });
+          return;
+        }
+        throw new Error("Failed to update palay batch");
+      }
+
       const toLocationType =
         selectedItem.palayStatus === "To be Dry"
           ? "Dryer"
@@ -295,23 +323,6 @@ const SendTo = ({
       }
 
       const transactionResult = await transactionResponse.json();
-
-      // Update palay batch with new status
-      const palayResponse = await fetch(`${apiUrl}/palaybatches/update`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          id: selectedItem.id,
-          currentlyAt: newTransactionData.toLocationName,
-          wsi: wsi,
-        }),
-      });
-
-      if (!palayResponse.ok) {
-        throw new Error("Failed to update palay batch");
-      }
 
       //update old transaction to status = completed
       const oldTransactionResponse = await fetch(
