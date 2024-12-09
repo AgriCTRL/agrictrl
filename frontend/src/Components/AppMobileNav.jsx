@@ -45,7 +45,7 @@ const AppMobileNav = () => {
                             duration={500} 
                         >
                             <Button
-                                className="border-0 ring-0 text-primary border-transparent hover:text-primary hover:rounded-none w-full"
+                                className="border-0 ring-0 text-primary border-transparent hover:text-primary hover:rounded-none w-full text-sm md:text-base"
                                 label='Services'
                                 text
                             >
@@ -53,19 +53,19 @@ const AppMobileNav = () => {
                         </ScrollLink>
 
                         <ScrollLink 
-                            to="offerSection" 
+                            to="ourMissionSection" 
                             smooth={true} 
                             duration={500} 
                         >
                             <Button
-                                className="border-0 ring-0 text-primary border-transparent hover:text-primary hover:rounded-none w-full"
+                                className="border-0 ring-0 text-primary border-transparent hover:text-primary hover:rounded-none w-full text-sm md:text-base"
                                 label='About Us'
                                 text
                             ></Button>
                         </ScrollLink>
 
                         <Button 
-                            className="font bg-gradient-to-r from-secondary to-primary px-6 sm:px-12 border-0"
+                            className="font bg-gradient-to-r from-secondary to-primary px-6 sm:px-12 border-0 text-sm md:text-base"
                             onClick={ loginButton1 } 
                             label="Login" 
                         />
@@ -74,7 +74,7 @@ const AppMobileNav = () => {
             </Sidebar>
             <Button 
                 className='text-white hover:text-primary'
-                icon={<Menu />} 
+                icon={<Menu className='size-5'/>} 
                 onClick={() => setVisible(true)} 
                 text
             />

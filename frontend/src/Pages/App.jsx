@@ -168,9 +168,9 @@ function App() {
                 <Route
                     path="/staff/*"
                     element={
-                        <ProtectedRoute allowedUserTypes={["NFA Branch Staff"]}>
+                        // <ProtectedRoute allowedUserTypes={["NFA Branch Staff"]}>
+                        // </ProtectedRoute>
                             <StaffRoutes />
-                        </ProtectedRoute>
                     }
                 />
                 <Route

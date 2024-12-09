@@ -59,7 +59,7 @@ const AppNavbar = () => {
     }, []);
 
     return (
-        <nav className={`flex-between fixed z-50 w-screen px-6 sm:px-12 lg:px-24 py-4 transition-all duration-500 border-b border-white/20 ${isScrolled ? 'bg-[#000000]/40 backdrop-blur-sm shadow-lg' : ''}`}>
+        <nav className={`flex-between fixed z-50 w-screen px-4 sm:px-12 lg:px-24 py-4 transition-all duration-500 border-b border-white/20 ${isScrolled ? 'bg-[#000000]/40 backdrop-blur-sm shadow-lg' : ''}`}>
             <ScrollLink href='/' className='flex items-center gap-4'>
                 <Image 
                     src='favicon.ico' 
@@ -77,7 +77,7 @@ const AppNavbar = () => {
                     className='hidden sm:block'
                 >
                     <Button
-                        className="border-0 ring-0 text-white border-transparent hover:text-primary hover:rounded-none font-medium"
+                        className="border-0 ring-0 text-white border-transparent hover:text-primary hover:rounded-none font-medium text-sm md:text-base"
                         label='Services'
                         text
                     >
@@ -85,13 +85,13 @@ const AppNavbar = () => {
                 </ScrollLink>
 
                 <ScrollLink 
-                    to="offerSection" 
+                    to="ourMissionSection" 
                     smooth={true} 
                     duration={500} 
                     className='hidden sm:block'
                 >
                     <Button
-                        className="border-0 ring-0 text-white border-transparent hover:text-primary hover:rounded-none"
+                        className="border-0 ring-0 text-white border-transparent hover:text-primary hover:rounded-none text-sm md:text-base"
                         label='About Us'
                         text
                     ></Button>
@@ -113,7 +113,7 @@ const AppNavbar = () => {
                 <AppMobileNav />
 
                 <Button 
-                    className="font bg-gradient-to-r from-secondary to-primary px-6 sm:px-12 border-0 hidden sm:block"
+                    className="font bg-gradient-to-r from-secondary to-primary px-6 sm:px-12 border-0 hidden sm:block text-sm md:text-base"
                     onClick={ loginButton1 } 
                     label="Login" 
                 />
