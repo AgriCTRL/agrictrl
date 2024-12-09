@@ -214,6 +214,11 @@ export async function countPalayBatches(): Promise<number> {
 export async function createPalayBatch(
   palayBatchCreate: PalayBatchCreate
 ): Promise<PalayBatch> {
+  const wsrExists = await checkExistingWSR(palayBatchCreate.wsr);
+  if (wsrExists) {
+    throw new Error(`PalayBatch with WSR ${palayBatchCreate.wsr} already exists`);
+  }
+
   let palayBatch = new PalayBatch();
 
   palayBatch.dateBought = getCurrentPST();
@@ -280,6 +285,20 @@ export async function createPalayBatch(
 export async function updatePalayBatch(
   palayBatchUpdate: PalayBatchUpdate
 ): Promise<PalayBatch> {
+  if (palayBatchUpdate.wsr) {
+    const wsrExists = await checkExistingWSR(palayBatchUpdate.wsr);
+    if (wsrExists) {
+      throw new Error(`PalayBatch with WSR ${palayBatchUpdate.wsr} already exists`);
+    }
+  }
+
+  if (palayBatchUpdate.wsi) {
+    const wsiExists = await checkExistingWSI(palayBatchUpdate.wsi);
+    if (wsiExists) {
+      throw new Error(`PalayBatch with WSI ${palayBatchUpdate.wsi} already exists`);
+    }
+  }
+
   await PalayBatch.update(palayBatchUpdate.id, {
     dateBought: palayBatchUpdate.dateBought,
     wsr: palayBatchUpdate.wsr,
@@ -375,4 +394,18 @@ export async function searchPalayBatches(
   const data = await queryBuilder.take(limit).skip(offset).getMany();
 
   return { data, total };
+}
+
+export async function checkExistingWSR(wsr: number): Promise<boolean> {
+  const existingBatch = await PalayBatch.findOne({ 
+    where: { wsr } 
+  });
+  return !!existingBatch;
+}
+
+export async function checkExistingWSI(wsi: number): Promise<boolean> {
+  const existingBatch = await PalayBatch.findOne({ 
+    where: { wsi } 
+  });
+  return !!existingBatch;
 }

@@ -465,6 +465,17 @@ function PalayRegister({ visible, onHide, onPalayRegistered, currentWSR }) {
       });
 
       if (!palayResponse.ok) {
+        if (palayResponse.status === 400) {
+          const errorData = await palayResponse.json();
+          
+          toast.current.show({
+            severity: "error",
+            summary: "Conflict",
+            detail: errorData.message,
+            life: 3000,
+          });
+          return;
+        }
         throw new Error("Failed to submit palay data");
       }
 
