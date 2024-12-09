@@ -15,7 +15,7 @@ const RightSidebar = ({ isRightSidebarOpen, rightSidebar }) => {
                 <p className="text-center font-semibold">Reach us out here</p>
                 <div className="flex items-center gap-4">
                     <a href="mailto:agrictrl@gmail.com" className='flex items-center'>
-                        <small className="ps-2">email</small>
+                        <small className="ps-2">agrictrl@gmail.com</small>
                     </a>
                 </div>
                 <small className='flex gap-2 items-center'>

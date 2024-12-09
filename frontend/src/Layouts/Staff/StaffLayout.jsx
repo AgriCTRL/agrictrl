@@ -44,6 +44,7 @@ function StaffLayout({
             navItems = [
                 { text: "Home", link: "/staff" },
                 { text: "Processing", link: "/staff/processing" },
+                { text: "History", link: "/staff/history" },
             ];
             break;
         case "Distribution Officer":

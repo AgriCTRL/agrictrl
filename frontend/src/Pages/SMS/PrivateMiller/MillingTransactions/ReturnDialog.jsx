@@ -115,12 +115,37 @@ const ReturnDialog = ({
 
     setIsLoading(true);
     try {
-      // 1. Update the facility's current processing
+      // 1. Update palay batch with new status
+      const palayResponse = await fetch(`${apiUrl}/palaybatches/update`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: selectedItem.palayBatchId,
+          currentlyAt: newTransactionData.toLocationName,
+          wsr: wsr,
+        }),
+      });
+
+      if (!palayResponse.ok) {
+        if (palayResponse.status === 400) {
+          const errorData = await palayResponse.json();
+          
+          toast.current.show({
+            severity: "error",
+            summary: "Conflict",
+            detail: errorData.message,
+            life: 3000,
+          });
+          return;
+        }
+        throw new Error("Failed to update palay batch");
+      }
+
       const selectedMiller = millerData.find(
         (miller) => miller.id === selectedItem.toLocationId
       );
 
-      // 1. Update miller
+      // 2. Update miller
       if (!selectedMiller) {
         throw new Error("Miller not found");
       }
@@ -148,7 +173,7 @@ const ReturnDialog = ({
         throw new Error("Failed to update miller processing quantity");
       }
 
-      // 2. Update current transaction to Completed
+      // 3. Update current transaction to Completed
       const updateTransactionResponse = await fetch(
         `${apiUrl}/transactions/update`,
         {
@@ -163,21 +188,6 @@ const ReturnDialog = ({
 
       if (!updateTransactionResponse.ok) {
         throw new Error("Failed to update current transaction");
-      }
-
-      // 3. Update palay batch with new status
-      const palayResponse = await fetch(`${apiUrl}/palaybatches/update`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id: selectedItem.palayBatchId,
-          currentlyAt: newTransactionData.toLocationName,
-          wsr: wsr,
-        }),
-      });
-
-      if (!palayResponse.ok) {
-        throw new Error("Failed to update palay batch");
       }
 
       // 4. Create new return transaction

@@ -132,7 +132,33 @@ const ReturnDialog = ({
 
     setIsLoading(true);
     try {
-      // 1. Update the facility's current processing
+      // 1. Update palay batch with new status
+      const palayResponse = await fetch(`${apiUrl}/palaybatches/update`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: selectedItem.palayBatchId,
+          currentlyAt: newTransactionData.toLocationName,
+          wsr: wsr,
+        }),
+      });
+
+      if (!palayResponse.ok) {
+        if (palayResponse.status === 400) {
+          const errorData = await palayResponse.json();
+          
+          toast.current.show({
+            severity: "error",
+            summary: "Conflict",
+            detail: errorData.message,
+            life: 3000,
+          });
+          return;
+        }
+        throw new Error("Failed to update palay batch");
+      }
+      
+      // 2. Update the facility's current processing
       const facilityData =
         viewMode === "drying"
           ? dryerData.find((dryer) => dryer.id === selectedItem.toLocationId)
@@ -176,7 +202,7 @@ const ReturnDialog = ({
         );
       }
 
-      // 2. Update current transaction to Completed
+      // 3. Update current transaction to Completed
       const updateTransactionResponse = await fetch(
         `${apiUrl}/transactions/update`,
         {
@@ -191,21 +217,6 @@ const ReturnDialog = ({
 
       if (!updateTransactionResponse.ok) {
         throw new Error("Failed to update current transaction");
-      }
-
-      // 3. Update palay batch with new status
-      const palayResponse = await fetch(`${apiUrl}/palaybatches/update`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id: selectedItem.palayBatchId,
-          currentlyAt: newTransactionData.toLocationName,
-          wsr: wsr,
-        }),
-      });
-
-      if (!palayResponse.ok) {
-        throw new Error("Failed to update palay batch");
       }
 
       // 4. Create milling batch if needed
