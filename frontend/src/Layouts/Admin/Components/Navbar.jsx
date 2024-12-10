@@ -60,8 +60,8 @@ function Navbar({ items, expanded, onToggleExpanded }) {
                         text
                         onClick={(e) => op.current.toggle(e)}
                     >
-                        <Avatar 
-                            image={items.avatar ?? null} 
+                        <Avatar
+                            image={'/landingpage/nfa-logo.svg' ?? null}
                             icon={<User size={18} />}
                             shape="circle"
                             className="cursor-pointer border-primary border text-primary bg-tag-grey"
@@ -75,8 +75,8 @@ function Navbar({ items, expanded, onToggleExpanded }) {
                     <OverlayPanel ref={op} className='w-60'>
                         <div className='gap-4 flex flex-col'>
                             <div className='flex items-center gap-4'>
-                                <Avatar 
-                                    image={items.avatar ?? null} 
+                                <Avatar
+                                    image={'/landingpage/nfa-logo.svg' ?? null}
                                     icon={<User size={20} />}
                                     shape="circle"
                                     size='large'

@@ -172,7 +172,7 @@ function Home({ isRightSidebarOpen }) {
                                 <div className='h-full'>
                                     <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
                                 </div>
-                                <div className="absolute bg-gradient-to-r from-[#2A2A2A] to-transparent inset-0 flex flex-col gap-4 p-10">
+                                <div className="absolute bg-gradient-to-r from-[#1f1f1f] to-transparent inset-0 flex flex-col gap-4 p-10">
                                     <div className="text-green-400 flex items-center gap-4">
                                         <Fan />
                                         <p>What We Offer</p>

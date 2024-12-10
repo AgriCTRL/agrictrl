@@ -66,16 +66,16 @@ const TestimonialsSection = () => {
                     <div className="flex sm:flex-row flex-col sm:gap-6 gap-2">
                         <Avatar image={ testimonial.image } shape="circle" size='xlarge' className='border-2 border-primary'/>
                         <div className="details flex flex-col gap-2 justify-center">
-                            <p className='text-primary font-semibold'>{ testimonial.name }</p>
+                            <p className='text-primary font-semibold text-sm md:text-base'>{ testimonial.name }</p>
                             <Tag value={ testimonial.role } className='bg-tag-grey text-black'></Tag>
                         </div>
                     </div>
                     <Quote className="text-primary" size={32} />
                 </div>
                 <div className="testimonial">
-                    <p>"{ testimonial.quote }"</p>
+                    <p className='text-sm md:text-base'>"{ testimonial.quote }"</p>
                 </div>
-                <div className="date text-primary">{ testimonial.date }</div>
+                <div className="date text-primary text-sm md:text-base">{ testimonial.date }</div>
             </div>
         );
     };
@@ -83,7 +83,7 @@ const TestimonialsSection = () => {
     return (
         <section id="testimonialSection" 
             className="relative h-auto w-screen flex flex-col gap-6 overflow-hidden 
-            px-6 sm:px-12 lg:px-24 
+            px-4 sm:px-12 lg:px-24 
             pt-6 sm:pt-12 lg:pt-24 
             pb-20 lg:pb-44 
             justify-center"

@@ -1,36 +1,33 @@
 import React, { useState, useEffect, useRef } from 'react';
 import StaffLayout from '@/Layouts/Staff/StaffLayout';
 
-import { InputText } from 'primereact/inputtext';
-import { Dropdown } from 'primereact/dropdown';
-import { Calendar } from 'primereact/calendar';
-import { Button } from 'primereact/button';
-import { Password } from 'primereact/password';
-import { Divider } from 'primereact/divider';
 import { Toast } from 'primereact/toast';
 import CryptoJS from 'crypto-js';
 
 import { useAuth } from '../../Authentication/Login/AuthContext';
+import Loader from '../../../Components/Loader';
+import ProfileLayout from '../../../Layouts/ProfileLayout';
 
 function Profile() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const secretKey = import.meta.env.VITE_HASH_KEY;
-    const { user, logout } = useAuth();
+    const { logout } = useAuth();
+    const [user] = useState({ first_name: 'John', last_name: 'Doe', email: 'jy6kS@example.com', userType: 'staff' });
     const toast = useRef(null);
     const [activeTab, setActiveTab] = useState('personal');
     const [editing, setEditing] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [userData, setUserData] = useState({
         personalInfo: {
-            firstName: '',
-            lastName: '',
+            firstName: 'John',
+            lastName: 'Doe',
             gender: '',
             birthDate: null,
             contactNumber: '',
             validId: ''
         },
         accountDetails: {
-            userType: '',
+            userType: 'staff',
             organizationName: '',
             jobTitlePosition: '',
             branchRegion: '',
@@ -49,6 +46,9 @@ function Profile() {
             confirmPassword: null
         }
     });
+    const [userFullName] = useState(
+        `${userData.personalInfo.firstName} ${userData.personalInfo.lastName}`
+    );
     const [isLoading, setIsLoading] = useState(true);
     const [errors, setErrors] = useState({});
 
@@ -603,249 +603,6 @@ function Profile() {
         return newErrors;
     };
 
-    const genderOptions = [
-        { label: 'Male', value: 'Male' },
-        { label: 'Female', value: 'Female' },
-        { label: 'Other', value: 'Other' }
-    ];
-
-    const renderPersonalInformation = () => (
-        <div className="grid grid-cols-2 gap-4">
-            <div>
-                <label className="block mb-2 text-sm font-medium text-gray-700">First Name</label>
-                <InputText
-                    value={userData.personalInfo.firstName}
-                    onChange={(e) => handleInputChange('personalInfo', 'firstName', e.target.value)}
-                    disabled={!editing}
-                    className="w-full focus:ring-0"
-                    keyfilter={/^[a-zA-Z\s]/}
-                    maxLength={50}
-                />
-                {errors.firstName && <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>}
-            </div>
-            <div>
-                <label className="block mb-2 text-sm font-medium text-gray-700">Last Name</label>
-                <InputText
-                    value={userData.personalInfo.lastName}
-                    onChange={(e) => handleInputChange('personalInfo', 'lastName', e.target.value)}
-                    disabled={!editing}
-                    className="w-full focus:ring-0"
-                    keyfilter={/^[a-zA-Z\s]/}
-                    maxLength={50}
-                />
-                {errors.lastName && <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>}
-            </div>
-            <div>
-                <label className="block mb-2 text-sm font-medium text-gray-700">Gender</label>
-                <Dropdown
-                    value={userData.personalInfo.gender}
-                    options={genderOptions}
-                    onChange={(e) => handleInputChange('personalInfo', 'gender', e.value)}
-                    disabled={!editing}
-                    className="ring-0 w-full placeholder:text-gray-400"
-                    keyfilter="alpha"
-                    maxLength={25}
-                />
-                {errors.gender && <p className="text-red-500 text-xs mt-1">{errors.gender}</p>}
-            </div>
-            <div>
-                <label className="block mb-2 text-sm font-medium text-gray-700">Birth Date</label>
-                <Calendar
-                    value={userData.personalInfo.birthDate ? new Date(userData.personalInfo.birthDate) : null}
-                    onChange={(e) => handleInputChange('personalInfo', 'birthDate', e.value)}
-                    disabled={!editing}
-                    dateFormat="mm/dd/yy"
-                    className="w-full rounded-md"
-                    maxDate={maxDate}
-                />
-                {errors.birthDate && <p className="text-red-500 text-xs mt-1">{errors.birthDate}</p>}
-            </div>
-            <div>
-                <label className="block mb-2 text-sm font-medium text-gray-700">Contact Number</label>
-                <InputText
-                    value={userData.personalInfo.contactNumber}
-                    onChange={(e) => handleInputChange('personalInfo', 'contactNumber', e.target.value)}
-                    disabled={!editing}
-                    className="w-full focus:ring-0"
-                    keyfilter="alphanum"
-                    maxLength={15}
-                />
-                {errors.contactNumber && <p className="text-red-500 text-xs mt-1">{errors.contactNumber}</p>}
-            </div>
-        </div>
-    );
-
-    const renderAccountDetails = () => (
-        <div className="grid grid-cols-2 gap-4">
-            <div className='col-span-2'>
-                <label className="block mb-2 text-sm font-medium text-gray-700">User Type</label>
-                <InputText
-                    value={userData.accountDetails.userType}
-                    disabled
-                    className="w-full border rounded-md border-gray-300"
-                    keyfilter="alphanum"
-                    maxLength={25}
-                />
-            </div>
-            <div>
-                <label className="block mb-2 text-sm font-medium text-gray-700">Organization Name</label>
-                <InputText
-                    value={userData.accountDetails.organizationName}
-                    onChange={(e) => handleInputChange('accountDetails', 'organizationName', e.target.value)}
-                    disabled={!editing}
-                    className="w-full focus:ring-0"
-                    keyfilter="alphanum"
-                    maxLength={50}
-                />
-                {errors.organizationName && <p className="text-red-500 text-xs mt-1">{errors.organizationName}</p>}
-            </div>
-            <div>
-            <label className="block mb-2 text-sm font-medium text-gray-700">Job Title/Position</label>
-                <Dropdown
-                    value={userData.accountDetails.jobTitlePosition}
-                    options={positionOptions}
-                    onChange={(e) => handleInputChange('accountDetails', 'jobTitlePosition', e.target.value)}
-                    disabled={!editing}
-                    className="w-full focus:ring-0"
-                    keyfilter="alphanum"
-                    maxLength={50}
-                />
-                {errors.jobTitlePosition && <p className="text-red-500 text-xs mt-1">{errors.jobTitlePosition}</p>}
-            </div>
-            <div>
-                <label className="block mb-2 text-sm font-medium text-gray-700">Branch Region</label>
-                <Dropdown
-                    value={userData.accountDetails.branchRegion}
-                    options={branchRegionOptions}
-                    onChange={(e) => handleInputChange('accountDetails', 'branchRegion', e.value)}
-                    disabled={!editing}
-                    className="ring-0 w-full placeholder:text-gray-400"
-                />
-                {errors.branchRegion && <p className="text-red-500 text-xs mt-1">{errors.branchRegion}</p>}
-            </div>
-            <div>
-                <label className="block mb-2 text-sm font-medium text-gray-700">Branch Office</label>
-                <Dropdown
-                    value={userData.accountDetails.branchOffice}
-                    options={branchOfficeOptions}
-                    onChange={(e) => handleInputChange('accountDetails', 'branchOffice', e.value)}
-                    disabled={!editing}
-                    className="ring-0 w-full placeholder:text-gray-400"
-                />
-                {errors.branchOffice && <p className="text-red-500 text-xs mt-1">{errors.branchOffice}</p>}
-            </div>
-        </div>
-    );
-
-    const renderOfficeAddress = () => (
-        <div className="grid grid-cols-2 gap-4">
-            <div className="col-span-2">
-                <label className="block mb-2 text-sm font-medium text-gray-700">Region</label>
-                <Dropdown 
-                    value={userData.officeAddress.region}
-                    options={regionOptions}
-                    onChange={(e) => handleInputChange('officeAddress', 'region', e.value)}
-                    disabled={!editing}
-                    className="ring-0 w-full placeholder:text-gray-400"
-                />
-                {errors.region && <p className="text-red-500 text-xs mt-1">{errors.region}</p>}
-            </div>
-            {userData.officeAddress.region !== "National Capital Region" && (
-                <div>
-                    <label className="block mb-2 text-sm font-medium text-gray-700">Province</label>
-                    <Dropdown
-                        value={userData.officeAddress.province}
-                        options={provinceOptions}
-                        onChange={(e) => handleInputChange('officeAddress', 'province', e.value)}
-                        disabled={!editing}
-                        className="ring-0 w-full placeholder:text-gray-400"
-                    />
-                    {errors.province && <p className="text-red-500 text-xs mt-1">{errors.province}</p>}
-                </div>
-            )}
-            <div>
-                <label className="block mb-2 text-sm font-medium text-gray-700">City/Town</label>
-                <Dropdown
-                    value={userData.officeAddress.cityTown}
-                    options={cityTownOptions}
-                    onChange={(e) => handleInputChange('officeAddress', 'cityTown', e.value)}
-                    disabled={!editing}
-                    className="ring-0 w-full placeholder:text-gray-400"
-                />
-                {errors.cityTown && <p className="text-red-500 text-xs mt-1">{errors.cityTown}</p>}
-            </div>
-            <div>
-                <label className="block mb-2 text-sm font-medium text-gray-700">Barangay</label>
-                <Dropdown
-                    value={userData.officeAddress.barangay}
-                    options={barangayOptions}
-                    onChange={(e) => handleInputChange('officeAddress', 'barangay', e.value)}
-                    disabled={!editing}
-                    className="ring-0 w-full placeholder:text-gray-400"
-                />
-                {errors.barangay && <p className="text-red-500 text-xs mt-1">{errors.barangay}</p>}
-            </div>
-            <div>
-                <label className="block mb-2 text-sm font-medium text-gray-700">Street</label>
-                <InputText
-                    value={userData.officeAddress.street}
-                    onChange={(e) => handleInputChange('officeAddress', 'street', e.target.value)}
-                    disabled={!editing}
-                    className="w-full focus:ring-0"
-                    maxLength={50}
-                />
-                {errors.street && <p className="text-red-500 text-xs mt-1">{errors.street}</p>}
-            </div>
-        </div>
-    );
-
-    const renderPassword = () => (
-        <div className="grid grid-cols-1 gap-4">
-            <div>
-                <label className="block mb-2 text-sm font-medium text-gray-700">Email</label>
-                <InputText
-                    value={userData.passwordInfo.email}
-                    onChange={(e) => handleInputChange('passwordInfo', 'email', e.target.value)}
-                    disabled={!editing}
-                    className="w-full focus:ring-0"
-                    keyfilter="email"
-                    maxLength={50}
-                />
-                {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
-            </div>
-            { editing && (
-                <div>
-                    <div>
-                        <label className="block mb-2 text-sm font-medium text-gray-700">New Password</label>
-                        <Password
-                            value={userData.passwordInfo.password}
-                            footer={passwordFooter}
-                            onChange={(e) => handleInputChange('passwordInfo', 'password', e.target.value)}
-                            disabled={!editing}
-                            inputClassName="w-full p-3 ring-0"
-                            toggleMask
-                            className="w-full"
-                        />
-                        {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
-                    </div>
-                    <div>
-                        <label className="block mb-2 text-sm font-medium text-gray-700">Confirm Password</label>
-                        <Password
-                            value={userData.passwordInfo.confirmPassword}
-                            onChange={(e) => handleInputChange('passwordInfo', 'confirmPassword', e.target.value)}
-                            disabled={!editing}
-                            inputClassName="w-full p-3 ring-0"
-                            toggleMask
-                            feedback={false}
-                            className="w-full"
-                        />
-                        {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
-                    </div>
-                </div>
-            )}
-        </div>
-    );
-
     const logoutButton = async () => {
         try {
             await logout();
@@ -856,111 +613,32 @@ function Profile() {
         }
     }
 
-    const passwordFooter = (
-        <>
-          <Divider />
-          <p className="mt-2">Suggestions</p>
-          <ul className="pl-2 ml-2 mt-0 line-height-3">
-            <li>At least one lowercase</li>
-            <li>At least one uppercase</li>
-            <li>At least one numeric</li>
-            <li>Minimum 8 characters</li>
-          </ul>
-        </>
-    );
-
-    const tabs = [
-        { id: 'personal', label: 'Personal Information', content: renderPersonalInformation },
-        { id: 'account', label: 'Account Details', content: renderAccountDetails },
-        { id: 'address', label: 'Office Address', content: renderOfficeAddress },
-        { id: 'password', label: 'Password', content: renderPassword },
-    ];
-
     return (
         <StaffLayout activePage="Profile" user={user}>
             <Toast ref={toast} />
             {isLoading ? (
-                <div className="flex items-center justify-center h-full">
-                    <div className="text-center">
-                        <i className="pi pi-spin pi-spinner text-4xl"></i>
-                        <p className="mt-2">Loading profile...</p>
-                    </div>
-                </div>
+                <Loader />
             ) : (
-                <div className='flex flex-row h-full w-full px-4 py-2 bg-[#F1F5F9] rounded-xl'>
-                    <div className='relative flex flex-col items-center justify-between h-full w-1/4 p-5 rounded-lg overflow-hidden'>
-                        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('/Registration-leftBG.png')" }}>
-                            <div className="absolute inset-0 bg-gradient-to-t from-secondary via-[#00c26170] to-transparent"></div>
-                        </div>
-
-                        <div className="relative flex flex-col justify-center items-center gap-4 z-10">
-                            <img src="/profileAvatar.png" alt="Profile" className="w-32 h-32 rounded-full" />
-                            <div className="flex flex-col items-center">
-                                <h1 className='text-5xl text-white font-bold'>
-                                    {userData?.personalInfo?.firstName} {userData?.personalInfo?.lastName}
-                                </h1>
-                                <p className='text-xl text-white'>
-                                    {userData.accountDetails.userType}
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="flex justify-center items-center w-full z-10">
-                            <Button 
-                                onClick={logoutButton} 
-                                variant="secondary" 
-                                className='text-lg text-primary bg-white p-4 flex justify-center items-center w-full'
-                            >
-                                Logout
-                            </Button>
-                        </div>
-                    </div>
-
-                    <div className='flex justify-between flex-col w-full p-4'>
-                        <div className="flex justify-between mb-4">
-                            {tabs.map((tab) => (
-                                <button
-                                    key={tab.id}
-                                    onClick={() => setActiveTab(tab.id)}
-                                    className={`px-4 py-2 w-full font-medium ${
-                                        activeTab === tab.id
-                                            ? 'text-green-500 border-b-2 border-green-500'
-                                            : 'text-gray-500 border-b-2 border-gray-300 hover:text-green-500'
-                                    }`}
-                                >
-                                    {tab.label}
-                                </button>
-                            ))}
-                        </div>
-
-                        <form onSubmit={handleSave} className="flex flex-col justify-between h-full">
-                            <div className="mt-4">
-                                {tabs.find(tab => tab.id === activeTab).content()}
-                            </div>
-                            
-                            <div className='flex justify-end'>
-                                <Button
-                                    label={editing ? "Cancel" : "Edit"}
-                                    type="button"
-                                    onClick={handleToggleEdit}
-                                    className={`border h-12 w-24 text-white font-bold ${
-                                        editing 
-                                            ? 'bg-red-500 hover:bg-red-600' 
-                                            : 'bg-green-500 hover:bg-green-600'
-                                    }`}
-                                />
-                                {editing && (
-                                    <Button
-                                        label="Save Changes"
-                                        disabled={isSubmitting}
-                                        type="submit"
-                                        className='ml-4 p-button-success border h-12 px-4 text-white font-bold bg-green-500 hover:bg-green-600'
-                                    />
-                                )}
-                            </div>
-                        </form>
-                    </div>
-                </div>
+                <ProfileLayout
+                    user={user}
+                    userData={userData}
+                    userFullName={userFullName}
+                    editing={editing}
+                    handleToggleEdit={handleToggleEdit}
+                    handleSave={handleSave}
+                    activeTab={activeTab}
+                    setActiveTab={setActiveTab}
+                    logoutButton={logoutButton}
+                    isSubmitting={isSubmitting}
+                    errors={errors} 
+                    handleInputChange={handleInputChange}
+                    regionOptions={regionOptions}
+                    provinceOptions={provinceOptions}
+                    cityTownOptions={cityTownOptions}
+                    barangayOptions={barangayOptions}
+                    branchOfficeOptions={branchOfficeOptions}
+                    branchRegionOptions={branchRegionOptions}
+                />
             )}
         </StaffLayout>
     );

@@ -27,7 +27,7 @@ function UserLayout({ children }) {
                 >
                     <SocialsSection />
 
-                    <img src={"/Landing-HeroBg.jpg"} alt={"image"} className="absolute inset-0 object-cover h-full w-full" />
+                    <img src={"/Landing-HeroBg.webp"} alt={"image"} className="absolute inset-0 object-cover h-full w-full" />
 
                     <div className="absolute inset-0 bg-[#000000]/80"> </div>
 
@@ -59,7 +59,7 @@ function UserLayout({ children }) {
                             <h3 className="text-lg font-semibold">Quick Links</h3>
                             <div className="links">
                                 <ScrollLink 
-                                    to="offerSection" 
+                                    to="ourMissionSection" 
                                     smooth={true}
                                     duration={500}
                                     className="hover:text-primary cursor-pointer"
@@ -87,7 +87,7 @@ function UserLayout({ children }) {
                     </div>
 
                     <div className="relative w-full border-t border-white py-8">
-                        <p className="text-center text-white">Copyright © 2022 AgriCTRL+. All Rights Reserved.</p>
+                        <p className="text-center text-white">Copyright © 2024 AgriCTRL+. All Rights Reserved.</p>
                     </div>
                 </footer>
             </div>

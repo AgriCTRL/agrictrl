@@ -28,9 +28,9 @@ import StaffLayout from '@/Layouts/Staff/StaffLayout';
 import QuickLinks from '../Components/QuickLinks';
 import TransacSummaryCarousel from '../Components/TransacSummaryCarousel';
 
-
 function Home({ isRightSidebarOpen }) {
-    const { user } = useAuth();
+    // const { user } = useAuth();
+    const [user] = useState({ firstName: 'John', lastName: 'Doe', email: 'jy6kS@example.com', userType: 'staff', avatar: 'https://via.placeholder.com/150', jobTitlePosition: 'Procurement Officer' });
     const [userFullName] = useState(`${user.firstName} ${user.lastName}`);
 
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -100,6 +100,8 @@ function Home({ isRightSidebarOpen }) {
         }
 
         setLinks(linksItem[user.jobTitlePosition || defaultLink]);
+
+        console.log("LINKS: ", linksItem[user.jobTitlePosition || defaultLink]);
     }, [user]);
 
     const viewAllTransactions = () => {
@@ -203,7 +205,7 @@ function Home({ isRightSidebarOpen }) {
                     {/* Avatar */}
                     <Avatar 
                         size="xlarge"
-                        image={user.avatar ?? null} 
+                        image={'/landingpage/nfa-logo.svg' ?? null}
                         icon={<User size={24} />}
                         shape="circle"
                         className="cursor-pointer border-2 border-white text-primary bg-tag-grey absolute bottom-0 translate-y-1/2 shadow-lg"
@@ -363,7 +365,7 @@ function Home({ isRightSidebarOpen }) {
                                 <div className='h-full'>
                                     <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
                                 </div>
-                                <div className="absolute bg-gradient-to-r from-[#2A2A2A] to-transparent inset-0 flex flex-col gap-4 p-8">
+                                <div className="absolute bg-gradient-to-r from-[#1f1f1f] to-transparent inset-0 flex flex-col gap-4 p-8">
                                     <div className="text-green-400 flex items-center gap-4">
                                         <HandHelping size={20} />
                                         <p>What We Offer</p>

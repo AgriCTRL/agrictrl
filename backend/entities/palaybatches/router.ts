@@ -14,6 +14,11 @@ import {
   getTotalPalayQuantityBags,
   searchPalayBatches,
 } from "./db";
+import { 
+  checkExistingWSR, 
+  checkExistingWSI, 
+  recordUsedWSRWSI 
+} from "../usedwsrwsi/db";
 
 export function getRouter(): Router {
   const router = express.Router();
@@ -134,92 +139,10 @@ export function getRouter(): Router {
           pileId: string;
         }
       >,
-      res
+      res: Response
     ) => {
-      const {
-        dateBought,
-        wsr,
-        wsi,
-        age,
-        buyingStationName,
-        buyingStationLoc,
-        currentQuantityBags,
-        quantityBags,
-        grossWeight,
-        netWeight,
-        qualityType,
-        moistureContent,
-        purity,
-        damaged,
-        varietyCode,
-        price,
-        palaySupplierId,
-        farmerName,
-        palaySupplierRegion,
-        palaySupplierProvince,
-        palaySupplierCityTown,
-        palaySupplierBarangay,
-        palaySupplierStreet,
-        category,
-        numOfFarmer,
-        contactNumber,
-        email,
-        birthDate,
-        gender,
-        farmSize,
-        farmRegion,
-        farmProvince,
-        farmCityTown,
-        farmBarangay,
-        farmStreet,
-        plantedDate,
-        harvestedDate,
-        estimatedCapital,
-        currentlyAt,
-        weighedBy,
-        correctedBy,
-        classifiedBy,
-        status,
-        pileId,
-      } = req.body;
-
-      if (!palaySupplierId) {
-        const houseOfficeAddress = await createHouseOfficeAddress({
-          region: palaySupplierRegion,
-          province: palaySupplierProvince,
-          cityTown: palaySupplierCityTown,
-          barangay: palaySupplierBarangay,
-          street: palaySupplierStreet,
-        });
-  
-        const palaySupplier = await createPalaySupplier({
-          farmerName: farmerName,
-          houseOfficeAddressId: houseOfficeAddress.id,
-          category: category,
-          numOfFarmer: numOfFarmer,
-          contactNumber: contactNumber,
-          email: email,
-          birthDate: birthDate,
-          gender: gender,
-        });
-
-        const qualitySpec = await createQualitySpec({
-          moistureContent: moistureContent,
-          purity: purity,
-          damaged: damaged,
-        });
-  
-        const farm = await createFarm({
-          palaySupplierId: palaySupplier.id,
-          farmSize: farmSize,
-          region: farmRegion,
-          province: farmProvince,
-          cityTown: farmCityTown,
-          barangay: farmBarangay,
-          street: farmStreet,
-        });
-  
-        const palayBatch = await createPalayBatch({
+      try {
+        const {
           dateBought,
           wsr,
           wsi,
@@ -231,11 +154,30 @@ export function getRouter(): Router {
           grossWeight,
           netWeight,
           qualityType,
-          qualitySpecId: qualitySpec.id,
+          moistureContent,
+          purity,
+          damaged,
           varietyCode,
           price,
-          palaySupplierId: palaySupplier.id,
-          farmId: farm.id,
+          palaySupplierId,
+          farmerName,
+          palaySupplierRegion,
+          palaySupplierProvince,
+          palaySupplierCityTown,
+          palaySupplierBarangay,
+          palaySupplierStreet,
+          category,
+          numOfFarmer,
+          contactNumber,
+          email,
+          birthDate,
+          gender,
+          farmSize,
+          farmRegion,
+          farmProvince,
+          farmCityTown,
+          farmBarangay,
+          farmStreet,
           plantedDate,
           harvestedDate,
           estimatedCapital,
@@ -245,145 +187,225 @@ export function getRouter(): Router {
           classifiedBy,
           status,
           pileId,
-        });
-        res.json(palayBatch);
-      } else {
-        const qualitySpec = await createQualitySpec({
-          moistureContent: moistureContent,
-          purity: purity,
-          damaged: damaged,
-        });
+        } = req.body;
+
+        const wsrExists = await checkExistingWSR(wsr);
+        if (wsrExists) {
+          return res.status(400).json({ 
+            message: `WSR ${wsr} has already been used` 
+          });
+        }
   
-        const farm = await createFarm({
-          palaySupplierId: palaySupplierId,
-          farmSize: farmSize,
-          region: farmRegion,
-          province: farmProvince,
-          cityTown: farmCityTown,
-          barangay: farmBarangay,
-          street: farmStreet,
-        });
+        if (!palaySupplierId) {
+          const houseOfficeAddress = await createHouseOfficeAddress({
+            region: palaySupplierRegion,
+            province: palaySupplierProvince,
+            cityTown: palaySupplierCityTown,
+            barangay: palaySupplierBarangay,
+            street: palaySupplierStreet,
+          });
+    
+          const palaySupplier = await createPalaySupplier({
+            farmerName: farmerName,
+            houseOfficeAddressId: houseOfficeAddress.id,
+            category: category,
+            numOfFarmer: numOfFarmer,
+            contactNumber: contactNumber,
+            email: email,
+            birthDate: birthDate,
+            gender: gender,
+          });
   
-        const palayBatch = await createPalayBatch({
-          dateBought,
+          const qualitySpec = await createQualitySpec({
+            moistureContent: moistureContent,
+            purity: purity,
+            damaged: damaged,
+          });
+    
+          const farm = await createFarm({
+            palaySupplierId: palaySupplier.id,
+            farmSize: farmSize,
+            region: farmRegion,
+            province: farmProvince,
+            cityTown: farmCityTown,
+            barangay: farmBarangay,
+            street: farmStreet,
+          });
+    
+          const palayBatch = await createPalayBatch({
+            dateBought,
+            wsr,
+            wsi,
+            age,
+            buyingStationName,
+            buyingStationLoc,
+            currentQuantityBags,
+            quantityBags,
+            grossWeight,
+            netWeight,
+            qualityType,
+            qualitySpecId: qualitySpec.id,
+            varietyCode,
+            price,
+            palaySupplierId: palaySupplier.id,
+            farmId: farm.id,
+            plantedDate,
+            harvestedDate,
+            estimatedCapital,
+            currentlyAt,
+            weighedBy,
+            correctedBy,
+            classifiedBy,
+            status,
+            pileId,
+          });
+          await recordUsedWSRWSI(wsr, "WSR", palayBatch.id);
+          res.json(palayBatch);
+        } else {
+          const qualitySpec = await createQualitySpec({
+            moistureContent: moistureContent,
+            purity: purity,
+            damaged: damaged,
+          });
+    
+          const farm = await createFarm({
+            palaySupplierId: palaySupplierId,
+            farmSize: farmSize,
+            region: farmRegion,
+            province: farmProvince,
+            cityTown: farmCityTown,
+            barangay: farmBarangay,
+            street: farmStreet,
+          });
+    
+          const palayBatch = await createPalayBatch({
+            dateBought,
+            wsr,
+            wsi,
+            age,
+            buyingStationName,
+            buyingStationLoc,
+            currentQuantityBags,
+            quantityBags,
+            grossWeight,
+            netWeight,
+            qualityType,
+            qualitySpecId: qualitySpec.id,
+            varietyCode,
+            price,
+            palaySupplierId: palaySupplierId,
+            farmId: farm.id,
+            plantedDate,
+            harvestedDate,
+            estimatedCapital,
+            currentlyAt,
+            weighedBy,
+            correctedBy,
+            classifiedBy,
+            status,
+            pileId,
+          });
+          await recordUsedWSRWSI(wsr, "WSR", palayBatch.id);
+          res.json(palayBatch);
+        }
+      } catch (error) {
+        res.status(500).json({ 
+          message: error instanceof Error ? error.message : 'Error creating palay batch' 
+        });
+      }
+    }
+  );
+  
+  router.post("/update", 
+    async (
+      req: Request<
+        any,
+        any,
+        {
+          id: string;
+          dateBought?: Date;
+          wsr?: number;
+          wsi?: number;
+          age?: number;
+          buyingStationName?: string;
+          buyingStationLoc?: string;
+          currentQuantityBags?: number;
+          quantityBags?: number;
+          grossWeight?: number;
+          netWeight?: number;
+          qualityType?: string;
+          varietyCode?: string;
+          price?: number;
+          plantedDate?: Date;
+          harvestedDate?: Date;
+          estimatedCapital?: number;
+          currentlyAt?: string;
+          weighedBy?: string;
+          correctedBy?: string;
+          classifiedBy?: string;
+          status?: string;
+          pileId?: string;
+        }
+      >,
+      res: Response
+    ) => {
+      try {
+        const { id, wsr, wsi, ...updateData } = req.body;
+
+        // Get the existing palay batch to compare
+        const existingPalayBatch = await getPalayBatch(id);
+        if (!existingPalayBatch) {
+          return res.status(404).json({ message: "Palay Batch not found" });
+        }
+
+        // Check WSR if provided and different from existing
+        if (wsr !== undefined && wsr !== existingPalayBatch.wsr) {
+          const wsrExists = await checkExistingWSR(wsr);
+          if (wsrExists) {
+            return res.status(400).json({ 
+              message: `WSR ${wsr} has already been used` 
+            });
+          }
+        }
+
+        // Check WSI if provided and different from existing
+        if (wsi !== undefined && wsi !== existingPalayBatch.wsi) {
+          const wsiExists = await checkExistingWSI(wsi);
+          if (wsiExists) {
+            return res.status(400).json({ 
+              message: `WSI ${wsi} has already been used` 
+            });
+          }
+        }
+
+        // Prepare update data
+        const updatePayload = {
+          id,
           wsr,
           wsi,
-          age,
-          buyingStationName,
-          buyingStationLoc,
-          currentQuantityBags,
-          quantityBags,
-          grossWeight,
-          netWeight,
-          qualityType,
-          qualitySpecId: qualitySpec.id,
-          varietyCode,
-          price,
-          palaySupplierId: palaySupplierId,
-          farmId: farm.id,
-          plantedDate,
-          harvestedDate,
-          estimatedCapital,
-          currentlyAt,
-          weighedBy,
-          correctedBy,
-          classifiedBy,
-          status,
-          pileId,
-        });
+          ...updateData
+        };
+
+        const palayBatch = await updatePalayBatch(updatePayload);
+
+        // If WSR changed, record the new used WSR
+        if (wsr !== undefined && wsr !== existingPalayBatch.wsr) {
+          await recordUsedWSRWSI(wsr, "WSR", palayBatch.id);
+        }
+
+        // If WSI changed, record the new used WSI
+        if (wsi !== undefined && wsi !== existingPalayBatch.wsi) {
+          await recordUsedWSRWSI(wsi, "WSI", palayBatch.id);
+        }
+
         res.json(palayBatch);
+      } catch (error) {
+        res.status(500).json({ 
+          message: error instanceof Error ? error.message : 'Error updating palay batch' 
+        });
       }
     }
   );
 
-  router.post("/update", updateHandler);
-
   return router;
-}
-
-async function updateHandler(
-  req: Request<
-    any,
-    any,
-    {
-      id: string;
-      dateBought?: Date;
-      wsr?: number;
-      wsi?: number;
-      age?: number;
-      buyingStationName?: string;
-      buyingStationLoc?: string;
-      currentQuantityBags?: number;
-      quantityBags?: number;
-      grossWeight?: number;
-      netWeight?: number;
-      qualityType?: string;
-      varietyCode?: string;
-      price?: number;
-      plantedDate?: Date;
-      harvestedDate?: Date;
-      estimatedCapital?: number;
-      currentlyAt?: string;
-      weighedBy?: string;
-      correctedBy?: string;
-      classifiedBy?: string;
-      status?: string;
-      pileId?: string;
-    }
-  >,
-  res: Response
-): Promise<void> {
-  const {
-    id,
-    dateBought,
-    wsr,
-    wsi,
-    age,
-    buyingStationName,
-    buyingStationLoc,
-    currentQuantityBags,
-    quantityBags,
-    grossWeight,
-    netWeight,
-    qualityType,
-    varietyCode,
-    price,
-    plantedDate,
-    harvestedDate,
-    estimatedCapital,
-    currentlyAt,
-    weighedBy,
-    correctedBy,
-    classifiedBy,
-    status,
-    pileId,
-  } = req.body;
-
-  const palayBatch = await updatePalayBatch({
-    id,
-    dateBought,
-    wsr,
-    wsi,
-    age,
-    buyingStationName,
-    buyingStationLoc,
-    currentQuantityBags,
-    quantityBags,
-    grossWeight,
-    netWeight,
-    qualityType,
-    varietyCode,
-    price,
-    plantedDate,
-    harvestedDate,
-    estimatedCapital,
-    currentlyAt,
-    weighedBy,
-    correctedBy,
-    classifiedBy,
-    status,
-    pileId,
-  });
-
-  res.json(palayBatch);
 }

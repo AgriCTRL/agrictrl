@@ -52,7 +52,7 @@ const Navbar = ({ navItems, user, activePage, userFullName, profileClick, naviga
                 >
                     <Avatar 
                         onClick={profileClick}
-                        image={user.avatar ?? null} 
+                        image={'/landingpage/nfa-logo.svg' ?? null}
                         icon={<User size={18} />}
                         shape="circle"
                         className="cursor-pointer border-primary border text-primary bg-tag-grey"
@@ -68,7 +68,7 @@ const Navbar = ({ navItems, user, activePage, userFullName, profileClick, naviga
                         <div className='flex items-center gap-4'>
                             <Avatar 
                                 onClick={profileClick}
-                                image={user.avatar ?? null} 
+                                image={'/landingpage/nfa-logo.svg' ?? null}
                                 icon={<User size={20} />}
                                 shape="circle"
                                 size='large'
