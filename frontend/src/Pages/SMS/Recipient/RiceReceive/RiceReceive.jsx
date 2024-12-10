@@ -35,13 +35,6 @@ function RiceReceive() {
     fetchData();
   }, [selectedFilter]);
 
-  useEffect(() => {
-    const newFilters = {
-      global: { value: globalFilterValue, matchMode: FilterMatchMode.CONTAINS },
-    };
-    setFilters(newFilters);
-  }, [globalFilterValue]);
-
   const fetchData = async () => {
     try {
       setIsLoading(true);
@@ -60,8 +53,30 @@ function RiceReceive() {
     }
   };
 
+  const searchData = async (id) => {
+    try {
+      const res = await fetch(
+        `${apiUrl}/riceorders?riceRecipientId=${user.id}&status=Accepted&status=In%20Transit&status=Received&id=${id}`
+      );
+      if (!res.ok) {
+        throw new Error("Failed to fetch rice orders");
+      }
+      const data = await res.json();
+      setInventoryData(data);
+    } catch (error) {
+      console.error(error.message);
+    }
+  };
+
   const onGlobalFilterChange = (e) => {
-    setGlobalFilterValue(e.target.value);
+    const id = e.target.value;
+    setGlobalFilterValue(id);
+
+    if (id.trim() === "") {
+      fetchData();
+    } else {
+      searchData(id);
+    }
   };
 
   const getSeverity = (status) => {
@@ -120,7 +135,7 @@ function RiceReceive() {
           {/* Middle - Main Info */}
           <div className="flex-1">
             <div className="font-medium text-xl mb-1">
-              Order #0304-{item.id}
+              Order #{item.id}
             </div>
             <div className="text-gray-600 mb-1">
               {new Date(item.orderDate).toLocaleDateString()}
@@ -153,7 +168,7 @@ function RiceReceive() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <h3 className="text-gray-600">Order ID</h3>
-                <p className="font-medium">0304-{selectedOrder.id}</p>
+                <p className="font-medium">{selectedOrder.id}</p>
               </div>
               <div>
                 <h3 className="text-gray-600">Status</h3>
@@ -272,6 +287,7 @@ function RiceReceive() {
                 value={globalFilterValue}
                 onChange={onGlobalFilterChange}
                 placeholder="Tap to search"
+                maxLength="10"
               />
             </IconField>
           </span>

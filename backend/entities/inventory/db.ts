@@ -79,6 +79,16 @@ export async function getInventory(
                     .leftJoinAndSelect('palayBatch.palaySupplier', 'palaySupplier')
                     .leftJoinAndSelect('palayBatch.farm', 'farm');
 
+                if (filters.wsr) {
+                    palayBatchQuery = palayBatchQuery
+                        .andWhere('palayBatch.wsr = :wsr', { wsr: filters.wsr });
+                }
+
+                if (filters.wsi) {
+                    palayBatchQuery = palayBatchQuery
+                        .andWhere('palayBatch.wsi = :wsi', { wsi: filters.wsi });
+                }
+
                 // Handle palayStatus filter
                 if (filters.palayStatus) {
                     const statuses = Array.isArray(filters.palayStatus) 

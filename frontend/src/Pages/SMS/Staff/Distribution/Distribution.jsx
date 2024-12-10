@@ -91,13 +91,6 @@ function Distribution() {
     }
   }, [recipients]);
 
-  useEffect(() => {
-    const newFilters = {
-      global: { value: globalFilterValue, matchMode: FilterMatchMode.CONTAINS },
-    };
-    setFilters(newFilters);
-  }, [globalFilterValue]);
-
   const fetchRecipients = async () => {
     try {
       setIsLoading(true);
@@ -137,6 +130,23 @@ function Distribution() {
       console.error(error.message);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const searchOrders = async (id) => {
+    try {
+      const res = await fetch(`${apiUrl}/riceorders?id=${id}`);
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error("failed to fetch rice orders");
+      }
+      const ordersWithRecipients = data.map((order) => ({
+        ...order,
+        orderedBy: recipients[order.riceRecipientId] || "Unknown",
+      }));
+      setOrdersData(ordersWithRecipients);
+    } catch (error) {
+      console.error(error.message);
     }
   };
 
@@ -216,7 +226,14 @@ function Distribution() {
   };
 
   const onGlobalFilterChange = (e) => {
-    setGlobalFilterValue(e.target.value);
+    const id = e.target.value;
+    setGlobalFilterValue(id);
+
+    if (id.trim() === "") {
+      fetchOrders();
+    } else {
+      searchOrders(id);
+    }
   };
 
   const getSeverity = (status) => {
@@ -526,6 +543,7 @@ function Distribution() {
                 value={globalFilterValue}
                 onChange={onGlobalFilterChange}
                 placeholder="Tap to search"
+                maxLength="10"
               />
             </IconField>
           </span>

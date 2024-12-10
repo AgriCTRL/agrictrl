@@ -24,9 +24,9 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('user');
   };
 
-  if (loading) {
-    return <div>Loading...</div>; // Or any loading indicator
-  }
+  // if (loading) {
+  //   return <div>Loading...</div>; // Or any loading indicator
+  // }
 
   return (
     <AuthContext.Provider value={{ user, login, logout }}>

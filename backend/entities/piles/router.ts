@@ -63,6 +63,8 @@ export function getRouter(): Router {
                     offset?: string;
                     pbLimit?: string;
                     pbOffset?: string;
+                    pileNumber?: string;
+                    wsr?: number;
                 }
             >,
             res
@@ -72,13 +74,17 @@ export function getRouter(): Router {
             const offset = Number(req.query.offset ?? 0);
             const pbLimit = req.query.pbLimit ? Number(req.query.pbLimit) : undefined;
             const pbOffset = req.query.pbOffset ? Number(req.query.pbOffset) : undefined;
+            const pileNumber = req.query.pileNumber;
+            const wsr = req.query.wsr;
 
             const piles = await getPilesByWarehouse(
                 warehouseId,
                 limit,
                 offset,
+                pileNumber,
                 pbLimit,
-                pbOffset
+                pbOffset,
+                wsr
             );
 
             res.json(piles);

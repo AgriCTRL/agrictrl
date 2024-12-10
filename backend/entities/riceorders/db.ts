@@ -66,11 +66,15 @@ function getCurrentPST(): Date {
     return new Date(utc + (3600000 * 8));
 }
 
-export async function getRiceOrders(limit: number, offset: number, riceRecipientId?: number, status?: string[]): Promise<RiceOrder[]> {
+export async function getRiceOrders(limit: number, offset: number, id?: string, riceRecipientId?: number, status?: string[]): Promise<RiceOrder[]> {
     let whereClause: any = {};
     
     if (riceRecipientId) {
         whereClause.riceRecipientId = riceRecipientId;
+    }
+
+    if (id) {
+        whereClause.id = id;
     }
 
     if (status) {

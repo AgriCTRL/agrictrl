@@ -68,7 +68,7 @@ function Navbar({ items, expanded, onToggleExpanded }) {
                         />
                         <div className="flex flex-col items-start">
                             <small className='font-semibold text-black'>{items.user ? items.user : 'username'}</small>                        
-                            <small className='text-light-grey'>{items.user_type.toLowerCase()}</small>                        
+                            <small className='text-light-grey'>{items.user_type}</small>                        
                         </div>
                         <ChevronDown size={18} />
                     </Button>
@@ -84,7 +84,7 @@ function Navbar({ items, expanded, onToggleExpanded }) {
                                 />
                                 <div className="flex flex-col items-start">
                                     <p className='font-semibold text-black'>{items.user ? items.user : 'username'}</p>                        
-                                    <small className='text-light-grey'>{items.user_type.toLowerCase()}</small>                        
+                                    <small className='text-light-grey'>{items.user_type}</small>                        
                                 </div>
                             </div>
                             <Divider className="m-0" />

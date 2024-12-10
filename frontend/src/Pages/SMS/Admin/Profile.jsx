@@ -896,7 +896,7 @@ function Profile() {
             <Toast ref={toast} />
             <div className='flex flex-row h-full w-full px-4 py-2 bg-white rounded-xl'>
                 <div className='flex flex-col items-center justify-start h-full w-1/4 p-5'>
-                    <img src="/profileAvatar.png" alt="Profile" className="w-20 h-20 rounded-full mr-4" />
+                    <img src="/landingpage/nfa-logo.svg" alt="Profile" className="w-20 h-20 rounded-full mr-4" />
                     <div>
                         <h1 className='text-2xl font-bold'>{userData.personalInfo.firstName} {userData.personalInfo.lastName}</h1>
                         <p className='text-sm text-gray-500'>{getUserTypeLabel(userData.accountDetails.userType)}</p>

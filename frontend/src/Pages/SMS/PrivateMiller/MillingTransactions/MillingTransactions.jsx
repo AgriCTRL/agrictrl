@@ -75,23 +75,178 @@ const MillingTransactions = () => {
     fetchActiveWarehouses();
   }, [selectedFilter, first, rows]);
 
-  useEffect(() => {
-    const newFilters = {
-      global: {
-        value: globalFilterValue,
-        matchMode: FilterMatchMode.CONTAINS,
-      },
-    };
-    setFilters(newFilters);
-  }, [globalFilterValue]);
-
   const onGlobalFilterChange = (e) => {
-    setGlobalFilterValue(e.target.value);
+    const wsi = e.target.value;
+    setGlobalFilterValue(wsi);
+
+    if (wsi.trim() === "") {
+      fetchData();
+    } else {
+      searchData(wsi);
+    }
   };
 
   const refreshData = () => {
     fetchData();
     fetchActiveWarehouses();
+  };
+
+  const searchData = async (wsi) => {
+    try {
+      const processType = "miller";
+      const locationType = "Miller";
+      const millerType = "Private";
+      let transactionStatus = "";
+      let processingStatus = "";
+      let palayStatus = [];
+
+      // Determine statuses based on selectedFilter
+      switch (selectedFilter) {
+        case "request":
+          transactionStatus = "Pending";
+          break;
+        case "process":
+          transactionStatus = "Received";
+          palayStatus = ["In Milling"];
+          break;
+        case "return":
+          transactionStatus = "Received";
+          processingStatus = "Done";
+          break;
+      }
+
+      // Build URL parameters
+      const params = new URLSearchParams({
+        toLocationType: locationType,
+        status: transactionStatus,
+        millerType: millerType,
+        userId: user.id,
+        wsi: wsi
+      });
+
+      // Add processing status if present
+      if (processingStatus) {
+        params.append("processingStatus", processingStatus);
+      }
+
+      // Add palay status if present
+      if (palayStatus.length > 0) {
+        palayStatus.forEach((status) => params.append("palayStatus", status));
+      }
+
+      // Add batch types
+      params.append("batchType", "milling");
+      params.append("batchType", "drying");
+
+      // Fetch data
+      const [facilitiesRes, inventoryRes, warehousesRes] = await Promise.all([
+        fetch(`${apiUrl}/millers`),
+        fetch(`${apiUrl}/inventory?${params}`),
+        fetch(`${apiUrl}/warehouses`),
+      ]);
+
+      if (!facilitiesRes.ok || !inventoryRes.ok || !warehousesRes.ok) {
+        throw new Error("Failed to fetch data");
+      }
+
+      const [facilities, inventoryData, warehouses] = await Promise.all([
+        facilitiesRes.json(),
+        inventoryRes.json(),
+        warehousesRes.json(),
+      ]);
+
+      setMillerData(facilities);
+      setTotalRecords(inventoryData.total);
+
+      // Transform the inventory items
+      const transformedData = inventoryData.items.map((item) => {
+        const processingBatch = item.processingBatch || {};
+        const millingBatch = processingBatch.millingBatch || {};
+        const dryingBatch = processingBatch.dryingBatch || {};
+        const palayBatch = item.palayBatch || {};
+        const transaction = item.transaction || {};
+        const qualitySpec = palayBatch.qualitySpec || {};
+
+        const fromWarehouse = warehouses.find(
+          (w) => w.id === transaction.fromLocationId
+        );
+        const toFacility = facilities.find(
+          (f) => f.id === transaction.toLocationId
+        );
+
+        return {
+          palayBatchId: palayBatch.id || null,
+          transactionId: transaction.id || null,
+          millingBatchId: millingBatch?.id || null,
+          dryingBatchId: dryingBatch?.id || null,
+          palayQuantityBags: palayBatch.quantityBags || null,
+          driedQuantityBags: dryingBatch?.driedQuantityBags || null,
+          quantityBags:
+            millingBatch.milledQuantityBags ||
+            dryingBatch.driedQuantityBags ||
+            palayBatch.quantityBags ||
+            0,
+          grossWeight:
+            millingBatch.milledGrossWeight ||
+            dryingBatch.driedGrossWeight ||
+            palayBatch.grossWeight ||
+            0,
+          netWeight:
+            millingBatch.milledNetWeight ||
+            dryingBatch.driedNetWeight ||
+            palayBatch.netWeight ||
+            0,
+          from: fromWarehouse?.facilityName || "Unknown Warehouse",
+          location: toFacility?.[`${processType}Name`] || "Unknown Facility",
+          toLocationId: transaction.toLocationId || null,
+          millerType: "Private",
+          requestDate: transaction.sendDateTime
+            ? new Date(transaction.sendDateTime).toLocaleDateString("en-PH", {
+                timeZone: "UTC",
+                month: "numeric",
+                day: "numeric",
+                year: "numeric",
+              })
+            : "",
+          startDate: millingBatch.startDateTime
+            ? new Date(millingBatch.startDateTime).toLocaleDateString("en-PH", {
+                timeZone: "UTC",
+                month: "numeric",
+                day: "numeric",
+                year: "numeric",
+              })
+            : "",
+          endDate: millingBatch.endDateTime
+            ? new Date(millingBatch.endDateTime).toLocaleDateString("en-PH", {
+                timeZone: "UTC",
+                month: "numeric",
+                day: "numeric",
+                year: "numeric",
+              })
+            : "",
+          moistureContent: qualitySpec.moistureContent || "",
+          transportedBy: transaction.transporterName || "",
+          palayStatus: palayBatch.status || null,
+          transactionStatus: transaction.status || null,
+          processingStatus: millingBatch.status || null,
+
+          // Add full data objects
+          fullPalayBatchData: palayBatch,
+          fullTransactionData: transaction,
+          fullProcessingBatchData: processingBatch,
+        };
+      });
+
+      setCombinedData(transformedData);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      toast.current.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Failed to fetch data",
+        life: 3000,
+      });
+    }
   };
 
   const fetchData = async (offset = 0, limit = 10) => {
@@ -477,6 +632,7 @@ const MillingTransactions = () => {
                 value={globalFilterValue}
                 onChange={onGlobalFilterChange}
                 placeholder="Tap to search"
+                maxLength="8"
               />
             </IconField>
           </span>

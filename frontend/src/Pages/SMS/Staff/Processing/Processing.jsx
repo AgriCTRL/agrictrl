@@ -120,21 +120,210 @@ const Processing = () => {
     fetchData();
     fetchActiveWarehouses();
     fetchStatsData();
-  }, [viewMode, selectedFilter, first, rows, globalFilterValue]);
-
-  useEffect(() => {
-    const newFilters = {
-      global: { value: globalFilterValue, matchMode: FilterMatchMode.CONTAINS },
-    };
-    setFilters(newFilters);
-  }, [globalFilterValue]);
+  }, [viewMode, selectedFilter, first, rows]);
 
   const refreshData = () => {
     fetchData();
   };
 
   const onGlobalFilterChange = (e) => {
-    setGlobalFilterValue(e.target.value);
+    const searchValue = e.target.value;
+    setGlobalFilterValue(searchValue);
+
+    if (searchValue.trim() === "") {
+      fetchData();
+    } else {
+      searchData(searchValue);
+    }
+  };
+
+  const searchData = async (searchValue) => {
+    try {
+      // Determine processing type and location based on viewMode
+      const processType = viewMode === "drying" ? "dryer" : "miller";
+      const locationType = viewMode === "drying" ? "Dryer" : "Miller";
+      const searchKey = viewMode === "drying" ? "wsr" : "wsi";
+      let transactionStatus = "";
+      let processingStatus = "";
+      let palayStatus = [];
+
+      switch (selectedFilter) {
+        case "request":
+          transactionStatus = "Pending";
+          break;
+        case "process":
+          transactionStatus = "Received";
+
+          palayStatus = viewMode === "drying" ? ["In Drying"] : ["In Milling"];
+          break;
+        case "return":
+          transactionStatus = "Received";
+          processingStatus = "Done";
+          break;
+      }
+
+      // Prepare query parameters
+      const queryParams = new URLSearchParams({
+        toLocationType: locationType,
+        status: transactionStatus,
+        offset: first.toString(),
+        limit: rows.toString(),
+        millerType: "In House",
+        [searchKey]: searchValue
+      });
+
+      // Add processing status if applicable
+      if (processingStatus) {
+        queryParams.append("processingStatus", processingStatus);
+      }
+
+      // Add palay status if applicable
+      if (palayStatus.length > 0) {
+        palayStatus.forEach((status) =>
+          queryParams.append("palayStatus", status)
+        );
+      }
+
+      // Add global filter if applicable
+      // if (globalFilterValue) {
+      //   queryParams.append("wsr", globalFilterValue);
+      // }
+
+      // Fetch paginated inventory data and warehouses simultaneously
+      const [inventoryRes, warehousesRes] = await Promise.all([
+        fetch(`${apiUrl}/inventory?${queryParams}`),
+        fetch(`${apiUrl}/warehouses`),
+      ]);
+
+      if (!inventoryRes.ok || !warehousesRes.ok) {
+        throw new Error("Failed to fetch data");
+      }
+
+      const [inventoryData, warehouses] = await Promise.all([
+        inventoryRes.json(),
+        warehousesRes.json(),
+      ]);
+
+      // Update total records for pagination
+      setTotalRecords(inventoryData.total);
+
+      // Fetch facilities based on view mode
+      const facilitiesRes = await fetch(`${apiUrl}/${processType}s`);
+      const facilities = await facilitiesRes.json();
+
+      // Update facility states based on viewMode
+      if (viewMode === "drying") {
+        setDryerData(facilities);
+      } else {
+        setMillerData(facilities);
+      }
+
+      // Transform the paginated data
+      const transformedData = inventoryData.items.map((item) => {
+        const { transaction, palayBatch, processingBatch } = item;
+        const millingBatch = processingBatch?.millingBatch || {};
+        const dryingBatch = processingBatch?.dryingBatch || {};
+        const qualitySpec = palayBatch?.qualitySpec || {};
+
+        const fromWarehouse = warehouses.find(
+          (w) => w.id === transaction?.fromLocationId
+        );
+        const toFacility = facilities.find(
+          (f) => f.id === transaction?.toLocationId
+        );
+
+        return {
+          palayBatchId: palayBatch?.id || null,
+          wsr: palayBatch?.wsr || null,
+          wsi: palayBatch?.wsi || null,
+          transactionId: transaction?.id || null,
+          millingBatchId: millingBatch?.id || null,
+          dryingBatchId: dryingBatch?.id || null,
+          palayQuantityBags: palayBatch?.quantityBags || null,
+          driedQuantityBags: dryingBatch?.driedQuantityBags || null,
+          quantityBags:
+            millingBatch?.milledQuantityBags ||
+            dryingBatch?.driedQuantityBags ||
+            palayBatch?.quantityBags ||
+            0,
+          grossWeight:
+            millingBatch?.milledGrossWeight ||
+            dryingBatch?.driedGrossWeight ||
+            palayBatch?.grossWeight ||
+            0,
+          netWeight:
+            millingBatch?.milledNetWeight ||
+            dryingBatch?.driedNetWeight ||
+            palayBatch?.netWeight ||
+            0,
+          from:
+            transaction?.fromLocationType === "Procurement"
+              ? "Procurement"
+              : fromWarehouse?.facilityName || "Unknown Warehouse",
+          location: toFacility?.[`${processType}Name`] || "Unknown Facility",
+          toLocationId: transaction?.toLocationId || null,
+          millerType: toFacility?.type || null,
+          dryingMethod: dryingBatch?.dryingMethod || "",
+          requestDate: transaction?.sendDateTime
+            ? new Date(transaction.sendDateTime).toLocaleDateString("en-PH", {
+                timeZone: "UTC",
+                month: "numeric",
+                day: "numeric",
+                year: "numeric",
+              })
+            : "",
+          startDate:
+            processingBatch?.millingBatch?.startDateTime ||
+            processingBatch?.dryingBatch?.startDateTime
+              ? new Date(
+                  processingBatch.millingBatch?.startDateTime ||
+                    processingBatch.dryingBatch?.startDateTime
+                ).toLocaleDateString("en-PH", {
+                  timeZone: "UTC",
+                  month: "numeric",
+                  day: "numeric",
+                  year: "numeric",
+                })
+              : "",
+          endDate:
+            processingBatch?.dryingBatch?.endDateTime ||
+            processingBatch?.millingBatch?.endDateTime
+              ? new Date(
+                  processingBatch.millingBatch?.endDateTime ||
+                    processingBatch.dryingBatch?.endDateTime
+                ).toLocaleDateString("en-PH", {
+                  timeZone: "UTC",
+                  month: "numeric",
+                  day: "numeric",
+                  year: "numeric",
+                })
+              : "",
+          moistureContent: dryingBatch?.moistureContent || qualitySpec?.moistureContent || "",
+          transportedBy: transaction?.transporterName || "",
+          palayStatus: palayBatch?.status || null,
+          transactionStatus: transaction?.status || null,
+          processingStatus:
+            processingBatch?.millingBatch?.status ||
+            processingBatch?.dryingBatch?.status ||
+            null,
+
+          // Add full data objects
+          fullPalayBatchData: palayBatch,
+          fullTransactionData: transaction,
+          fullProcessingBatchData: processingBatch,
+        };
+      });
+
+      setCombinedData(transformedData);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      toast.current.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Failed to fetch data",
+        life: 3000,
+      });
+    }
   };
 
   const fetchData = async () => {
@@ -185,9 +374,9 @@ const Processing = () => {
       }
 
       // Add global filter if applicable
-      if (globalFilterValue) {
-        queryParams.append("searchTerm", globalFilterValue);
-      }
+      // if (globalFilterValue) {
+      //   queryParams.append("wsr", globalFilterValue);
+      // }
 
       // Fetch paginated inventory data and warehouses simultaneously
       const [inventoryRes, warehousesRes] = await Promise.all([
@@ -611,6 +800,7 @@ const Processing = () => {
                 value={globalFilterValue}
                 onChange={onGlobalFilterChange}
                 placeholder="Tap to search"
+                maxlength="8"
               />
             </IconField>
           </span>

@@ -22,10 +22,12 @@ import DeclinedDetails from "./DeclineDetails";
 import { useAuth } from "../../../Authentication/Login/AuthContext";
 import { IconField } from "primereact/iconfield";
 import { InputIcon } from "primereact/inputicon";
+import Loader from "@/Components/Loader";
 
 function RiceOrder() {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const { user } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
 
   const [globalFilterValue, setGlobalFilterValue] = useState("");
   const [filters, setFilters] = useState({
@@ -43,19 +45,30 @@ function RiceOrder() {
 
   useEffect(() => {
     fetchData();
-  }, []);
-
-  useEffect(() => {
-    const newFilters = {
-      global: { value: globalFilterValue, matchMode: FilterMatchMode.CONTAINS },
-    };
-    setFilters(newFilters);
-  }, [globalFilterValue]);
+  }, [selectedFilter]);
 
   const fetchData = async () => {
     try {
+      setIsLoading(true);
       const res = await fetch(
         `${apiUrl}/riceorders?riceRecipientId=${user.id}&status=For%20Approval&status=Declined`
+      );
+      if (!res.ok) {
+        throw new Error("Failed to fetch rice orders");
+      }
+      const data = await res.json();
+      setInventoryData(data);
+    } catch (error) {
+      console.error(error.message);
+    } finally {
+      setIsLoading(false)
+    }
+  };
+
+  const searchData = async (id) => {
+    try {
+      const res = await fetch(
+        `${apiUrl}/riceorders?riceRecipientId=${user.id}&status=For%20Approval&status=Declined&id=${id}`
       );
       if (!res.ok) {
         throw new Error("Failed to fetch rice orders");
@@ -68,7 +81,14 @@ function RiceOrder() {
   };
 
   const onGlobalFilterChange = (e) => {
-    setGlobalFilterValue(e.target.value);
+    const id = e.target.value;
+    setGlobalFilterValue(id);
+
+    if (id.trim() === "") {
+      fetchData();
+    } else {
+      searchData(id);
+    }
   };
 
   const getSeverity = (status) => {
@@ -212,7 +232,7 @@ function RiceOrder() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <h3 className="text-gray-600">Order ID</h3>
-                <p className="font-medium">0304-{selectedOrder.id}</p>
+                <p className="font-medium">{selectedOrder.id}</p>
               </div>
               <div>
                 <h3 className="text-gray-600">Status</h3>
@@ -256,6 +276,11 @@ function RiceOrder() {
       isRightSidebarOpen={false}
       rightSidebar={rightSidebar()}
     >
+      {isLoading && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50">
+          <Loader />
+        </div>
+      )}
       <div className="flex flex-col h-full gap-4 bg-[#F1F5F9]">
         <div className="flex flex-col justify-center gap-4 items-center p-8 rounded-lg bg-gradient-to-r from-primary to-secondary">
           <h1 className="text-2xl sm:text-4xl text-white font-semibold">
@@ -271,6 +296,7 @@ function RiceOrder() {
                 value={globalFilterValue}
                 onChange={onGlobalFilterChange}
                 placeholder="Tap to search"
+                maxLength="10"
               />
             </IconField>
           </span>

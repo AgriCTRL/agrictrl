@@ -129,6 +129,9 @@ const ReceiveRice = ({
 
       onAcceptSuccess();
       onHide();
+
+      // Dispatch custom event to trigger notification count update
+      window.dispatchEvent(new Event("receiveSuccess"));
     } catch (error) {
       console.error("Error in handleReceiveRice:", error);
       toast.current.show({

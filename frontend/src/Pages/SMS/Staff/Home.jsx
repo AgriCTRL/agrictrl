@@ -29,8 +29,7 @@ import QuickLinks from '../Components/QuickLinks';
 import TransacSummaryCarousel from '../Components/TransacSummaryCarousel';
 
 function Home({ isRightSidebarOpen }) {
-    // const { user } = useAuth();
-    const [user] = useState({ firstName: 'John', lastName: 'Doe', email: 'jy6kS@example.com', userType: 'staff', avatar: 'https://via.placeholder.com/150', jobTitlePosition: 'Procurement Officer' });
+    const { user } = useAuth();
     const [userFullName] = useState(`${user.firstName} ${user.lastName}`);
 
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -215,7 +214,8 @@ function Home({ isRightSidebarOpen }) {
                     {/* Name and Position */}
                     <div className="flex flex-col items-center pb-2">
                         <h1 className="text-lg font-medium text-black">{(user.firstName && user.lastName) ? userFullName : 'username'}</h1>
-                        <p className="text-sm text-gray-400">{user.userType.toLowerCase()}</p>
+                        <p className="text-sm text-gray-400">NFA - {user.branchOffice}</p>
+                        <p className="text-sm text-gray-400">{user.jobTitlePosition}</p>
                     </div>
 
                     <Divider className='my-0'/>

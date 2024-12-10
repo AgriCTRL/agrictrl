@@ -48,12 +48,16 @@ function WarehouseRequest() {
   const [warehouseData, setWarehouseData] = useState([]);
   const [totalRecords, setTotalRecords] = useState(0);
 
-  useEffect(() => {
-    const newFilters = {
-      global: { value: globalFilterValue, matchMode: FilterMatchMode.CONTAINS },
-    };
-    setFilters(newFilters);
-  }, [globalFilterValue]);
+  const onGlobalFilterChange = (e) => {
+    const wsr = e.target.value;
+    setGlobalFilterValue(wsr);
+
+    if (wsr.trim() === "") {
+      fetchInventory(0, 10);
+    } else {
+      searchInventory(wsr);
+    }
+  };
 
   useEffect(() => {
     fetchInventory(first, rows);
@@ -68,8 +72,121 @@ function WarehouseRequest() {
     fetchWarehouseData();
   };
 
-  const onGlobalFilterChange = (e) => {
-    setGlobalFilterValue(e.target.value);
+  const searchInventory = async (wsr) => {
+    try {
+      let inventoryUrl = `${apiUrl}/inventory?toLocationType=Warehouse&status=Pending&userId=${user.id}&wsr=${wsr}`;
+
+      const [inventoryRes, dryersRes, millersRes] = await Promise.all([
+        fetch(inventoryUrl),
+        fetch(`${apiUrl}/dryers`),
+        fetch(`${apiUrl}/millers`),
+      ]);
+
+      if (!inventoryRes.ok || !dryersRes.ok || !millersRes.ok) {
+        throw new Error("Failed to fetch data");
+      }
+
+      const [inventoryData, dryers, millers] = await Promise.all([
+        inventoryRes.json(),
+        dryersRes.json(),
+        millersRes.json(),
+      ]);
+
+      setTotalRecords(inventoryData.total);
+
+      const transformedInventory = inventoryData.items.map((item) => {
+        let batchData = {};
+
+        switch (item.transaction.fromLocationType) {
+          case "Procurement":
+            batchData = item.palayBatch || {};
+            break;
+          case "Dryer":
+            batchData = item.processingBatch?.dryingBatch || {};
+            break;
+          case "Miller":
+            batchData = item.processingBatch?.millingBatch || {};
+            break;
+          default:
+            batchData = item.palayBatch || {};
+        }
+
+        return {
+          // Original transformations
+          id: item.palayBatch.id,
+          wsr: item.palayBatch.wsr,
+          quantityBags: (() => {
+            switch (item.transaction.fromLocationType) {
+              case "Procurement":
+                return item.palayBatch.quantityBags;
+              case "Dryer":
+                return batchData.driedQuantityBags;
+              case "Miller":
+                return batchData.milledQuantityBags;
+              default:
+                return item.palayBatch.quantityBags;
+            }
+          })(),
+          from: getLocationName(item, dryers, millers),
+          toBeStoreAt: item.palayBatch.currentlyAt,
+          currentlyAt: item.palayBatch.currentlyAt,
+          palayStatus: item.palayBatch.status,
+          dateRequest: item.transaction.sendDateTime,
+          receivedOn: item.transaction.receiveDateTime,
+          transportedBy: item.transaction.transporterName,
+          transactionStatus: item.transaction.status,
+          fromLocationType: item.transaction.fromLocationType,
+          transactionId: item.transaction.id,
+          toLocationId: item.transaction.toLocationId,
+          fromLocationId: item.transaction.fromLocationId,
+          item: item.transaction.item,
+          qualityType: batchData.qualityType,
+          millingBatchId:
+            item.transaction.fromLocationType === "Miller"
+              ? batchData.id
+              : null,
+          grossWeight: (() => {
+            switch (item.transaction.fromLocationType) {
+              case "Procurement":
+                return item.palayBatch.grossWeight;
+              case "Dryer":
+                return batchData.driedGrossWeight;
+              case "Miller":
+                return batchData.milledGrossWeight;
+              default:
+                return null;
+            }
+          })(),
+          netWeight: (() => {
+            switch (item.transaction.fromLocationType) {
+              case "Procurement":
+                return item.palayBatch.netWeight;
+              case "Dryer":
+                return batchData.driedNetWeight;
+              case "Miller":
+                return batchData.milledNetWeight;
+              default:
+                return null;
+            }
+          })(),
+
+          // New fields to expose full data
+          fullPalayBatchData: item.palayBatch,
+          fullTransactionData: item.transaction,
+          fullProcessingBatchData: item.processingBatch,
+        };
+      });
+
+      setCombinedData(transformedInventory);
+    } catch (error) {
+      console.error("Error fetching warehouse inventory:", error);
+      toast.current.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Failed to fetch warehouse inventory",
+        life: 3000,
+      });
+    }
   };
 
   const fetchInventory = async (offset, limit) => {
@@ -364,6 +481,7 @@ function WarehouseRequest() {
                 value={globalFilterValue}
                 onChange={onGlobalFilterChange}
                 placeholder="Tap to search"
+                maxLength="8"
               />
             </IconField>
           </span>

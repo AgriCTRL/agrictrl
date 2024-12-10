@@ -38,14 +38,21 @@ function Piles() {
   }, []);
 
   useEffect(() => {
-    fetchWarehouseData();
-  }, []);
-
-  useEffect(() => {
     if (warehouseData) {
       fetchPileData(warehouseData.id);
     }
   }, [warehouseData]);
+
+  const onGlobalFilterChange = (e) => {
+    const pileNumber = e.target.value;
+    setGlobalFilterValue(pileNumber);
+
+    if (pileNumber.trim() === "") {
+      fetchPileData();
+    } else {
+      searchPileData(pileNumber);
+    }
+  };
 
   const fetchPileData = async (warehouseId) => {
     try {
@@ -74,6 +81,32 @@ function Piles() {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const searchPileData = async (pileNumber) => {
+    try {
+      const id = warehouseData?.id;
+
+      if (!id) {
+        setPileData([]);
+        return;
+      }
+
+      const res = await fetch(`${apiUrl}/piles/warehouse/${id}?pileNumber=${pileNumber}`);
+      if (!res.ok) {
+        throw new Error("Failed to fetch pile data");
+      }
+      const responseData = await res.json();
+      setPileData(Array.isArray(responseData.data) ? responseData.data : []);
+    } catch (error) {
+      setPileData([]);
+      toast.current.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Failed to fetch pile data",
+        life: 3000,
+      });
     }
   };
 
@@ -170,14 +203,6 @@ function Piles() {
     );
   };
 
-  const onGlobalFilterChange = (e) => {
-    const value = e.target.value;
-    let _filters = { ...filters };
-    _filters["global"].value = value;
-    setGlobalFilterValue(value);
-    setFilters(_filters);
-  };
-
   return (
     <StaffLayout activePage="Piles" user={user}>
       {isLoading && (
@@ -201,6 +226,7 @@ function Piles() {
                 value={globalFilterValue}
                 onChange={onGlobalFilterChange}
                 placeholder="Tap to search"
+                maxLength="3"
               />
             </IconField>
           </span>

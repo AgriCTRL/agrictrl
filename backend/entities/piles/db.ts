@@ -160,21 +160,35 @@ export async function getPilesByWarehouse(
   warehouseId: string,
   limit: number,
   offset: number,
+  pileNumber?: string,
   pbLimit?: number,
-  pbOffset?: number
+  pbOffset?: number,
+  wsr?: number
 ): Promise<{ data: Pile[]; total: number }> {
-  const [data, total] = await Pile.findAndCount({
-    where: {
-      warehouseId,
-    },
-    take: limit,
-    skip: offset,
-    relations: {
-      palayBatches: {
-        qualitySpec: true
-      }
-    },
-  });
+  const queryBuilder = Pile.createQueryBuilder("pile")
+    .leftJoinAndSelect("pile.palayBatches", "palayBatch")
+    .leftJoinAndSelect("palayBatch.qualitySpec", "qualitySpec")
+    .where("pile.warehouseId = :warehouseId", { warehouseId });
+
+  // Optional pile number filter
+  if (pileNumber) {
+    queryBuilder.andWhere("pile.pileNumber = :pileNumber", { pileNumber });
+  }
+
+  // Optional WSR filter
+  if (wsr !== null && wsr !== undefined) {
+    queryBuilder
+      .innerJoin("pile.palayBatches", "filteredBatch", "filteredBatch.wsr = :wsr", { wsr });
+  }
+
+  // Count total before pagination
+  const total = await queryBuilder.getCount();
+
+  // Apply pagination to piles
+  const data = await queryBuilder
+    .take(limit)
+    .skip(offset)
+    .getMany();
 
   // Update ages and process pagination for each pile
   for (const pile of data) {

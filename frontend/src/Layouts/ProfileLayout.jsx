@@ -36,6 +36,8 @@ const ProfileLayout = ({
     let maxDate = new Date();
     maxDate.setFullYear(maxYear);
 
+    const userType = `NFA ${userData.accountDetails.branchOffice}`;
+
     const renderPersonalInformation = () => (
         <div className="grid grid-cols-2 gap-4">
             <div>
@@ -491,9 +493,12 @@ const ProfileLayout = ({
                 <div className="ps-48 py-4 pe-4 w-full flex justify-between items-center">
                     <div className="flex flex-col gap-2">
                         <h1 className='text-2xl sm:text-4xl text-black font-semibold'>
-                            {userFullName ?? "No Name"}
+                            {user.firstName} {user.lastName}
                         </h1>
-                        <Tag value={userData.accountDetails.userType} className="bg-primary font-semibold w-fit px-4" rounded />
+                        <div className='flex gap-2'>
+                            {userData.accountDetails.branchOffice && <Tag value={userType} className="bg-primary font-semibold w-fit px-4" rounded />}
+                            <Tag value={userData.accountDetails.jobTitlePosition} className="bg-primary font-semibold w-fit px-4" rounded />
+                        </div>
                     </div>
 
                     <div className='flex justify-end gap-2'>

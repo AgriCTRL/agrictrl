@@ -29,12 +29,19 @@ const Navbar = ({ navItems, user, activePage, userFullName, profileClick, naviga
                     </div>
                     <div className='flex gap-2 items-center'>
                         {navItems.map((item, index) => (
-                            <Button 
+                            <div className='relative' key={index}>
+                                <Button 
                                 onClick={() => navigate(item.link)} 
                                 className={`text-black border-none ring-0 ${activePage === item.text ? 'text-white bg-primary' : 'bg-transparent hover:bg-background'}`}
-                            >
-                                <p>{item.text}</p>
-                            </Button>
+                                >
+                                    <p>{item.text}</p>
+                                </Button>
+                                {item.badge && (
+                                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                                        {item.badge}
+                                    </span>
+                                )}
+                            </div>
                         ))}
                     </div>
                 </div>
@@ -52,7 +59,7 @@ const Navbar = ({ navItems, user, activePage, userFullName, profileClick, naviga
                     />
                     <div className="flex flex-col items-start">
                         <small className='font-semibold text-black'>{(user.firstName && user.lastName) ? userFullName : 'username'}</small>                        
-                        <small className='text-light-grey'>{user.userType.toLowerCase()}</small>                        
+                        <small className='text-light-grey'>NFA - {user.branchOffice}</small>                        
                     </div>
                     <ChevronDown size={18} />
                 </Button>
@@ -68,8 +75,8 @@ const Navbar = ({ navItems, user, activePage, userFullName, profileClick, naviga
                                 className="cursor-pointer border-primary border text-primary bg-tag-grey"
                             />
                             <div className="flex flex-col items-start">
-                                <p className='font-semibold text-black'>{(user.first_name && user.last_name) ? userFullName : 'username'}</p>                        
-                                <small className='text-light-grey'>{user.userType.toLowerCase()}</small>                        
+                                <p className='font-semibold text-black'>{(user.firstName && user.lastName) ? userFullName : 'username'}</p>                        
+                                <small className='text-light-grey'>NFA - {user.branchOffice}</small>                        
                             </div>
                         </div>
                         <Divider className="m-0" />

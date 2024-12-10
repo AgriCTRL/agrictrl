@@ -11,15 +11,7 @@ import ProfileLayout from "../../../Layouts/ProfileLayout";
 function Profile() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const secretKey = import.meta.env.VITE_HASH_KEY;
-    const { logout } = useAuth();
-    const [user] = useState({
-        firstName: "John",
-        lastName: "Doe",
-        email: "jy6kS@example.com",
-        userType: "staff",
-        avatar: "",
-        jobTitlePosition: "Procurement Officer",
-    });
+    const { user, logout } = useAuth();
     const toast = useRef(null);
     const [activeTab, setActiveTab] = useState("personal");
     const [editing, setEditing] = useState(false);

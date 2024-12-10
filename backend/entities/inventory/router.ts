@@ -19,7 +19,9 @@ export function getRouter(): express.Router {
                 millerType: req.query.millerType as 'In House' | 'Private' | undefined,
                 userId: req.query.userId as string,
                 limit: req.query.limit ? parseInt(req.query.limit as string) : undefined,
-                offset: req.query.offset ? parseInt(req.query.offset as string) : undefined
+                offset: req.query.offset ? parseInt(req.query.offset as string) : undefined,
+                wsr: req.query.wsr as string,
+                wsi: req.query.wsi as string
             };
 
             // Validate required parameters
@@ -134,6 +136,32 @@ export function getRouter(): express.Router {
             res.json(inventory);
         } catch (error) {
             console.error('Error fetching inventory by pile:', error);
+            res.status(500).json({
+                error: 'Internal server error',
+                details: String(error)
+            });
+        }
+    });
+
+    router.get('/pending/count', async (req, res) => {
+        try {
+            const userId = req.query.userId as string;
+    
+            if (!userId) {
+                return res.status(400).json({ error: 'Missing required parameter: userId' });
+            }
+    
+            const filters: InventoryFilters = {
+                toLocationType: 'Warehouse',
+                transactionStatus: 'Pending',
+                userId: userId
+            };
+    
+            const inventory = await getInventory(filters);
+            
+            res.json(inventory.total);
+        } catch (error) {
+            console.error('Error fetching pending inventory count:', error);
             res.status(500).json({
                 error: 'Internal server error',
                 details: String(error)
