@@ -25,14 +25,24 @@ function StaffLayout({
     const [ notifCount, setNotifCount ] = useState(null)
 
     useEffect(() => {
+        const fetchNotifCount = async () => {
+            try {
+                const res = await fetch(`${apiUrl}/inventory/pending/count?userId=${user.id}`);
+                const count = await res.json();
+                setNotifCount(count === 0 ? null : count);
+            } catch (error) {
+                console.error("Error fetching notification count:", error);
+            }
+        };
+
         fetchNotifCount();
+
+        // Add an event listener to update notification count after successful receive
+        window.addEventListener("receiveSuccess", fetchNotifCount);
+
+        // Cleanup function to remove the event listener on component unmount
+        return () => window.removeEventListener("receiveSuccess", fetchNotifCount);
     }, []);
-    
-    const fetchNotifCount = async () => {
-        const res = await fetch(`${apiUrl}/inventory/pending/count?userId=${user.id}`);
-        const count = await res.json();
-        setNotifCount(count);
-    };
 
     let navItems = [];
 

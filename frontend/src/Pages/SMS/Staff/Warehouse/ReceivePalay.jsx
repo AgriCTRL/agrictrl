@@ -124,6 +124,9 @@ const ReceivePalay = ({
 
       onAcceptSuccess();
       onHide();
+
+      // Dispatch custom event to trigger notification count update
+      window.dispatchEvent(new Event("receiveSuccess"));
     } catch (error) {
       console.error("Error processing transaction:", error);
       toast.current.show({

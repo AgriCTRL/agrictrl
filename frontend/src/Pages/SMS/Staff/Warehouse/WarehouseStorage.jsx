@@ -93,7 +93,6 @@ function WarehouseStorage() {
 
   const searchPileData = async (warehouseId, wsr) => {
     try {
-      setIsLoading(true);
       const id = warehouseId || userWarehouse?.id;
 
       if (!id) {
@@ -125,8 +124,6 @@ function WarehouseStorage() {
         detail: "Failed to fetch pile data",
         life: 3000,
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
