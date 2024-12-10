@@ -214,7 +214,8 @@ function Home({ isRightSidebarOpen }) {
                     {/* Name and Position */}
                     <div className="flex flex-col items-center pb-2">
                         <h1 className="text-lg font-medium text-black">{(user.firstName && user.lastName) ? userFullName : 'username'}</h1>
-                        <p className="text-sm text-gray-400">{user.userType.toLowerCase()}</p>
+                        <p className="text-sm text-gray-400">NFA - {user.branchOffice}</p>
+                        <p className="text-sm text-gray-400">{user.jobTitlePosition}</p>
                     </div>
 
                     <Divider className='my-0'/>

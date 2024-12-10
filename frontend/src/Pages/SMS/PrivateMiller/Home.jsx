@@ -146,7 +146,7 @@ function Home({ isRightSidebarOpen }) {
                                 : "username"}
                         </h1>
                         <p className="text-sm text-gray-400">
-                            {user.userType.toLowerCase()}
+                            {user.userType}
                         </p>
                     </div>
 
@@ -273,7 +273,7 @@ function Home({ isRightSidebarOpen }) {
                         <div className="flex flex-col text-black">
                             <h1 className="text-xl">Welcome Back,</h1>
                             <h1 className="text-2xl sm:text-4xl font-semibold">
-                                {user.first_name ?? "User"}!
+                                {user.firstName ?? "User"}!
                             </h1>
                         </div>
                         <Button

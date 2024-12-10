@@ -11,16 +11,15 @@ import ProfileLayout from '../../../Layouts/ProfileLayout';
 function Profile() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const secretKey = import.meta.env.VITE_HASH_KEY;
-    const { logout } = useAuth();
-    const [user] = useState({ first_name: 'John', last_name: 'Doe', email: 'jy6kS@example.com', userType: 'staff' });
+    const { logout, user } = useAuth();
     const toast = useRef(null);
     const [activeTab, setActiveTab] = useState('personal');
     const [editing, setEditing] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [userData, setUserData] = useState({
         personalInfo: {
-            firstName: 'John',
-            lastName: 'Doe',
+            firstName: '',
+            lastName: '',
             gender: '',
             birthDate: null,
             contactNumber: '',
