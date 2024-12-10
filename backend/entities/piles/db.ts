@@ -160,13 +160,20 @@ export async function getPilesByWarehouse(
   warehouseId: string,
   limit: number,
   offset: number,
+  pileNumber?: string,
   pbLimit?: number,
   pbOffset?: number
 ): Promise<{ data: Pile[]; total: number }> {
+  const whereClause: any = {
+    warehouseId,
+  };
+
+  if (pileNumber) {
+    whereClause.pileNumber = pileNumber;
+  }
+
   const [data, total] = await Pile.findAndCount({
-    where: {
-      warehouseId,
-    },
+    where: whereClause,
     take: limit,
     skip: offset,
     relations: {

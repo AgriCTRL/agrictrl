@@ -29,12 +29,19 @@ const Navbar = ({ navItems, user, activePage, userFullName, profileClick, naviga
                     </div>
                     <div className='flex gap-2 items-center'>
                         {navItems.map((item, index) => (
-                            <Button 
+                            <div className='relative' key={index}>
+                                <Button 
                                 onClick={() => navigate(item.link)} 
                                 className={`text-black border-none ring-0 ${activePage === item.text ? 'text-white bg-primary' : 'bg-transparent hover:bg-background'}`}
-                            >
-                                <p>{item.text}</p>
-                            </Button>
+                                >
+                                    <p>{item.text}</p>
+                                </Button>
+                                {item.badge && (
+                                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                                        {item.badge}
+                                    </span>
+                                )}
+                            </div>
                         ))}
                     </div>
                 </div>

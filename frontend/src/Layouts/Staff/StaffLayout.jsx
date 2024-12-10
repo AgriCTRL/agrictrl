@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../Pages/Authentication/Login/AuthContext";
 
@@ -17,10 +17,22 @@ function StaffLayout({
     isLeftSidebarOpen,
     rightSidebar,
 }) {
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const navigate = useNavigate();
     const { logout } = useAuth();
     const [userFullName] = useState(`${user.firstName} ${user.lastName}`);
     const position = user.jobTitlePosition;
+    const [ notifCount, setNotifCount ] = useState(null)
+
+    useEffect(() => {
+        fetchNotifCount();
+    }, []);
+    
+    const fetchNotifCount = async () => {
+        const res = await fetch(`${apiUrl}/inventory/pending/count?userId=${user.id}`);
+        const count = await res.json();
+        setNotifCount(count);
+    };
 
     let navItems = [];
 
@@ -35,7 +47,7 @@ function StaffLayout({
             navItems = [
                 { text: "Home", link: "/staff" },
                 // { text: "Warehouse", link: "/staff/warehouse" },
-                { text: "Request", link: "/staff/request" },
+                { text: "Request", link: "/staff/request", badge: notifCount },
                 { text: "Storage", link: "/staff/storage" },
                 { text: "Piles", link: "/staff/piles" },
             ];

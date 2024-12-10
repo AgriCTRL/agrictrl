@@ -142,6 +142,32 @@ export function getRouter(): express.Router {
             });
         }
     });
+
+    router.get('/pending/count', async (req, res) => {
+        try {
+            const userId = req.query.userId as string;
+    
+            if (!userId) {
+                return res.status(400).json({ error: 'Missing required parameter: userId' });
+            }
+    
+            const filters: InventoryFilters = {
+                toLocationType: 'Warehouse',
+                transactionStatus: 'Pending',
+                userId: userId
+            };
+    
+            const inventory = await getInventory(filters);
+            
+            res.json(inventory.total);
+        } catch (error) {
+            console.error('Error fetching pending inventory count:', error);
+            res.status(500).json({
+                error: 'Internal server error',
+                details: String(error)
+            });
+        }
+    });
     
     return router;
 }
