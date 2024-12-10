@@ -71,7 +71,14 @@ function WarehouseStorage() {
   }, [first, rows]);
 
   const onGlobalFilterChange = (e) => {
-    setGlobalFilterValue(e.target.value);
+    const wsr = e.target.value;
+    setGlobalFilterValue(wsr);
+
+    if (wsr.trim() === "") {
+      fetchPileData(userWarehouse?.id);
+    } else {
+      searchPileData(userWarehouse?.id, wsr);
+    }
   };
 
   const refreshData = () => {
@@ -82,6 +89,45 @@ function WarehouseStorage() {
     fetchDryerData();
     fetchMillerData();
     fetchWarehouseData();
+  };
+
+  const searchPileData = async (warehouseId, wsr) => {
+    try {
+      setIsLoading(true);
+      const id = warehouseId || userWarehouse?.id;
+
+      if (!id) {
+        setPileData([]);
+        return;
+      }
+
+      const res = await fetch(
+        `${apiUrl}/piles/warehouse/${id}?wsr=${wsr}`
+      );
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch pile data");
+      }
+
+      const responseData = await res.json();
+
+      const piles = Array.isArray(responseData.data) ? responseData.data : [];
+      setCombinedData(piles);
+      setTotalRecords(responseData.total || 0);
+
+      setPileData(Array.isArray(responseData.data) ? responseData.data : []);
+      setPalayBatches(responseData.data[0]?.palayBatches || []);
+    } catch (error) {
+      setPileData([]);
+      toast.current.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Failed to fetch pile data",
+        life: 3000,
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const fetchPileData = async (warehouseId, paginationParams) => {
@@ -276,6 +322,7 @@ function WarehouseStorage() {
                 value={globalFilterValue}
                 onChange={onGlobalFilterChange}
                 placeholder="Tap to search"
+                maxLength="8"
               />
             </IconField>
           </span>
