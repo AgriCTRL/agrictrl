@@ -20,6 +20,7 @@ import { RiceBatchMillingBatch } from "../entities/riceBatchMillingBatches/db";
 import { Pile } from "../entities/piles/db";
 import { PileTransaction } from "../entities/pileTransactions/db";
 import { Transporter } from "../entities/transporters/db";
+import { UsedWSRWSI } from "../entities/usedwsrwsi/db";
 
 // TODO figure out migrations
 export async function initDb(
@@ -48,6 +49,7 @@ export async function initDb(
       Pile,
       PileTransaction,
       Transporter,
+      UsedWSRWSI,
     ],
     driver: await initSqlJs({}),
     database: bytes,
