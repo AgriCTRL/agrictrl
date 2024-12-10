@@ -12,6 +12,10 @@ import {
     MapPin,
     Anvil,
     Thermometer,
+    PieChart,
+    Factory,
+    Fan,
+    Waypoints,
 } from "lucide-react";
 import CardGrids from "@/Components/CardGrids.jsx";
 
@@ -19,27 +23,27 @@ const features = [
     {
         title: "Palay Inventory Management",
         description: "Real-time monitoring of unmilled rice stocks.",
-        icon: <HandCoins className="text-primary size-5 md:size-8" />,
+        icon: <Wheat className="text-primary size-5 md:size-8" />,
     },
     {
         title: "Rice Inventory Insights",
         description: "Ensure accurate tracking of rice supplies.",
-        icon: <Link className="text-primary size-5 md:size-8" />,
+        icon: <PieChart className="text-primary size-5 md:size-8" />,
     },
     {
         title: "Warehouse Capacity Overview",
         description: "Optimize space utilization across facilities.",
-        icon: <ShieldPlus className="text-primary size-5 md:size-8" />,
+        icon: <Factory className="text-primary size-5 md:size-8" />,
     },
     {
         title: "Milling and Drying Monitoring",
         description: "Track progress and operations.",
-        icon: <HandCoins className="text-primary size-5 md:size-8" />,
+        icon: <Fan className="text-primary size-5 md:size-8" />,
     },
     {
         title: "Distribution Tracking",
         description: "Simplify logistics and reduce wastage.",
-        icon: <HandCoins className="text-primary size-5 md:size-8" />,
+        icon: <Waypoints className="text-primary size-5 md:size-8" />,
     },
 ];
 
@@ -121,6 +125,7 @@ const FeatureSection = () => {
                     What AgriCTRL+ Offers
                 </h1>
                 <CardGrids 
+
                     items={features} 
                     className="grid-cols-2 lg:grid-cols-3" 
                 />

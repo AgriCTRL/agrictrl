@@ -78,7 +78,7 @@ const Faqs = () => {
     return (
         <section
             id="ourMissionSection"
-            className="bg-[#1f1f1f] text-white relative h-auto lg:h-screen w-screen flex flex-col lg:flex-row gap-12 
+            className="bg-[#1f1f1f] text-white relative h-fit w-screen flex flex-col lg:flex-row gap-12 
             px-4 sm:px-12 lg:px-24 
             pt-6 sm:pt-12 lg:pt-24 
             pb-6 sm:pb-12 lg:pb-24"
@@ -96,7 +96,9 @@ const Faqs = () => {
             {/* Right Side */}
             <section className="w-full lg:w-3/5 flex flex-col">
                 <div className="w-full flex flex-col gap-6">
-                    <Accordion>
+                    <Accordion 
+                        className="flex flex-col gap-2"
+                    >
                         {questions.map((question, index) => (
                             <AccordionTab 
                                 header={question.question}
