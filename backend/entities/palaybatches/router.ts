@@ -13,9 +13,12 @@ import {
   getTotalQuantityBags,
   getTotalPalayQuantityBags,
   searchPalayBatches,
-  checkExistingWSR,
-  checkExistingWSI,
 } from "./db";
+import { 
+  checkExistingWSR, 
+  checkExistingWSI, 
+  recordUsedWSRWSI 
+} from "../usedwsrwsi/db";
 
 export function getRouter(): Router {
   const router = express.Router();
@@ -139,14 +142,6 @@ export function getRouter(): Router {
       res: Response
     ) => {
       try {
-        // Check for existing WSR before processing
-        const wsrExists = await checkExistingWSR(req.body.wsr);
-        if (wsrExists) {
-          return res.status(400).json({ 
-            message: `WSR already exists` 
-          });
-        }
-  
         const {
           dateBought,
           wsr,
@@ -193,6 +188,13 @@ export function getRouter(): Router {
           status,
           pileId,
         } = req.body;
+
+        const wsrExists = await checkExistingWSR(wsr);
+        if (wsrExists) {
+          return res.status(400).json({ 
+            message: `WSR ${wsr} has already been used` 
+          });
+        }
   
         if (!palaySupplierId) {
           const houseOfficeAddress = await createHouseOfficeAddress({
@@ -257,6 +259,7 @@ export function getRouter(): Router {
             status,
             pileId,
           });
+          await recordUsedWSRWSI(wsr, "WSR", palayBatch.id);
           res.json(palayBatch);
         } else {
           const qualitySpec = await createQualitySpec({
@@ -302,6 +305,7 @@ export function getRouter(): Router {
             status,
             pileId,
           });
+          await recordUsedWSRWSI(wsr, "WSR", palayBatch.id);
           res.json(palayBatch);
         }
       } catch (error) {
@@ -346,27 +350,54 @@ export function getRouter(): Router {
       res: Response
     ) => {
       try {
-        // Check for existing WSR if being updated
-        if (req.body.wsr) {
-          const wsrExists = await checkExistingWSR(req.body.wsr);
+        const { id, wsr, wsi, ...updateData } = req.body;
+
+        // Get the existing palay batch to compare
+        const existingPalayBatch = await getPalayBatch(id);
+        if (!existingPalayBatch) {
+          return res.status(404).json({ message: "Palay Batch not found" });
+        }
+
+        // Check WSR if provided and different from existing
+        if (wsr !== undefined && wsr !== existingPalayBatch.wsr) {
+          const wsrExists = await checkExistingWSR(wsr);
           if (wsrExists) {
             return res.status(400).json({ 
-              message: `WSR already exists` 
+              message: `WSR ${wsr} has already been used` 
             });
           }
         }
-  
-        // Check for existing WSI if being updated
-        if (req.body.wsi) {
-          const wsiExists = await checkExistingWSI(req.body.wsi);
+
+        // Check WSI if provided and different from existing
+        if (wsi !== undefined && wsi !== existingPalayBatch.wsi) {
+          const wsiExists = await checkExistingWSI(wsi);
           if (wsiExists) {
             return res.status(400).json({ 
-              message: `WSI already exists` 
+              message: `WSI ${wsi} has already been used` 
             });
           }
         }
-  
-        const palayBatch = await updatePalayBatch(req.body);
+
+        // Prepare update data
+        const updatePayload = {
+          id,
+          wsr,
+          wsi,
+          ...updateData
+        };
+
+        const palayBatch = await updatePalayBatch(updatePayload);
+
+        // If WSR changed, record the new used WSR
+        if (wsr !== undefined && wsr !== existingPalayBatch.wsr) {
+          await recordUsedWSRWSI(wsr, "WSR", palayBatch.id);
+        }
+
+        // If WSI changed, record the new used WSI
+        if (wsi !== undefined && wsi !== existingPalayBatch.wsi) {
+          await recordUsedWSRWSI(wsi, "WSI", palayBatch.id);
+        }
+
         res.json(palayBatch);
       } catch (error) {
         res.status(500).json({ 
