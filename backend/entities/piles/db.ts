@@ -207,6 +207,35 @@ export async function getPilesByWarehouse(
   return { data, total };
 }
 
+export async function getPilesByWarehouseWithTypeAgeFilter(
+  warehouseId: string,
+  type?: string,
+  minAge?: number
+): Promise<number> {
+  const queryBuilder = Pile.createQueryBuilder("pile")
+    .leftJoinAndSelect("pile.palayBatches", "palayBatch")
+    .leftJoinAndSelect("palayBatch.qualitySpec", "qualitySpec")
+    .where("pile.warehouseId = :warehouseId", { warehouseId });
+
+  // Add type filter if provided
+  if (type) {
+    queryBuilder.andWhere("pile.type = :type", { type });
+  }
+
+  // Get all matching piles
+  const data = await queryBuilder.getMany();
+
+  // Update ages for each pile
+  for (const pile of data) {
+    pile.age = await updatePileAge(pile.id);
+  }
+
+  // After updating ages, filter based on minimum age
+  const filteredData = data.filter(pile => minAge === undefined || pile.age >= minAge);
+
+  return filteredData.length;
+}
+
 export async function createPile(pileCreate: PileCreate): Promise<Pile> {
   const pile = new Pile();
 
