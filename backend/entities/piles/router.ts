@@ -4,6 +4,7 @@ import {
     getPile,
     getPiles,
     getPilesByWarehouse,
+    getPilesByWarehouseWithTypeAgeFilter,
     updatePile
 } from './db';
 
@@ -88,6 +89,29 @@ export function getRouter(): Router {
             );
 
             res.json(piles);
+        }
+    );
+
+    router.get(
+        '/warehouse/:warehouseId/filtered-piles',
+        async (req, res) => {
+          const { warehouseId } = req.params;
+      
+          // Fetch Palay piles
+          const palayPiles = await getPilesByWarehouseWithTypeAgeFilter(
+            warehouseId,
+            'Palay', 
+            6
+          );
+      
+          // Fetch Rice piles
+          const ricePiles = await getPilesByWarehouseWithTypeAgeFilter(
+            warehouseId,
+            'Rice', 
+            9
+          );
+      
+          res.json(palayPiles + ricePiles);
         }
     );
 

@@ -69,6 +69,14 @@ export async function getWarehouse(id: string): Promise<Warehouse | null> {
     });
 }
 
+export async function getWarehouseByUserId(userId: string): Promise<Warehouse | null> {
+    return await Warehouse.findOne({
+        where: {
+            userId
+        }
+    });
+}
+
 export async function countWarehouses(): Promise<number> {
     return await Warehouse.count();
 }

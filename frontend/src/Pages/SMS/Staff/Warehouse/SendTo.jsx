@@ -460,6 +460,9 @@ const SendTo = ({
       onSendSuccess();
       onHide();
       setNewTransactionData(initialNewTransactionData);
+
+      // Dispatch custom event to trigger notification count update
+      window.dispatchEvent(new Event("sendSuccess"));
     } catch (error) {
       console.error("Error:", error);
       toast.current.show({

@@ -22,27 +22,69 @@ function StaffLayout({
     const { logout } = useAuth();
     const [userFullName] = useState(`${user.firstName} ${user.lastName}`);
     const position = user.jobTitlePosition;
-    const [ notifCount, setNotifCount ] = useState(null)
+    const [ requestNotifCount, setRequestNotifCount ] = useState(null);
+    const [ storageNotifCount, setStorageNotifCount ] = useState(null);
+    const [ warehouseId, setWarehouseId ] = useState(null);
+
+    const fetchRequestNotifCount = async () => {
+        try {
+            const res = await fetch(`${apiUrl}/inventory/pending/count?userId=${user.id}`);
+            if (!res.ok) {
+                throw new Error ("Failed to fetch request notif count")
+            }
+            const count = await res.json();
+            setRequestNotifCount(count === 0 ? null : count);
+        } catch (error) {
+            console.error("Error fetching notification count:", error);
+        }
+    };
+
+    const fetchWarehouseId = async () => {
+        try {
+            const res = await fetch(`${apiUrl}/warehouses/user/${user.id}`);
+            if (!res.ok) {
+                throw new Error ("Failed to fetch warehouse id")
+            }
+            const warehouse = await res.json();
+            setWarehouseId(warehouse.id);
+        } catch (error) {
+            console.error(error.message);
+        }
+    }
+
+    const fetchStorageNotifCount = async () => {
+        try {
+            const res = await fetch(`${apiUrl}/piles/warehouse/${warehouseId}/filtered-piles`);
+            if (!res.ok) {
+                throw new Error ("Failed to fetch storage notif count")
+            }
+            const count = await res.json();
+            setStorageNotifCount(count === 0 ? null : count);
+        } catch (error) {
+            console.error("Error fetching notification count:", error);
+        }
+    };
 
     useEffect(() => {
-        const fetchNotifCount = async () => {
-            try {
-                const res = await fetch(`${apiUrl}/inventory/pending/count?userId=${user.id}`);
-                const count = await res.json();
-                setNotifCount(count === 0 ? null : count);
-            } catch (error) {
-                console.error("Error fetching notification count:", error);
-            }
-        };
-
-        fetchNotifCount();
+        fetchRequestNotifCount();
+        fetchWarehouseId();
 
         // Add an event listener to update notification count after successful receive
-        window.addEventListener("receiveSuccess", fetchNotifCount);
+        window.addEventListener("receiveSuccess", fetchRequestNotifCount);
 
         // Cleanup function to remove the event listener on component unmount
-        return () => window.removeEventListener("receiveSuccess", fetchNotifCount);
+        return () => window.removeEventListener("receiveSuccess", fetchRequestNotifCount);
     }, []);
+
+    useEffect(() => {
+        if (warehouseId) {
+            fetchStorageNotifCount();
+        }
+        window.addEventListener("sendSuccess", fetchStorageNotifCount);
+
+        // Cleanup function to remove the event listener on component unmount
+        return () => window.removeEventListener("sendSuccess", fetchStorageNotifCount);
+    }, [warehouseId]);
 
     let navItems = [];
 
@@ -57,8 +99,8 @@ function StaffLayout({
             navItems = [
                 { text: "Home", link: "/staff" },
                 // { text: "Warehouse", link: "/staff/warehouse" },
-                { text: "Request", link: "/staff/request", badge: notifCount },
-                { text: "Storage", link: "/staff/storage" },
+                { text: "Request", link: "/staff/request", badge: requestNotifCount },
+                { text: "Storage", link: "/staff/storage", badge: storageNotifCount },
                 { text: "Piles", link: "/staff/piles" },
             ];
             break;

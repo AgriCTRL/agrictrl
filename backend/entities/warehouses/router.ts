@@ -4,6 +4,7 @@ import {
     countWarehouses,
     createWarehouse,
     getWarehouse,
+    getWarehouseByUserId,
     getWarehouses,
     updateWarehouse
 } from './db';
@@ -34,6 +35,14 @@ export function getRouter(): Router {
         const { id } = req.params;
 
         const warehouse = await getWarehouse(String(id));
+
+        res.json(warehouse);
+    });
+
+    router.get('/user/:userId', async (req, res) => {
+        const { userId } = req.params;
+
+        const warehouse = await getWarehouseByUserId(String(userId));
 
         res.json(warehouse);
     });
