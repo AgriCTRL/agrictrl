@@ -99,19 +99,22 @@ export async function getPiles(
   limit: number,
   offset: number,
   pbLimit?: number,
-  pbOffset?: number
+  pbOffset?: number,
+  type?: string
 ): Promise<{ data: Pile[]; total: number }> {
-  const [data, total] = await Pile.findAndCount({
-    take: limit,
-    skip: offset,
-    relations: {
-      palayBatches: {
-        qualitySpec: true
-      }
-    },
-  });
+  const queryBuilder = Pile.createQueryBuilder("pile")
+    .leftJoinAndSelect("pile.palayBatches", "palayBatch")
+    .leftJoinAndSelect("palayBatch.qualitySpec", "qualitySpec");
 
-  // Update ages and process pagination
+  if (type) {
+    queryBuilder.andWhere("pile.type = :type", { type });
+  }
+
+  const [data, total] = await queryBuilder
+    .take(limit)
+    .skip(offset)
+    .getManyAndCount();
+
   for (const pile of data) {
     pile.age = await updatePileAge(pile.id);
     pile.pbTotal = pile.palayBatches?.length || 0;

@@ -298,9 +298,10 @@ export async function getInventoryByPileId(
     filters: InventoryFilters
 ): Promise<PaginatedResponse<InventoryItem>> {
     try {
-        // First, get all palayBatches in the specified pile
+        // Limit the palayBatches upfront to reduce initial dataset
         const palayBatchesInPile = await PalayBatch.createQueryBuilder('palayBatch')
             .where('palayBatch.pileId = :pileId', { pileId })
+            .limit(10) // Hard limit to prevent excessive queries
             .getMany();
 
         if (!palayBatchesInPile.length) {
@@ -313,69 +314,44 @@ export async function getInventoryByPileId(
         // Get the IDs of all palayBatches in the pile
         const palayBatchIds = palayBatchesInPile.map(pb => pb.id);
 
-        // Build the transaction query
+        // Optimize transaction query with early filtering
         let transactionQuery = Transaction.createQueryBuilder('transaction')
             .where('transaction.itemId IN (:...palayBatchIds)', { palayBatchIds })
-            // Always filter for Warehouse location unless explicitly overridden
             .andWhere('transaction.toLocationType = :defaultLocationType', { 
                 defaultLocationType: filters.toLocationType || 'Warehouse' 
             });
 
-        // Apply other standard inventory filters
+        // Apply filters early to reduce dataset
         if (filters.transactionStatus) {
             transactionQuery = transactionQuery
                 .andWhere('transaction.status = :status', 
                     { status: filters.transactionStatus });
         }
 
-        if (filters.item) {
-            transactionQuery = transactionQuery
-                .andWhere('transaction.item = :item', 
-                    { item: filters.item });
-        }
+        // Limit transactions early
+        const transactions = await transactionQuery
+            .limit(10) // Hard limit to prevent excessive processing
+            .getMany();
 
-        const transactions = await transactionQuery.getMany();
-
+        // Batch processing of inventory items
         const inventoryItems = await Promise.all(
             transactions.map(async (transaction) => {
-                let palayBatchQuery = PalayBatch.createQueryBuilder('palayBatch')
+                const palayBatch = await PalayBatch.createQueryBuilder('palayBatch')
                     .where('palayBatch.id = :id', { id: transaction.itemId })
                     .leftJoinAndSelect('palayBatch.qualitySpec', 'qualitySpec')
-                    .leftJoinAndSelect('palayBatch.palaySupplier', 'palaySupplier')
-                    .leftJoinAndSelect('palayBatch.farm', 'farm')
-                    .leftJoinAndSelect('palayBatch.pile', 'pile');
+                    .getOne();
 
-                if (filters.palayStatus) {
-                    const statuses = Array.isArray(filters.palayStatus) 
-                        ? filters.palayStatus 
-                        : [filters.palayStatus];
-                    palayBatchQuery = palayBatchQuery
-                        .andWhere('palayBatch.status IN (:...statuses)', 
-                            { statuses });
-                }
-
-                const palayBatch = await palayBatchQuery.getOne();
-
+                // Simplified processing batch retrieval
                 const processingBatch: ProcessingBatch = {};
-
+                
+                // Simplified processing batch logic
                 if (!filters.processingTypes || filters.processingTypes.includes('drying')) {
-                    const dryingBatch = await DryingBatch.findOne({ 
+                    processingBatch.dryingBatch = await DryingBatch.findOne({ 
                         where: { 
                             palayBatchId: transaction.itemId,
                             ...(filters.processingStatus && { status: filters.processingStatus })
                         }
                     });
-                    processingBatch.dryingBatch = dryingBatch;
-                }
-
-                if (!filters.processingTypes || filters.processingTypes.includes('milling')) {
-                    const millingBatch = await MillingBatch.findOne({ 
-                        where: { 
-                            palayBatchId: transaction.itemId,
-                            ...(filters.processingStatus && { status: filters.processingStatus })
-                        }
-                    });
-                    processingBatch.millingBatch = millingBatch;
                 }
 
                 const inventoryItem = {
@@ -384,36 +360,21 @@ export async function getInventoryByPileId(
                     processingBatch,
                 };
 
-                await populateInventoryDetails(inventoryItem);
                 return inventoryItem;
             })
         );
 
-        // Filter items based on processing status if applicable
-        const filteredInventoryItems = filters.processingStatus
-            ? inventoryItems.filter(item => 
-                item.processingBatch.dryingBatch?.status === filters.processingStatus ||
-                item.processingBatch.millingBatch?.status === filters.processingStatus
-            )
-            : inventoryItems;
-
-        // Filter out items with null palayBatch
-        const validInventoryItems = filteredInventoryItems.filter(item => item.palayBatch !== null);
-        
-        // Calculate total before pagination
-        const total = validInventoryItems.length;
-
-        // Apply pagination
-        const paginatedItems = filters.limit !== undefined && filters.offset !== undefined
-            ? validInventoryItems.slice(filters.offset, filters.offset + filters.limit)
-            : validInventoryItems;
+        // Simple filtering and pagination
+        const validInventoryItems = inventoryItems
+            .filter(item => item.palayBatch !== null)
+            .slice(0, filters.limit || 10); // Limit results
 
         return {
-            items: paginatedItems,
-            total
+            items: validInventoryItems,
+            total: validInventoryItems.length
         };
     } catch (error) {
-        console.error('Error in getInventoryByPileId:', error);
+        console.error('Optimized Error in getInventoryByPileId:', error);
         throw error;
     }
 }

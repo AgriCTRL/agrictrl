@@ -19,6 +19,7 @@ export function getRouter(): Router {
                 offset?: string;
                 pbLimit?: string;
                 pbOffset?: string;
+                type?: string;
             }>,
             res
         ) => {
@@ -26,9 +27,10 @@ export function getRouter(): Router {
             const offset = Number(req.query.offset ?? 0);
             const pbLimit = req.query.pbLimit ? Number(req.query.pbLimit) : undefined;
             const pbOffset = req.query.pbOffset ? Number(req.query.pbOffset) : undefined;
-
-            const piles = await getPiles(limit, offset, pbLimit, pbOffset);
-
+            const type = req.query.type;
+    
+            const piles = await getPiles(limit, offset, pbLimit, pbOffset, type);
+    
             res.json(piles);
         }
     );

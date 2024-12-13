@@ -43,7 +43,7 @@ function BuyRice({ visible, onHide, onRiceOrdered }) {
 
   const fetchPilesData = async () => {
     try {
-      const res = await fetch(`${apiUrl}/piles`);
+      const res = await fetch(`${apiUrl}/piles?type=Rice`);
       if (!res.ok) {
         throw new Error("Failed to fetch piles data");
       }

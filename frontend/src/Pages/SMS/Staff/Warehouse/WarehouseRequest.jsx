@@ -31,7 +31,7 @@ function WarehouseRequest() {
   //page changes
   const [isLoading, setIsLoading] = useState(false);
   const [first, setFirst] = useState(0);
-  const [rows, setRows] = useState(10);
+  const [rows, setRows] = useState(1);
 
   //Dialogs
   const [showRiceAcceptDialog, setShowRiceAcceptDialog] = useState(false);
@@ -53,7 +53,7 @@ function WarehouseRequest() {
     setGlobalFilterValue(wsr);
 
     if (wsr.trim() === "") {
-      fetchInventory(0, 10);
+      fetchInventory(0, 1);
     } else {
       searchInventory(wsr);
     }
@@ -66,9 +66,9 @@ function WarehouseRequest() {
 
   const refreshData = () => {
     setFirst(0);
-    setRows(10);
+    setRows(1);
 
-    fetchInventory(0, 10);
+    fetchInventory(0, 1);
     fetchWarehouseData();
   };
 

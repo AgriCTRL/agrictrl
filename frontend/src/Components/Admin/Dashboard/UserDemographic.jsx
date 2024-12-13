@@ -24,7 +24,12 @@ const UserDemographic = ({ supplierCategories, setInterpretations }) =>  {
             cutout: '60%',
             plugins: {
                 legend: {
-                    display: false
+                    display: true,
+                    position: 'bottom',
+                    labels: {
+                        usePointStyle: true,
+                        pointStyle: 'circle',
+                    }
                 }
             }
         };
@@ -52,20 +57,37 @@ const UserDemographic = ({ supplierCategories, setInterpretations }) =>  {
                 </div>
                 <div className="flex flex-col"></div>
                 <div className="flex items-center justify-center w-3/4 self-center">
-                    <Chart id="supplier-demographic-chart" type="doughnut" data={chartData} options={chartOptions} className="w-full self-center" />
+                    <Chart 
+                        id="supplier-demographic-chart" 
+                        type="doughnut" 
+                        data={chartData} 
+                        options={chartOptions} 
+                        className="w-full self-center" 
+                    />
                 </div>
                 <div className="mt-4 text-center space-y-2">
                     <div className="flex justify-center gap-4 text-sm font-medium text-gray-700">
-                        <span>Farmer Organization:</span>
-                        <span>{supplierCategories.coop}</span>
+                        <div className="flex items-center gap-2">
+                            <span 
+                                className="inline-block w-3 h-3 rounded-full" 
+                                style={{backgroundColor: '#005155'}}
+                            ></span>
+                            <span>Farmer Organization:</span>
+                            <span>{supplierCategories.coop}</span>
+                        </div>
                     </div>
                     <div className="flex justify-center gap-4 text-sm font-medium text-gray-700">
-                        <span>Individual Farmer:</span>
-                        <span>{supplierCategories.individual}</span>
+                        <div className="flex items-center gap-2">
+                            <span 
+                                className="inline-block w-3 h-3 rounded-full" 
+                                style={{backgroundColor: '#00C261'}}
+                            ></span>
+                            <span>Individual Farmer:</span>
+                            <span>{supplierCategories.individual}</span>
+                        </div>
                     </div>
                 </div>
             </div>
-            
         </CardComponent>
     );
 };
