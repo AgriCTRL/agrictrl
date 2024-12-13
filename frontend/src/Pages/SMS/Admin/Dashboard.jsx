@@ -67,7 +67,7 @@ function Dashboard() {
         setTotalPalaysCount(totalPalaysData);
 
         // Fetch Total Rice Count
-        const totalRiceRes = await fetch(`${apiUrl}/ricebatches/count`, {
+        const totalRiceRes = await fetch(`${apiUrl}/palaybatches/count/milled`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
         });
@@ -169,10 +169,6 @@ function Dashboard() {
               <ProcessingStatusChart palayBatches={palayBatches} setInterpretations={setInterpretations}/>
             </CardComponent>
 
-            <CardComponent className="bg-white transition hover:shadow-lg">
-              <InventoryAnalytics setInterpretations={setInterpretations}/>
-            </CardComponent>
-
             {/* <CardComponent className="bg-white transition hover:shadow-lg">
               <WetDryInventoryChart palayBatches={palayBatches} />
             </CardComponent> */}
@@ -181,13 +177,21 @@ function Dashboard() {
               <MillingStatusChart palayBatches={palayBatches} setInterpretations={setInterpretations}/>
             </CardComponent>
 
-            <CardComponent className="bg-white transition hover:shadow-lg col-span-2">
+            <CardComponent className="bg-white transition hover:shadow-lg col-span-3">
+              <InventoryAnalytics setInterpretations={setInterpretations}/>
+            </CardComponent>
+
+            <CardComponent className="bg-white transition hover:shadow-lg">
               <NfaFacilities
                 warehousesCount={warehousesCount}
                 dryersCount={dryersCount}
                 millersCount={millersCount}
                 setInterpretations={setInterpretations}
               />
+            </CardComponent>
+
+            <CardComponent className="bg-white transition hover:shadow-lg">
+              <WarehouseInventoryTrend apiUrl={apiUrl} setInterpretations={setInterpretations}/>
             </CardComponent>
 
             <CardComponent className="bg-white transition hover:shadow-lg">
@@ -198,17 +202,15 @@ function Dashboard() {
               <RiceInventoryLevels apiUrl={apiUrl} setInterpretations={setInterpretations}/>
             </CardComponent>
 
-            <CardComponent className="bg-white transition hover:shadow-lg">
+            {/* <CardComponent className="bg-white transition hover:shadow-lg">
               <MillerEfficiencyComparison apiUrl={apiUrl} setInterpretations={setInterpretations}/>
-            </CardComponent>
+            </CardComponent> */}
 
             <CardComponent className="bg-white transition hover:shadow-lg col-span-2">
               <RiceOrdersAnalytics apiUrl={apiUrl} setInterpretations={setInterpretations}/>
             </CardComponent>  
 
-            <CardComponent className="bg-white transition hover:shadow-lg">
-              <WarehouseInventoryTrend apiUrl={apiUrl} setInterpretations={setInterpretations}/>
-            </CardComponent>
+           
 
             
             

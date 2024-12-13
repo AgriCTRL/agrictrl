@@ -13,6 +13,7 @@ import {
   getTotalQuantityBags,
   getTotalPalayQuantityBags,
   searchPalayBatches,
+  PalayBatch,
 } from "./db";
 import { 
   checkExistingWSR, 
@@ -66,6 +67,14 @@ export function getRouter(): Router {
 
   router.get("/count", async (_req, res) => {
     res.json(await countPalayBatches());
+  });
+
+  router.get("/count/milled", async (_req, res) => {
+    const queryBuilder = PalayBatch.createQueryBuilder("palayBatch")
+      .where("LOWER(palayBatch.status) = LOWER(:status)", { status: "Milled" });
+  
+    const total = await queryBuilder.getCount();
+    res.json(total);
   });
 
   router.get("/totals/quantity-bags", async (_req, res) => {

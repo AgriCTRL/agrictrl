@@ -6,7 +6,8 @@ import { MillingBatch } from "../millingbatches/db";
 import { RiceOrder } from "../riceorders/db";
 import { AnalyticsSummary } from "./types";
 
-import { format } from 'date-fns';
+import { format, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear } from 'date-fns';
+import { Pile } from "../piles/db";
 
 // Function to get average quantityBags for batches bought on a specific date
 export async function getAverageQuantityByDate(date: Date): Promise<AnalyticsSummary> {
@@ -40,48 +41,105 @@ export async function getAverageQuantityByDate(date: Date): Promise<AnalyticsSum
     }
 }
 
-// Daily average summary
-export async function getDailySummary(date: Date): Promise<AnalyticsSummary> {
-    return getAverageQuantityByDate(date);
-}
-
-// Weekly average summary
-export async function getWeeklySummary(date: Date): Promise<AnalyticsSummary> {
-    // Ensure we're working with a proper Date object
-    const inputDate = new Date(date);
-    
-    // Get the day of the week (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
-    const day = inputDate.getDay();
-    
-    // Calculate the start date (Monday) by subtracting days to get to last Monday
-    const startDate = new Date(inputDate);
-    startDate.setDate(inputDate.getDate() - day + (day === 0 ? -6 : 1));
-    startDate.setHours(0, 0, 0, 0);
-    
-    // Calculate the end date (Sunday)
-    const endDate = new Date(startDate);
-    endDate.setDate(startDate.getDate() + 6);
-    endDate.setHours(23, 59, 59, 999);
+// Daily Summary with Previous Day Comparison
+export async function getDailySummary(date: Date): Promise<{
+    currentDayTotal: number,
+    previousDayTotal: number,
+    startDate: Date,
+    endDate: Date,
+    currentDayBatchCount: number,
+    previousDayBatchCount: number
+}> {
+    const targetDate = new Date(date);
+    const previousDate = new Date(date);
+    previousDate.setDate(previousDate.getDate() - 1);
 
     try {
         // Retrieve all PalayBatches
-        const targetBatches = await PalayBatch.find();
+        const palayBatches = await PalayBatch.find();
 
-        // Filter palayBatches between the startDate and endDate
-        const filteredBatches = targetBatches.filter(batch => {
+        // Filter current day batches
+        const currentDayBatches = palayBatches.filter(batch => {
             const batchDate = new Date(batch.dateBought);
-            return batchDate >= startDate && batchDate <= endDate;
+            return batchDate >= startOfDay(targetDate) && batchDate <= endOfDay(targetDate);
         });
 
-        // Calculate total quantity and average
-        const totalQuantity = filteredBatches.reduce((sum, batch) => sum + (batch.quantityBags || 0), 0);
-        const averageQuantity = filteredBatches.length > 0 ? totalQuantity / filteredBatches.length : 0;
+        // Filter previous day batches
+        const previousDayBatches = palayBatches.filter(batch => {
+            const batchDate = new Date(batch.dateBought);
+            return batchDate >= startOfDay(previousDate) && batchDate <= endOfDay(previousDate);
+        });
+
+        // Calculate total quantities
+        const currentDayTotal = currentDayBatches.reduce((sum, batch) => sum + (batch.quantityBags || 0), 0);
+        const previousDayTotal = previousDayBatches.reduce((sum, batch) => sum + (batch.quantityBags || 0), 0);
 
         return {
-            totalQuantity: averageQuantity, // Average quantity of bags
-            startDate: startDate,           // Start date of the week (Monday)
-            endDate: endDate,               // End date of the week (Sunday)
-            palayBatches: filteredBatches.length, // Total number of batches queried
+            currentDayTotal,
+            previousDayTotal,
+            startDate: startOfDay(previousDate),
+            endDate: endOfDay(targetDate),
+            currentDayBatchCount: currentDayBatches.length,
+            previousDayBatchCount: previousDayBatches.length
+        };
+    } catch (error) {
+        console.error("Error in getDailySummary:", error);
+        throw error;
+    }
+}
+
+// Weekly Summary with Daily Breakdown
+export async function getWeeklySummary(date: Date): Promise<{
+    dailyTotals: Array<{date: Date, total: number, batchCount: number}>,
+    startDate: Date,
+    endDate: Date,
+    weekTotal: number,
+    weekBatchCount: number
+}> {
+    const targetDate = new Date(date);
+    const weekStart = startOfWeek(targetDate, { weekStartsOn: 1 }); // Monday as start of week
+    const weekEnd = endOfWeek(targetDate, { weekStartsOn: 1 });
+
+    try {
+        // Retrieve all PalayBatches
+        const palayBatches = await PalayBatch.find();
+
+        // Filter batches for the week
+        const weekBatches = palayBatches.filter(batch => {
+            const batchDate = new Date(batch.dateBought);
+            return batchDate >= weekStart && batchDate <= weekEnd;
+        });
+
+        // Group batches by day
+        const dailyTotals = [];
+        for (let i = 0; i < 7; i++) {
+            const currentDate = new Date(weekStart);
+            currentDate.setDate(weekStart.getDate() + i);
+
+            const dayBatches = weekBatches.filter(batch => {
+                const batchDate = new Date(batch.dateBought);
+                return batchDate >= startOfDay(currentDate) && batchDate <= endOfDay(currentDate);
+            });
+
+            const total = dayBatches.reduce((sum, batch) => sum + (batch.quantityBags || 0), 0);
+            
+            dailyTotals.push({
+                date: currentDate,
+                total,
+                batchCount: dayBatches.length
+            });
+        }
+
+        // Calculate week total
+        const weekTotal = dailyTotals.reduce((sum, day) => sum + day.total, 0);
+        const weekBatchCount = dailyTotals.reduce((sum, day) => sum + day.batchCount, 0);
+
+        return {
+            dailyTotals,
+            startDate: weekStart,
+            endDate: weekEnd,
+            weekTotal,
+            weekBatchCount
         };
     } catch (error) {
         console.error("Error in getWeeklySummary:", error);
@@ -89,52 +147,113 @@ export async function getWeeklySummary(date: Date): Promise<AnalyticsSummary> {
     }
 }
 
-// Monthly average summary
-export async function getMonthlySummary(year: number, month: number): Promise<AnalyticsSummary> {
-    const startDate = new Date(year, month - 1, 1); // First day of the month
-    const endDate = new Date(year, month, 0);       // Last day of the month
+// Monthly Summary with Weekly Breakdown
+export async function getMonthlySummary(year: number, month: number): Promise<{
+    weeklyTotals: Array<{week: number, total: number, batchCount: number}>,
+    startDate: Date,
+    endDate: Date,
+    monthTotal: number,
+    monthBatchCount: number
+}> {
+    const startDate = startOfMonth(new Date(year, month - 1));
+    const endDate = endOfMonth(new Date(year, month - 1));
 
-    const targetBatches = await PalayBatch.find();
-    
-    const filteredBatches = targetBatches.filter(batch => {
-        const batchDate = new Date(batch.dateBought);
-        return batchDate >= startDate && batchDate <= endDate;
-    });
+    try {
+        // Retrieve all PalayBatches
+        const targetBatches = await PalayBatch.find();
 
-    // Calculate total quantity and average
-    const totalQuantity = filteredBatches.reduce((sum, batch) => sum + (batch.quantityBags || 0), 0);
-    const averageQuantity = filteredBatches.length > 0 ? totalQuantity / filteredBatches.length : 0;
+        // Filter batches for the month
+        const monthBatches = targetBatches.filter(batch => {
+            const batchDate = new Date(batch.dateBought);
+            return batchDate >= startDate && batchDate <= endDate;
+        });
 
-    return {
-        totalQuantity: averageQuantity, // Average quantity of bags
-        startDate: startDate,            // Start date of the month
-        endDate: endDate,                // End date of the month
-        palayBatches: filteredBatches.length, // Total number of batches queried
-    };
+        // Initialize weekly totals
+        const weeklyTotals = [
+            { week: 1, total: 0, batchCount: 0 },
+            { week: 2, total: 0, batchCount: 0 },
+            { week: 3, total: 0, batchCount: 0 },
+            { week: 4, total: 0, batchCount: 0 }
+        ];
+
+        // Categorize batches into weeks
+        monthBatches.forEach(batch => {
+            const batchDate = new Date(batch.dateBought);
+            const week = Math.floor((batchDate.getDate() - 1) / 7);
+            
+            weeklyTotals[week].total += batch.quantityBags || 0;
+            weeklyTotals[week].batchCount += 1;
+        });
+
+        // Calculate month totals
+        const monthTotal = weeklyTotals.reduce((sum, week) => sum + week.total, 0);
+        const monthBatchCount = weeklyTotals.reduce((sum, week) => sum + week.batchCount, 0);
+
+        return {
+            weeklyTotals,
+            startDate,
+            endDate,
+            monthTotal,
+            monthBatchCount
+        };
+    } catch (error) {
+        console.error("Error in getMonthlySummary:", error);
+        throw error;
+    }
 }
 
-// Annual average summary
-export async function getAnnualSummary(year: number): Promise<AnalyticsSummary> {
-    const startDate = new Date(year, 0, 1); // First day of the year
-    const endDate = new Date(year, 11, 31);  // Last day of the year
+// Annual Summary with Monthly Breakdown
+export async function getAnnualSummary(year: number): Promise<{
+    monthlyTotals: Array<{month: number, total: number, batchCount: number}>,
+    startDate: Date,
+    endDate: Date,
+    yearTotal: number,
+    yearBatchCount: number
+}> {
+    const startDate = startOfYear(new Date(year, 0));
+    const endDate = endOfYear(new Date(year, 0));
 
-    const targetBatches = await PalayBatch.find();
-    
-    const filteredBatches = targetBatches.filter(batch => {
-        const batchDate = new Date(batch.dateBought);
-        return batchDate >= startDate && batchDate <= endDate;
-    });
+    try {
+        // Retrieve all PalayBatches
+        const targetBatches = await PalayBatch.find();
+        
+        // Filter batches for the year
+        const yearBatches = targetBatches.filter(batch => {
+            const batchDate = new Date(batch.dateBought);
+            return batchDate >= startDate && batchDate <= endDate;
+        });
 
-    // Calculate total quantity and average
-    const totalQuantity = filteredBatches.reduce((sum, batch) => sum + (batch.quantityBags || 0), 0);
-    const averageQuantity = filteredBatches.length > 0 ? totalQuantity / filteredBatches.length : 0;
+        // Initialize monthly totals
+        const monthlyTotals = Array(12).fill(0).map((_, index) => ({
+            month: index + 1,
+            total: 0,
+            batchCount: 0
+        }));
 
-    return {
-        totalQuantity: averageQuantity, // Average quantity of bags
-        startDate: startDate,            // Start date of the year
-        endDate: endDate,                // End date of the year
-        palayBatches: filteredBatches.length, // Total number of batches queried
-    };
+        // Categorize batches into months
+        yearBatches.forEach(batch => {
+            const batchDate = new Date(batch.dateBought);
+            const month = batchDate.getMonth();
+            
+            monthlyTotals[month].total += batch.quantityBags || 0;
+            monthlyTotals[month].batchCount += 1;
+        });
+
+        // Calculate year totals
+        const yearTotal = monthlyTotals.reduce((sum, month) => sum + month.total, 0);
+        const yearBatchCount = monthlyTotals.reduce((sum, month) => sum + month.batchCount, 0);
+
+        return {
+            monthlyTotals,
+            startDate,
+            endDate,
+            yearTotal,
+            yearBatchCount
+        };
+    } catch (error) {
+        console.error("Error in getAnnualSummary:", error);
+        throw error;
+    }
 }
 
 // Function to get quantity of palay bought weekly within a given month and year
@@ -214,14 +333,16 @@ export async function getMillersEfficiencyComparison() {
 
 // Rice Inventory Time Series
 export async function getRiceInventoryTimeSeries() {
-    const riceBatches = await RiceBatch.find();
+    const ricePiles = await Pile.find({
+        where: { type: 'Rice' }
+    });
     
-    // Map each batch to show its current vs max capacity
-    const batchData = riceBatches.map(batch => ({
-        batchId: batch.id,
-        batchName: `Batch ${batch.id.slice(-4)}`,
-        currentCapacity: batch.currentCapacity || 0,
-        maxCapacity: batch.maxCapacity || 0
+    // Map each rice pile to show its current vs max capacity
+    const batchData = ricePiles.map(pile => ({
+        batchId: pile.id,
+        batchName: `Pile ${pile.pileNumber}`,
+        currentCapacity: pile.currentQuantity || 0,
+        maxCapacity: pile.maxCapacity || 0
     }));
     
     // Sort by batchId to ensure consistent ordering
