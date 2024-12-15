@@ -164,7 +164,7 @@ function StaffLayout({
             />
 
             {/* Main content and right sidebar */}
-            <div className="flex flex-1 p-4 sm:p-6 mt-[90px] gap-4 bg-background">
+            <div className="flex flex-1 p-4 sm:p-6 mt-[82px] md:mt-[90px] gap-4 bg-background">
                 {/* Left sidebar */}
                 <LeftSidebar
                     leftSidebar={leftSidebar}

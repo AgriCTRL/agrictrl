@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Carousel } from 'primereact/carousel';
@@ -8,7 +8,9 @@ import { Divider } from 'primereact/divider';
 import { Button } from 'primereact/button';
 import { Tag } from 'primereact/tag';
 import { Accordion, AccordionTab } from 'primereact/accordion';
-        
+import { useMountEffect } from 'primereact/hooks';
+import { Messages } from 'primereact/messages';
+
 import { 
     Loader2, 
     Undo2, 
@@ -29,7 +31,8 @@ import QuickLinks from '../Components/QuickLinks';
 import TransacSummaryCarousel from '../Components/TransacSummaryCarousel';
 
 function Home({ isRightSidebarOpen }) {
-    const { user } = useAuth();
+    // const { user } = useAuth();
+    const [user] = useState({ firstName: 'John', lastName: 'Doe', email: 'jy6kS@example.com', userType: 'staff', jobTitlePosition: 'Procurement Officer' });
     const [userFullName] = useState(`${user.firstName} ${user.lastName}`);
 
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -51,6 +54,7 @@ function Home({ isRightSidebarOpen }) {
         return `${month}/${day}/${year}`;
     });
     const [links, setLinks] = useState([]);
+    const msgs = useRef(null);
 
     useEffect(() => {
         const linksItem = {
@@ -332,26 +336,62 @@ function Home({ isRightSidebarOpen }) {
         )
     }
 
+    useEffect(() => {
+        if (links && msgs.current) {
+            msgs.current.clear();
+            msgs.current.show([
+                {
+                    severity: 'success',
+                    sticky: true,
+                    content: (
+                        <div className="flex items-center gap-2">
+                            <img alt="logo" src="/landingpage/nfa-logo.svg" width="32" />
+                            <Button
+                                text
+                                className="ring-0 transition-all gap-2 md:gap-4 hover:gap-6 hover:bg-transparent text-primary flex justify-between p-0"
+                                onClick={() => navigate(links?.link)}
+                            >
+                                <p className='text-sm md:text-base font-medium'>
+                                    {`Manage ${links?.label?.toLowerCase()}`}
+                                </p>
+                                <ChevronRight className='size-4 md:size-5' />
+                            </Button>
+                        </div>
+                    )
+                }
+            ]);
+        }
+    }, [links]);
+
     return (
         <StaffLayout activePage="Home" user={user} leftSidebar={leftSidebar()} isRightSidebarOpen={true} isLeftSidebarOpen={true} rightSidebar={null}>
             <div className={`flex flex-row bg-[#F1F5F9] h-full`}>
                 {/* Main Content */}
-                <div className={`flex flex-col w-full h-full gap-4`}>
-                    <div className="flex flex-row justify-between items-center">
-                        <div className="flex flex-col text-black">
-                            <h1 className="text-xl">Welcome Back,</h1>
-                            <h1 className="text-2xl sm:text-4xl font-semibold">{user.firstName ?? 'User'}!</h1>
+                <div className={`flex flex-col w-full h-full gap-2 md:gap-4`}>
+                    <div className="flex md:flex-row flex-col justify-between items-center">
+                        <div className="flex md:flex-col text-black gap-2">
+                            <h1 className="text-base md:text-xl">Welcome Back,</h1>
+                            <h1 className="text-base md:text-2xl sm:text-4xl font-semibold">{user.firstName ?? 'User'}!</h1>
                         </div>
                         <Button
                             text
-                            className="ring-0 transition-all gap-4 hover:gap-6 hover:bg-transparent text-primary flex justify-between"
+                            className="ring-0 transition-all gap-2 md:gap-4 hover:gap-6 hover:bg-transparent text-primary hidden md:flex justify-between p-0"
                             onClick={() => navigate(links?.link)}
                         >
-                            <p className='text-md font-medium'>
+                            <p className='text-sm md:text-base font-medium'>
                                 {`Manage ${links?.label?.toLowerCase()}`}
                             </p>
-                            <ChevronRight size={18} />
+                            <ChevronRight className='size-4 md:size-5' />
                         </Button>
+                        <Messages 
+                            ref={msgs}
+                            className='block md:hidden w-full'
+                            pt={{
+                                wrapper: {
+                                    className: 'py-3 px-4'
+                                }
+                            }}
+                        />
                     </div>
 
                     {/* Carousel for Image Section */}
@@ -361,17 +401,17 @@ function Home({ isRightSidebarOpen }) {
                         numScroll={1} 
                         className="custom-carousel" 
                         itemTemplate={(item) => (
-                            <div className="relative rounded-lg overflow-hidden mb-2 md:h-80 sm:h-64">
+                            <div className="relative rounded-lg overflow-hidden mb-2 h-52 md:h-80">
                                 <div className='h-full'>
                                     <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
                                 </div>
-                                <div className="absolute bg-gradient-to-r from-[#1f1f1f] to-transparent inset-0 flex flex-col gap-4 p-8">
-                                    <div className="text-green-400 flex items-center gap-4">
-                                        <HandHelping size={20} />
-                                        <p>What We Offer</p>
+                                <div className="absolute bg-gradient-to-r from-[#1f1f1f] to-transparent inset-0 flex flex-col gap-2 md:gap-4 p-4 md:p-8">
+                                    <div className="text-green-400 flex items-center gap-2 md:gap-4">
+                                        <HandHelping className='size-4 md:size-5' />
+                                        <p className='text-sm md:text-base'>What We Offer</p>
                                     </div>
-                                    <h1 className="text-white text-heading font-semibold">{item.title}</h1>
-                                    <p className="text-white">{item.description}</p>
+                                    <h1 className="text-white text-lg md:text-heading font-semibold">{item.title}</h1>
+                                    <p className="text-sm md:text-base text-white">{item.description}</p>
                                 </div>
                             </div>
                         )}
@@ -388,14 +428,14 @@ function Home({ isRightSidebarOpen }) {
 
                     <div className='flex flex-col gap-4'>
                         <div className="flex flex-row justify-between items-center">
-                            <h1 className="text-xl font-medium">Quick Links</h1>
+                            <h1 className="text-base md:text-xl font-medium">Quick Links</h1>
                             <Button
                                 text
-                                className="ring-0 transition-all gap-4 hover:gap-6 hover:bg-transparent text-primary flex justify-between"
+                                className="ring-0 transition-all gap-2 md:gap-4 hover:gap-6 hover:bg-transparent text-primary flex justify-between p-0"
                                 onClick={() => navigate('/staff/warehouse')}
                             >
-                                <p className='text-md font-medium'>View All</p>
-                                <ChevronRight size={18} />
+                                <p className='text-sm md:text-base font-medium'>View All</p>
+                                <ChevronRight className='size-4 md:size-5' />
                             </Button>
                         </div>
 

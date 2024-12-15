@@ -1,9 +1,9 @@
 @layer tailwind-base, primereact, tailwind-utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap");
 
 * {
-    font-family: 'Poppins', sans-serif;
+    font-family: "Poppins", sans-serif;
 }
 
 @layer tailwind-base {
@@ -29,7 +29,7 @@
     /* Apply Poppins to all dropdowns */
     .p-dropdown-label,
     .p-dropdown-item {
-        font-family: 'Poppins', sans-serif !important;
+        font-family: "Poppins", sans-serif !important;
     }
 
     .p-stepper {
@@ -51,7 +51,7 @@
                 }
             }
 
-            &:has(~.p-highlight) {
+            &:has(~ .p-highlight) {
                 @apply opacity-100;
                 .p-stepper-separator {
                     @apply bg-white;
@@ -103,8 +103,8 @@
     }
 
     .p-paginator .p-paginator-pages .p-paginator-page.p-highlight {
-        background: #00C261 !important;
-        border-color: #00C261 !important;
+        background: #00c261 !important;
+        border-color: #00c261 !important;
         color: #ffffff !important;
     }
 
@@ -150,7 +150,7 @@
                 margin: 0 !important;
 
                 &.p-highlight button {
-                    background: #00C261 !important;
+                    background: #00c261 !important;
                 }
             }
 
@@ -168,7 +168,7 @@
 
                     button {
                         position: absolute;
-                        color: #00C261;
+                        color: #00c261;
 
                         &.p-carousel-prev {
                             left: 0;
@@ -201,11 +201,29 @@
         background: #f3f4f6 !important;
     }
 
-    .p-tabview.dashboard {
-        .p-tabview-panels {
-            padding: 0rem;
+    .p-tabview {
+        &.dashboard {
+            .p-tabview-panels {
+                padding: 0rem;
+            }
         }
-      }
+
+        &.sms-tabview {
+            .p-tabview-nav {
+                .p-highlight {
+                    a {
+                        border-color: #00c261 !important;
+                        span {
+                            color: #00c261 !important;
+                            font-weight: 500 !important;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    .
 
     .custom-dropdown .p-dropdown-trigger-icon {
         color: white !important;
@@ -230,7 +248,7 @@
         &:hover,
         &:focus,
         &:enabled:hover {
-            border: 1px solid #00C261;
+            border: 1px solid #00c261;
         }
     }
 
@@ -241,46 +259,45 @@
 
         &.login-select-button {
             .p-button.p-highlight {
-                background: #00C261 !important;
+                background: #00c261 !important;
                 color: #ffffff !important;
             }
         }
 
         &.admin-select-button {
             .p-button.p-highlight {
-                background: #00C261 !important;
+                background: #00c261 !important;
                 color: #ffffff !important;
             }
         }
     }
 
     .p-button-label {
-        @apply font-medium !important;  
+        @apply font-medium !important;
     }
 
     .p-calendar-w-btn {
         button {
-            background-color: #00C261;
+            background-color: #00c261;
 
             &:hover {
-                background-color: #009E4F !important;
+                background-color: #009e4f !important;
             }
         }
     }
 
     .p-datepicker table td > span.p-highlight {
-        background: #00C261 !important;
+        background: #00c261 !important;
         color: #ffffff !important;
-
     }
 
     .p-monthpicker .p-monthpicker-month.p-highlight {
-        background: #00C261 !important;
+        background: #00c261 !important;
         color: #ffffff !important;
     }
 
     .p-yearpicker .p-yearpicker-year.p-highlight {
-        background: #00C261 !important;
+        background: #00c261 !important;
         color: #ffffff !important;
     }
 

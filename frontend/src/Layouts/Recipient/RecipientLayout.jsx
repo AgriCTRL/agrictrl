@@ -59,7 +59,7 @@ function RecipientLayout({
             />
 
             {/* Main content and right sidebar */}
-            <div className="flex flex-1 p-4 sm:p-6 mt-[90px] gap-4 bg-background">
+            <div className="flex flex-1 p-4 sm:p-6 mt-[82px] md:mt-[90px] gap-4 bg-background">
                 {/* Main content */}
                 <main
                     className={`flex-1 overflow-auto transition-all duration-300 ${

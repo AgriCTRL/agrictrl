@@ -1,10 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-import { 
-    Search, 
-    ChevronLeft, 
-    ChevronRight, 
-} from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
 
 import { Tag } from "primereact/tag";
 import { FilterMatchMode } from "primereact/api";
@@ -68,18 +64,23 @@ function CustomDateRangeSelector({ selectedFilter, onChange, disabled }) {
     }, [selectedFilter]);
 
     return (
-        <div className="flex items-center bg-primary text-white rounded-full">
+        <div className="flex items-center bg-primary text-white rounded-full gap-2 px-2 md:px-4 py-3">
             <Button
-                icon={<ChevronLeft size={18} />}
+                icon={<ChevronLeft className="size-4 md:size-5" />}
                 onClick={() => navigate(-1)}
-                className="p-button-text text-white ring-0 text-sm"
+                className="p-button-text text-white ring-0 text-sm md:text-base p-0 w-fit"
                 disabled={disabled}
             />
-            <span className="font">{formatDateRange()}</span>
+            <span
+                className="text-sm md:text-base font text-center truncate w-20 sm:w-40 md:w-auto overflow-hidden"
+                title={formatDateRange()} // Adds full-text tooltip for truncation
+            >
+                {formatDateRange()}
+            </span>
             <Button
-                icon={<ChevronRight size={18} />}
+                icon={<ChevronRight className="size-4 md:size-5" />}
                 onClick={() => navigate(1)}
-                className="p-button-text text-white ring-0 text-sm"
+                className="p-button-text text-white ring-0 text-sm md:text-base p-0 w-fit"
                 disabled={disabled}
             />
         </div>
@@ -244,30 +245,31 @@ function History() {
     };
 
     return (
-        <PrivateMillerLayout 
-            activePage="History" 
-            user={user} 
+        <PrivateMillerLayout
+            activePage="History"
+            user={user}
             isRightSidebarOpen={false}
             rightSidebar={<></>}
         >
             <div className="flex flex-col h-full gap-4">
                 {/* Header Section */}
-                <div className="flex flex-col justify-center gap-4 items-center p-8 rounded-lg bg-gradient-to-r from-primary to-secondary">
+                <div className="flex flex-col justify-center gap-4 items-center p-4 md:p-8 rounded-lg bg-gradient-to-r from-primary to-secondary">
                     <h1 className="text-2xl sm:text-4xl text-white font-semibold">
                         History
                     </h1>
-                    <span className="w-1/2">
+                    <span className="md:w-1/2">
                         <IconField iconPosition="left">
                             <InputIcon className="">
-                                <Search className="text-white" size={18} />
+                                <Search className="text-white size-4 md:size-5" />
                             </InputIcon>
                             <InputText
-                                className="ring-0 w-full rounded-full text-white bg-transparent border border-white placeholder:text-white"
+                                className="py-2 md:py-3 text-sm md:text-base ring-0 w-full rounded-full text-white bg-transparent border border-white placeholder:text-white"
                                 value={globalFilterValue}
                                 onChange={(e) =>
                                     setGlobalFilterValue(e.target.value)
                                 }
                                 placeholder="Tap to search"
+                                maxLength="8"
                             />
                         </IconField>
                     </span>
@@ -277,7 +279,7 @@ function History() {
                 <div className="flex items-center rounded-lg gap-2">
                     <Button
                         label="All"
-                        className={`p-button-text bg-white ring-0  ${
+                        className={`text-sm md:text-base p-button-text bg-white ring-0 p-3 ${
                             showAll
                                 ? "bg-gradient-to-r from-primary to-primary border-none text-white"
                                 : ""
@@ -288,8 +290,16 @@ function History() {
                         value={selectedFilter}
                         options={displayModeOptions}
                         onChange={(e) => setSelectedFilter(e.value)}
-                        className="rounded-full bg-primary ring-0 border-0 custom-dropdown text-sm px-2"
-                        style={{ color: "white" }}
+                        className="ring-0 border-0 flex items-center justify-between gap-4 px-4 py-3"
+                        pt={{
+                            root: "bg-primary rounded-full",
+                            input: "text-sm md:text-base text-white p-0",
+                            trigger: "text-sm md:text-base text-white h-fit w-fit",
+                            panel: "text-sm md:text-base",
+                        }}
+                        dropdownIcon={
+                            <ChevronDown className="size-4 md:size-5 text-white" />
+                        }
                         disabled={showAll}
                     />
                     <CustomDateRangeSelector
@@ -310,13 +320,13 @@ function History() {
                             filteredTransactions.map((transaction) => (
                                 <div
                                     key={transaction.id}
-                                    className="flex items-center justify-between p-4 border-b bg-white rounded-xl mb-4"
+                                    className="flex items-center justify-between p-2 md:p-4 border-b bg-white rounded-xl mb-2 md:mb-4"
                                 >
                                     <div className="flex items-center">
                                         <img
                                             src="/profileAvatar.png"
                                             alt="User"
-                                            className="rounded-full mr-4 h-16 w-16"
+                                            className="rounded-full mr-2 md:mr-4 size-12 md:size-16"
                                         />
                                         <span>{transaction.description}</span>
                                         <Tag
@@ -333,16 +343,16 @@ function History() {
                                                     ? "warning"
                                                     : "danger"
                                             }
-                                            className="ml-4"
+                                            className="text-sm py-2 px-4 rounded-md font-normal"
                                         />
                                     </div>
                                     <div className="flex items-center">
-                                        <span className="mr-4">
+                                        <span className="mr-2 md:mr-4">
                                             {transaction.date.toLocaleDateString()}
                                         </span>
                                         <Button
                                             icon="pi pi-ellipsis-v"
-                                            className="p-button-text"
+                                            className="p-button-text text-sm md:text-base"
                                             onClick={() =>
                                                 handleShowDetails(transaction)
                                             }
@@ -362,15 +372,25 @@ function History() {
                 className="w-full md:w-[32rem]"
             >
                 {selectedTransaction && (
-                    <div className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="font-semibold">Transaction ID:</div>
-                            <div>{selectedTransaction.id}</div>
+                    <div className="space-y-2 md:space-y-4">
+                        <div className="grid grid-cols-2 gap-2 md:gap-4">
+                            <div className="font-semibold text-sm md:text-base">
+                                Transaction ID:
+                            </div>
+                            <div className="text-sm md:text-base">
+                                {selectedTransaction.id}
+                            </div>
 
-                            <div className="font-semibold">Item:</div>
-                            <div>{selectedTransaction.item}</div>
+                            <div className="font-semibold text-sm md:text-base">
+                                Item:
+                            </div>
+                            <div className="text-sm md:text-base">
+                                {selectedTransaction.item}
+                            </div>
 
-                            <div className="font-semibold">Status:</div>
+                            <div className="font-semibold text-sm md:text-base">
+                                Status:
+                            </div>
                             <div>
                                 <Tag
                                     value={selectedTransaction.displayStatus}
@@ -386,27 +406,44 @@ function History() {
                                             ? "warning"
                                             : "danger"
                                     }
+                                    className="text-sm py-2 px-4 rounded-md font-normal"
                                 />
                             </div>
 
-                            <div className="font-semibold">Date:</div>
-                            <div>
+                            <div className="font-semibold text-sm md:text-base">
+                                Date:
+                            </div>
+                            <div className="text-sm md:text-base">
                                 {selectedTransaction.date.toLocaleDateString()}
                             </div>
 
-                            <div className="font-semibold">Send Date/Time:</div>
-                            <div>{selectedTransaction.sendDateTime}</div>
+                            <div className="font-semibold text-sm md:text-base">
+                                Send Date/Time:
+                            </div>
+                            <div className="text-sm md:text-base">
+                                {selectedTransaction.sendDateTime}
+                            </div>
 
-                            <div className="font-semibold">
+                            <div className="font-semibold text-sm md:text-base">
                                 Receive Date/Time:
                             </div>
-                            <div>{selectedTransaction.receiveDateTime}</div>
+                            <div className="text-sm md:text-base">
+                                {selectedTransaction.receiveDateTime}
+                            </div>
 
-                            <div className="font-semibold">From Location:</div>
-                            <div>{selectedTransaction.fromLocationId}</div>
+                            <div className="font-semibold text-sm md:text-base">
+                                From Location:
+                            </div>
+                            <div className="text-sm md:text-base">
+                                {selectedTransaction.fromLocationId}
+                            </div>
 
-                            <div className="font-semibold">To Location:</div>
-                            <div>{selectedTransaction.toLocationId}</div>
+                            <div className="font-semibold text-sm md:text-base">
+                                To Location:
+                            </div>
+                            <div className="text-sm md:text-base">
+                                {selectedTransaction.toLocationId}
+                            </div>
 
                             {/* Add any additional transaction details you want to display */}
                         </div>

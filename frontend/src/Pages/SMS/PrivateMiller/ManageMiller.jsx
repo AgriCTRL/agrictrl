@@ -26,7 +26,7 @@ function ManageMiller() {
         status: "inactive",
         location: "",
     });
-    const [userData, setUserData] = useState(null);
+    const [userData, setUserData] = useState(user);
 
     const [editing, setEditing] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
@@ -209,110 +209,104 @@ function ManageMiller() {
     };
 
     const renderMillerDetails = (isRegistrationForm = false) => (
-        <div className="flex flex-col gap-4">
-            <div className="w-full">
-                <label className="block mb-2 text-sm font-medium text-gray-700">
+        <div className="grid grid-cols-2 gap-2 md:gap-4 px-4">
+            <div className="col-span-2">
+                <label className="block mb-2 text-xs md:text-sm font-medium text-black">
                     Miller Name
                 </label>
                 <InputText
                     value={millerData.millerName}
                     onChange={(e) => handleChange("millerName", e.target.value)}
                     disabled={!editing && !isRegistrationForm}
-                    className="w-full ring-0"
+                    className="w-full ring-0 text-sm md:text-base"
                     maxLength={50}
                 />
             </div>
-            <div className="flex gap-4 w-full">
-                <div className="w-full">
-                    <label className="block mb-2 text-sm font-medium text-gray-700">
-                        Category
-                    </label>
-                    <Dropdown
-                        value={millerData.category}
-                        options={typeOptions}
-                        onChange={(e) => handleChange("category", e.value)}
-                        disabled={!editing && !isRegistrationForm}
-                        className="ring-0 w-full placeholder:text-gray-400"
-                    />
-                </div>
-                <div className="w-full">
-                    <label className="block mb-2 text-sm font-medium text-gray-700">
-                        Type
-                    </label>
-                    <InputText
-                        value={millerData.type}
-                        disabled
-                        className="ring-0 w-full placeholder:text-gray-400"
-                        maxLength={50}
-                        keyfilter="alphanum"
-                    />
-                </div>
+            <div className="col-span-2 md:col-span-1">
+                <label className="block mb-2 text-xs md:text-sm font-medium text-black">
+                    Category
+                </label>
+                <Dropdown
+                    value={millerData.category}
+                    options={typeOptions}
+                    onChange={(e) => handleChange("category", e.value)}
+                    disabled={!editing && !isRegistrationForm}
+                    className="ring-0 w-full placeholder:text-light-grey text-sm md:text-base"
+                />
             </div>
-            <div className="flex gap-4 w-full">
-                <div className="w-full">
-                    <label className="block mb-2 text-sm font-medium text-gray-700">
-                        Location
-                    </label>
-                    <InputText
-                        value={millerData.location}
-                        onChange={(e) =>
-                            handleChange("location", e.target.value)
-                        }
-                        disabled={!editing && !isRegistrationForm}
-                        className="w-full ring-0"
-                        maxLength={50}
-                    />
-                </div>
-                <div className="w-full">
-                    <label className="block mb-2 text-sm font-medium text-gray-700">
-                        Capacity (Bags)
-                    </label>
-                    <InputText
-                        value={millerData.capacity}
-                        onChange={(e) =>
-                            handleChange("capacity", e.target.value)
-                        }
-                        disabled={editing || !isRegistrationForm}
-                        className="w-full ring-0"
-                        keyfilter="int"
-                    />
-                </div>
+            <div className="col-span-2 md:col-span-1">
+                <label className="block mb-2 text-xs md:text-sm font-medium text-black">
+                    Type
+                </label>
+                <InputText
+                    value={millerData.type}
+                    disabled
+                    className="ring-0 w-full placeholder:text-light-grey text-sm md:text-base"
+                    maxLength={50}
+                    keyfilter="alphanum"
+                />
             </div>
-            <div className="flex gap-4 w-full">
-                <div className="w-full">
-                    <label className="block mb-2 text-sm font-medium text-gray-700">
-                        Contact Number
-                    </label>
-                    <InputText
-                        value={userData.personalInfo.contactNumber}
-                        disabled
-                        className="w-full ring-0"
-                        maxLength={50}
-                        keyfilter="alphanum"
-                    />
-                </div>
-                <div className="w-full">
-                    <label className="block mb-2 text-sm font-medium text-gray-700">
-                        Email
-                    </label>
-                    <InputText
-                        value={userData.passwordInfo.email}
-                        disabled
-                        className="w-full ring-0"
-                        maxLength={50}
-                        keyfilter="email"
-                    />
-                </div>
+            <div className="col-span-2 md:col-span-1">
+                <label className="block mb-2 text-xs md:text-sm font-medium text-black">
+                    Location
+                </label>
+                <InputText
+                    value={millerData.location}
+                    onChange={(e) =>
+                        handleChange("location", e.target.value)
+                    }
+                    disabled={!editing && !isRegistrationForm}
+                    className="w-full ring-0 text-sm md:text-base"
+                    maxLength={50}
+                />
+            </div>
+            <div className="col-span-2 md:col-span-1">
+                <label className="block mb-2 text-xs md:text-sm font-medium text-black">
+                    Capacity (Bags)
+                </label>
+                <InputText
+                    value={millerData.capacity}
+                    onChange={(e) =>
+                        handleChange("capacity", e.target.value)
+                    }
+                    disabled={editing || !isRegistrationForm}
+                    className="w-full ring-0 text-sm md:text-base"
+                    keyfilter="int"
+                />
+            </div>
+            <div className="col-span-2 md:col-span-1">
+                <label className="block mb-2 text-xs md:text-sm font-medium text-black">
+                    Contact Number
+                </label>
+                <InputText
+                    value={userData.personalInfo.contactNumber}
+                    disabled
+                    className="w-full ring-0 text-sm md:text-base"
+                    maxLength={50}
+                    keyfilter="alphanum"
+                />
+            </div>
+            <div className="col-span-2 md:col-span-1">
+                <label className="block mb-2 text-xs md:text-sm font-medium text-black">
+                    Email
+                </label>
+                <InputText
+                    value={userData.passwordInfo.email}
+                    disabled
+                    className="w-full ring-0 text-sm md:text-base"
+                    maxLength={50}
+                    keyfilter="email"
+                />
             </div>
 
             <div className="col-span-2">
-                <label className="block mb-2 text-sm font-medium text-gray-700">
+                <label className="block mb-2 text-xs md:text-sm font-medium text-black">
                     Status
                 </label>
                 <InputText
                     value={millerData.status}
                     disabled
-                    className={`w-full text-gray-950 ring-0 bg-${
+                    className={`text-sm md:text-base w-full text-white ring-0 bg-${
                         millerData.status === "active" ? "primary" : "red-500"
                     }`}
                     maxLength={50}
@@ -331,21 +325,28 @@ function ManageMiller() {
     }
 
     return (
-        <PrivateMillerLayout activePage="Manage Miller" user={user} leftSidebar={<></>} isLeftSidebarOpen={false} isRightSidebarOpen={false} rightSidebar={<></>}>
+        <PrivateMillerLayout
+            activePage="Manage Miller"
+            user={user}
+            leftSidebar={<></>}
+            isLeftSidebarOpen={false}
+            isRightSidebarOpen={false}
+            rightSidebar={<></>}
+        >
             <Toast ref={toast} />
-            <div className="flex flex-col h-full w-full py-2 bg-white rounded-xl px-4">
-                <div className="flex flex-col justify-center items-center p-10 h-1/4 rounded-lg bg-gradient-to-r from-primary to-secondary">
-                    <h1 className="text-6xl text-white font-bold">
+            <div className="flex flex-col h-full w-full p-2 md:p-4 gap-2 md:gap-4 bg-white rounded-xl">
+                <div className="flex flex-col justify-center items-center py-10 h-1/4 rounded-lg bg-gradient-to-r from-primary to-secondary">
+                    <h1 className="text-4xl md:text-6xl text-white font-semibold">
                         Manage Miller
                     </h1>
                 </div>
 
-                <div className="flex justify-between flex-col w-full h-full px-24 py-10">
+                <div className="flex justify-between flex-col w-full h-full md:px-4">
                     <form
                         onSubmit={handleSave}
                         className="flex flex-col justify-between h-full"
                     >
-                        <div className="mt-4">{renderMillerDetails()}</div>
+                        <div>{renderMillerDetails()}</div>
 
                         <div className="flex justify-end">
                             {isRegistered && (
@@ -354,7 +355,7 @@ function ManageMiller() {
                                     type="button"
                                     onClick={handleToggleEdit}
                                     disabled={isLoading}
-                                    className={`border h-12 w-24 text-white font-bold ${
+                                    className={`text-sm md:text-base border text-white font-semibold ${
                                         editing
                                             ? "bg-red-500 hover:bg-red-600"
                                             : "bg-green-500 hover:bg-green-600"
@@ -366,7 +367,7 @@ function ManageMiller() {
                                     label="Save Changes"
                                     disabled={isLoading}
                                     type="submit"
-                                    className="ml-4 p-button-success border h-12 px-4 text-white font-bold bg-green-500 hover:bg-green-600"
+                                    className="p-button-success border text-white font-semibold bg-primary hover:bg-primaryHover text-sm md:text-base"
                                 />
                             )}
                         </div>
@@ -396,7 +397,7 @@ function ManageMiller() {
                             icon="pi pi-check"
                             onClick={handleRegistration}
                             disabled={isLoading}
-                            className="p-button-success"
+                            className="p-button-success text-sm md:text-base"
                         />
                     </div>
                 }
