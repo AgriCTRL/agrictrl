@@ -22,15 +22,14 @@ import {
 import PalayRegister from "./PalayRegister";
 import PalayDetails from "./PalayDetails";
 import { useAuth } from "../../../Authentication/Login/AuthContext";
-import StaffLayout from '@/Layouts/Staff/StaffLayout';
+import StaffLayout from "@/Layouts/Staff/StaffLayout";
 import Loader from "@/Components/Loader";
+import EmptyRecord from "../../../../Components/EmptyRecord";
 
 function BuyPalay() {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const toast = useRef(null);
     const { user } = useAuth();
-
-    // const [user] = useState({ userType: 'NFA Branch Staff' });
 
     const [palayCount, setPalayCount] = useState(0);
     const [processedCount, setProcessedCount] = useState(0);
@@ -178,15 +177,15 @@ function BuyPalay() {
         setShowRegisterPalay(true);
     };
 
-  const handlePalayRegistered = () => {
-    fetchPalayData();
-    setShowRegisterPalay(false);
-  };
+    const handlePalayRegistered = () => {
+        fetchPalayData();
+        setShowRegisterPalay(false);
+    };
 
-  const handlePalayUpdate = () => {
-    fetchPalayData();
-    setShowDetails(false);
-  };
+    const handlePalayUpdate = () => {
+        fetchPalayData();
+        setShowDetails(false);
+    };
 
     const handleItemClick = (item) => {
         setSelectedPalay(item);
@@ -287,20 +286,21 @@ function BuyPalay() {
             )}
             <Toast ref={toast} />
             <div className="flex flex-col h-full gap-4">
-                <div className="flex flex-col justify-center gap-4 items-center p-8 rounded-lg bg-gradient-to-r from-primary to-secondary">
+                <div className="flex flex-col justify-center gap-4 items-center p-4 md:p-8 rounded-lg bg-gradient-to-r from-primary to-secondary">
                     <h1 className="text-2xl sm:text-4xl text-white font-semibold">
                         Palay Procurement
                     </h1>
-                    <span className="w-1/2">
+                    <span className="md:w-1/2">
                         <IconField iconPosition="left">
                             <InputIcon className="">
-                                <Search className="text-white" size={18} />
+                                <Search className="text-white size-4 md:size-5" />
                             </InputIcon>
                             <InputText
-                                className="ring-0 w-full rounded-full text-white bg-transparent border border-white placeholder:text-white"
+                                className="py-2 md:py-3 text-sm md:text-base ring-0 w-full rounded-full text-white bg-transparent border border-white placeholder:text-white"
                                 value={globalFilterValue}
                                 onChange={onGlobalFilterChange}
                                 placeholder="Tap to search"
+                                maxLength="8"
                             />
                         </IconField>
                     </span>
@@ -308,26 +308,25 @@ function BuyPalay() {
 
                 {/* Data View */}
                 <div className="flex flex-col overflow-hidden rounded-lg">
-                    <div className="overflow-hidden bg-white flex flex-col gap-4 p-5">
+                    <div className="overflow-hidden bg-white flex flex-col gap-4 p-2 md:p-4 rounded-lg">
                         <div className="flex justify-between items-center">
-                            <div className="flex gap-4">
-                                <p className="font-medium text-black">
+                            <div className="flex items-center gap-2 md:gap-4">
+                                <p className="text-sm md:text-base font-medium text-black">
                                     Refresh Data
                                 </p>
                                 <RotateCw
-                                    size={25}
                                     onClick={fetchPalayData}
-                                    className="text-primary cursor-pointer hover:text-primaryHover"
+                                    className="size-4 md:size-5 text-primary cursor-pointer hover:text-primaryHover"
                                     title="Refresh data"
                                 />
                             </div>
 
                             <Button
-                                className="ring-0 border-0 text-white bg-gradient-to-r from-primary to-secondary flex flex-center justify-between items-center gap-4"
+                                className="ring-0 border-0 text-white bg-gradient-to-r from-primary to-secondary flex flex-center justify-between items-center gap-2 md:gap-4"
                                 onClick={handleAddPalay}
                             >
-                                <p className="font-medium">Buy Palay</p>
-                                <Plus size={18} />
+                                <p className="text-sm md:text-base font-medium">Buy Palay</p>
+                                <Plus className="size-4 md:size-5" />
                             </Button>
                         </div>
 
@@ -344,6 +343,7 @@ function BuyPalay() {
                                 rows={10}
                                 first={first}
                                 onPage={(e) => setFirst(e.first)}
+                                emptyMessage={<EmptyRecord label='No Inventory Data' />}
                                 totalRecords={palayCount}
                                 className="overflow-y-auto pb-16"
                                 paginatorClassName="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-300"
@@ -361,14 +361,14 @@ function BuyPalay() {
                 currentWSR={currentWSR}
             />
 
-      <PalayDetails
-        visible={showDetails}
-        onHide={() => setShowDetails(false)}
-        palay={selectedPalay}
-        onUpdate={handlePalayUpdate}
-      />
-    </StaffLayout>
-  );
+            <PalayDetails
+                visible={showDetails}
+                onHide={() => setShowDetails(false)}
+                palay={selectedPalay}
+                onUpdate={handlePalayUpdate}
+            />
+        </StaffLayout>
+    );
 }
 
 export default BuyPalay;

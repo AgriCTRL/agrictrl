@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { Carousel } from "primereact/carousel";
@@ -6,6 +6,8 @@ import { Avatar } from "primereact/avatar";
 import { Divider } from "primereact/divider";
 import { Button } from "primereact/button";
 import { Badge } from "primereact/badge";
+import { useMountEffect } from "primereact/hooks";
+import { Messages } from "primereact/messages";
 
 import {
     ArrowRightLeft,
@@ -13,6 +15,7 @@ import {
     ChevronRight,
     Factory,
     Fan,
+    HandHelping,
     Loader2,
     Undo2,
     User,
@@ -28,7 +31,6 @@ import QuickLinks from "../Components/QuickLinks";
 
 function Home({ isRightSidebarOpen }) {
     const { user } = useAuth();
-
     const [userFullName] = useState(`${user.firstName} ${user.lastName}`);
 
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -116,6 +118,36 @@ function Home({ isRightSidebarOpen }) {
         value: batch.status,
     }));
 
+    const msgs = useRef(null);
+    useMountEffect(() => {
+        if (msgs.current) {
+            msgs.current.clear();
+            msgs.current.show([
+                {
+                    severity: 'success',
+                    sticky: true,
+                    content: (
+                        <React.Fragment>
+                            <div className="flex items-center gap-2">
+                                <img alt="logo" src="/landingpage/nfa-logo.svg" width="32" />
+                                <Button
+                                    text
+                                    className="ring-0 transition-all gap-2 md:gap-4 hover:gap-6 hover:bg-transparent text-primary flex justify-between p-0"
+                                    onClick={() => navigate("/recipient/order")}
+                                >
+                                    <p className='text-sm md:text-base font-medium'>
+                                        Manage rice orders
+                                    </p>
+                                    <ChevronRight className='size-4 md:size-5' />
+                                </Button>
+                            </div>
+                        </React.Fragment>
+                    )
+                }
+            ]);
+        }
+    });
+
     // LEFT SIDEBAR
     const millingStatsSummary = [
         { icon: <Loader2 size={18} />, title: "Milling Requests", value: 0 },
@@ -131,7 +163,7 @@ function Home({ isRightSidebarOpen }) {
                     {/* Avatar */}
                     <Avatar
                         size="xlarge"
-                        image={'/landingpage/nfa-logo.svg' ?? null}
+                        image={"/landingpage/nfa-logo.svg" ?? null}
                         icon={<User size={24} />}
                         shape="circle"
                         className="cursor-pointer border-2 border-white text-primary bg-tag-grey absolute bottom-0 translate-y-1/2 shadow-lg"
@@ -145,9 +177,7 @@ function Home({ isRightSidebarOpen }) {
                                 ? userFullName
                                 : "username"}
                         </h1>
-                        <p className="text-sm text-gray-400">
-                            {user.userType}
-                        </p>
+                        <p className="text-sm text-gray-400">{user.userType}</p>
                     </div>
 
                     <Divider className="my-0" />
@@ -268,24 +298,33 @@ function Home({ isRightSidebarOpen }) {
         >
             <div className={`flex flex-row bg-[#F1F5F9] h-full`}>
                 {/* Main Content */}
-                <div className={`flex flex-col w-full h-full gap-4`}>
-                    <div className="flex flex-row justify-between items-center">
-                        <div className="flex flex-col text-black">
-                            <h1 className="text-xl">Welcome Back,</h1>
-                            <h1 className="text-2xl sm:text-4xl font-semibold">
+                <div className={`flex flex-col w-full h-full gap-2 md:gap-4`}>
+                    <div className="flex md:flex-row flex-col justify-between items-center">
+                        <div className="flex md:flex-col text-black gap-2">
+                            <h1 className="text-base md:text-xl">Welcome Back,</h1>
+                            <h1 className="text-base md:text-2xl sm:text-4xl font-semibold">
                                 {user.firstName ?? "User"}!
                             </h1>
                         </div>
                         <Button
                             text
-                            className="ring-0 transition-all gap-4 hover:gap-6 hover:bg-transparent text-primary flex justify-between"
+                            className="ring-0 transition-all gap-2 md:gap-4 hover:gap-6 hover:bg-transparent text-primary hidden md:flex justify-between p-0"
                             onClick={() => navigate("/miller/transactions")}
                         >
-                            <p className="text-md font-medium">
+                            <p className='text-sm md:text-base font-medium'>
                                 View milling transactions
                             </p>
-                            <ChevronRight size={18} />
+                            <ChevronRight className='size-4 md:size-5' />
                         </Button>
+                        <Messages 
+                            ref={msgs}
+                            className='block md:hidden w-full'
+                            pt={{
+                                wrapper: {
+                                    className: 'py-3 px-4'
+                                }
+                            }}
+                        />
                     </div>
 
                     {/* Carousel for Image Section */}
@@ -295,7 +334,7 @@ function Home({ isRightSidebarOpen }) {
                         numScroll={1}
                         className="custom-carousel"
                         itemTemplate={(item) => (
-                            <div className="relative rounded-lg overflow-hidden mb-2 md:h-70 sm:h-64">
+                            <div className="relative rounded-lg overflow-hidden mb-2 h-52 md:h-80">
                                 <div className="h-full">
                                     <img
                                         src={item.image}
@@ -303,17 +342,13 @@ function Home({ isRightSidebarOpen }) {
                                         className="w-full h-full object-cover"
                                     />
                                 </div>
-                                <div className="absolute bg-gradient-to-r from-[#1f1f1f] to-transparent inset-0 flex flex-col gap-4 p-10">
-                                    <div className="text-green-400 flex items-center gap-4">
-                                        <Fan />
-                                        <p>What We Offer</p>
+                                <div className="absolute bg-gradient-to-r from-[#1f1f1f] to-transparent inset-0 flex flex-col gap-2 md:gap-4 p-4 md:p-8">
+                                    <div className="text-primary flex items-center gap-2 md:gap-4">
+                                        <HandHelping className='size-4 md:size-5' />
+                                        <p className='text-sm md:text-base'>What We Offer</p>
                                     </div>
-                                    <h1 className="text-white text-heading font-bold mb-2">
-                                        {item.title}
-                                    </h1>
-                                    <p className="text-white mb-4">
-                                        {item.description}
-                                    </p>
+                                    <h1 className="text-white text-lg md:text-heading font-semibold">{item.title}</h1>
+                                    <p className="text-sm md:text-base text-white">{item.description}</p>
                                 </div>
                             </div>
                         )}
@@ -331,16 +366,14 @@ function Home({ isRightSidebarOpen }) {
 
                     <div className="flex flex-col gap-4">
                         <div className="flex flex-row justify-between items-center">
-                            <h1 className="text-xl font-medium">
-                                Quick Links
-                            </h1>
+                            <h1 className="text-base md:text-xl font-medium">Quick Links</h1>
                             <Button
                                 text
                                 className="ring-0 transition-all gap-4 hover:gap-6 hover:bg-transparent text-primary justify-between hidden"
                                 onClick={() => navigate("/miller/transactions")}
                             >
-                                <p className="text-md font-medium">View All</p>
-                                <ChevronRight size={18} />
+                                <p className='text-sm md:text-base font-medium'>View All</p>
+                                <ChevronRight className='size-4 md:size-5' />
                             </Button>
                         </div>
 

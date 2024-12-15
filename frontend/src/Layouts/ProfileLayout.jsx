@@ -1,7 +1,8 @@
 import React from 'react'
 
 import { Tag } from 'primereact/tag';
-import { User } from 'lucide-react';
+import { TabView, TabPanel } from 'primereact/tabview';
+import { User, User2 } from 'lucide-react';
 import { Avatar } from 'primereact/avatar';
 import { Button } from 'primereact/button';
 import { Divider } from 'primereact/divider';
@@ -39,9 +40,9 @@ const ProfileLayout = ({
     const userType = `NFA ${userData.accountDetails.branchOffice}`;
 
     const renderPersonalInformation = () => (
-        <div className="grid grid-cols-2 gap-4">
-            <div>
-                <label className="block mb-2 text-sm font-medium text-black">
+        <div className="grid grid-cols-2 gap-2 md:gap-4">
+            <div className='col-span-2 md:col-span-1'>
+                <label className="block mb-2 text-xs md:text-sm font-medium text-black">
                     First Name
                 </label>
                 <InputText
@@ -54,7 +55,7 @@ const ProfileLayout = ({
                         )
                     }
                     disabled={!editing}
-                    className="w-full focus:ring-0"
+                    className="w-full focus:ring-0 text-sm md:text-base"
                     keyfilter={/^[a-zA-Z\s]/}
                     maxLength={50}
                 />
@@ -64,8 +65,8 @@ const ProfileLayout = ({
                     </p>
                 )}
             </div>
-            <div>
-                <label className="block mb-2 text-sm font-medium text-black">
+            <div className='col-span-2 md:col-span-1'>
+                <label className="block mb-2 text-xs md:text-sm font-medium text-black">
                     Last Name
                 </label>
                 <InputText
@@ -78,7 +79,7 @@ const ProfileLayout = ({
                         )
                     }
                     disabled={!editing}
-                    className="w-full focus:ring-0"
+                    className="w-full focus:ring-0 text-sm md:text-base"
                     keyfilter={/^[a-zA-Z\s]/}
                     maxLength={50}
                 />
@@ -88,8 +89,8 @@ const ProfileLayout = ({
                     </p>
                 )}
             </div>
-            <div>
-                <label className="block mb-2 text-sm font-medium text-black">
+            <div className='col-span-2 md:col-span-1'>
+                <label className="block mb-2 text-xs md:text-sm font-medium text-black">
                     Gender
                 </label>
                 <Dropdown
@@ -99,14 +100,14 @@ const ProfileLayout = ({
                         handleInputChange("personalInfo", "gender", e.value)
                     }
                     disabled={!editing}
-                    className="ring-0 w-full placeholder:text-gray-400"
+                    className="ring-0 w-full text-sm md:text-base"
                 />
                 {errors.gender && (
                     <p className="text-red-500 text-xs mt-1">{errors.gender}</p>
                 )}
             </div>
-            <div>
-                <label className="block mb-2 text-sm font-medium text-black">
+            <div className='col-span-2 md:col-span-1'>
+                <label className="block mb-2 text-xs md:text-sm font-medium text-black">
                     Birth Date
                 </label>
                 <Calendar
@@ -121,6 +122,7 @@ const ProfileLayout = ({
                     disabled={!editing}
                     dateFormat="mm/dd/yy"
                     className="w-full rounded-md"
+                    inputClassName='text-sm md:text-base'
                     maxDate={maxDate}
                 />
                 {errors.birthDate && (
@@ -129,8 +131,8 @@ const ProfileLayout = ({
                     </p>
                 )}
             </div>
-            <div>
-                <label className="block mb-2 text-sm font-medium text-black">
+            <div className='col-span-2 md:col-span-1'>
+                <label className="block mb-2 text-xs md:text-sm font-medium text-black">
                     Contact Number
                 </label>
                 <InputText
@@ -143,7 +145,7 @@ const ProfileLayout = ({
                         )
                     }
                     disabled={!editing}
-                    className="w-full focus:ring-0"
+                    className="w-full focus:ring-0 text-sm md:text-base"
                     keyfilter="alphanum"
                     maxLength={25}
                 />
@@ -159,19 +161,19 @@ const ProfileLayout = ({
     const renderAccountDetails = () => (
         <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2">
-                <label className="block mb-2 text-sm font-medium text-black">
+                <label className="block mb-2 text-xs md:text-sm font-medium text-black">
                     User Type
                 </label>
                 <InputText
                     value={userData.accountDetails.userType}
                     disabled
-                    className="w-full border rounded-md border-gray-300"
+                    className="w-full border text-sm md:text-base"
                     keyfilter="alphanum"
                     maxLength={25}
                 />
             </div>
-            <div>
-                <label className="block mb-2 text-sm font-medium text-black">
+            <div className='col-span-2 md:col-span-1'>
+                <label className="block mb-2 text-xs md:text-sm font-medium text-black">
                     Organization Name
                 </label>
                 <InputText
@@ -184,7 +186,7 @@ const ProfileLayout = ({
                         )
                     }
                     disabled={!editing}
-                    className="w-full focus:ring-0"
+                    className="w-full focus:ring-0 text-sm md:text-base"
                     maxLength={50}
                 />
                 {errors.organizationName && (
@@ -193,8 +195,8 @@ const ProfileLayout = ({
                     </p>
                 )}
             </div>
-            <div>
-                <label className="block mb-2 text-sm font-medium text-black">
+            <div className='col-span-2 md:col-span-1'>
+                <label className="block mb-2 text-xs md:text-sm font-medium text-black">
                     Job Title/Position
                 </label>
                 <InputText
@@ -207,7 +209,7 @@ const ProfileLayout = ({
                         )
                     }
                     disabled={!editing}
-                    className="w-full focus:ring-0"
+                    className="w-full focus:ring-0 text-sm md:text-base"
                     keyfilter="alphanum"
                     maxLength={50}
                 />
@@ -218,27 +220,31 @@ const ProfileLayout = ({
                 )}
             </div>
             {branchRegionOptions && (
-                <div>
-                    <label className="block mb-2 text-sm font-medium text-gray-700">Branch Region</label>
+                <div className='col-span-2 md:col-span-1'>
+                    <label className="block mb-2 text-xs md:text-sm font-medium text-black">
+                        Branch Region
+                    </label>
                     <Dropdown
                         value={userData.accountDetails.branchRegion}
                         options={branchRegionOptions}
                         onChange={(e) => handleInputChange('accountDetails', 'branchRegion', e.value)}
                         disabled={!editing}
-                        className="ring-0 w-full placeholder:text-gray-400"
+                        className="ring-0 w-full text-sm md:text-base"
                     />
                     {errors.branchRegion && <p className="text-red-500 text-xs mt-1">{errors.branchRegion}</p>}
                 </div>
             )}
             {branchOfficeOptions && (
-                <div>
-                    <label className="block mb-2 text-sm font-medium text-gray-700">Branch Office</label>
+                <div className='col-span-2 md:col-span-1'>
+                    <label className="block mb-2 text-xs md:text-sm font-medium text-black">
+                        Branch Office
+                    </label>
                     <Dropdown
                         value={userData.accountDetails.branchOffice}
                         options={branchOfficeOptions}
                         onChange={(e) => handleInputChange('accountDetails', 'branchOffice', e.value)}
                         disabled={!editing}
-                        className="ring-0 w-full placeholder:text-gray-400"
+                        className="ring-0 w-full text-sm md:text-base"
                     />
                     {errors.branchOffice && <p className="text-red-500 text-xs mt-1">{errors.branchOffice}</p>}
                 </div>  
@@ -249,7 +255,7 @@ const ProfileLayout = ({
     const renderOfficeAddress = () => (
         <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2">
-                <label className="block mb-2 text-sm font-medium text-black">
+                <label className="block mb-2 text-xs md:text-sm font-medium text-black">
                     Region
                 </label>
                 <Dropdown
@@ -259,15 +265,15 @@ const ProfileLayout = ({
                         handleInputChange("officeAddress", "region", e.value)
                     }
                     disabled={!editing}
-                    className="ring-0 w-full placeholder:text-gray-400"
+                    className="ring-0 w-full text-sm md:text-base"
                 />
                 {errors.region && (
                     <p className="text-red-500 text-xs mt-1">{errors.region}</p>
                 )}
             </div>
             {userData.officeAddress.region !== "National Capital Region" && (
-                <div>
-                    <label className="block mb-2 text-sm font-medium text-black">
+                <div className='col-span-2 md:col-span-1'>
+                    <label className="block mb-2 text-xs md:text-sm font-medium text-black">
                         Province
                     </label>
                     <Dropdown
@@ -281,7 +287,7 @@ const ProfileLayout = ({
                             )
                         }
                         disabled={!editing}
-                        className="ring-0 w-full placeholder:text-gray-400"
+                        className="ring-0 w-full text-sm md:text-base"
                     />
                     {errors.province && (
                         <p className="text-red-500 text-xs mt-1">
@@ -290,8 +296,8 @@ const ProfileLayout = ({
                     )}
                 </div>
             )}
-            <div>
-                <label className="block mb-2 text-sm font-medium text-black">
+            <div className='col-span-2 md:col-span-1'>
+                <label className="block mb-2 text-xs md:text-sm font-medium text-black">
                     City/Town
                 </label>
                 <Dropdown
@@ -301,7 +307,7 @@ const ProfileLayout = ({
                         handleInputChange("officeAddress", "cityTown", e.value)
                     }
                     disabled={!editing}
-                    className="ring-0 w-full placeholder:text-gray-400"
+                    className="ring-0 w-full text-sm md:text-base"
                 />
                 {errors.cityTown && (
                     <p className="text-red-500 text-xs mt-1">
@@ -309,8 +315,8 @@ const ProfileLayout = ({
                     </p>
                 )}
             </div>
-            <div>
-                <label className="block mb-2 text-sm font-medium text-black">
+            <div className='col-span-2 md:col-span-1'>
+                <label className="block mb-2 text-xs md:text-sm font-medium text-black">
                     Barangay
                 </label>
                 <Dropdown
@@ -320,7 +326,7 @@ const ProfileLayout = ({
                         handleInputChange("officeAddress", "barangay", e.value)
                     }
                     disabled={!editing}
-                    className="ring-0 w-full placeholder:text-gray-400"
+                    className="ring-0 w-full text-sm md:text-base"
                 />
                 {errors.barangay && (
                     <p className="text-red-500 text-xs mt-1">
@@ -328,8 +334,8 @@ const ProfileLayout = ({
                     </p>
                 )}
             </div>
-            <div>
-                <label className="block mb-2 text-sm font-medium text-black">
+            <div className='col-span-2 md:col-span-1'>
+                <label className="block mb-2 text-xs md:text-sm font-medium text-black">
                     Street
                 </label>
                 <InputText
@@ -342,7 +348,7 @@ const ProfileLayout = ({
                         )
                     }
                     disabled={!editing}
-                    className="w-full focus:ring-0"
+                    className="w-full focus:ring-0 text-sm md:text-base"
                     maxLength={50}
                 />
                 {errors.street && (
@@ -353,9 +359,9 @@ const ProfileLayout = ({
     );
 
     const renderPassword = () => (
-        <div className="grid grid-cols-1 gap-4">
-            <div>
-                <label className="block mb-2 text-sm font-medium text-black">
+        <div className="grid grid-cols-1 gap-2 md:gap-4">
+            <div className='col-span-2 md:col-span-1'>
+                <label className="block mb-2 text-xs md:text-sm font-medium text-black">
                     Email
                 </label>
                 <InputText
@@ -368,7 +374,7 @@ const ProfileLayout = ({
                         )
                     }
                     disabled={!editing}
-                    className="w-full focus:ring-0"
+                    className="w-full focus:ring-0 text-sm md:text-base"
                     keyfilter="email"
                     maxLength={50}
                 />
@@ -377,9 +383,9 @@ const ProfileLayout = ({
                 )}
             </div>
             {editing && (
-                <div>
+                <div className='grid gap-2 md:gap-4'>
                     <div>
-                        <label className="block mb-2 text-sm font-medium text-black">
+                        <label className="block mb-2 text-xs md:text-sm font-medium text-black">
                             New Password
                         </label>
                         <Password
@@ -393,7 +399,7 @@ const ProfileLayout = ({
                                 )
                             }
                             disabled={!editing}
-                            inputClassName="w-full p-3 ring-0"
+                            inputClassName="w-full p-3 ring-0 text-sm md:text-base"
                             toggleMask
                             maxLength={50}
                             minLength={8}
@@ -406,7 +412,7 @@ const ProfileLayout = ({
                         )}
                     </div>
                     <div>
-                        <label className="block mb-2 text-sm font-medium text-black">
+                        <label className="block mb-2 text-xs md:text-sm font-medium text-black">
                             Confirm Password
                         </label>
                         <Password
@@ -419,7 +425,7 @@ const ProfileLayout = ({
                                 )
                             }
                             disabled={!editing}
-                            inputClassName="w-full p-3 ring-0"
+                            inputClassName="w-full p-3 ring-0 text-sm md:text-base"
                             toggleMask
                             feedback={false}
                             className="w-full"
@@ -484,29 +490,33 @@ const ProfileLayout = ({
                     <div className="absolute inset-0 bg-gradient-to-r from-secondary to-primary w-full h-32"></div>
                     <Avatar 
                         image={'/landingpage/nfa-logo.svg' ?? null} 
-                        icon={<User size={24} />}
+                        icon={<User className='size-4 md:size-6' />}
                         shape="circle"
-                        className="cursor-pointer border-2 border-white text-primary bg-tag-grey absolute bottom-0 translate-y-2/3 shadow-lg w-[8rem] h-[8rem]"
+                        className="cursor-pointer border-2 border-white text-primary bg-tag-grey absolute bottom-0 translate-y-1/2 md:translate-y-2/3 left-1/2 md:left-8 -translate-x-1/2 md:-translate-x-0 size-[8rem]"
                     />
                 </div>
 
-                <div className="ps-48 py-4 pe-4 w-full flex justify-between items-center">
-                    <div className="flex flex-col gap-2">
+                <div className="ps-0 md:ps-48 py-4 pe-0 md:pe-4 pt-16 md:pt-4 gap-4 w-full flex flex-col md:flex-row justify-between items-center">
+                    <div className="flex flex-col items-center md:items-start">
                         <h1 className='text-2xl sm:text-4xl text-black font-semibold'>
                             {user.firstName} {user.lastName}
                         </h1>
-                        <div className='flex gap-2'>
-                            {userData.accountDetails.branchOffice && <Tag value={userType} className="bg-primary font-semibold w-fit px-4" rounded />}
-                            <Tag value={userData.accountDetails.jobTitlePosition} className="bg-primary font-semibold w-fit px-4" rounded />
-                        </div>
+                        <Tag 
+                            className='bg-primary p-2 px-4 w-fit'
+                        >
+                            <div className="font-normal flex items-center gap-1">
+                                <User2 className='size-3 md:size-4'/>
+                                <p className='text-xs md:text-xs'>{userData.accountDetails.userType ?? "User Type"}</p>
+                            </div>
+                        </Tag>
                     </div>
 
-                    <div className='flex justify-end gap-2'>
+                    <div className='w-full md:w-auto flex justify-end gap-2'>
                         <Button
                             label={editing ? "Cancel" : "Edit"}
                             type="button"
                             onClick={handleToggleEdit}
-                            className={`text-white border-0 ring-0 ${
+                            className={`w-1/2 md:w-auto text-sm md:text-base text-white border-0 ring-0 ${
                                 editing 
                                     ? 'bg-red-500 hover:bg-red-600' 
                                     : 'bg-green-500 hover:bg-green-600'
@@ -518,14 +528,14 @@ const ProfileLayout = ({
                                 disabled={isSubmitting}
                                 onClick={handleSave}
                                 type="submit"
-                                className='text-white bg-primary hover:bg-primaryHover'
+                                className='w-1/2 md:w-auto text-sm md:text-base text-white bg-primary hover:bg-primaryHover'
                             />
                         )}
                         <Button
                             label="Logout" 
                             onClick={logoutButton} 
                             outlined
-                            className='text-black flex justify-center h-fit'
+                            className='w-1/2 md:w-auto text-sm md:text-base text-red-500 flex justify-center h-fit'
                         />
                     </div>
                 </div>
@@ -533,27 +543,21 @@ const ProfileLayout = ({
             </div>
 
             <div className='flex justify-between flex-col w-full'>
-                <div className="flex justify-between mb-4">
+                <TabView className='sms-tabview overflow-hidden'>
                     {tabs.map((tab) => (
-                        <button
-                            key={tab.id}
-                            onClick={() => setActiveTab(tab.id)}
-                            className={`px-4 py-2 w-full font-medium ${
-                                activeTab === tab.id
-                                    ? 'text-green-500 border-b-2 border-green-500'
-                                    : 'text-gray-500 border-b-2 border-gray-300 hover:text-green-500'
-                            }`}
+                        <TabPanel 
+                            key={tab.id} 
+                            header={tab.label}
+                            pt={{
+                                root: "p-0",
+                                headerTitle: "text-sm md:text-base font-normal text-black",
+                                headerAction: "p-4 h-fit border-b-2",
+                            }}
                         >
-                            {tab.label}
-                        </button>
+                            {tab.content()}
+                        </TabPanel>
                     ))}
-                </div>
-
-                <form onSubmit={handleSave} className="flex flex-col justify-between h-full px-8">
-                    <div className="mt-4">
-                        {tabs.find(tab => tab.id === activeTab).content()}
-                    </div>
-                </form>
+                </TabView>
             </div>
         </div>
     )
