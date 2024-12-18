@@ -7,7 +7,8 @@ import { InputText } from 'primereact/inputtext';
 import { IconField } from 'primereact/iconfield';
 import { InputIcon } from 'primereact/inputicon';
 import { FilterMatchMode } from 'primereact/api';
-import { Download, Wheat } from 'lucide-react';
+import { Wheat, FileMinus, FileSpreadsheet, FileType } from 'lucide-react';
+import * as XLSX from 'xlsx';
 
 import AdminLayout from '@/Layouts/Admin/AdminLayout';
 import pdfLandscapeExport from '../../../Components/Pdf/pdfLandscapeExport';
@@ -130,6 +131,57 @@ function Inventory() {
         pdfLandscapeExport('Inventory Data Export', columns, data);
     };
 
+    const exportCsv = () => {
+        const dataToExport = inventoryData.map(inventory => ({
+            'ID': inventory.id,
+            'Date Bought': formatDate(inventory.dateBought),
+            'Quantity (Bags)': inventory.quantityBags,
+            'Quality Type': inventory.qualityType,
+            'Price': inventory.price,
+            'Farmer': inventory.palaySupplier.farmerName,
+            'Origin Farm': inventory.farm.region,
+            'Current Location': inventory.currentlyAt,
+            'Status': inventory.status,
+        }));
+
+        // Convert to CSV
+        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+        const csvContent = XLSX.utils.sheet_to_csv(worksheet);
+
+        // Create and download CSV file
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', 'inventory_export.csv');
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    const exportExcel = () => {
+        const dataToExport = inventoryData.map(inventory => ({
+            'ID': inventory.id,
+            'Date Bought': formatDate(inventory.dateBought),
+            'Quantity (Bags)': inventory.quantityBags,
+            'Quality Type': inventory.qualityType,
+            'Price': inventory.price,
+            'Farmer': inventory.palaySupplier.farmerName,
+            'Origin Farm': inventory.farm.region,
+            'Current Location': inventory.currentlyAt,
+            'Status': inventory.status,
+        }));
+
+        // Create workbook and worksheet
+        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Inventory');
+
+        // Generate and download Excel file
+        XLSX.writeFile(workbook, 'inventory_export.xlsx');
+    };
+
     const formatDate = (isoString) => {
         if (!isoString) return 'N/A';
         const date = new Date(isoString);
@@ -151,14 +203,30 @@ function Inventory() {
                             className="w-full ring-0 hover:border-primary focus:border-primary placeholder:text-light-grey"
                         />
                     </IconField>
-                    <div className="flex justify-end w-1/2">
-                        <Button
+                    <div className="flex gap-2 justify-end w-1/2">
+                    <Button
                             type="button"
                             className="flex flex-center justify-self-end items-center gap-4 bg-primary hover:bg-primaryHover border ring-0"
                             onClick={exportPdf}
                         >
-                            <Download size={20} />
-                            <p className="font-semibold">Export</p>
+                            <FileType size={20} />
+                            <p className="font-semibold">PDF</p>
+                        </Button>
+                        <Button
+                            type="button"
+                            className="flex flex-center justify-self-end items-center gap-4 bg-primary hover:bg-primaryHover border ring-0"
+                            onClick={exportCsv}
+                        >
+                            <FileMinus size={20} />
+                            <p className="font-semibold">CSV</p>
+                        </Button>
+                        <Button
+                            type="button"
+                            className="flex flex-center justify-self-end items-center gap-4 bg-primary hover:bg-primaryHover border ring-0"
+                            onClick={exportExcel}
+                        >
+                            <FileSpreadsheet size={20} />
+                            <p className="font-semibold">Excel</p>
                         </Button>
                     </div>
                 </div>

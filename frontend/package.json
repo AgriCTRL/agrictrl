@@ -42,7 +42,8 @@
     "react-transition-group": "^4.4.5",
     "simple-parallax-js": "^6.0.1",
     "tailwind-merge": "^2.5.5",
-    "uuid": "^10.0.0"
+    "uuid": "^10.0.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/react": "^18.3.3",
