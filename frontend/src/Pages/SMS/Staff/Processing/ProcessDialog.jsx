@@ -474,7 +474,7 @@ const ProcessDialog = ({
                                         dryingMethod: e.value,
                                     }))
                                 }
-                                className="ring-0 border-0 flex items-center justify-between gap-4 md:hidden px-4 py-3"
+                                className="ring-0 border-0 flex items-center justify-between gap-4 px-4 py-3"
                                 pt={{
                                     root: "bg-primary rounded-full",
                                     input: "text-sm text-white p-0",

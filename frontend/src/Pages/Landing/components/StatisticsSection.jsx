@@ -34,7 +34,7 @@ const StatisticsSection = () => {
             ] = await Promise.all([
                 fetchCount("palaybatches/count"),
                 fetchCount("palaysuppliers/count"),
-                fetchCount("ricebatches/count"),
+                fetchCount("palaybatches/count/milled"),
                 fetchCount("riceorders/received/count"),
                 fetchCount("users/recipients/count")
             ]);
