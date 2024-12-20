@@ -8,7 +8,8 @@ import {
   getWarehouseInventoryStock, 
   getMillersEfficiencyComparison,
   getRiceInventoryTimeSeries,
-  getRiceOrderAnalytics
+  getRiceOrderAnalytics,
+  getProcessingStatusAnalytics
 } from "./db";
 
 const router = express.Router();
@@ -66,6 +67,15 @@ router.get('/rice-order-analytics', async (_req, res) => {
     res.json(analytics);
   } catch (error) {
     res.status(500).json({ error: 'Error fetching rice order analytics' });
+  }
+});
+
+router.get("/processing-status", async (_req, res) => {
+  try {
+      const processingStatus = await getProcessingStatusAnalytics();
+      res.json(processingStatus);
+  } catch (error) {
+      res.status(500).json({ error: 'Error fetching processing status analytics' });
   }
 });
 

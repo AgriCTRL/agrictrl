@@ -3,71 +3,73 @@ import { Wheat } from 'lucide-react';
 import { Chart } from 'primereact/chart';
 import CardComponent from '../../CardComponent';
 
-const ProcessingStatusChart = ({ palayBatches, setInterpretations }) => {
+const ProcessingStatusChart = ({ setInterpretations, apiUrl }) => {
     const [chartData, setChartData] = useState({});
     const [chartOptions, setChartOptions] = useState({});
-    const [processingStatusGroups, setProcessingStatusGroups] = useState({ 'In Drying': 0, 'In Milling': 0 });
+    const [processingStatusGroups, setProcessingStatusGroups] = useState({ 
+        inDrying: 0, 
+        inMilling: 0 
+    });
 
     useEffect(() => {
-        // Check if palayBatches exists and has the data property
-        if (!palayBatches?.data || palayBatches.data.length === 0) return;
+        const fetchProcessingStatus = async () => {
+            try {
+                const response = await fetch(`${apiUrl}/analytics/processing-status`);
+                const data = await response.json();
+                const { inDrying, inMilling } = data;
 
-        const documentStyle = getComputedStyle(document.documentElement);
-        const textColor = documentStyle.getPropertyValue('--text-color');
+                setProcessingStatusGroups({ inDrying, inMilling });
 
-        // Calculate net weight totals for each processing status
-        const updatedProcessingStatusGroups = { 'In Drying': 0, 'In Milling': 0 };
-        palayBatches.data.forEach(batch => {
-            if (batch.status === 'In Drying') {
-                updatedProcessingStatusGroups['In Drying'] += batch.netWeight;
-            } else if (batch.status === 'In Milling') {
-                updatedProcessingStatusGroups['In Milling'] += batch.netWeight;
+                const documentStyle = getComputedStyle(document.documentElement);
+                const textColor = documentStyle.getPropertyValue('--text-color');
+
+                // Set up chart data
+                setChartData({
+                    labels: ['In Drying', 'In Milling'],
+                    datasets: [
+                        {
+                            label: 'Palay Batches (KG)',
+                            data: [inDrying, inMilling],
+                            backgroundColor: ['#2196F3', '#FFC107']
+                        }
+                    ]
+                });
+
+                // Configure chart options
+                setChartOptions({
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false,
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: textColor },
+                        },
+                        y: {
+                            ticks: { color: textColor },
+                            beginAtZero: true
+                        }
+                    }
+                });
+
+                // Generate the interpretation
+                const generatedInterpretation = `In Drying: ${inDrying}, In Milling: ${inMilling}`;
+
+                // Update the interpretations
+                setInterpretations((prev) => ({
+                    ...prev,
+                    'processing-status-chart': generatedInterpretation
+                }));
+            } catch (error) {
+                console.error('Error fetching processing status:', error);
             }
-        });
+        };
 
-        setProcessingStatusGroups(updatedProcessingStatusGroups);
-
-        // Set up chart data
-        setChartData({
-            labels: ['In Drying', 'In Milling'],
-            datasets: [
-                {
-                    label: 'Palay Batches (KG)',
-                    data: [updatedProcessingStatusGroups['In Drying'], updatedProcessingStatusGroups['In Milling']],
-                    backgroundColor: ['#2196F3', '#FFC107']
-                }
-            ]
-        });
-
-        // Configure chart options
-        setChartOptions({
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false,
-                }
-            },
-            scales: {
-                x: {
-                    ticks: { color: textColor },
-                },
-                y: {
-                    ticks: { color: textColor },
-                    beginAtZero: true
-                }
-            }
-        });
-
-        // Generate the interpretation as a string
-        const generatedInterpretation = `In Drying: ${updatedProcessingStatusGroups['In Drying']}, In Milling: ${updatedProcessingStatusGroups['In Milling']}`;
-
-        // Update the interpretations
-        setInterpretations((prev) => ({
-            ...prev,
-            'processing-status-chart': generatedInterpretation
-        }));
-    }, [palayBatches, setInterpretations]);
+        fetchProcessingStatus();
+    }, [setInterpretations]);
 
     return (
         <CardComponent className="w-full h-96">
@@ -92,11 +94,15 @@ const ProcessingStatusChart = ({ palayBatches, setInterpretations }) => {
                 <div className="grid grid-cols-2 gap-4 text-sm">
                     <div className="flex justify-between items-center p-2 bg-blue-50 rounded">
                         <span className="font-medium text-gray-700">In Drying:</span>
-                        <span className="font-bold text-blue-600">{processingStatusGroups['In Drying']} KG</span>
+                        <span className="font-bold text-blue-600">
+                            {processingStatusGroups.inDrying} KG
+                        </span>
                     </div>
                     <div className="flex justify-between items-center p-2 bg-yellow-50 rounded">
                         <span className="font-medium text-gray-700">In Milling:</span>
-                        <span className="font-bold text-yellow-600">{processingStatusGroups['In Milling']} KG</span>
+                        <span className="font-bold text-yellow-600">
+                            {processingStatusGroups.inMilling} KG
+                        </span>
                     </div>
                 </div>
             </div>

@@ -166,7 +166,7 @@ function Dashboard() {
             <UserDemographic supplierCategories={supplierCategories} setInterpretations={setInterpretations}/>
 
             <CardComponent className="bg-white transition hover:shadow-lg row-span-1">
-              <ProcessingStatusChart palayBatches={palayBatches} setInterpretations={setInterpretations}/>
+              <ProcessingStatusChart apiUrl={apiUrl} setInterpretations={setInterpretations}/>
             </CardComponent>
 
             {/* <CardComponent className="bg-white transition hover:shadow-lg">

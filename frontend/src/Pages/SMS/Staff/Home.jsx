@@ -31,8 +31,7 @@ import QuickLinks from '../Components/QuickLinks';
 import TransacSummaryCarousel from '../Components/TransacSummaryCarousel';
 
 function Home({ isRightSidebarOpen }) {
-    // const { user } = useAuth();
-    const [user] = useState({ firstName: 'John', lastName: 'Doe', email: 'jy6kS@example.com', userType: 'staff', jobTitlePosition: 'Procurement Officer' });
+    const { user } = useAuth();
     const [userFullName] = useState(`${user.firstName} ${user.lastName}`);
 
     const apiUrl = import.meta.env.VITE_API_BASE_URL;

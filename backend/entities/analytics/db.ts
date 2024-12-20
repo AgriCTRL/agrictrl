@@ -381,4 +381,36 @@ export async function getRiceOrderAnalytics(): Promise<{ labels: string[]; data:
       throw error;
     }
 }
+
+// Processing Status
+export async function getProcessingStatusAnalytics(): Promise<{
+    inDrying: number;
+    inMilling: number;
+}> {
+    try {
+        // Retrieve all PalayBatches
+        const palayBatches = await PalayBatch.find();
+
+        // Initialize accumulators
+        let inDrying = 0;
+        let inMilling = 0;
+
+        // Calculate total netWeight for each status
+        palayBatches.forEach(batch => {
+            if (batch.status === 'In Drying') {
+                inDrying += batch.netWeight || 0;
+            } else if (batch.status === 'In Milling') {
+                inMilling += batch.netWeight || 0;
+            }
+        });
+
+        return {
+            inDrying,
+            inMilling
+        };
+    } catch (error) {
+        console.error("Error in getProcessingStatusAnalytics:", error);
+        throw error;
+    }
+}
   

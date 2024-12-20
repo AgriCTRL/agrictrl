@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { InputText } from "primereact/inputtext";
 import { Dropdown } from "primereact/dropdown";
+import { ChevronDown } from "lucide-react";
 
 const LogisticsInfoForm = ({
     palayData,
